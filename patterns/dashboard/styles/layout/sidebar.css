@@ -1,0 +1,102 @@
+/* Sidebar styles */
+.sidebar-card {
+  background-color: white;
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--space-4);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar-title {
+  font-weight: 600;
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-1);
+}
+
+.sidebar-subtitle {
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--space-2);
+  color: var(--neutral-800);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+  background-color: var(--neutral-100);
+}
+
+.nav-link.active {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.nav-icon {
+  width: var(--space-5);
+  margin-right: var(--space-3);
+  text-align: center;
+}
+
+.market-status-badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  margin-right: var(--space-2);
+}
+
+.status-open {
+  background-color: var(--success-light);
+  color: var(--success);
+}
+
+.status-closed {
+  background-color: var(--danger-light);
+  color: var(--danger);
+}
+
+.condition-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.condition-label {
+  color: var(--neutral-500);
+}
+
+.condition-value {
+  font-weight: 500;
+}
+
+.condition-value.bullish {
+  color: var(--success);
+}
+
+.condition-value.bearish {
+  color: var(--danger);
+}
+
+.condition-value.neutral {
+  color: var(--warning);
+} 

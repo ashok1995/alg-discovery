@@ -1,0 +1,4 @@
+# This file controls which pages are visible in the Streamlit navigation
+[pages]
+# Hide all automatically detected pages
+visibility = "hidden" 

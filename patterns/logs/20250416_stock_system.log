@@ -1,0 +1,889 @@
+2025-04-16 14:28:45,040 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:28:45,967 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:37:20,850 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:37:20,941 - data.mongodb - ERROR - Error getting latest market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:37:21,026 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:37:21,026 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:37:21,026 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:37:46,815 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:37:46,817 - data.mongodb - ERROR - Error getting latest market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:37:46,901 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:37:46,901 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:37:46,901 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:40:28,730 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:40:28,882 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:40:28,882 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:40:28,882 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:40:30,105 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:40:30,414 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:40:30,414 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:40:30,414 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:40:30,874 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:40:30,930 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:40:30,930 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:40:30,931 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:41:53,547 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:41:53,621 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:41:53,621 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:41:53,621 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:41:54,701 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:41:54,766 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:41:54,766 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:41:54,766 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:41:55,238 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:41:55,292 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:41:55,292 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:41:55,292 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:41:55,759 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:41:55,814 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:41:55,814 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:41:55,815 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:41:56,275 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:41:56,324 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:41:56,324 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:41:56,324 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:44:38,825 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:44:38,978 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:44:38,978 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:44:38,978 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:44:39,808 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:44:39,886 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:44:39,886 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:44:39,886 - data.mongodb - ERROR - Error saving market condition: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,274 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:31,438 - data.yahoo - WARNING - No data found for ^NSEI.NS
+2025-04-16 14:48:31,439 - analysis.market_condition - WARNING - Insufficient data for market condition analysis
+2025-04-16 14:48:31,476 - data.mongodb - INFO - Saved market condition
+2025-04-16 14:48:31,555 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:31,558 - dashboard.home - ERROR - Error in left column: 'int' object has no attribute 'replace'
+2025-04-16 14:48:31,558 - dashboard.home - ERROR - Error getting active trades: 'MongoDB' object has no attribute 'get_active_trades'
+2025-04-16 14:48:31,559 - data.mongodb - ERROR - Error getting latest performance metrics: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,559 - data.mongodb - ERROR - Error getting closed trades: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,560 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,561 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,562 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,562 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,805 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:31,821 - dashboard.home - ERROR - Error in left column: 'int' object has no attribute 'replace'
+2025-04-16 14:48:31,821 - dashboard.home - ERROR - Error getting active trades: 'MongoDB' object has no attribute 'get_active_trades'
+2025-04-16 14:48:31,822 - data.mongodb - ERROR - Error getting latest performance metrics: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,822 - data.mongodb - ERROR - Error getting closed trades: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,823 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,824 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,824 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:31,824 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:43,099 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:43,182 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:43,183 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:43,184 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:46,490 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:46,501 - __main__ - ERROR - Error loading page Swing Trading: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 14:48:49,214 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:49,231 - __main__ - ERROR - Error loading page Long-Term Investment: cannot import name 'get_stock_fundamentals' from 'data.yahoo' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/data/yahoo.py)
+2025-04-16 14:48:51,743 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:51,783 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:51,785 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:51,786 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:48:54,544 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:48:54,555 - __main__ - ERROR - Error loading page Backtest: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 14:49:05,019 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:49:05,031 - dashboard.home - ERROR - Error in left column: 'int' object has no attribute 'replace'
+2025-04-16 14:49:05,031 - dashboard.home - ERROR - Error getting active trades: 'MongoDB' object has no attribute 'get_active_trades'
+2025-04-16 14:49:05,031 - data.mongodb - ERROR - Error getting latest performance metrics: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:49:05,032 - data.mongodb - ERROR - Error getting closed trades: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:49:05,032 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:49:05,033 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:49:05,033 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:49:05,033 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:26,031 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:59:26,216 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:59:26,282 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:26,304 - dashboard.home - ERROR - Error getting active trades: 'MongoDB' object has no attribute 'get_active_trades'
+2025-04-16 14:59:26,304 - data.mongodb - ERROR - Error getting latest performance metrics: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:26,305 - data.mongodb - ERROR - Error getting closed trades: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:26,306 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:26,306 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:26,306 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:26,307 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:51,911 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:59:51,961 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:51,987 - dashboard.home - ERROR - Error getting active trades: 'MongoDB' object has no attribute 'get_active_trades'
+2025-04-16 14:59:51,988 - data.mongodb - ERROR - Error getting latest performance metrics: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:51,989 - data.mongodb - ERROR - Error getting closed trades: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:51,990 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:51,991 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:51,991 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:51,992 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:53,058 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 14:59:53,093 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:53,104 - dashboard.home - ERROR - Error getting active trades: 'MongoDB' object has no attribute 'get_active_trades'
+2025-04-16 14:59:53,105 - data.mongodb - ERROR - Error getting latest performance metrics: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:53,105 - data.mongodb - ERROR - Error getting closed trades: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:53,106 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:53,107 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:53,107 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 14:59:53,107 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:00,477 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:02:00,533 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:02:00,534 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:00,536 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:05,190 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:02:05,197 - __main__ - ERROR - Error loading page Swing Trading: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 15:02:06,779 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:02:06,786 - __main__ - ERROR - Error loading page Long-Term Investment: cannot import name 'get_stock_fundamentals' from 'data.yahoo' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/data/yahoo.py)
+2025-04-16 15:02:08,027 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:02:08,050 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:02:08,051 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:08,052 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:08,673 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:02:08,680 - __main__ - ERROR - Error loading page Backtest: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 15:02:12,938 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:02:12,966 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:12,974 - dashboard.home - ERROR - Error getting active trades: 'MongoDB' object has no attribute 'get_active_trades'
+2025-04-16 15:02:12,974 - data.mongodb - ERROR - Error getting latest performance metrics: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:12,975 - data.mongodb - ERROR - Error getting closed trades: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:12,976 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:12,976 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:12,977 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:02:12,978 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:20:10,140 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:20:10,140 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:20:10,274 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:20:10,316 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:20:10,507 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:20:10,996 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:20:11,022 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:25:32,191 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:25:32,365 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:25:32,382 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:25:32,429 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:25:32,431 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:27:54,089 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:27:54,304 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:27:54,340 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:27:54,365 - dashboard.home - ERROR - Dashboard error: There are multiple widgets with the same `key='new_trade'`.
+
+To fix this, please make sure that the `key` argument is unique for each
+widget you create.
+2025-04-16 15:27:54,912 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:27:54,937 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:27:54,967 - dashboard.home - ERROR - Dashboard error: There are multiple widgets with the same `key='new_trade'`.
+
+To fix this, please make sure that the `key` argument is unique for each
+widget you create.
+2025-04-16 15:28:06,376 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:06,436 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:06,437 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:28:06,438 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:28:07,132 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:07,142 - __main__ - ERROR - Error loading page Swing Trading: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 15:28:07,765 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:07,777 - __main__ - ERROR - Error loading page Long-Term Investment: cannot import name 'get_stock_fundamentals' from 'data.yahoo' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/data/yahoo.py)
+2025-04-16 15:28:08,457 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:08,489 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:08,490 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:28:08,491 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:28:09,586 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:09,607 - __main__ - ERROR - Error loading page Backtest: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 15:28:10,712 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:10,733 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:28:10,744 - dashboard.home - ERROR - Dashboard error: There are multiple widgets with the same `key='new_trade'`.
+
+To fix this, please make sure that the `key` argument is unique for each
+widget you create.
+2025-04-16 15:28:47,973 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:48,166 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:28:48,207 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:28:48,233 - dashboard.home - ERROR - Dashboard error: There are multiple widgets with the same `key='new_trade'`.
+
+To fix this, please make sure that the `key` argument is unique for each
+widget you create.
+2025-04-16 15:35:13,304 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:35:13,517 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:35:13,568 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:35:13,656 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:35:13,689 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:56:18,480 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:18,481 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:18,652 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:18,693 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:56:18,876 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:56:26,086 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:26,115 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:56:27,530 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:27,559 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:27,560 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:56:27,561 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:56:29,402 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:29,411 - __main__ - ERROR - Error loading page Swing Trading: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 15:56:30,528 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:30,536 - __main__ - ERROR - Error loading page Long-Term Investment: cannot import name 'get_stock_fundamentals' from 'data.yahoo' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/data/yahoo.py)
+2025-04-16 15:56:31,455 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:31,484 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:31,485 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:56:31,486 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:56:32,003 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:32,017 - __main__ - ERROR - Error loading page Backtest: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 15:56:32,966 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:56:32,984 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:57:26,116 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:57:26,315 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:57:26,352 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 15:59:56,505 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:59:56,714 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 15:59:56,759 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:03:50,618 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:03:50,814 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:03:50,848 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:03:53,301 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:03:53,332 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:05:32,311 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:32,511 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:32,553 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:05:42,012 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:42,030 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:05:42,839 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:42,870 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:42,871 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:05:42,872 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:05:44,772 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:44,782 - __main__ - ERROR - Error loading page Swing Trading: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 16:05:47,157 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:47,168 - __main__ - ERROR - Error loading page Long-Term Investment: cannot import name 'get_stock_fundamentals' from 'data.yahoo' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/data/yahoo.py)
+2025-04-16 16:05:47,769 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:47,780 - __main__ - ERROR - Error loading page Swing Trading: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 16:05:48,343 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:48,354 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:05:48,355 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:05:48,962 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:05:48,979 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:07:47,305 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:07:47,587 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:07:47,650 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:12:10,086 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:10,291 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:10,328 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:12:19,324 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:19,353 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:12:20,729 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:20,760 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:20,761 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:12:20,762 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:12:22,191 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:22,216 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:12:23,199 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:23,209 - __main__ - ERROR - Error loading page Long-Term Investment: cannot import name 'get_stock_fundamentals' from 'data.yahoo' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/data/yahoo.py)
+2025-04-16 16:12:24,152 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:24,185 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:24,187 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:12:24,187 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:12:24,998 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:25,011 - __main__ - ERROR - Error loading page Backtest: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 16:12:26,815 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:12:26,846 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:14:11,418 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:14:11,627 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:14:11,661 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:14:18,196 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:14:18,209 - __main__ - ERROR - Error loading page Swing Trading: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 16:14:21,318 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:14:21,344 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:18:52,554 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:18:52,762 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:18:52,792 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:18:52,838 - dashboard.home - ERROR - Error rendering trading opportunities: 'dict' object has no attribute 'get_scan_results'
+2025-04-16 16:23:16,643 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:23:16,718 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:23:16,748 - dashboard.home - ERROR - Error rendering trading opportunities: 'dict' object has no attribute 'get_scan_results'
+2025-04-16 16:25:52,290 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:25:52,484 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:25:52,486 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:25:53,286 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:25:53,299 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:38:43,339 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:38:43,339 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:38:43,478 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:38:43,479 - __main__ - ERROR - Error loading page Home: `set_page_config()` can only be called once per app, and must be called as the first Streamlit command in your script.
+
+For more information refer to the [docs](https://docs.streamlit.io/library/api-reference/utilities/st.set_page_config).
+2025-04-16 16:38:43,671 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:38:43,672 - __main__ - ERROR - Error loading page Home: `set_page_config()` can only be called once per app, and must be called as the first Streamlit command in your script.
+
+For more information refer to the [docs](https://docs.streamlit.io/library/api-reference/utilities/st.set_page_config).
+2025-04-16 16:40:04,400 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:40:04,499 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:40:04,499 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:40:04,500 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:40:04,546 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:40:04,546 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:40:04,549 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:40:04,550 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:40:05,037 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:40:05,037 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:40:05,037 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:40:05,049 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:40:05,049 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:40:05,052 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:40:05,053 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:43:30,174 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:46:53,962 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:46:54,052 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:46:54,141 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:46:54,143 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:46:54,143 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:46:54,193 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:46:54,193 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:46:54,196 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:46:54,196 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:46:54,936 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:46:54,944 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:46:54,945 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:46:54,945 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:46:54,954 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:46:54,955 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:46:54,957 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:46:54,957 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:47:24,827 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:24,838 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:47:24,838 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:47:24,839 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:24,852 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:47:24,853 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:47:24,857 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:47:24,858 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:47:26,112 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:26,143 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:26,145 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:26,146 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:28,206 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:28,223 - __main__ - ERROR - Error in dashboard app: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 16:47:29,531 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:29,543 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:47:29,544 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:47:29,544 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:29,554 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:47:29,555 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:47:29,557 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:47:29,558 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:47:31,965 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:31,974 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:47:31,975 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:47:31,976 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:31,986 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:47:31,987 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:47:31,989 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:47:31,991 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:47:33,618 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:33,626 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:47:33,627 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:47:33,628 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:33,638 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:47:33,638 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:47:33,642 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:47:33,643 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:47:35,057 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:35,069 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:47:35,071 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:47:35,071 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:35,081 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:47:35,081 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:47:35,083 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:47:35,085 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:47:38,556 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:38,577 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:47:38,578 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:47:38,578 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:38,588 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:47:38,589 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:47:38,605 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:47:38,607 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:47:40,607 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:40,620 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:47:40,621 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:47:40,622 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:40,632 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:47:40,632 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:47:40,635 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:47:40,636 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:47:41,320 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:41,352 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:41,354 - data.mongodb - ERROR - Error getting scan results: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:41,355 - data.mongodb - ERROR - Error getting watchlist: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:47:52,795 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:47:52,807 - __main__ - ERROR - Error in dashboard app: name 'DEFAULT_RISK_PERCENT' is not defined
+2025-04-16 16:48:09,989 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:48:10,003 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:48:10,004 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:48:10,004 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:48:10,016 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:48:10,016 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:48:10,018 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:48:10,019 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:49:00,701 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:49:00,712 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:49:00,712 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:49:00,713 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:49:00,723 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:49:00,723 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:49:00,725 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:49:00,726 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:49:02,352 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:49:02,359 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:49:02,361 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:49:02,361 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:49:02,370 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:49:02,370 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:49:02,373 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:49:02,375 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:49:03,201 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:49:03,209 - dashboard.home - ERROR - Error rendering dashboard header: name 'render_dashboard_header' is not defined
+2025-04-16 16:49:03,210 - dashboard.home - ERROR - Error rendering market indices: name 'render_main_indices' is not defined
+2025-04-16 16:49:03,211 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 16:49:03,220 - dashboard.home - ERROR - Error rendering sector performance: name 'render_sector_performance' is not defined
+2025-04-16 16:49:03,221 - dashboard.home - ERROR - Error rendering market movers: render_market_movers() missing 2 required positional arguments: 'gainers' and 'losers'
+2025-04-16 16:49:03,223 - dashboard.home - ERROR - Error rendering news feed: render_news_feed() missing 1 required positional argument: 'news_items'
+2025-04-16 16:49:03,224 - dashboard.home - ERROR - Error rendering trading opportunities: name 'render_trading_opportunities_cards' is not defined
+2025-04-16 16:55:51,032 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:55:51,110 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 16:55:51,202 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 16:55:51,203 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:08:27,235 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:08:27,304 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:08:27,394 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:08:27,394 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:08:28,313 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:08:28,330 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:08:28,332 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:09:51,713 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:09:51,790 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:09:51,877 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:09:51,877 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:09:52,389 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:09:52,409 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:09:52,409 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:09:53,195 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:09:53,204 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:09:53,205 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:11:12,161 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:11:12,241 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:11:12,343 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:11:12,347 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:11:13,357 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:11:13,368 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:11:13,368 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:13:34,652 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:13:34,725 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:13:34,843 - dashboard.home - ERROR - Error rendering quick metrics bar: 'down' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:13:34,845 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:13:34,845 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:13:35,330 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:13:35,342 - dashboard.home - ERROR - Error rendering quick metrics bar: 'down' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:13:35,343 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:13:35,344 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:30:12,348 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:30:12,428 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:30:12,517 - dashboard.home - ERROR - Error rendering quick metrics bar: 'down' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:30:12,520 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:30:12,520 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:30:14,299 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:30:14,315 - dashboard.home - ERROR - Error rendering quick metrics bar: 'down' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:30:14,317 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:30:14,318 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:41:11,771 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:41:11,864 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:41:11,986 - dashboard.home - ERROR - Error rendering quick metrics bar: 'down' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:41:11,989 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:41:12,006 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:41:12,012 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:41:12,030 - dashboard.home - ERROR - Error rendering quick metrics bar: 'down' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:41:12,031 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:41:12,032 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:41:12,916 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:41:12,926 - dashboard.home - ERROR - Error rendering quick metrics bar: 'down' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:41:12,929 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:41:12,929 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:43:25,680 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:43:25,754 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:43:25,849 - dashboard.home - ERROR - Error rendering quick metrics bar: 'down' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:43:25,851 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:43:25,852 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:43:26,728 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:43:26,752 - dashboard.home - ERROR - Error rendering quick metrics bar: 'down' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:43:26,754 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:43:26,754 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:50:08,444 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 17:50:08,447 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 17:50:08,526 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:50:08,527 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:50:08,528 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 17:50:17,108 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 17:50:17,117 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 17:50:17,119 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 17:50:17,120 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:00:57,953 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:00:57,961 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:00:57,964 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:00:57,964 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:10:08,431 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:10:08,433 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:10:08,513 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:10:08,515 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:10:08,516 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:10:09,091 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:10:09,094 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:10:09,097 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:10:09,097 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:10:37,040 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:10:37,044 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:10:37,047 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:10:37,048 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:12:16,581 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:12:16,583 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:12:16,666 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:12:16,668 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:12:16,668 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:16:23,227 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:16:23,228 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:16:23,299 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:16:23,304 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:16:23,309 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:16:23,309 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:16:23,356 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:16:23,360 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:16:23,361 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:21:25,250 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:21:25,252 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:21:25,331 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:21:25,340 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:21:25,341 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:21:27,338 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:21:27,344 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:21:27,361 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:21:27,362 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:25:36,787 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:25:36,788 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:25:36,869 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:25:36,879 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:25:36,879 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:25:37,046 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:25:37,050 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:25:37,060 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:25:37,061 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:30:56,566 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:30:56,569 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:30:56,653 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:30:56,657 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:30:56,657 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:30:58,384 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:30:58,396 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:30:58,402 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:30:58,403 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:33:20,049 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:33:20,050 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:33:20,148 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:33:20,152 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:33:20,152 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:33:21,127 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:33:21,139 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:33:21,146 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:33:21,147 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:35:57,554 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:35:57,555 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:35:57,669 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:35:57,675 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:35:57,676 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:35:58,604 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:35:58,631 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:35:58,642 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:35:58,643 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:36:02,300 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:36:02,314 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:36:02,330 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:36:02,331 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:36:03,950 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:36:03,977 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:36:03,987 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:36:03,988 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:38:31,805 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:38:31,808 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:38:31,808 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:38:31,867 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:38:31,885 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:38:31,887 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:38:32,240 - dashboard.home - ERROR - Error rendering quick metrics bar: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 18:38:32,245 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:38:32,246 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:40:34,740 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 18:40:34,742 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:40:34,823 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:40:34,841 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:40:34,842 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:40:34,858 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:40:34,872 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:40:34,874 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:40:35,152 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:40:35,152 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 18:41:05,963 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 18:41:05,984 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 18:41:05,985 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:23:02,803 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:23:02,806 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:23:02,820 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:23:02,826 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:23:02,827 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:23:02,828 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:23:03,175 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:23:03,177 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:23:03,178 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:23:03,178 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:26:42,670 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:26:42,710 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:26:43,156 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:26:43,260 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:26:43,261 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:26:43,717 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:26:43,717 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:29:01,789 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:29:01,796 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:29:01,798 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:29:01,817 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:29:01,819 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:29:01,820 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:29:01,821 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:29:02,151 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:29:02,152 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:29:02,153 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:29:02,153 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:31:03,284 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:31:03,285 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:31:03,368 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:31:03,379 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:31:03,381 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:31:03,382 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:31:03,382 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:31:03,450 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:31:03,452 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:31:03,453 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:31:03,454 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:32:00,140 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:32:00,142 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:32:00,245 - dashboard.home - ERROR - Error rendering dashboard top strip: 'NoneType' object is not iterable
+2025-04-16 19:32:00,247 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:32:00,248 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:32:00,248 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:33:23,183 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:33:23,184 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:33:23,301 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:33:23,302 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:35:33,054 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:35:33,055 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:35:33,171 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:35:33,171 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:38:05,059 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:38:05,060 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:38:05,172 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:38:05,172 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:38:07,342 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:38:07,356 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:38:07,357 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:41:13,280 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:41:13,282 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:41:13,282 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:41:13,293 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:41:13,295 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:41:13,296 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:41:13,297 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:41:13,637 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:41:13,639 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:41:13,639 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:41:13,639 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:41:14,892 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:41:14,901 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:41:14,903 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:41:14,904 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:41:14,904 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:41:39,921 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:41:39,922 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:41:40,036 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:41:40,037 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:41:41,149 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:41:41,161 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:41:41,162 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:41:41,731 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:41:41,760 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:41:41,760 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:41:41,845 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:41:41,858 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:41:41,859 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:48:23,387 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:48:23,389 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:48:23,494 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:48:23,496 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:48:23,497 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:48:23,497 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:48:24,909 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:48:24,917 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 19:48:24,920 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:48:24,921 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:48:24,921 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:48:55,017 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 19:48:55,018 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:48:55,125 - dashboard.home - ERROR - Error rendering dashboard top strip: render_dashboard_top_strip() takes 0 positional arguments but 1 was given
+2025-04-16 19:48:55,127 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:48:55,127 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:48:55,128 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:48:55,703 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:48:55,710 - dashboard.home - ERROR - Error rendering dashboard top strip: render_dashboard_top_strip() takes 0 positional arguments but 1 was given
+2025-04-16 19:48:55,713 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:48:55,715 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:48:55,715 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 19:48:56,274 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 19:48:56,279 - dashboard.home - ERROR - Error rendering dashboard top strip: render_dashboard_top_strip() takes 0 positional arguments but 1 was given
+2025-04-16 19:48:56,281 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 19:48:56,282 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 19:48:56,283 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:10:52,026 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:10:52,028 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:10:52,133 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 20:10:52,135 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 20:10:52,136 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:10:52,136 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:10:52,939 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:10:52,945 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 20:10:52,947 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 20:10:52,948 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:10:52,949 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:13:33,724 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:13:33,726 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:13:33,726 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:13:33,737 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 20:13:33,739 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 20:13:33,740 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:13:33,741 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:13:34,029 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 20:13:34,031 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 20:13:34,031 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:13:34,031 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:13:35,301 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:13:35,308 - dashboard.home - ERROR - Error rendering dashboard top strip: cannot import name 'render_dashboard_top_strip' from 'dashboard.components.dashboard_top_strip' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/components/dashboard_top_strip.py)
+2025-04-16 20:13:35,312 - dashboard.home - ERROR - Error rendering fallback components: 'up' is not an accepted value. delta_color only accepts: 'normal', 'inverse', or 'off'
+2025-04-16 20:13:35,313 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:13:35,314 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:14:33,170 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:14:33,172 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:14:33,279 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:14:33,280 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:16:30,415 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:16:30,417 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:16:30,523 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:16:30,523 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:16:31,408 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:16:31,414 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:16:31,414 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:19:04,529 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:04,537 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:19:04,544 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:19:19,099 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:19,107 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:19:19,107 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:19:21,189 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:21,252 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:21,267 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:19:21,270 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:19:24,344 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:24,403 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:24,415 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:19:24,415 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:19:26,463 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:26,533 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:26,541 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:19:26,542 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:19:28,005 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:28,075 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:28,086 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:19:28,088 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:19:29,630 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:29,710 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:29,721 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:19:29,722 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:19:32,330 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:32,393 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:19:32,400 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:19:32,401 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:22:11,240 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:22:11,243 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:22:11,346 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:22:11,347 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:22:13,418 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:22:13,427 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:22:13,429 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:23:38,399 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:23:38,401 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:23:38,506 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:23:38,506 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:23:39,417 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:23:39,424 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:23:39,425 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:23:40,550 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:23:40,559 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:23:40,559 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:24:22,360 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:24:22,362 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:24:22,362 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:24:22,371 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:24:22,372 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:24:22,732 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:24:22,732 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:25:21,421 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:25:21,422 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:25:21,529 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:25:21,529 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:25:22,066 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:25:22,076 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:25:22,077 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:29:19,267 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:29:19,269 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:29:19,269 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:29:19,277 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:29:19,277 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:29:19,288 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:29:19,298 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:29:19,299 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:29:19,647 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:29:19,647 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:30:10,352 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:30:10,354 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:30:10,455 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:30:10,456 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:30:11,082 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:30:11,088 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:30:11,089 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:30:34,271 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:30:34,373 - __main__ - ERROR - Error importing page modules: No module named 'dashboard.pages.intraday'
+2025-04-16 20:30:34,389 - dashboard.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:30:34,389 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 20:35:03,206 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:35:03,331 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:35:10,255 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:49:30,579 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:49:30,684 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:49:31,930 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:58:52,972 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:58:52,972 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:58:53,159 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 20:58:53,161 - __main__ - ERROR - Error importing page modules: cannot import name 'show_swing_page' from 'dashboard.pages.swing' (/Users/ashokkumar/Desktop/test/stock_work/stApps/patterns/dashboard/pages/swing.py)
+2025-04-16 20:58:53,317 - dashboard.components.sidebar - ERROR - Error rendering sidebar: Error opening 'assets/logo.png'
+2025-04-16 20:58:53,319 - dashboard.pages.home - ERROR - Error rendering market indices: 'NoneType' object has no attribute 'get'
+2025-04-16 20:58:53,319 - data.mongodb - ERROR - Error getting equity curve: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
+2025-04-16 21:05:24,199 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 21:15:00,344 - dashboard.components.sidebar - ERROR - Error rendering sidebar: Error opening 'assets/logo.png'
+2025-04-16 21:15:04,276 - dashboard.components.sidebar - ERROR - Error rendering sidebar: Error opening 'assets/logo.png'
+2025-04-16 21:15:06,358 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 21:15:09,455 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 21:15:11,656 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 21:15:12,353 - dashboard.components.sidebar - ERROR - Error rendering sidebar: Error opening 'assets/logo.png'
+2025-04-16 21:15:16,243 - dashboard.components.sidebar - ERROR - Error rendering sidebar: Error opening 'assets/logo.png'
+2025-04-16 21:15:19,739 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 21:15:20,453 - dashboard.components.sidebar - ERROR - Error rendering sidebar: Error opening 'assets/logo.png'
+2025-04-16 21:30:05,191 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev
+2025-04-16 21:32:20,097 - data.mongodb - INFO - Connected to MongoDB: mongodb://localhost:27017/st-analysis-dev

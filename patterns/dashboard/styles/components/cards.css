@@ -1,0 +1,88 @@
+/* Card Styles */
+.dashboard-card {
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  background-color: white;
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--space-6);
+  border-left: 4px solid var(--primary);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.dashboard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--neutral-100);
+  padding-bottom: var(--space-2);
+}
+
+.card-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--neutral-800);
+  margin: 0;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-4);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--neutral-100);
+}
+
+/* Card variations */
+.card-primary {
+  border-left-color: var(--primary);
+}
+
+.card-success {
+  border-left-color: var(--success);
+}
+
+.card-danger {
+  border-left-color: var(--danger);
+}
+
+.card-warning {
+  border-left-color: var(--warning);
+}
+
+.card-info {
+  border-left-color: var(--info);
+}
+
+/* Stat cards */
+.stat-card {
+  background-color: white;
+  border-radius: var(--border-radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-title {
+  font-size: var(--font-size-sm);
+  color: var(--neutral-500);
+  margin-bottom: var(--space-2);
+}
+
+.stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.stat-change {
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-1);
+} 

@@ -1,0 +1,97 @@
+/* Dark theme */
+:root {
+  /* Dark mode colors */
+  --bg-dark: #121212;
+  --bg-card: #1e1e1e;
+  --bg-sidebar: #121212;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #6c757d;
+  --border-color: #2a2a2a;
+  
+  /* Accent colors in dark mode */
+  --primary: #0d6efd;
+  --primary-light: rgba(13, 110, 253, 0.2);
+  --success: #10b981;
+  --success-light: rgba(16, 185, 129, 0.2);
+  --danger: #ef4444;
+  --danger-light: rgba(239, 68, 68, 0.2);
+  --warning: #f59e0b;
+  --warning-light: rgba(245, 158, 11, 0.2);
+}
+
+/* Override base styles for dark theme */
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+/* Card styles for dark theme */
+.sidebar-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-open {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.status-closed {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* Navigation */
+.nav-link {
+  color: var(--text-primary);
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* Button styles for dark theme */
+.action-button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+/* Market condition values */
+.condition-value {
+  color: var(--text-primary);
+}
+
+.condition-label {
+  color: var(--text-secondary);
+}
+
+/* Status indicators */
+.condition-value.bullish {
+  color: var(--success);
+}
+
+.condition-value.bearish {
+  color: var(--danger);
+}
+
+.condition-value.neutral {
+  color: var(--warning);
+} 
