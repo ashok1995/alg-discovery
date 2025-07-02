@@ -25,6 +25,7 @@ import time
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse
+from pydantic import BaseModel
 import json
 
 # Import configurations and models
@@ -41,6 +42,7 @@ from services.job_scheduler import JobScheduler
 from services.websocket_manager import WebSocketManager
 from services.intraday_service import IntradayService
 from services.swing_trading_service import SwingTradingService
+from services.long_term_service import LongTermInvestmentService
 from services.config_manager import config_manager
 
 # Order Management System imports
@@ -67,6 +69,7 @@ scheduler_service: Optional[JobScheduler] = None
 websocket_manager = WebSocketManager()
 intraday_service: Optional[IntradayService] = None
 swing_trading_service: Optional[SwingTradingService] = None
+long_term_service: Optional[LongTermInvestmentService] = None
 
 # Order Management System globals
 order_manager: Optional[OrderManager] = None
@@ -84,7 +87,7 @@ _last_scan_time = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
-    global data_service, intraday_service, swing_trading_service, scheduler_service, websocket_manager
+    global data_service, intraday_service, swing_trading_service, long_term_service, scheduler_service, websocket_manager
     global order_manager, risk_manager, position_manager, notification_service, order_validator, execution_engine
     
     try:
@@ -106,6 +109,10 @@ async def lifespan(app: FastAPI):
         
         # Initialize Swing Trading Service with config
         swing_trading_service = SwingTradingService(data_service)
+        
+        # Initialize Long-Term Investment Service
+        long_term_service = LongTermInvestmentService(data_service)
+        logger.info("✅ Long-term investment service initialized")
         
         # Initialize Order Management System
         logger.info("🔧 Initializing Order Management System...")
@@ -2409,26 +2416,54 @@ async def get_long_term_buy_recommendations(
     strength_threshold: float = Query(55.0, description="Minimum strength threshold (0-100)")
 ):
     """
-    Get long-term buy recommendations (1-6 month holding period).
+    Get long-term buy recommendations (1+ year holding period).
     
     Features:
     - Fundamental and technical convergence
-    - Lower risk thresholds for patient capital
-    - Trend continuation analysis
-    - Quality stock selection with growth potential
+    - Value and growth analysis
+    - Quality stock selection with sustainable returns
+    - Comprehensive scoring based on multiple metrics
     """
     try:
-        if not swing_trading_service:
-            raise HTTPException(status_code=503, detail="Swing trading service not available")
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
         
-        recommendations = await swing_trading_service.get_long_term_buy_recommendations(
+        # Use the dedicated long-term service
+        recommendations = await long_term_service.get_long_term_recommendations(
+            symbols=None,
             limit=limit,
-            confidence_threshold=confidence_threshold,
-            strength_threshold=strength_threshold
+            min_score=confidence_threshold
         )
         
-        logger.info(f"✅ Generated {len(recommendations)} long-term buy recommendations")
-        return recommendations
+        # Convert to IntradaySignal format for compatibility
+        converted_recommendations = []
+        for rec in recommendations:
+            signal = IntradaySignal(
+                symbol=rec['symbol'],
+                signal_type="LONG_TERM_BUY",
+                entry_price=rec['current_price'],
+                target_price=rec['target_price'],
+                stop_loss=rec['current_price'] * 0.88,  # 12% stop loss
+                confidence=min(rec['overall_score'], 100),
+                strength=min(rec['overall_score'], 100),
+                volume_ratio=1.0,  # Default for long-term
+                momentum_score=rec.get('technical_score', 50),
+                timestamp=datetime.fromisoformat(rec['analysis_date'].replace('Z', '+00:00')) if 'Z' in rec['analysis_date'] else datetime.fromisoformat(rec['analysis_date']),
+                reason=f"Long-term investment: Score {rec['overall_score']:.1f}/100, Expected return {rec['expected_return']:.1f}%",
+                technical_indicators={
+                    'overall_score': rec['overall_score'],
+                    'fundamental_score': rec.get('fundamental_score', 0),
+                    'growth_score': rec.get('growth_score', 0),
+                    'quality_score': rec.get('quality_score', 0),
+                    'expected_return': rec['expected_return'],
+                    'sector': rec.get('sector', 'Unknown')
+                },
+                risk_reward_ratio=rec['expected_return'] / 12.0  # Expected return vs 12% stop loss
+            )
+            converted_recommendations.append(signal)
+        
+        logger.info(f"✅ Generated {len(converted_recommendations)} long-term buy recommendations")
+        return converted_recommendations
         
     except Exception as e:
         logger.error(f"Error getting long-term buy recommendations: {str(e)}")
@@ -2815,6 +2850,287 @@ async def get_swing_buy_recommendations_with_config(
     except Exception as e:
         logger.error(f"Error getting configurable swing buy recommendations: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# =====================================================================
+# LONG-TERM INVESTMENT ENDPOINTS
+# =====================================================================
+
+@app.get("/api/longterm/recommendations")
+async def get_longterm_recommendations(
+    symbols: Optional[str] = Query(None, description="Comma-separated list of symbols"),
+    limit: int = Query(20, description="Maximum number of recommendations"),
+    min_score: float = Query(60.0, description="Minimum overall score")
+):
+    """Get comprehensive long-term investment recommendations."""
+    try:
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        
+        symbol_list = symbols.split(',') if symbols else None
+        recommendations = await long_term_service.get_long_term_recommendations(
+            symbols=symbol_list,
+            limit=limit,
+            min_score=min_score
+        )
+        
+        return {
+            "recommendations": recommendations,
+            "total_count": len(recommendations),
+            "analysis_date": datetime.now().isoformat(),
+            "criteria": {
+                "min_score": min_score,
+                "investment_horizon": "1+ years"
+            }
+        }
+    except Exception as e:
+        logger.error(f"Error getting long-term recommendations: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/longterm/portfolio/suggestions")
+async def get_portfolio_suggestions(
+    portfolio_value: float = Query(100000, description="Total portfolio value"),
+    risk_tolerance: str = Query("moderate", description="Risk tolerance: conservative, moderate, aggressive")
+):
+    """Get portfolio allocation suggestions for long-term investing."""
+    try:
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        
+        suggestions = await long_term_service.get_portfolio_suggestions(
+            portfolio_value=portfolio_value,
+            risk_tolerance=risk_tolerance
+        )
+        
+        return suggestions
+    except Exception as e:
+        logger.error(f"Error getting portfolio suggestions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/longterm/market/outlook")
+async def get_market_outlook():
+    """Get overall market outlook for long-term investing."""
+    try:
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        
+        outlook = await long_term_service.get_market_outlook()
+        return outlook
+    except Exception as e:
+        logger.error(f"Error getting market outlook: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/longterm/sectors/analysis")
+async def get_sector_analysis(
+    limit_per_sector: int = Query(3, description="Maximum recommendations per sector")
+):
+    """Get sector-wise long-term investment analysis."""
+    try:
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        
+        analysis = await long_term_service.get_sector_analysis(limit_per_sector=limit_per_sector)
+        return analysis
+    except Exception as e:
+        logger.error(f"Error getting sector analysis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/longterm/analyze/{symbol}")
+async def analyze_single_stock(symbol: str):
+    """Analyze a single stock for long-term investment."""
+    try:
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        
+        analysis = await long_term_service.analyze_single_stock(symbol.upper())
+        
+        if not analysis:
+            raise HTTPException(status_code=404, detail=f"Unable to analyze {symbol} - insufficient data")
+        
+        return {
+            "symbol": symbol.upper(),
+            "analysis": analysis,
+            "timestamp": datetime.now().isoformat()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error analyzing {symbol}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/longterm/watchlist/default")
+async def get_default_watchlist():
+    """Get the default watchlist for long-term investing."""
+    try:
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        
+        return {
+            "watchlist": long_term_service.default_watchlist,
+            "total_stocks": len(long_term_service.default_watchlist),
+            "description": "Default large-cap stocks for long-term investment analysis",
+            "sector_etfs": long_term_service.sector_etfs
+        }
+    except Exception as e:
+        logger.error(f"Error getting default watchlist: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/longterm/strategy/info")
+async def get_strategy_info():
+    """Get current long-term investment strategy configuration."""
+    try:
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        
+        strategy_info = long_term_service.get_strategy_info()
+        return strategy_info
+    except Exception as e:
+        logger.error(f"Error getting strategy info: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Real-time POST endpoints for long-term investing
+from pydantic import BaseModel
+
+class LongTermRequest(BaseModel):
+    symbols: Optional[List[str]] = None
+    limit: Optional[int] = 20
+    min_score: Optional[float] = 60.0
+    portfolio_value: Optional[float] = 100000
+    risk_tolerance: Optional[str] = "moderate"
+
+@app.post("/api/longterm/realtime-recommendations")
+async def get_realtime_longterm_recommendations(request: LongTermRequest):
+    """Get real-time long-term investment recommendations."""
+    try:
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        
+        recommendations = await long_term_service.get_long_term_recommendations(
+            symbols=request.symbols,
+            limit=request.limit,
+            min_score=request.min_score
+        )
+        
+        # Get market outlook for context
+        market_outlook = await long_term_service.get_market_outlook()
+        
+        return {
+            "recommendations": recommendations,
+            "market_context": {
+                "sentiment": market_outlook.get('market_sentiment'),
+                "average_score": market_outlook.get('average_market_score'),
+                "investment_advice": market_outlook.get('investment_advice')
+            },
+            "request_parameters": request.dict(),
+            "timestamp": datetime.now().isoformat(),
+            "total_found": len(recommendations)
+        }
+    except Exception as e:
+        logger.error(f"Error getting real-time long-term recommendations: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/longterm/portfolio/optimize")
+async def optimize_longterm_portfolio(request: LongTermRequest):
+    """Optimize portfolio for long-term investing."""
+    try:
+        if not long_term_service:
+            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        
+        # Get portfolio suggestions
+        portfolio_suggestions = await long_term_service.get_portfolio_suggestions(
+            portfolio_value=request.portfolio_value,
+            risk_tolerance=request.risk_tolerance
+        )
+        
+        # Get sector analysis for diversification insights
+        sector_analysis = await long_term_service.get_sector_analysis(limit_per_sector=3)
+        
+        return {
+            "portfolio_optimization": portfolio_suggestions,
+            "sector_diversification": sector_analysis,
+            "optimization_date": datetime.now().isoformat(),
+            "request_parameters": request.dict()
+        }
+    except Exception as e:
+        logger.error(f"Error optimizing long-term portfolio: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/longterm/positions/current")
+async def get_current_longterm_positions():
+    """Get current long-term investment positions."""
+    try:
+        if not position_manager:
+            raise HTTPException(status_code=503, detail="Position manager not available")
+        
+        # Get all current positions
+        all_positions = await position_manager.get_positions()
+        
+        # Filter for long-term positions (positions held for more than 30 days or marked as long-term)
+        longterm_positions = []
+        total_longterm_value = 0
+        
+        for position in all_positions:
+            # Check if position is long-term based on holding period or other criteria
+            position_age_days = (datetime.now() - position.get('entry_date', datetime.now())).days if position.get('entry_date') else 0
+            
+            if (position_age_days > 30 or 
+                position.get('strategy_type') == 'long_term' or 
+                position.get('intended_holding_period', '').startswith('long')):
+                
+                longterm_positions.append({
+                    'symbol': position.get('symbol'),
+                    'quantity': position.get('quantity', 0),
+                    'entry_price': position.get('entry_price', 0),
+                    'current_price': position.get('current_price', 0),
+                    'market_value': position.get('market_value', 0),
+                    'unrealized_pnl': position.get('unrealized_pnl', 0),
+                    'unrealized_pnl_percent': position.get('unrealized_pnl_percent', 0),
+                    'holding_period_days': position_age_days,
+                    'entry_date': position.get('entry_date'),
+                    'sector': position.get('sector', 'Unknown'),
+                    'strategy_type': position.get('strategy_type', 'long_term')
+                })
+                total_longterm_value += position.get('market_value', 0)
+        
+        # Calculate portfolio metrics
+        total_unrealized_pnl = sum(pos['unrealized_pnl'] for pos in longterm_positions)
+        average_return = (total_unrealized_pnl / total_longterm_value * 100) if total_longterm_value > 0 else 0
+        
+        return {
+            "longterm_positions": longterm_positions,
+            "portfolio_summary": {
+                "total_positions": len(longterm_positions),
+                "total_market_value": round(total_longterm_value, 2),
+                "total_unrealized_pnl": round(total_unrealized_pnl, 2),
+                "average_return_percent": round(average_return, 2),
+                "analysis_date": datetime.now().isoformat()
+            },
+            "sector_breakdown": _calculate_sector_breakdown(longterm_positions)
+        }
+    except Exception as e:
+        logger.error(f"Error getting current long-term positions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+def _calculate_sector_breakdown(positions):
+    """Calculate sector breakdown for portfolio."""
+    sector_values = {}
+    total_value = sum(pos['market_value'] for pos in positions)
+    
+    for position in positions:
+        sector = position.get('sector', 'Unknown')
+        if sector not in sector_values:
+            sector_values[sector] = 0
+        sector_values[sector] += position['market_value']
+    
+    sector_breakdown = []
+    for sector, value in sector_values.items():
+        percentage = (value / total_value * 100) if total_value > 0 else 0
+        sector_breakdown.append({
+            'sector': sector,
+            'value': round(value, 2),
+            'percentage': round(percentage, 2)
+        })
+    
+    return sorted(sector_breakdown, key=lambda x: x['value'], reverse=True)
 
 if __name__ == "__main__":
     logger.info("🚀 Starting AlgoDiscovery Trading API Server...")

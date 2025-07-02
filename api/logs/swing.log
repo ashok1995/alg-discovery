@@ -1,0 +1,2828 @@
+/Users/ashokkumar/Desktop/alg-discovery/api/swing_server.py:800: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+/Users/ashokkumar/Desktop/alg-discovery/api/swing_server.py:807: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Will watch for changes in these directories: ['/Users/ashokkumar/Desktop/alg-discovery/api']
+INFO:     Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
+INFO:     Started reloader process [96351] using WatchFiles
+INFO:     Started server process [96354]
+INFO:     Waiting for application startup.
+2025-07-02 21:44:33,995 - swing_server - INFO - 🚀 Starting Swing Trading Server...
+2025-07-02 21:44:33,995 - swing_server - INFO - 📁 Config loaded from: /Users/ashokkumar/Desktop/alg-discovery/api/config/swing_config.json
+2025-07-02 21:44:33,995 - swing_server - INFO - 🎯 Current algorithm: Experimental High-Performance Swing
+INFO:     Application startup complete.
+2025-07-02 21:44:35,580 - watchfiles.main - INFO - 1 change detected
+2025-07-02 21:44:36,321 - watchfiles.main - INFO - 1 change detected
+2025-07-02 21:44:38,389 - watchfiles.main - INFO - 2 changes detected
+2025-07-02 21:44:40,698 - watchfiles.main - INFO - 1 change detected
+2025-07-02 21:44:41,436 - watchfiles.main - INFO - 1 change detected
+2025-07-02 21:44:43,519 - watchfiles.main - INFO - 2 changes detected
+INFO:     127.0.0.1:60015 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60017 - "GET /api/swing/available-variants HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60019 - "GET /health HTTP/1.1" 200 OK
+2025-07-02 21:45:05,332 - swing_server - INFO - 🚀 SWING TRADING ANALYSIS STARTED
+2025-07-02 21:45:05,332 - swing_server - INFO - 📊 Using combination: {'breakout': 'v1.2', 'momentum': 'v1.2', 'pattern': 'v1.2', 'reversal': 'v1.2'}
+2025-07-02 21:45:05,332 - swing_server - INFO - 🎯 Starting combination analysis with 4 categories
+2025-07-02 21:45:05,332 - swing_server - INFO - 📊 Limit per query: 30
+2025-07-02 21:45:05,333 - swing_server - INFO - ⚖️ Scoring weights: {'breakout': 35, 'momentum': 25, 'pattern': 20, 'reversal': 20}
+2025-07-02 21:45:05,333 - swing_server - INFO - 🔍 Processing category: breakout (version: v1.2)
+2025-07-02 21:45:05,333 - swing_server - INFO - 📝 Query for breakout: ( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close > latest sma ( latest cl...
+2025-07-02 21:45:05,333 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:05,333 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:05,333 - swing_server - INFO - 🔑 Fetching fresh CSRF token...
+2025-07-02 21:45:05,340 - swing_server - INFO - ✅ Initialized new async session with enhanced headers
+2025-07-02 21:45:07,069 - httpx - INFO - HTTP Request: GET https://chartink.com/screener "HTTP/1.1 200 OK"
+2025-07-02 21:45:07,140 - swing_server - INFO - 📊 HTML content length: 17613
+2025-07-02 21:45:07,140 - swing_server - WARNING - ⚠️ HTML content appears compressed or invalid
+2025-07-02 21:45:07,283 - httpx - INFO - HTTP Request: GET https://chartink.com/screener "HTTP/1.1 200 OK"
+2025-07-02 21:45:07,289 - swing_server - INFO - 📊 Retry - HTML content length: 56401
+2025-07-02 21:45:07,294 - swing_server - INFO - ✅ CSRF token found via meta tag: RVT5WnfgpQhUS2Cz...
+2025-07-02 21:45:07,294 - swing_server - INFO - ✅ CSRF token obtained successfully
+2025-07-02 21:45:07,294 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:07,294 - swing_server - INFO - 📊 Query length: 292 characters
+2025-07-02 21:45:07,559 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:07,561 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:07,561 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:07,561 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:07,561 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:07,561 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:07,561 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'BLUEDART', 'SKFINDIA', 'TVSSRICHAK', 'SHARDAMOTR']
+2025-07-02 21:45:07,561 - swing_server - INFO - 📈 breakout query returned 30 stocks
+2025-07-02 21:45:07,561 - swing_server - INFO - 🎯 breakout top 5 symbols: ['Maharashtra Scooters Limited', 'Blue Dart Express Limited', 'Skf India Limited', 'Tvs Srichakra Limited', 'Sharda Motor Industries Limited']
+2025-07-02 21:45:07,562 - swing_server - INFO - 🔍 Processing category: momentum (version: v1.2)
+2025-07-02 21:45:07,562 - swing_server - INFO - 📝 Query for momentum: ( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close / 3 days ago close > 1.0...
+2025-07-02 21:45:07,562 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:07,562 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:07,562 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 1.70s
+2025-07-02 21:45:09,258 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:09,259 - swing_server - INFO - 📊 Query length: 244 characters
+2025-07-02 21:45:09,597 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:09,599 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:09,599 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:09,599 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:09,599 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:09,599 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:09,599 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'DIXON', 'BHARATRAS', 'AMBER', 'BLUEDART']
+2025-07-02 21:45:09,599 - swing_server - INFO - 📈 momentum query returned 30 stocks
+2025-07-02 21:45:09,599 - swing_server - INFO - 🎯 momentum top 5 symbols: ['Maharashtra Scooters Limited', 'Dixon Technologies', 'Bharat Rasayan Limited', 'Amber Enterprises India Ltd', 'Blue Dart Express Limited']
+2025-07-02 21:45:09,600 - swing_server - INFO - 🔍 Processing category: pattern (version: v1.2)
+2025-07-02 21:45:09,600 - swing_server - INFO - 📝 Query for pattern: ( {cash} ( latest close > 20 days ago high and latest close > latest sma ( latest close , 20 ) and l...
+2025-07-02 21:45:09,600 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:09,600 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:09,600 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 3.24s
+INFO:     127.0.0.1:60024 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60026 - "GET /health HTTP/1.1" 200 OK
+2025-07-02 21:45:10,199 - swing_server - INFO - 🚀 SWING TRADING ANALYSIS STARTED
+2025-07-02 21:45:10,199 - swing_server - INFO - 📊 Using combination: {'breakout': 'v1.2', 'momentum': 'v1.2', 'pattern': 'v1.2', 'reversal': 'v1.2'}
+2025-07-02 21:45:10,199 - swing_server - INFO - 🎯 Starting combination analysis with 4 categories
+2025-07-02 21:45:10,199 - swing_server - INFO - 📊 Limit per query: 30
+2025-07-02 21:45:10,199 - swing_server - INFO - ⚖️ Scoring weights: {'breakout': 35, 'momentum': 25, 'pattern': 20, 'reversal': 20}
+2025-07-02 21:45:10,199 - swing_server - INFO - 🔍 Processing category: breakout (version: v1.2)
+2025-07-02 21:45:10,199 - swing_server - INFO - 📝 Query for breakout: ( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close > latest sma ( latest cl...
+2025-07-02 21:45:10,199 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:10,199 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:10,199 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 3.50s
+INFO:     127.0.0.1:60030 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60032 - "GET /health HTTP/1.1" 200 OK
+2025-07-02 21:45:11,428 - swing_server - INFO - 🚀 SWING TRADING ANALYSIS STARTED
+2025-07-02 21:45:11,428 - swing_server - INFO - 📊 Using combination: {'breakout': 'v1.2', 'momentum': 'v1.2', 'pattern': 'v1.2', 'reversal': 'v1.2'}
+2025-07-02 21:45:11,428 - swing_server - INFO - 🎯 Starting combination analysis with 4 categories
+2025-07-02 21:45:11,428 - swing_server - INFO - 📊 Limit per query: 30
+2025-07-02 21:45:11,428 - swing_server - INFO - ⚖️ Scoring weights: {'breakout': 35, 'momentum': 25, 'pattern': 20, 'reversal': 20}
+2025-07-02 21:45:11,428 - swing_server - INFO - 🔍 Processing category: breakout (version: v1.2)
+2025-07-02 21:45:11,428 - swing_server - INFO - 📝 Query for breakout: ( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close > latest sma ( latest cl...
+2025-07-02 21:45:11,428 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:11,428 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:11,428 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 1.54s
+INFO:     127.0.0.1:60036 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60038 - "GET /health HTTP/1.1" 200 OK
+2025-07-02 21:45:11,782 - swing_server - INFO - 🚀 SWING TRADING ANALYSIS STARTED
+2025-07-02 21:45:11,782 - swing_server - INFO - 📊 Using combination: {'breakout': 'v1.2', 'momentum': 'v1.2', 'pattern': 'v1.2', 'reversal': 'v1.2'}
+2025-07-02 21:45:11,782 - swing_server - INFO - 🎯 Starting combination analysis with 4 categories
+2025-07-02 21:45:11,782 - swing_server - INFO - 📊 Limit per query: 30
+2025-07-02 21:45:11,782 - swing_server - INFO - ⚖️ Scoring weights: {'breakout': 35, 'momentum': 25, 'pattern': 20, 'reversal': 20}
+2025-07-02 21:45:11,782 - swing_server - INFO - 🔍 Processing category: breakout (version: v1.2)
+2025-07-02 21:45:11,782 - swing_server - INFO - 📝 Query for breakout: ( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close > latest sma ( latest cl...
+2025-07-02 21:45:11,782 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:11,782 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:11,782 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 1.29s
+2025-07-02 21:45:12,845 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:12,845 - swing_server - INFO - 📊 Query length: 227 characters
+2025-07-02 21:45:12,971 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:12,971 - swing_server - INFO - 📊 Query length: 292 characters
+2025-07-02 21:45:13,071 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:13,072 - swing_server - INFO - 📊 Query length: 292 characters
+2025-07-02 21:45:13,076 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:13,078 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:13,078 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:13,078 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:13,078 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:13,078 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:13,078 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'DIXON', 'BLUEDART', 'FINEORG', 'SKFINDIA']
+2025-07-02 21:45:13,079 - swing_server - INFO - 📈 pattern query returned 30 stocks
+2025-07-02 21:45:13,079 - swing_server - INFO - 🎯 pattern top 5 symbols: ['Maharashtra Scooters Limited', 'Dixon Technologies', 'Blue Dart Express Limited', 'Fine Organic Industries Ltd', 'Skf India Limited']
+2025-07-02 21:45:13,079 - swing_server - INFO - 🔍 Processing category: reversal (version: v1.2)
+2025-07-02 21:45:13,079 - swing_server - INFO - 📝 Query for reversal: ( {cash} ( latest close > latest sma ( latest close , 10 ) and 5 days ago low < 10 days ago low and ...
+2025-07-02 21:45:13,079 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:13,079 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:13,079 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 4.30s
+2025-07-02 21:45:13,348 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:13,350 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:13,350 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:13,350 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:13,350 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:13,350 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:13,351 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'BLUEDART', 'SKFINDIA', 'TVSSRICHAK', 'SHARDAMOTR']
+2025-07-02 21:45:13,351 - swing_server - INFO - 📈 breakout query returned 30 stocks
+2025-07-02 21:45:13,351 - swing_server - INFO - 🎯 breakout top 5 symbols: ['Maharashtra Scooters Limited', 'Blue Dart Express Limited', 'Skf India Limited', 'Tvs Srichakra Limited', 'Sharda Motor Industries Limited']
+2025-07-02 21:45:13,351 - swing_server - INFO - 🔍 Processing category: momentum (version: v1.2)
+2025-07-02 21:45:13,351 - swing_server - INFO - 📝 Query for momentum: ( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close / 3 days ago close > 1.0...
+2025-07-02 21:45:13,351 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:13,351 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:13,351 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 3.92s
+2025-07-02 21:45:13,443 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:13,445 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:13,446 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:13,446 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:13,446 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:13,446 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:13,446 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'BLUEDART', 'SKFINDIA', 'TVSSRICHAK', 'SHARDAMOTR']
+2025-07-02 21:45:13,446 - swing_server - INFO - 📈 breakout query returned 30 stocks
+2025-07-02 21:45:13,446 - swing_server - INFO - 🎯 breakout top 5 symbols: ['Maharashtra Scooters Limited', 'Blue Dart Express Limited', 'Skf India Limited', 'Tvs Srichakra Limited', 'Sharda Motor Industries Limited']
+2025-07-02 21:45:13,446 - swing_server - INFO - 🔍 Processing category: momentum (version: v1.2)
+2025-07-02 21:45:13,446 - swing_server - INFO - 📝 Query for momentum: ( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close / 3 days ago close > 1.0...
+2025-07-02 21:45:13,446 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:13,446 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:13,446 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 4.12s
+2025-07-02 21:45:13,699 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:13,700 - swing_server - INFO - 📊 Query length: 292 characters
+2025-07-02 21:45:14,008 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:14,009 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:14,009 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:14,009 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:14,009 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:14,009 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:14,009 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'BLUEDART', 'SKFINDIA', 'TVSSRICHAK', 'SHARDAMOTR']
+2025-07-02 21:45:14,009 - swing_server - INFO - 📈 breakout query returned 30 stocks
+2025-07-02 21:45:14,009 - swing_server - INFO - 🎯 breakout top 5 symbols: ['Maharashtra Scooters Limited', 'Blue Dart Express Limited', 'Skf India Limited', 'Tvs Srichakra Limited', 'Sharda Motor Industries Limited']
+2025-07-02 21:45:14,009 - swing_server - INFO - 🔍 Processing category: momentum (version: v1.2)
+2025-07-02 21:45:14,009 - swing_server - INFO - 📝 Query for momentum: ( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close / 3 days ago close > 1.0...
+2025-07-02 21:45:14,009 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:14,009 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:14,009 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 3.67s
+2025-07-02 21:45:17,274 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:17,275 - swing_server - INFO - 📊 Query length: 244 characters
+2025-07-02 21:45:17,376 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:17,377 - swing_server - INFO - 📊 Query length: 218 characters
+2025-07-02 21:45:17,539 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:17,542 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:17,542 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:17,542 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:17,542 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:17,542 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:17,542 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'DIXON', 'BHARATRAS', 'AMBER', 'BLUEDART']
+2025-07-02 21:45:17,542 - swing_server - INFO - 📈 momentum query returned 30 stocks
+2025-07-02 21:45:17,542 - swing_server - INFO - 🎯 momentum top 5 symbols: ['Maharashtra Scooters Limited', 'Dixon Technologies', 'Bharat Rasayan Limited', 'Amber Enterprises India Ltd', 'Blue Dart Express Limited']
+2025-07-02 21:45:17,542 - swing_server - INFO - 🔍 Processing category: pattern (version: v1.2)
+2025-07-02 21:45:17,542 - swing_server - INFO - 📝 Query for pattern: ( {cash} ( latest close > 20 days ago high and latest close > latest sma ( latest close , 20 ) and l...
+2025-07-02 21:45:17,542 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:17,542 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:17,542 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 3.83s
+2025-07-02 21:45:17,572 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:17,572 - swing_server - INFO - 📊 Query length: 244 characters
+2025-07-02 21:45:17,655 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:17,657 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:17,657 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:17,657 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'JSWHL', 'name': 'Jsw Holdings Limited', 'bsecode': '532642', 'per_chg': 3.79, 'close': 22210, 'volume': 3600}
+2025-07-02 21:45:17,657 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:17,657 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:17,657 - swing_server - INFO - 🎯 Sample symbols: ['JSWHL', 'MAHSCOOTER', 'DIXON', 'BHARATRAS', 'ASTRAZEN']
+2025-07-02 21:45:17,657 - swing_server - INFO - 📈 reversal query returned 30 stocks
+2025-07-02 21:45:17,657 - swing_server - INFO - 🎯 reversal top 5 symbols: ['Jsw Holdings Limited', 'Maharashtra Scooters Limited', 'Dixon Technologies', 'Bharat Rasayan Limited', 'Astrazeneca Pharma India Limited']
+2025-07-02 21:45:17,657 - swing_server - INFO - 📊 Total unique stocks before scoring: 61
+2025-07-02 21:45:17,657 - swing_server - INFO - 🏆 Top 10 stocks by score: {'MAHSCOOTER': 100.0, 'SHARDAMOTR': 100.0, 'TATACOMM': 100.0, 'ZOTA': 100.0, 'TATVA': 100.0, 'BLUEDART': 80.0, 'SKFINDIA': 80.0, 'TVSSRICHAK': 80.0, 'TEGA': 80.0, 'VENUSPIPES': 80.0}
+2025-07-02 21:45:17,657 - swing_server - INFO - 📈 Metrics - Unique: 61, Total across categories: 120
+2025-07-02 21:45:17,657 - swing_server - INFO - 📊 Performance metrics - Avg score: 49.2, Multi-category: 34, Performance: 60.3
+2025-07-02 21:45:17,657 - swing_server - INFO - 📊 Initial stocks from analysis: 61
+2025-07-02 21:45:17,657 - swing_server - INFO - 🔍 Score filtering (min_score=55.0): 61 -> 27 stocks
+2025-07-02 21:45:17,657 - swing_server - INFO - ❌ Removed 34 stocks due to low scores
+2025-07-02 21:45:17,658 - swing_server - INFO - 📋 Top stocks limiting: 27 -> 20 stocks (limit: 20)
+2025-07-02 21:45:17,658 - swing_server - INFO - ============================================================
+2025-07-02 21:45:17,658 - swing_server - INFO - EXACT JSON RESPONSE TO CLIENT:
+2025-07-02 21:45:17,658 - swing_server - INFO - ============================================================
+2025-07-02 21:45:17,658 - swing_server - INFO - {
+  "status": "success",
+  "recommendations": [
+    {
+      "symbol": "MAHSCOOTER",
+      "name": "Maharashtra Scooters Limited",
+      "price": 15314.0,
+      "score": 100.0,
+      "per_change": 6.05,
+      "volume": 34923,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "SHARDAMOTR",
+      "name": "Sharda Motor Industries Limited",
+      "price": 2084.4,
+      "score": 100.0,
+      "per_change": 6.18,
+      "volume": 315631,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TATACOMM",
+      "name": "Tata Communications Limited",
+      "price": 1807.5,
+      "score": 100.0,
+      "per_change": 4.73,
+      "volume": 3532942,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "ZOTA",
+      "name": "Zota Health Care Ltd",
+      "price": 1121.0,
+      "score": 100.0,
+      "per_change": 2.8,
+      "volume": 663188,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TATVA",
+      "name": "Tatva Chintan Pharma Chem Ltd",
+      "price": 997.4,
+      "score": 100.0,
+      "per_change": 4.67,
+      "volume": 118070,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "BLUEDART",
+      "name": "Blue Dart Express Limited",
+      "price": 6910.0,
+      "score": 80.0,
+      "per_change": 0.93,
+      "volume": 231938,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "SKFINDIA",
+      "name": "Skf India Limited",
+      "price": 4969.6,
+      "score": 80.0,
+      "per_change": 1.8,
+      "volume": 185053,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TVSSRICHAK",
+      "name": "Tvs Srichakra Limited",
+      "price": 3316.8,
+      "score": 80.0,
+      "per_change": 8.41,
+      "volume": 189994,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": false,
+      "reversal": true,
+      "categories": [
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TEGA",
+      "name": "Tega Industries Ltd",
+      "price": 1602.5,
+      "score": 80.0,
+      "per_change": 2.33,
+      "volume": 170154,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": false,
+      "reversal": true,
+      "categories": [
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "VENUSPIPES",
+      "name": "Venus Pipes & Tubes Ltd",
+      "price": 1461.7,
+      "score": 80.0,
+      "per_change": 7.85,
+      "volume": 1146074,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TTKHLTCARE",
+      "name": "Ttk Healthcare Limited",
+      "price": 1366.9,
+      "score": 80.0,
+      "per_change": 6.74,
+      "volume": 32555,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "NGLFINE",
+      "name": "NGL Fine Chem Ltd",
+      "price": 1211.9,
+      "score": 80.0,
+      "per_change": 4.78,
+      "volume": 5118,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "POCL",
+      "name": "Pondy Oxides & Chemicals Ltd",
+      "price": 897.85,
+      "score": 80.0,
+      "per_change": 5.5,
+      "volume": 709963,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "DIXON",
+      "name": "Dixon Technologies",
+      "price": 15163.0,
+      "score": 65.0,
+      "per_change": 3.04,
+      "volume": 899590,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "VSTTILLERS",
+      "name": "V.s.t Tillers Tractors Limited",
+      "price": 3940.3,
+      "score": 65.0,
+      "per_change": 6.43,
+      "volume": 94312,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BALKRISIND",
+      "name": "Balkrishna Industries Limited",
+      "price": 2566.2,
+      "score": 65.0,
+      "per_change": 3.61,
+      "volume": 1363309,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BIRLANU",
+      "name": "BirlaNu Ltd",
+      "price": 2361.2,
+      "score": 65.0,
+      "per_change": 1.71,
+      "volume": 15612,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "SMLISUZU",
+      "name": "Sml Isuzu Limited",
+      "price": 2335.0,
+      "score": 65.0,
+      "per_change": 4.36,
+      "volume": 248608,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BLUESTARCO",
+      "name": "Blue Star Limited",
+      "price": 1756.1,
+      "score": 65.0,
+      "per_change": 3.0,
+      "volume": 1857196,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "DENORA",
+      "name": "De Nora India Limited",
+      "price": 916.45,
+      "score": 65.0,
+      "per_change": 4.79,
+      "volume": 38880,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    }
+  ],
+  "metadata": {
+    "combination_used": {
+      "breakout": "v1.2",
+      "momentum": "v1.2",
+      "pattern": "v1.2",
+      "reversal": "v1.2"
+    },
+    "performance_metrics": {
+      "unique_stocks": 61,
+      "total_stocks_across_categories": 120,
+      "avg_score": 49.18032786885246,
+      "multi_category_stocks": 34,
+      "performance_score": 60.32786885245902,
+      "diversity_score": 50.83333333333333
+    },
+    "category_breakdown": {
+      "breakout": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 35,
+        "symbols": [
+          "MAHSCOOTER",
+          "BLUEDART",
+          "SKFINDIA",
+          "TVSSRICHAK",
+          "SHARDAMOTR",
+          "TATACOMM",
+          "TEGA",
+          "VENUSPIPES",
+          "TTKHLTCARE",
+          "INOXINDIA",
+          "NGLFINE",
+          "ZOTA",
+          "KAJARIACER",
+          "TATVA",
+          "POCL",
+          "ALBERTDAVD",
+          "SHYAMMETL",
+          "ASAHIINDIA",
+          "CHEMFAB",
+          "GODREJAGRO",
+          "SAILIFE",
+          "BIL",
+          "CHENNPETRO",
+          "SYRMA",
+          "KALYANKJIL",
+          "REPRO",
+          "KKCL",
+          "IGARASHI",
+          "SUMICHEM",
+          "GUJGASLTD"
+        ]
+      },
+      "momentum": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 25,
+        "symbols": [
+          "MAHSCOOTER",
+          "DIXON",
+          "BHARATRAS",
+          "AMBER",
+          "BLUEDART",
+          "BAYERCROP",
+          "SANOFICONR",
+          "FINEORG",
+          "SKFINDIA",
+          "VSTTILLERS",
+          "TVSSRICHAK",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "CHOLAHLDNG",
+          "SHARDAMOTR",
+          "FIEMIND",
+          "TATACOMM",
+          "BLUESTARCO",
+          "TEGA",
+          "VENUSPIPES",
+          "TTKHLTCARE",
+          "NGLFINE",
+          "ZOTA",
+          "JSWSTEEL",
+          "TATVA",
+          "JKLAKSHMI",
+          "GABRIEL",
+          "DENORA",
+          "POCL"
+        ]
+      },
+      "pattern": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 20,
+        "symbols": [
+          "MAHSCOOTER",
+          "DIXON",
+          "BLUEDART",
+          "FINEORG",
+          "SKFINDIA",
+          "VSTTILLERS",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "SHARDAMOTR",
+          "TATACOMM",
+          "BLUESTARCO",
+          "VENUSPIPES",
+          "SANSERA",
+          "TTKHLTCARE",
+          "INOXINDIA",
+          "NGLFINE",
+          "ZOTA",
+          "KAJARIACER",
+          "TATVA",
+          "JKLAKSHMI",
+          "GABRIEL",
+          "WELCORP",
+          "DENORA",
+          "POCL",
+          "ALBERTDAVD",
+          "SHYAMMETL",
+          "HEXT",
+          "SHARDACROP",
+          "CHEMFAB"
+        ]
+      },
+      "reversal": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 20,
+        "symbols": [
+          "JSWHL",
+          "MAHSCOOTER",
+          "DIXON",
+          "BHARATRAS",
+          "ASTRAZEN",
+          "SANOFICONR",
+          "VSTTILLERS",
+          "CEATLTD",
+          "TVSSRICHAK",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "POLYMED",
+          "SHARDAMOTR",
+          "FIEMIND",
+          "THANGAMAYL",
+          "TATACOMM",
+          "BLUESTARCO",
+          "GRINDWELL",
+          "TEGA",
+          "BIRLACORPN",
+          "BHARATFORG",
+          "ZOTA",
+          "TATVA",
+          "DENORA",
+          "ZENSARTECH",
+          "SHARDACROP",
+          "ASAHIINDIA",
+          "GODREJAGRO",
+          "SILVERTUC"
+        ]
+      }
+    },
+    "total_recommendations": 20,
+    "request_parameters": {
+      "combination": null,
+      "limit_per_query": 30,
+      "min_score": 55.0,
+      "top_recommendations": 20
+    },
+    "timestamp": "2025-07-02T21:45:17.658110",
+    "processing_time_seconds": 12.33,
+    "algorithm_info": {
+      "approach": "Multi-factor swing analysis",
+      "timeframe": "1-4 weeks",
+      "categories": [
+        "breakout",
+        "momentum",
+        "pattern",
+        "reversal"
+      ],
+      "scoring": "Weighted sum (0-100 scale)",
+      "max_possible_score": 100.0,
+      "score_breakdown": "Equal weight distribution based on category appearances"
+    }
+  },
+  "columns": [
+    "symbol",
+    "name",
+    "price",
+    "score",
+    "per_change",
+    "volume",
+    "appearances",
+    "category_count",
+    "recommendation_type",
+    "breakout",
+    "momentum",
+    "pattern",
+    "reversal",
+    "categories"
+  ]
+}
+2025-07-02 21:45:17,658 - swing_server - INFO - ============================================================
+INFO:     127.0.0.1:60021 - "POST /api/swing/swing-buy-recommendations HTTP/1.1" 200 OK
+2025-07-02 21:45:17,676 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:17,676 - swing_server - INFO - 📊 Query length: 244 characters
+2025-07-02 21:45:17,816 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:17,817 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:17,817 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:17,817 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:17,817 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:17,817 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:17,817 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'DIXON', 'BHARATRAS', 'AMBER', 'BLUEDART']
+2025-07-02 21:45:17,817 - swing_server - INFO - 📈 momentum query returned 30 stocks
+2025-07-02 21:45:17,817 - swing_server - INFO - 🎯 momentum top 5 symbols: ['Maharashtra Scooters Limited', 'Dixon Technologies', 'Bharat Rasayan Limited', 'Amber Enterprises India Ltd', 'Blue Dart Express Limited']
+2025-07-02 21:45:17,817 - swing_server - INFO - 🔍 Processing category: pattern (version: v1.2)
+2025-07-02 21:45:17,817 - swing_server - INFO - 📝 Query for pattern: ( {cash} ( latest close > 20 days ago high and latest close > latest sma ( latest close , 20 ) and l...
+2025-07-02 21:45:17,817 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:17,817 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:17,817 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 3.70s
+2025-07-02 21:45:17,916 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:17,917 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:17,917 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:17,917 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:17,917 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:17,917 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:17,918 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'DIXON', 'BHARATRAS', 'AMBER', 'BLUEDART']
+2025-07-02 21:45:17,918 - swing_server - INFO - 📈 momentum query returned 30 stocks
+2025-07-02 21:45:17,918 - swing_server - INFO - 🎯 momentum top 5 symbols: ['Maharashtra Scooters Limited', 'Dixon Technologies', 'Bharat Rasayan Limited', 'Amber Enterprises India Ltd', 'Blue Dart Express Limited']
+2025-07-02 21:45:17,918 - swing_server - INFO - 🔍 Processing category: pattern (version: v1.2)
+2025-07-02 21:45:17,918 - swing_server - INFO - 📝 Query for pattern: ( {cash} ( latest close > 20 days ago high and latest close > latest sma ( latest close , 20 ) and l...
+2025-07-02 21:45:17,918 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:17,918 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:17,918 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 4.13s
+2025-07-02 21:45:21,370 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:21,370 - swing_server - INFO - 📊 Query length: 227 characters
+2025-07-02 21:45:21,523 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:21,524 - swing_server - INFO - 📊 Query length: 227 characters
+2025-07-02 21:45:21,638 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:21,641 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:21,641 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:21,641 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:21,641 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:21,641 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:21,641 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'DIXON', 'BLUEDART', 'FINEORG', 'SKFINDIA']
+2025-07-02 21:45:21,642 - swing_server - INFO - 📈 pattern query returned 30 stocks
+2025-07-02 21:45:21,642 - swing_server - INFO - 🎯 pattern top 5 symbols: ['Maharashtra Scooters Limited', 'Dixon Technologies', 'Blue Dart Express Limited', 'Fine Organic Industries Ltd', 'Skf India Limited']
+2025-07-02 21:45:21,642 - swing_server - INFO - 🔍 Processing category: reversal (version: v1.2)
+2025-07-02 21:45:21,642 - swing_server - INFO - 📝 Query for reversal: ( {cash} ( latest close > latest sma ( latest close , 10 ) and 5 days ago low < 10 days ago low and ...
+2025-07-02 21:45:21,642 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:21,642 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:21,642 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 4.25s
+2025-07-02 21:45:21,784 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:21,786 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:21,787 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:21,787 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:21,787 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:21,787 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:21,787 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'DIXON', 'BLUEDART', 'FINEORG', 'SKFINDIA']
+2025-07-02 21:45:21,787 - swing_server - INFO - 📈 pattern query returned 30 stocks
+2025-07-02 21:45:21,787 - swing_server - INFO - 🎯 pattern top 5 symbols: ['Maharashtra Scooters Limited', 'Dixon Technologies', 'Blue Dart Express Limited', 'Fine Organic Industries Ltd', 'Skf India Limited']
+2025-07-02 21:45:21,787 - swing_server - INFO - 🔍 Processing category: reversal (version: v1.2)
+2025-07-02 21:45:21,787 - swing_server - INFO - 📝 Query for reversal: ( {cash} ( latest close > latest sma ( latest close , 10 ) and 5 days ago low < 10 days ago low and ...
+2025-07-02 21:45:21,787 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:21,788 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:21,788 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 4.15s
+2025-07-02 21:45:22,045 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:22,046 - swing_server - INFO - 📊 Query length: 227 characters
+2025-07-02 21:45:22,295 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:22,297 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:22,297 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:22,297 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'MAHSCOOTER', 'name': 'Maharashtra Scooters Limited', 'bsecode': '500266', 'per_chg': 6.05, 'close': 15314, 'volume': 34923}
+2025-07-02 21:45:22,298 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:22,298 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:22,298 - swing_server - INFO - 🎯 Sample symbols: ['MAHSCOOTER', 'DIXON', 'BLUEDART', 'FINEORG', 'SKFINDIA']
+2025-07-02 21:45:22,298 - swing_server - INFO - 📈 pattern query returned 30 stocks
+2025-07-02 21:45:22,298 - swing_server - INFO - 🎯 pattern top 5 symbols: ['Maharashtra Scooters Limited', 'Dixon Technologies', 'Blue Dart Express Limited', 'Fine Organic Industries Ltd', 'Skf India Limited']
+2025-07-02 21:45:22,298 - swing_server - INFO - 🔍 Processing category: reversal (version: v1.2)
+2025-07-02 21:45:22,298 - swing_server - INFO - 📝 Query for reversal: ( {cash} ( latest close > latest sma ( latest close , 10 ) and 5 days ago low < 10 days ago low and ...
+2025-07-02 21:45:22,298 - swing_server - INFO - 🔍 Running Chartink query (max_results: 30)
+2025-07-02 21:45:22,298 - swing_server - INFO - 🔍 Scan attempt 1/3
+2025-07-02 21:45:22,298 - swing_server - INFO - ⏱️ Rate limiting: sleeping for 3.72s
+2025-07-02 21:45:25,891 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:25,892 - swing_server - INFO - 📊 Query length: 218 characters
+2025-07-02 21:45:25,939 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:25,940 - swing_server - INFO - 📊 Query length: 218 characters
+2025-07-02 21:45:26,021 - swing_server - INFO - 📤 Sending POST request to ChartInk...
+2025-07-02 21:45:26,021 - swing_server - INFO - 📊 Query length: 218 characters
+2025-07-02 21:45:26,182 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:26,184 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:26,185 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:26,185 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'JSWHL', 'name': 'Jsw Holdings Limited', 'bsecode': '532642', 'per_chg': 3.79, 'close': 22210, 'volume': 3600}
+2025-07-02 21:45:26,185 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:26,185 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:26,185 - swing_server - INFO - 🎯 Sample symbols: ['JSWHL', 'MAHSCOOTER', 'DIXON', 'BHARATRAS', 'ASTRAZEN']
+2025-07-02 21:45:26,185 - swing_server - INFO - 📈 reversal query returned 30 stocks
+2025-07-02 21:45:26,185 - swing_server - INFO - 🎯 reversal top 5 symbols: ['Jsw Holdings Limited', 'Maharashtra Scooters Limited', 'Dixon Technologies', 'Bharat Rasayan Limited', 'Astrazeneca Pharma India Limited']
+2025-07-02 21:45:26,186 - swing_server - INFO - 📊 Total unique stocks before scoring: 61
+2025-07-02 21:45:26,186 - swing_server - INFO - 🏆 Top 10 stocks by score: {'MAHSCOOTER': 100.0, 'SHARDAMOTR': 100.0, 'TATACOMM': 100.0, 'ZOTA': 100.0, 'TATVA': 100.0, 'BLUEDART': 80.0, 'SKFINDIA': 80.0, 'TVSSRICHAK': 80.0, 'TEGA': 80.0, 'VENUSPIPES': 80.0}
+2025-07-02 21:45:26,186 - swing_server - INFO - 📈 Metrics - Unique: 61, Total across categories: 120
+2025-07-02 21:45:26,186 - swing_server - INFO - 📊 Performance metrics - Avg score: 49.2, Multi-category: 34, Performance: 60.3
+2025-07-02 21:45:26,186 - swing_server - INFO - 📊 Initial stocks from analysis: 61
+2025-07-02 21:45:26,186 - swing_server - INFO - 🔍 Score filtering (min_score=10.0): 61 -> 61 stocks
+2025-07-02 21:45:26,186 - swing_server - INFO - 📋 Top stocks limiting: 61 -> 20 stocks (limit: 20)
+2025-07-02 21:45:26,186 - swing_server - INFO - ============================================================
+2025-07-02 21:45:26,187 - swing_server - INFO - EXACT JSON RESPONSE TO CLIENT:
+2025-07-02 21:45:26,187 - swing_server - INFO - ============================================================
+2025-07-02 21:45:26,187 - swing_server - INFO - {
+  "status": "success",
+  "recommendations": [
+    {
+      "symbol": "MAHSCOOTER",
+      "name": "Maharashtra Scooters Limited",
+      "price": 15314.0,
+      "score": 100.0,
+      "per_change": 6.05,
+      "volume": 34923,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "SHARDAMOTR",
+      "name": "Sharda Motor Industries Limited",
+      "price": 2084.4,
+      "score": 100.0,
+      "per_change": 6.18,
+      "volume": 315631,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TATACOMM",
+      "name": "Tata Communications Limited",
+      "price": 1807.5,
+      "score": 100.0,
+      "per_change": 4.73,
+      "volume": 3532942,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "ZOTA",
+      "name": "Zota Health Care Ltd",
+      "price": 1121.0,
+      "score": 100.0,
+      "per_change": 2.8,
+      "volume": 663188,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TATVA",
+      "name": "Tatva Chintan Pharma Chem Ltd",
+      "price": 997.4,
+      "score": 100.0,
+      "per_change": 4.67,
+      "volume": 118070,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "BLUEDART",
+      "name": "Blue Dart Express Limited",
+      "price": 6910.0,
+      "score": 80.0,
+      "per_change": 0.93,
+      "volume": 231938,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "SKFINDIA",
+      "name": "Skf India Limited",
+      "price": 4969.6,
+      "score": 80.0,
+      "per_change": 1.8,
+      "volume": 185053,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TVSSRICHAK",
+      "name": "Tvs Srichakra Limited",
+      "price": 3316.8,
+      "score": 80.0,
+      "per_change": 8.41,
+      "volume": 189994,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": false,
+      "reversal": true,
+      "categories": [
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TEGA",
+      "name": "Tega Industries Ltd",
+      "price": 1602.5,
+      "score": 80.0,
+      "per_change": 2.33,
+      "volume": 170154,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": false,
+      "reversal": true,
+      "categories": [
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "VENUSPIPES",
+      "name": "Venus Pipes & Tubes Ltd",
+      "price": 1461.7,
+      "score": 80.0,
+      "per_change": 7.85,
+      "volume": 1146074,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TTKHLTCARE",
+      "name": "Ttk Healthcare Limited",
+      "price": 1366.9,
+      "score": 80.0,
+      "per_change": 6.74,
+      "volume": 32555,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "NGLFINE",
+      "name": "NGL Fine Chem Ltd",
+      "price": 1211.9,
+      "score": 80.0,
+      "per_change": 4.78,
+      "volume": 5118,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "POCL",
+      "name": "Pondy Oxides & Chemicals Ltd",
+      "price": 897.85,
+      "score": 80.0,
+      "per_change": 5.5,
+      "volume": 709963,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "DIXON",
+      "name": "Dixon Technologies",
+      "price": 15163.0,
+      "score": 65.0,
+      "per_change": 3.04,
+      "volume": 899590,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "VSTTILLERS",
+      "name": "V.s.t Tillers Tractors Limited",
+      "price": 3940.3,
+      "score": 65.0,
+      "per_change": 6.43,
+      "volume": 94312,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BALKRISIND",
+      "name": "Balkrishna Industries Limited",
+      "price": 2566.2,
+      "score": 65.0,
+      "per_change": 3.61,
+      "volume": 1363309,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BIRLANU",
+      "name": "BirlaNu Ltd",
+      "price": 2361.2,
+      "score": 65.0,
+      "per_change": 1.71,
+      "volume": 15612,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "SMLISUZU",
+      "name": "Sml Isuzu Limited",
+      "price": 2335.0,
+      "score": 65.0,
+      "per_change": 4.36,
+      "volume": 248608,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BLUESTARCO",
+      "name": "Blue Star Limited",
+      "price": 1756.1,
+      "score": 65.0,
+      "per_change": 3.0,
+      "volume": 1857196,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "DENORA",
+      "name": "De Nora India Limited",
+      "price": 916.45,
+      "score": 65.0,
+      "per_change": 4.79,
+      "volume": 38880,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    }
+  ],
+  "metadata": {
+    "combination_used": {
+      "breakout": "v1.2",
+      "momentum": "v1.2",
+      "pattern": "v1.2",
+      "reversal": "v1.2"
+    },
+    "performance_metrics": {
+      "unique_stocks": 61,
+      "total_stocks_across_categories": 120,
+      "avg_score": 49.18032786885246,
+      "multi_category_stocks": 34,
+      "performance_score": 60.32786885245902,
+      "diversity_score": 50.83333333333333
+    },
+    "category_breakdown": {
+      "breakout": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 35,
+        "symbols": [
+          "MAHSCOOTER",
+          "BLUEDART",
+          "SKFINDIA",
+          "TVSSRICHAK",
+          "SHARDAMOTR",
+          "TATACOMM",
+          "TEGA",
+          "VENUSPIPES",
+          "TTKHLTCARE",
+          "INOXINDIA",
+          "NGLFINE",
+          "ZOTA",
+          "KAJARIACER",
+          "TATVA",
+          "POCL",
+          "ALBERTDAVD",
+          "SHYAMMETL",
+          "ASAHIINDIA",
+          "CHEMFAB",
+          "GODREJAGRO",
+          "SAILIFE",
+          "BIL",
+          "CHENNPETRO",
+          "SYRMA",
+          "KALYANKJIL",
+          "REPRO",
+          "KKCL",
+          "IGARASHI",
+          "SUMICHEM",
+          "GUJGASLTD"
+        ]
+      },
+      "momentum": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 25,
+        "symbols": [
+          "MAHSCOOTER",
+          "DIXON",
+          "BHARATRAS",
+          "AMBER",
+          "BLUEDART",
+          "BAYERCROP",
+          "SANOFICONR",
+          "FINEORG",
+          "SKFINDIA",
+          "VSTTILLERS",
+          "TVSSRICHAK",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "CHOLAHLDNG",
+          "SHARDAMOTR",
+          "FIEMIND",
+          "TATACOMM",
+          "BLUESTARCO",
+          "TEGA",
+          "VENUSPIPES",
+          "TTKHLTCARE",
+          "NGLFINE",
+          "ZOTA",
+          "JSWSTEEL",
+          "TATVA",
+          "JKLAKSHMI",
+          "GABRIEL",
+          "DENORA",
+          "POCL"
+        ]
+      },
+      "pattern": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 20,
+        "symbols": [
+          "MAHSCOOTER",
+          "DIXON",
+          "BLUEDART",
+          "FINEORG",
+          "SKFINDIA",
+          "VSTTILLERS",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "SHARDAMOTR",
+          "TATACOMM",
+          "BLUESTARCO",
+          "VENUSPIPES",
+          "SANSERA",
+          "TTKHLTCARE",
+          "INOXINDIA",
+          "NGLFINE",
+          "ZOTA",
+          "KAJARIACER",
+          "TATVA",
+          "JKLAKSHMI",
+          "GABRIEL",
+          "WELCORP",
+          "DENORA",
+          "POCL",
+          "ALBERTDAVD",
+          "SHYAMMETL",
+          "HEXT",
+          "SHARDACROP",
+          "CHEMFAB"
+        ]
+      },
+      "reversal": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 20,
+        "symbols": [
+          "JSWHL",
+          "MAHSCOOTER",
+          "DIXON",
+          "BHARATRAS",
+          "ASTRAZEN",
+          "SANOFICONR",
+          "VSTTILLERS",
+          "CEATLTD",
+          "TVSSRICHAK",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "POLYMED",
+          "SHARDAMOTR",
+          "FIEMIND",
+          "THANGAMAYL",
+          "TATACOMM",
+          "BLUESTARCO",
+          "GRINDWELL",
+          "TEGA",
+          "BIRLACORPN",
+          "BHARATFORG",
+          "ZOTA",
+          "TATVA",
+          "DENORA",
+          "ZENSARTECH",
+          "SHARDACROP",
+          "ASAHIINDIA",
+          "GODREJAGRO",
+          "SILVERTUC"
+        ]
+      }
+    },
+    "total_recommendations": 20,
+    "request_parameters": {
+      "combination": null,
+      "limit_per_query": 30,
+      "min_score": 10.0,
+      "top_recommendations": 20
+    },
+    "timestamp": "2025-07-02T21:45:26.186783",
+    "processing_time_seconds": 14.76,
+    "algorithm_info": {
+      "approach": "Multi-factor swing analysis",
+      "timeframe": "1-4 weeks",
+      "categories": [
+        "breakout",
+        "momentum",
+        "pattern",
+        "reversal"
+      ],
+      "scoring": "Weighted sum (0-100 scale)",
+      "max_possible_score": 100.0,
+      "score_breakdown": "Equal weight distribution based on category appearances"
+    }
+  },
+  "columns": [
+    "symbol",
+    "name",
+    "price",
+    "score",
+    "per_change",
+    "volume",
+    "appearances",
+    "category_count",
+    "recommendation_type",
+    "breakout",
+    "momentum",
+    "pattern",
+    "reversal",
+    "categories"
+  ]
+}
+2025-07-02 21:45:26,188 - swing_server - INFO - ============================================================
+INFO:     127.0.0.1:60034 - "POST /api/swing/swing-buy-recommendations HTTP/1.1" 200 OK
+2025-07-02 21:45:26,191 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:26,192 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:26,192 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:26,192 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'JSWHL', 'name': 'Jsw Holdings Limited', 'bsecode': '532642', 'per_chg': 3.79, 'close': 22210, 'volume': 3600}
+2025-07-02 21:45:26,192 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:26,192 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:26,192 - swing_server - INFO - 🎯 Sample symbols: ['JSWHL', 'MAHSCOOTER', 'DIXON', 'BHARATRAS', 'ASTRAZEN']
+2025-07-02 21:45:26,192 - swing_server - INFO - 📈 reversal query returned 30 stocks
+2025-07-02 21:45:26,192 - swing_server - INFO - 🎯 reversal top 5 symbols: ['Jsw Holdings Limited', 'Maharashtra Scooters Limited', 'Dixon Technologies', 'Bharat Rasayan Limited', 'Astrazeneca Pharma India Limited']
+2025-07-02 21:45:26,193 - swing_server - INFO - 📊 Total unique stocks before scoring: 61
+2025-07-02 21:45:26,193 - swing_server - INFO - 🏆 Top 10 stocks by score: {'MAHSCOOTER': 100.0, 'SHARDAMOTR': 100.0, 'TATACOMM': 100.0, 'ZOTA': 100.0, 'TATVA': 100.0, 'BLUEDART': 80.0, 'SKFINDIA': 80.0, 'TVSSRICHAK': 80.0, 'TEGA': 80.0, 'VENUSPIPES': 80.0}
+2025-07-02 21:45:26,193 - swing_server - INFO - 📈 Metrics - Unique: 61, Total across categories: 120
+2025-07-02 21:45:26,193 - swing_server - INFO - 📊 Performance metrics - Avg score: 49.2, Multi-category: 34, Performance: 60.3
+2025-07-02 21:45:26,193 - swing_server - INFO - 📊 Initial stocks from analysis: 61
+2025-07-02 21:45:26,193 - swing_server - INFO - 🔍 Score filtering (min_score=15.0): 61 -> 61 stocks
+2025-07-02 21:45:26,193 - swing_server - INFO - 📋 Top stocks limiting: 61 -> 20 stocks (limit: 20)
+2025-07-02 21:45:26,193 - swing_server - INFO - ============================================================
+2025-07-02 21:45:26,193 - swing_server - INFO - EXACT JSON RESPONSE TO CLIENT:
+2025-07-02 21:45:26,193 - swing_server - INFO - ============================================================
+2025-07-02 21:45:26,194 - swing_server - INFO - {
+  "status": "success",
+  "recommendations": [
+    {
+      "symbol": "MAHSCOOTER",
+      "name": "Maharashtra Scooters Limited",
+      "price": 15314.0,
+      "score": 100.0,
+      "per_change": 6.05,
+      "volume": 34923,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "SHARDAMOTR",
+      "name": "Sharda Motor Industries Limited",
+      "price": 2084.4,
+      "score": 100.0,
+      "per_change": 6.18,
+      "volume": 315631,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TATACOMM",
+      "name": "Tata Communications Limited",
+      "price": 1807.5,
+      "score": 100.0,
+      "per_change": 4.73,
+      "volume": 3532942,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "ZOTA",
+      "name": "Zota Health Care Ltd",
+      "price": 1121.0,
+      "score": 100.0,
+      "per_change": 2.8,
+      "volume": 663188,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TATVA",
+      "name": "Tatva Chintan Pharma Chem Ltd",
+      "price": 997.4,
+      "score": 100.0,
+      "per_change": 4.67,
+      "volume": 118070,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "BLUEDART",
+      "name": "Blue Dart Express Limited",
+      "price": 6910.0,
+      "score": 80.0,
+      "per_change": 0.93,
+      "volume": 231938,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "SKFINDIA",
+      "name": "Skf India Limited",
+      "price": 4969.6,
+      "score": 80.0,
+      "per_change": 1.8,
+      "volume": 185053,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TVSSRICHAK",
+      "name": "Tvs Srichakra Limited",
+      "price": 3316.8,
+      "score": 80.0,
+      "per_change": 8.41,
+      "volume": 189994,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": false,
+      "reversal": true,
+      "categories": [
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TEGA",
+      "name": "Tega Industries Ltd",
+      "price": 1602.5,
+      "score": 80.0,
+      "per_change": 2.33,
+      "volume": 170154,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": false,
+      "reversal": true,
+      "categories": [
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "VENUSPIPES",
+      "name": "Venus Pipes & Tubes Ltd",
+      "price": 1461.7,
+      "score": 80.0,
+      "per_change": 7.85,
+      "volume": 1146074,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TTKHLTCARE",
+      "name": "Ttk Healthcare Limited",
+      "price": 1366.9,
+      "score": 80.0,
+      "per_change": 6.74,
+      "volume": 32555,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "NGLFINE",
+      "name": "NGL Fine Chem Ltd",
+      "price": 1211.9,
+      "score": 80.0,
+      "per_change": 4.78,
+      "volume": 5118,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "POCL",
+      "name": "Pondy Oxides & Chemicals Ltd",
+      "price": 897.85,
+      "score": 80.0,
+      "per_change": 5.5,
+      "volume": 709963,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "DIXON",
+      "name": "Dixon Technologies",
+      "price": 15163.0,
+      "score": 65.0,
+      "per_change": 3.04,
+      "volume": 899590,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "VSTTILLERS",
+      "name": "V.s.t Tillers Tractors Limited",
+      "price": 3940.3,
+      "score": 65.0,
+      "per_change": 6.43,
+      "volume": 94312,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BALKRISIND",
+      "name": "Balkrishna Industries Limited",
+      "price": 2566.2,
+      "score": 65.0,
+      "per_change": 3.61,
+      "volume": 1363309,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BIRLANU",
+      "name": "BirlaNu Ltd",
+      "price": 2361.2,
+      "score": 65.0,
+      "per_change": 1.71,
+      "volume": 15612,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "SMLISUZU",
+      "name": "Sml Isuzu Limited",
+      "price": 2335.0,
+      "score": 65.0,
+      "per_change": 4.36,
+      "volume": 248608,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BLUESTARCO",
+      "name": "Blue Star Limited",
+      "price": 1756.1,
+      "score": 65.0,
+      "per_change": 3.0,
+      "volume": 1857196,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "DENORA",
+      "name": "De Nora India Limited",
+      "price": 916.45,
+      "score": 65.0,
+      "per_change": 4.79,
+      "volume": 38880,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    }
+  ],
+  "metadata": {
+    "combination_used": {
+      "breakout": "v1.2",
+      "momentum": "v1.2",
+      "pattern": "v1.2",
+      "reversal": "v1.2"
+    },
+    "performance_metrics": {
+      "unique_stocks": 61,
+      "total_stocks_across_categories": 120,
+      "avg_score": 49.18032786885246,
+      "multi_category_stocks": 34,
+      "performance_score": 60.32786885245902,
+      "diversity_score": 50.83333333333333
+    },
+    "category_breakdown": {
+      "breakout": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 35,
+        "symbols": [
+          "MAHSCOOTER",
+          "BLUEDART",
+          "SKFINDIA",
+          "TVSSRICHAK",
+          "SHARDAMOTR",
+          "TATACOMM",
+          "TEGA",
+          "VENUSPIPES",
+          "TTKHLTCARE",
+          "INOXINDIA",
+          "NGLFINE",
+          "ZOTA",
+          "KAJARIACER",
+          "TATVA",
+          "POCL",
+          "ALBERTDAVD",
+          "SHYAMMETL",
+          "ASAHIINDIA",
+          "CHEMFAB",
+          "GODREJAGRO",
+          "SAILIFE",
+          "BIL",
+          "CHENNPETRO",
+          "SYRMA",
+          "KALYANKJIL",
+          "REPRO",
+          "KKCL",
+          "IGARASHI",
+          "SUMICHEM",
+          "GUJGASLTD"
+        ]
+      },
+      "momentum": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 25,
+        "symbols": [
+          "MAHSCOOTER",
+          "DIXON",
+          "BHARATRAS",
+          "AMBER",
+          "BLUEDART",
+          "BAYERCROP",
+          "SANOFICONR",
+          "FINEORG",
+          "SKFINDIA",
+          "VSTTILLERS",
+          "TVSSRICHAK",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "CHOLAHLDNG",
+          "SHARDAMOTR",
+          "FIEMIND",
+          "TATACOMM",
+          "BLUESTARCO",
+          "TEGA",
+          "VENUSPIPES",
+          "TTKHLTCARE",
+          "NGLFINE",
+          "ZOTA",
+          "JSWSTEEL",
+          "TATVA",
+          "JKLAKSHMI",
+          "GABRIEL",
+          "DENORA",
+          "POCL"
+        ]
+      },
+      "pattern": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 20,
+        "symbols": [
+          "MAHSCOOTER",
+          "DIXON",
+          "BLUEDART",
+          "FINEORG",
+          "SKFINDIA",
+          "VSTTILLERS",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "SHARDAMOTR",
+          "TATACOMM",
+          "BLUESTARCO",
+          "VENUSPIPES",
+          "SANSERA",
+          "TTKHLTCARE",
+          "INOXINDIA",
+          "NGLFINE",
+          "ZOTA",
+          "KAJARIACER",
+          "TATVA",
+          "JKLAKSHMI",
+          "GABRIEL",
+          "WELCORP",
+          "DENORA",
+          "POCL",
+          "ALBERTDAVD",
+          "SHYAMMETL",
+          "HEXT",
+          "SHARDACROP",
+          "CHEMFAB"
+        ]
+      },
+      "reversal": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 20,
+        "symbols": [
+          "JSWHL",
+          "MAHSCOOTER",
+          "DIXON",
+          "BHARATRAS",
+          "ASTRAZEN",
+          "SANOFICONR",
+          "VSTTILLERS",
+          "CEATLTD",
+          "TVSSRICHAK",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "POLYMED",
+          "SHARDAMOTR",
+          "FIEMIND",
+          "THANGAMAYL",
+          "TATACOMM",
+          "BLUESTARCO",
+          "GRINDWELL",
+          "TEGA",
+          "BIRLACORPN",
+          "BHARATFORG",
+          "ZOTA",
+          "TATVA",
+          "DENORA",
+          "ZENSARTECH",
+          "SHARDACROP",
+          "ASAHIINDIA",
+          "GODREJAGRO",
+          "SILVERTUC"
+        ]
+      }
+    },
+    "total_recommendations": 20,
+    "request_parameters": {
+      "combination": null,
+      "limit_per_query": 30,
+      "min_score": 15.0,
+      "top_recommendations": 20
+    },
+    "timestamp": "2025-07-02T21:45:26.193455",
+    "processing_time_seconds": 14.41,
+    "algorithm_info": {
+      "approach": "Multi-factor swing analysis",
+      "timeframe": "1-4 weeks",
+      "categories": [
+        "breakout",
+        "momentum",
+        "pattern",
+        "reversal"
+      ],
+      "scoring": "Weighted sum (0-100 scale)",
+      "max_possible_score": 100.0,
+      "score_breakdown": "Equal weight distribution based on category appearances"
+    }
+  },
+  "columns": [
+    "symbol",
+    "name",
+    "price",
+    "score",
+    "per_change",
+    "volume",
+    "appearances",
+    "category_count",
+    "recommendation_type",
+    "breakout",
+    "momentum",
+    "pattern",
+    "reversal",
+    "categories"
+  ]
+}
+2025-07-02 21:45:26,194 - swing_server - INFO - ============================================================
+INFO:     127.0.0.1:60040 - "POST /api/swing/swing-buy-recommendations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60045 - "GET /health HTTP/1.1" 200 OK
+2025-07-02 21:45:26,279 - httpx - INFO - HTTP Request: POST https://chartink.com/screener/process "HTTP/1.1 200 OK"
+2025-07-02 21:45:26,279 - swing_server - INFO - 📥 Response: HTTP 200
+2025-07-02 21:45:26,280 - swing_server - INFO - 🔍 Sample stock data structure: ['sr', 'nsecode', 'name', 'bsecode', 'per_chg', 'close', 'volume']
+2025-07-02 21:45:26,280 - swing_server - INFO - 🔍 First stock sample: {'sr': 1, 'nsecode': 'JSWHL', 'name': 'Jsw Holdings Limited', 'bsecode': '532642', 'per_chg': 3.79, 'close': 22210, 'volume': 3600}
+2025-07-02 21:45:26,280 - swing_server - INFO - ✅ Successfully parsed 30 stocks from ChartInk
+2025-07-02 21:45:26,280 - swing_server - INFO - 🎯 Using symbol field: nsecode
+2025-07-02 21:45:26,280 - swing_server - INFO - 🎯 Sample symbols: ['JSWHL', 'MAHSCOOTER', 'DIXON', 'BHARATRAS', 'ASTRAZEN']
+2025-07-02 21:45:26,280 - swing_server - INFO - 📈 reversal query returned 30 stocks
+2025-07-02 21:45:26,280 - swing_server - INFO - 🎯 reversal top 5 symbols: ['Jsw Holdings Limited', 'Maharashtra Scooters Limited', 'Dixon Technologies', 'Bharat Rasayan Limited', 'Astrazeneca Pharma India Limited']
+2025-07-02 21:45:26,280 - swing_server - INFO - 📊 Total unique stocks before scoring: 61
+2025-07-02 21:45:26,280 - swing_server - INFO - 🏆 Top 10 stocks by score: {'MAHSCOOTER': 100.0, 'SHARDAMOTR': 100.0, 'TATACOMM': 100.0, 'ZOTA': 100.0, 'TATVA': 100.0, 'BLUEDART': 80.0, 'SKFINDIA': 80.0, 'TVSSRICHAK': 80.0, 'TEGA': 80.0, 'VENUSPIPES': 80.0}
+2025-07-02 21:45:26,280 - swing_server - INFO - 📈 Metrics - Unique: 61, Total across categories: 120
+2025-07-02 21:45:26,280 - swing_server - INFO - 📊 Performance metrics - Avg score: 49.2, Multi-category: 34, Performance: 60.3
+2025-07-02 21:45:26,280 - swing_server - INFO - 📊 Initial stocks from analysis: 61
+2025-07-02 21:45:26,280 - swing_server - INFO - 🔍 Score filtering (min_score=5.0): 61 -> 61 stocks
+2025-07-02 21:45:26,280 - swing_server - INFO - 📋 Top stocks limiting: 61 -> 20 stocks (limit: 20)
+2025-07-02 21:45:26,280 - swing_server - INFO - ============================================================
+2025-07-02 21:45:26,280 - swing_server - INFO - EXACT JSON RESPONSE TO CLIENT:
+2025-07-02 21:45:26,280 - swing_server - INFO - ============================================================
+2025-07-02 21:45:26,280 - swing_server - INFO - {
+  "status": "success",
+  "recommendations": [
+    {
+      "symbol": "MAHSCOOTER",
+      "name": "Maharashtra Scooters Limited",
+      "price": 15314.0,
+      "score": 100.0,
+      "per_change": 6.05,
+      "volume": 34923,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "SHARDAMOTR",
+      "name": "Sharda Motor Industries Limited",
+      "price": 2084.4,
+      "score": 100.0,
+      "per_change": 6.18,
+      "volume": 315631,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TATACOMM",
+      "name": "Tata Communications Limited",
+      "price": 1807.5,
+      "score": 100.0,
+      "per_change": 4.73,
+      "volume": 3532942,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "ZOTA",
+      "name": "Zota Health Care Ltd",
+      "price": 1121.0,
+      "score": 100.0,
+      "per_change": 2.8,
+      "volume": 663188,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TATVA",
+      "name": "Tatva Chintan Pharma Chem Ltd",
+      "price": 997.4,
+      "score": 100.0,
+      "per_change": 4.67,
+      "volume": 118070,
+      "appearances": 4,
+      "category_count": 4,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "BLUEDART",
+      "name": "Blue Dart Express Limited",
+      "price": 6910.0,
+      "score": 80.0,
+      "per_change": 0.93,
+      "volume": 231938,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "SKFINDIA",
+      "name": "Skf India Limited",
+      "price": 4969.6,
+      "score": 80.0,
+      "per_change": 1.8,
+      "volume": 185053,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TVSSRICHAK",
+      "name": "Tvs Srichakra Limited",
+      "price": 3316.8,
+      "score": 80.0,
+      "per_change": 8.41,
+      "volume": 189994,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": false,
+      "reversal": true,
+      "categories": [
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TEGA",
+      "name": "Tega Industries Ltd",
+      "price": 1602.5,
+      "score": 80.0,
+      "per_change": 2.33,
+      "volume": 170154,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": false,
+      "reversal": true,
+      "categories": [
+        "momentum",
+        "reversal",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "VENUSPIPES",
+      "name": "Venus Pipes & Tubes Ltd",
+      "price": 1461.7,
+      "score": 80.0,
+      "per_change": 7.85,
+      "volume": 1146074,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "TTKHLTCARE",
+      "name": "Ttk Healthcare Limited",
+      "price": 1366.9,
+      "score": 80.0,
+      "per_change": 6.74,
+      "volume": 32555,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "NGLFINE",
+      "name": "NGL Fine Chem Ltd",
+      "price": 1211.9,
+      "score": 80.0,
+      "per_change": 4.78,
+      "volume": 5118,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "POCL",
+      "name": "Pondy Oxides & Chemicals Ltd",
+      "price": 897.85,
+      "score": 80.0,
+      "per_change": 5.5,
+      "volume": 709963,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Strong Swing",
+      "breakout": true,
+      "momentum": true,
+      "pattern": true,
+      "reversal": false,
+      "categories": [
+        "pattern",
+        "momentum",
+        "breakout"
+      ]
+    },
+    {
+      "symbol": "DIXON",
+      "name": "Dixon Technologies",
+      "price": 15163.0,
+      "score": 65.0,
+      "per_change": 3.04,
+      "volume": 899590,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "VSTTILLERS",
+      "name": "V.s.t Tillers Tractors Limited",
+      "price": 3940.3,
+      "score": 65.0,
+      "per_change": 6.43,
+      "volume": 94312,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BALKRISIND",
+      "name": "Balkrishna Industries Limited",
+      "price": 2566.2,
+      "score": 65.0,
+      "per_change": 3.61,
+      "volume": 1363309,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BIRLANU",
+      "name": "BirlaNu Ltd",
+      "price": 2361.2,
+      "score": 65.0,
+      "per_change": 1.71,
+      "volume": 15612,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "SMLISUZU",
+      "name": "Sml Isuzu Limited",
+      "price": 2335.0,
+      "score": 65.0,
+      "per_change": 4.36,
+      "volume": 248608,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "BLUESTARCO",
+      "name": "Blue Star Limited",
+      "price": 1756.1,
+      "score": 65.0,
+      "per_change": 3.0,
+      "volume": 1857196,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    },
+    {
+      "symbol": "DENORA",
+      "name": "De Nora India Limited",
+      "price": 916.45,
+      "score": 65.0,
+      "per_change": 4.79,
+      "volume": 38880,
+      "appearances": 3,
+      "category_count": 3,
+      "recommendation_type": "Swing Buy",
+      "breakout": false,
+      "momentum": true,
+      "pattern": true,
+      "reversal": true,
+      "categories": [
+        "pattern",
+        "momentum",
+        "reversal"
+      ]
+    }
+  ],
+  "metadata": {
+    "combination_used": {
+      "breakout": "v1.2",
+      "momentum": "v1.2",
+      "pattern": "v1.2",
+      "reversal": "v1.2"
+    },
+    "performance_metrics": {
+      "unique_stocks": 61,
+      "total_stocks_across_categories": 120,
+      "avg_score": 49.18032786885246,
+      "multi_category_stocks": 34,
+      "performance_score": 60.32786885245902,
+      "diversity_score": 50.83333333333333
+    },
+    "category_breakdown": {
+      "breakout": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 35,
+        "symbols": [
+          "MAHSCOOTER",
+          "BLUEDART",
+          "SKFINDIA",
+          "TVSSRICHAK",
+          "SHARDAMOTR",
+          "TATACOMM",
+          "TEGA",
+          "VENUSPIPES",
+          "TTKHLTCARE",
+          "INOXINDIA",
+          "NGLFINE",
+          "ZOTA",
+          "KAJARIACER",
+          "TATVA",
+          "POCL",
+          "ALBERTDAVD",
+          "SHYAMMETL",
+          "ASAHIINDIA",
+          "CHEMFAB",
+          "GODREJAGRO",
+          "SAILIFE",
+          "BIL",
+          "CHENNPETRO",
+          "SYRMA",
+          "KALYANKJIL",
+          "REPRO",
+          "KKCL",
+          "IGARASHI",
+          "SUMICHEM",
+          "GUJGASLTD"
+        ]
+      },
+      "momentum": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 25,
+        "symbols": [
+          "MAHSCOOTER",
+          "DIXON",
+          "BHARATRAS",
+          "AMBER",
+          "BLUEDART",
+          "BAYERCROP",
+          "SANOFICONR",
+          "FINEORG",
+          "SKFINDIA",
+          "VSTTILLERS",
+          "TVSSRICHAK",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "CHOLAHLDNG",
+          "SHARDAMOTR",
+          "FIEMIND",
+          "TATACOMM",
+          "BLUESTARCO",
+          "TEGA",
+          "VENUSPIPES",
+          "TTKHLTCARE",
+          "NGLFINE",
+          "ZOTA",
+          "JSWSTEEL",
+          "TATVA",
+          "JKLAKSHMI",
+          "GABRIEL",
+          "DENORA",
+          "POCL"
+        ]
+      },
+      "pattern": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 20,
+        "symbols": [
+          "MAHSCOOTER",
+          "DIXON",
+          "BLUEDART",
+          "FINEORG",
+          "SKFINDIA",
+          "VSTTILLERS",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "SHARDAMOTR",
+          "TATACOMM",
+          "BLUESTARCO",
+          "VENUSPIPES",
+          "SANSERA",
+          "TTKHLTCARE",
+          "INOXINDIA",
+          "NGLFINE",
+          "ZOTA",
+          "KAJARIACER",
+          "TATVA",
+          "JKLAKSHMI",
+          "GABRIEL",
+          "WELCORP",
+          "DENORA",
+          "POCL",
+          "ALBERTDAVD",
+          "SHYAMMETL",
+          "HEXT",
+          "SHARDACROP",
+          "CHEMFAB"
+        ]
+      },
+      "reversal": {
+        "version": "v1.2",
+        "stocks_found": 30,
+        "weight": 20,
+        "symbols": [
+          "JSWHL",
+          "MAHSCOOTER",
+          "DIXON",
+          "BHARATRAS",
+          "ASTRAZEN",
+          "SANOFICONR",
+          "VSTTILLERS",
+          "CEATLTD",
+          "TVSSRICHAK",
+          "BALKRISIND",
+          "BIRLANU",
+          "SMLISUZU",
+          "POLYMED",
+          "SHARDAMOTR",
+          "FIEMIND",
+          "THANGAMAYL",
+          "TATACOMM",
+          "BLUESTARCO",
+          "GRINDWELL",
+          "TEGA",
+          "BIRLACORPN",
+          "BHARATFORG",
+          "ZOTA",
+          "TATVA",
+          "DENORA",
+          "ZENSARTECH",
+          "SHARDACROP",
+          "ASAHIINDIA",
+          "GODREJAGRO",
+          "SILVERTUC"
+        ]
+      }
+    },
+    "total_recommendations": 20,
+    "request_parameters": {
+      "combination": null,
+      "limit_per_query": 30,
+      "min_score": 5.0,
+      "top_recommendations": 20
+    },
+    "timestamp": "2025-07-02T21:45:26.280473",
+    "processing_time_seconds": 16.08,
+    "algorithm_info": {
+      "approach": "Multi-factor swing analysis",
+      "timeframe": "1-4 weeks",
+      "categories": [
+        "breakout",
+        "momentum",
+        "pattern",
+        "reversal"
+      ],
+      "scoring": "Weighted sum (0-100 scale)",
+      "max_possible_score": 100.0,
+      "score_breakdown": "Equal weight distribution based on category appearances"
+    }
+  },
+  "columns": [
+    "symbol",
+    "name",
+    "price",
+    "score",
+    "per_change",
+    "volume",
+    "appearances",
+    "category_count",
+    "recommendation_type",
+    "breakout",
+    "momentum",
+    "pattern",
+    "reversal",
+    "categories"
+  ]
+}
+2025-07-02 21:45:26,280 - swing_server - INFO - ============================================================
+INFO:     127.0.0.1:60028 - "POST /api/swing/swing-buy-recommendations HTTP/1.1" 200 OK

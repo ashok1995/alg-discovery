@@ -1,0 +1,41 @@
+/Users/ashokkumar/Desktop/alg-discovery/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Full services not available - creating simplified version
+INFO:     Will watch for changes in these directories: ['/Users/ashokkumar/Desktop/alg-discovery']
+INFO:     Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
+INFO:     Started reloader process [56757] using WatchFiles
+/Users/ashokkumar/Desktop/alg-discovery/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Full services not available - creating simplified version
+2025-07-02 00:28:50,611 - analytics_server - WARNING - Full services not available - creating simplified version
+INFO:     Started server process [56760]
+INFO:     Waiting for application startup.
+2025-07-02 00:28:50,615 - analytics_server - INFO - 🚀 Starting Analytics and Backtesting Server...
+2025-07-02 00:28:50,615 - analytics_server - INFO - ✅ Mock analytics services initialized
+INFO:     Application startup complete.
+2025-07-02 00:28:51,730 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:28:52,803 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:28:54,778 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:29:59,716 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:30:09,145 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:30:26,110 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:30:32,614 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:30:52,264 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:30:56,696 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:31:16,503 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:31:18,957 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:31:33,655 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:31:40,518 - watchfiles.main - INFO - 3 changes detected
+2025-07-02 00:31:45,064 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:31:45,427 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:31:46,056 - watchfiles.main - INFO - 2 changes detected
+2025-07-02 00:31:49,676 - watchfiles.main - INFO - 2 changes detected
+2025-07-02 00:31:51,695 - watchfiles.main - INFO - 2 changes detected
+2025-07-02 00:32:13,625 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:32:15,924 - watchfiles.main - INFO - 1 change detected
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-07-02 00:32:33,282 - analytics_server - INFO - 🛑 Analytics services stopped
+INFO:     Application shutdown complete.
+INFO:     Finished server process [56760]
+INFO:     Stopping reloader process [56757]

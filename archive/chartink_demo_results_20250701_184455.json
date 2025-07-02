@@ -1,0 +1,2316 @@
+{
+  "single_theme_test": {
+    "theme": "breakout_stocks",
+    "total_recommendations": 4,
+    "avg_confidence": 51.188285914615584,
+    "avg_strength": 51.188285914615584,
+    "high_confidence_count": 0,
+    "recommendations": [
+      {
+        "symbol": "ULTRACEMCO.NS",
+        "signal_type": "BUY",
+        "entry_price": 12210.0,
+        "target_price": 12576.300000000001,
+        "stop_loss": 11965.8,
+        "confidence": 51.5289892022793,
+        "strength": 51.52898920227929,
+        "timestamp": "2025-07-01T18:44:48.023190",
+        "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 51.27268248624682,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "breakout_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "breakout_stocks"
+      },
+      {
+        "symbol": "RELIANCE.NS",
+        "signal_type": "BUY",
+        "entry_price": 1526.800048828125,
+        "target_price": 1572.6040502929689,
+        "stop_loss": 1496.2640478515625,
+        "confidence": 51.08587329866698,
+        "strength": 51.08587329866698,
+        "timestamp": "2025-07-01T18:44:48.023192",
+        "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 50.163687547965324,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "breakout_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "breakout_stocks"
+      },
+      {
+        "symbol": "TCS.NS",
+        "signal_type": "BUY",
+        "entry_price": 3429.0,
+        "target_price": 3531.87,
+        "stop_loss": 3360.42,
+        "confidence": 51.072034756997034,
+        "strength": 51.07203475699703,
+        "timestamp": "2025-07-01T18:44:48.023193",
+        "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 50.131184928040476,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "breakout_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "breakout_stocks"
+      },
+      {
+        "symbol": "WIPRO.NS",
+        "signal_type": "BUY",
+        "entry_price": 264.29998779296875,
+        "target_price": 272.22898742675784,
+        "stop_loss": 259.01398803710936,
+        "confidence": 51.06624640051902,
+        "strength": 51.06624640051903,
+        "timestamp": "2025-07-01T18:44:48.023194",
+        "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 50.094606221660705,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "breakout_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "breakout_stocks"
+      }
+    ],
+    "market_conditions": {
+      "scan_time": "2025-07-01T18:44:48.023196",
+      "active_signals": 4,
+      "avg_confidence": 51.188285914615584,
+      "avg_strength": 51.188285914615584,
+      "high_confidence_count": 0
+    },
+    "raw_response": {
+      "timestamp": "2025-07-01T18:44:48.023195",
+      "total_candidates_found": 5,
+      "recommendations_returned": 4,
+      "ranking_enabled": true,
+      "scan_sources": [
+        "intraday_service",
+        "breakout_screener",
+        "volume_screener"
+      ],
+      "chartink_theme": "breakout_stocks",
+      "filters_applied": {
+        "confidence_threshold": 50.0,
+        "strength_threshold": 50.0,
+        "limit": 8
+      },
+      "market_conditions": {
+        "scan_time": "2025-07-01T18:44:48.023196",
+        "active_signals": 4,
+        "avg_confidence": 51.188285914615584,
+        "avg_strength": 51.188285914615584,
+        "high_confidence_count": 0
+      },
+      "recommendations": [
+        {
+          "symbol": "ULTRACEMCO.NS",
+          "signal_type": "BUY",
+          "entry_price": 12210.0,
+          "target_price": 12576.300000000001,
+          "stop_loss": 11965.8,
+          "confidence": 51.5289892022793,
+          "strength": 51.52898920227929,
+          "timestamp": "2025-07-01T18:44:48.023190",
+          "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 51.27268248624682,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "breakout_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "breakout_stocks"
+        },
+        {
+          "symbol": "RELIANCE.NS",
+          "signal_type": "BUY",
+          "entry_price": 1526.800048828125,
+          "target_price": 1572.6040502929689,
+          "stop_loss": 1496.2640478515625,
+          "confidence": 51.08587329866698,
+          "strength": 51.08587329866698,
+          "timestamp": "2025-07-01T18:44:48.023192",
+          "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.163687547965324,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "breakout_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "breakout_stocks"
+        },
+        {
+          "symbol": "TCS.NS",
+          "signal_type": "BUY",
+          "entry_price": 3429.0,
+          "target_price": 3531.87,
+          "stop_loss": 3360.42,
+          "confidence": 51.072034756997034,
+          "strength": 51.07203475699703,
+          "timestamp": "2025-07-01T18:44:48.023193",
+          "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.131184928040476,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "breakout_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "breakout_stocks"
+        },
+        {
+          "symbol": "WIPRO.NS",
+          "signal_type": "BUY",
+          "entry_price": 264.29998779296875,
+          "target_price": 272.22898742675784,
+          "stop_loss": 259.01398803710936,
+          "confidence": 51.06624640051902,
+          "strength": 51.06624640051903,
+          "timestamp": "2025-07-01T18:44:48.023194",
+          "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.094606221660705,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "breakout_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "breakout_stocks"
+        }
+      ],
+      "ranking_stats": {
+        "history_length": 1,
+        "ranking_window": 5,
+        "last_scan_time": "2025-07-01T18:44:48.023200"
+      }
+    }
+  },
+  "all_themes_comparison": {
+    "individual_results": {
+      "intraday_buy": {
+        "theme": "intraday_buy",
+        "total_recommendations": 5,
+        "avg_confidence": 51.50023174598929,
+        "avg_strength": 51.50023174598929,
+        "high_confidence_count": 0,
+        "recommendations": [
+          {
+            "symbol": "GODREJCP.NS",
+            "signal_type": "BUY",
+            "entry_price": 1165.800048828125,
+            "target_price": 1200.7740502929687,
+            "stop_loss": 1142.4840478515625,
+            "confidence": 51.83946422700373,
+            "strength": 51.83946422700373,
+            "timestamp": "2025-07-01T18:44:51.044335",
+            "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 52.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 52.050199409670206,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "intraday_buy"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "intraday_buy"
+          },
+          {
+            "symbol": "ULTRACEMCO.NS",
+            "signal_type": "BUY",
+            "entry_price": 12210.0,
+            "target_price": 12576.300000000001,
+            "stop_loss": 11965.8,
+            "confidence": 51.5289892022793,
+            "strength": 51.52898920227929,
+            "timestamp": "2025-07-01T18:44:51.044337",
+            "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 51.27268248624682,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "intraday_buy"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "intraday_buy"
+          },
+          {
+            "symbol": "ADANIPORTS.NS",
+            "signal_type": "BUY",
+            "entry_price": 1442.0,
+            "target_price": 1485.26,
+            "stop_loss": 1413.16,
+            "confidence": 51.42971953434643,
+            "strength": 51.429719534346425,
+            "timestamp": "2025-07-01T18:44:51.044338",
+            "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 51.0), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 51.00353808743222,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "intraday_buy"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "intraday_buy"
+          },
+          {
+            "symbol": "POWERGRID.NS",
+            "signal_type": "BUY",
+            "entry_price": 298.0,
+            "target_price": 306.94,
+            "stop_loss": 292.04,
+            "confidence": 51.355774932649624,
+            "strength": 51.355774932649624,
+            "timestamp": "2025-07-01T18:44:51.044339",
+            "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 50.8), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.84033613445378,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "intraday_buy"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "intraday_buy"
+          },
+          {
+            "symbol": "NTPC.NS",
+            "signal_type": "BUY",
+            "entry_price": 332.1499938964844,
+            "target_price": 342.1144937133789,
+            "stop_loss": 325.5069940185547,
+            "confidence": 51.347210833667376,
+            "strength": 51.347210833667376,
+            "timestamp": "2025-07-01T18:44:51.044340",
+            "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 50.8), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.82659797169561,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "intraday_buy"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "intraday_buy"
+          }
+        ],
+        "market_conditions": {
+          "scan_time": "2025-07-01T18:44:51.044342",
+          "active_signals": 5,
+          "avg_confidence": 51.50023174598929,
+          "avg_strength": 51.50023174598929,
+          "high_confidence_count": 0
+        },
+        "raw_response": {
+          "timestamp": "2025-07-01T18:44:51.044341",
+          "total_candidates_found": 5,
+          "recommendations_returned": 5,
+          "ranking_enabled": true,
+          "scan_sources": [
+            "intraday_service",
+            "breakout_screener",
+            "volume_screener"
+          ],
+          "chartink_theme": "intraday_buy",
+          "filters_applied": {
+            "confidence_threshold": 50.0,
+            "strength_threshold": 50.0,
+            "limit": 5
+          },
+          "market_conditions": {
+            "scan_time": "2025-07-01T18:44:51.044342",
+            "active_signals": 5,
+            "avg_confidence": 51.50023174598929,
+            "avg_strength": 51.50023174598929,
+            "high_confidence_count": 0
+          },
+          "recommendations": [
+            {
+              "symbol": "GODREJCP.NS",
+              "signal_type": "BUY",
+              "entry_price": 1165.800048828125,
+              "target_price": 1200.7740502929687,
+              "stop_loss": 1142.4840478515625,
+              "confidence": 51.83946422700373,
+              "strength": 51.83946422700373,
+              "timestamp": "2025-07-01T18:44:51.044335",
+              "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 52.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 52.050199409670206,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "intraday_buy"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "intraday_buy"
+            },
+            {
+              "symbol": "ULTRACEMCO.NS",
+              "signal_type": "BUY",
+              "entry_price": 12210.0,
+              "target_price": 12576.300000000001,
+              "stop_loss": 11965.8,
+              "confidence": 51.5289892022793,
+              "strength": 51.52898920227929,
+              "timestamp": "2025-07-01T18:44:51.044337",
+              "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 51.27268248624682,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "intraday_buy"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "intraday_buy"
+            },
+            {
+              "symbol": "ADANIPORTS.NS",
+              "signal_type": "BUY",
+              "entry_price": 1442.0,
+              "target_price": 1485.26,
+              "stop_loss": 1413.16,
+              "confidence": 51.42971953434643,
+              "strength": 51.429719534346425,
+              "timestamp": "2025-07-01T18:44:51.044338",
+              "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 51.0), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 51.00353808743222,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "intraday_buy"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "intraday_buy"
+            },
+            {
+              "symbol": "POWERGRID.NS",
+              "signal_type": "BUY",
+              "entry_price": 298.0,
+              "target_price": 306.94,
+              "stop_loss": 292.04,
+              "confidence": 51.355774932649624,
+              "strength": 51.355774932649624,
+              "timestamp": "2025-07-01T18:44:51.044339",
+              "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 50.8), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.84033613445378,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "intraday_buy"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "intraday_buy"
+            },
+            {
+              "symbol": "NTPC.NS",
+              "signal_type": "BUY",
+              "entry_price": 332.1499938964844,
+              "target_price": 342.1144937133789,
+              "stop_loss": 325.5069940185547,
+              "confidence": 51.347210833667376,
+              "strength": 51.347210833667376,
+              "timestamp": "2025-07-01T18:44:51.044340",
+              "reason": "Chartink discovery (intraday_buy): Strong momentum (score: 50.8), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.82659797169561,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "intraday_buy"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "intraday_buy"
+            }
+          ],
+          "ranking_stats": {
+            "history_length": 1,
+            "ranking_window": 5,
+            "last_scan_time": "2025-07-01T18:44:51.044346"
+          }
+        }
+      },
+      "breakout_stocks": {
+        "theme": "breakout_stocks",
+        "total_recommendations": 4,
+        "avg_confidence": 51.188285914615584,
+        "avg_strength": 51.188285914615584,
+        "high_confidence_count": 0,
+        "recommendations": [
+          {
+            "symbol": "ULTRACEMCO.NS",
+            "signal_type": "BUY",
+            "entry_price": 12210.0,
+            "target_price": 12576.300000000001,
+            "stop_loss": 11965.8,
+            "confidence": 51.5289892022793,
+            "strength": 51.52898920227929,
+            "timestamp": "2025-07-01T18:44:51.671244",
+            "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 51.27268248624682,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "breakout_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "breakout_stocks"
+          },
+          {
+            "symbol": "RELIANCE.NS",
+            "signal_type": "BUY",
+            "entry_price": 1526.800048828125,
+            "target_price": 1572.6040502929689,
+            "stop_loss": 1496.2640478515625,
+            "confidence": 51.08587329866698,
+            "strength": 51.08587329866698,
+            "timestamp": "2025-07-01T18:44:51.671246",
+            "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.163687547965324,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "breakout_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "breakout_stocks"
+          },
+          {
+            "symbol": "TCS.NS",
+            "signal_type": "BUY",
+            "entry_price": 3429.0,
+            "target_price": 3531.87,
+            "stop_loss": 3360.42,
+            "confidence": 51.072034756997034,
+            "strength": 51.07203475699703,
+            "timestamp": "2025-07-01T18:44:51.671247",
+            "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.131184928040476,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "breakout_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "breakout_stocks"
+          },
+          {
+            "symbol": "WIPRO.NS",
+            "signal_type": "BUY",
+            "entry_price": 264.29998779296875,
+            "target_price": 272.22898742675784,
+            "stop_loss": 259.01398803710936,
+            "confidence": 51.06624640051902,
+            "strength": 51.06624640051903,
+            "timestamp": "2025-07-01T18:44:51.671248",
+            "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.094606221660705,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "breakout_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "breakout_stocks"
+          }
+        ],
+        "market_conditions": {
+          "scan_time": "2025-07-01T18:44:51.671250",
+          "active_signals": 4,
+          "avg_confidence": 51.188285914615584,
+          "avg_strength": 51.188285914615584,
+          "high_confidence_count": 0
+        },
+        "raw_response": {
+          "timestamp": "2025-07-01T18:44:51.671249",
+          "total_candidates_found": 5,
+          "recommendations_returned": 4,
+          "ranking_enabled": true,
+          "scan_sources": [
+            "intraday_service",
+            "breakout_screener",
+            "volume_screener"
+          ],
+          "chartink_theme": "breakout_stocks",
+          "filters_applied": {
+            "confidence_threshold": 50.0,
+            "strength_threshold": 50.0,
+            "limit": 5
+          },
+          "market_conditions": {
+            "scan_time": "2025-07-01T18:44:51.671250",
+            "active_signals": 4,
+            "avg_confidence": 51.188285914615584,
+            "avg_strength": 51.188285914615584,
+            "high_confidence_count": 0
+          },
+          "recommendations": [
+            {
+              "symbol": "ULTRACEMCO.NS",
+              "signal_type": "BUY",
+              "entry_price": 12210.0,
+              "target_price": 12576.300000000001,
+              "stop_loss": 11965.8,
+              "confidence": 51.5289892022793,
+              "strength": 51.52898920227929,
+              "timestamp": "2025-07-01T18:44:51.671244",
+              "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 51.27268248624682,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "breakout_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "breakout_stocks"
+            },
+            {
+              "symbol": "RELIANCE.NS",
+              "signal_type": "BUY",
+              "entry_price": 1526.800048828125,
+              "target_price": 1572.6040502929689,
+              "stop_loss": 1496.2640478515625,
+              "confidence": 51.08587329866698,
+              "strength": 51.08587329866698,
+              "timestamp": "2025-07-01T18:44:51.671246",
+              "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.163687547965324,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "breakout_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "breakout_stocks"
+            },
+            {
+              "symbol": "TCS.NS",
+              "signal_type": "BUY",
+              "entry_price": 3429.0,
+              "target_price": 3531.87,
+              "stop_loss": 3360.42,
+              "confidence": 51.072034756997034,
+              "strength": 51.07203475699703,
+              "timestamp": "2025-07-01T18:44:51.671247",
+              "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.131184928040476,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "breakout_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "breakout_stocks"
+            },
+            {
+              "symbol": "WIPRO.NS",
+              "signal_type": "BUY",
+              "entry_price": 264.29998779296875,
+              "target_price": 272.22898742675784,
+              "stop_loss": 259.01398803710936,
+              "confidence": 51.06624640051902,
+              "strength": 51.06624640051903,
+              "timestamp": "2025-07-01T18:44:51.671248",
+              "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.094606221660705,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "breakout_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "breakout_stocks"
+            }
+          ],
+          "ranking_stats": {
+            "history_length": 1,
+            "ranking_window": 5,
+            "last_scan_time": "2025-07-01T18:44:51.671254"
+          }
+        }
+      },
+      "volume_leaders": {
+        "theme": "volume_leaders",
+        "total_recommendations": 4,
+        "avg_confidence": 51.188285914615584,
+        "avg_strength": 51.188285914615584,
+        "high_confidence_count": 0,
+        "recommendations": [
+          {
+            "symbol": "ULTRACEMCO.NS",
+            "signal_type": "BUY",
+            "entry_price": 12210.0,
+            "target_price": 12576.300000000001,
+            "stop_loss": 11965.8,
+            "confidence": 51.5289892022793,
+            "strength": 51.52898920227929,
+            "timestamp": "2025-07-01T18:44:52.325148",
+            "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 51.27268248624682,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "volume_leaders"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "volume_leaders"
+          },
+          {
+            "symbol": "RELIANCE.NS",
+            "signal_type": "BUY",
+            "entry_price": 1526.800048828125,
+            "target_price": 1572.6040502929689,
+            "stop_loss": 1496.2640478515625,
+            "confidence": 51.08587329866698,
+            "strength": 51.08587329866698,
+            "timestamp": "2025-07-01T18:44:52.325150",
+            "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.163687547965324,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "volume_leaders"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "volume_leaders"
+          },
+          {
+            "symbol": "TCS.NS",
+            "signal_type": "BUY",
+            "entry_price": 3429.0,
+            "target_price": 3531.87,
+            "stop_loss": 3360.42,
+            "confidence": 51.072034756997034,
+            "strength": 51.07203475699703,
+            "timestamp": "2025-07-01T18:44:52.325151",
+            "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.131184928040476,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "volume_leaders"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "volume_leaders"
+          },
+          {
+            "symbol": "WIPRO.NS",
+            "signal_type": "BUY",
+            "entry_price": 264.29998779296875,
+            "target_price": 272.22898742675784,
+            "stop_loss": 259.01398803710936,
+            "confidence": 51.06624640051902,
+            "strength": 51.06624640051903,
+            "timestamp": "2025-07-01T18:44:52.325152",
+            "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.094606221660705,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "volume_leaders"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "volume_leaders"
+          }
+        ],
+        "market_conditions": {
+          "scan_time": "2025-07-01T18:44:52.325154",
+          "active_signals": 4,
+          "avg_confidence": 51.188285914615584,
+          "avg_strength": 51.188285914615584,
+          "high_confidence_count": 0
+        },
+        "raw_response": {
+          "timestamp": "2025-07-01T18:44:52.325153",
+          "total_candidates_found": 5,
+          "recommendations_returned": 4,
+          "ranking_enabled": true,
+          "scan_sources": [
+            "intraday_service",
+            "breakout_screener",
+            "volume_screener"
+          ],
+          "chartink_theme": "volume_leaders",
+          "filters_applied": {
+            "confidence_threshold": 50.0,
+            "strength_threshold": 50.0,
+            "limit": 5
+          },
+          "market_conditions": {
+            "scan_time": "2025-07-01T18:44:52.325154",
+            "active_signals": 4,
+            "avg_confidence": 51.188285914615584,
+            "avg_strength": 51.188285914615584,
+            "high_confidence_count": 0
+          },
+          "recommendations": [
+            {
+              "symbol": "ULTRACEMCO.NS",
+              "signal_type": "BUY",
+              "entry_price": 12210.0,
+              "target_price": 12576.300000000001,
+              "stop_loss": 11965.8,
+              "confidence": 51.5289892022793,
+              "strength": 51.52898920227929,
+              "timestamp": "2025-07-01T18:44:52.325148",
+              "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 51.27268248624682,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "volume_leaders"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "volume_leaders"
+            },
+            {
+              "symbol": "RELIANCE.NS",
+              "signal_type": "BUY",
+              "entry_price": 1526.800048828125,
+              "target_price": 1572.6040502929689,
+              "stop_loss": 1496.2640478515625,
+              "confidence": 51.08587329866698,
+              "strength": 51.08587329866698,
+              "timestamp": "2025-07-01T18:44:52.325150",
+              "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.163687547965324,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "volume_leaders"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "volume_leaders"
+            },
+            {
+              "symbol": "TCS.NS",
+              "signal_type": "BUY",
+              "entry_price": 3429.0,
+              "target_price": 3531.87,
+              "stop_loss": 3360.42,
+              "confidence": 51.072034756997034,
+              "strength": 51.07203475699703,
+              "timestamp": "2025-07-01T18:44:52.325151",
+              "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.131184928040476,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "volume_leaders"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "volume_leaders"
+            },
+            {
+              "symbol": "WIPRO.NS",
+              "signal_type": "BUY",
+              "entry_price": 264.29998779296875,
+              "target_price": 272.22898742675784,
+              "stop_loss": 259.01398803710936,
+              "confidence": 51.06624640051902,
+              "strength": 51.06624640051903,
+              "timestamp": "2025-07-01T18:44:52.325152",
+              "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.094606221660705,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "volume_leaders"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "volume_leaders"
+            }
+          ],
+          "ranking_stats": {
+            "history_length": 1,
+            "ranking_window": 5,
+            "last_scan_time": "2025-07-01T18:44:52.325158"
+          }
+        }
+      },
+      "momentum_stocks": {
+        "theme": "momentum_stocks",
+        "total_recommendations": 4,
+        "avg_confidence": 51.188285914615584,
+        "avg_strength": 51.188285914615584,
+        "high_confidence_count": 0,
+        "recommendations": [
+          {
+            "symbol": "ULTRACEMCO.NS",
+            "signal_type": "BUY",
+            "entry_price": 12210.0,
+            "target_price": 12576.300000000001,
+            "stop_loss": 11965.8,
+            "confidence": 51.5289892022793,
+            "strength": 51.52898920227929,
+            "timestamp": "2025-07-01T18:44:52.969582",
+            "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 51.27268248624682,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "momentum_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "momentum_stocks"
+          },
+          {
+            "symbol": "RELIANCE.NS",
+            "signal_type": "BUY",
+            "entry_price": 1526.800048828125,
+            "target_price": 1572.6040502929689,
+            "stop_loss": 1496.2640478515625,
+            "confidence": 51.08587329866698,
+            "strength": 51.08587329866698,
+            "timestamp": "2025-07-01T18:44:52.969584",
+            "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.163687547965324,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "momentum_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "momentum_stocks"
+          },
+          {
+            "symbol": "TCS.NS",
+            "signal_type": "BUY",
+            "entry_price": 3429.0,
+            "target_price": 3531.87,
+            "stop_loss": 3360.42,
+            "confidence": 51.072034756997034,
+            "strength": 51.07203475699703,
+            "timestamp": "2025-07-01T18:44:52.969585",
+            "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.131184928040476,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "momentum_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "momentum_stocks"
+          },
+          {
+            "symbol": "WIPRO.NS",
+            "signal_type": "BUY",
+            "entry_price": 264.29998779296875,
+            "target_price": 272.22898742675784,
+            "stop_loss": 259.01398803710936,
+            "confidence": 51.06624640051902,
+            "strength": 51.06624640051903,
+            "timestamp": "2025-07-01T18:44:52.969586",
+            "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.094606221660705,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "momentum_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "momentum_stocks"
+          }
+        ],
+        "market_conditions": {
+          "scan_time": "2025-07-01T18:44:52.969588",
+          "active_signals": 4,
+          "avg_confidence": 51.188285914615584,
+          "avg_strength": 51.188285914615584,
+          "high_confidence_count": 0
+        },
+        "raw_response": {
+          "timestamp": "2025-07-01T18:44:52.969587",
+          "total_candidates_found": 5,
+          "recommendations_returned": 4,
+          "ranking_enabled": true,
+          "scan_sources": [
+            "intraday_service",
+            "breakout_screener",
+            "volume_screener"
+          ],
+          "chartink_theme": "momentum_stocks",
+          "filters_applied": {
+            "confidence_threshold": 50.0,
+            "strength_threshold": 50.0,
+            "limit": 5
+          },
+          "market_conditions": {
+            "scan_time": "2025-07-01T18:44:52.969588",
+            "active_signals": 4,
+            "avg_confidence": 51.188285914615584,
+            "avg_strength": 51.188285914615584,
+            "high_confidence_count": 0
+          },
+          "recommendations": [
+            {
+              "symbol": "ULTRACEMCO.NS",
+              "signal_type": "BUY",
+              "entry_price": 12210.0,
+              "target_price": 12576.300000000001,
+              "stop_loss": 11965.8,
+              "confidence": 51.5289892022793,
+              "strength": 51.52898920227929,
+              "timestamp": "2025-07-01T18:44:52.969582",
+              "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 51.27268248624682,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "momentum_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "momentum_stocks"
+            },
+            {
+              "symbol": "RELIANCE.NS",
+              "signal_type": "BUY",
+              "entry_price": 1526.800048828125,
+              "target_price": 1572.6040502929689,
+              "stop_loss": 1496.2640478515625,
+              "confidence": 51.08587329866698,
+              "strength": 51.08587329866698,
+              "timestamp": "2025-07-01T18:44:52.969584",
+              "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.163687547965324,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "momentum_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "momentum_stocks"
+            },
+            {
+              "symbol": "TCS.NS",
+              "signal_type": "BUY",
+              "entry_price": 3429.0,
+              "target_price": 3531.87,
+              "stop_loss": 3360.42,
+              "confidence": 51.072034756997034,
+              "strength": 51.07203475699703,
+              "timestamp": "2025-07-01T18:44:52.969585",
+              "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.131184928040476,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "momentum_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "momentum_stocks"
+            },
+            {
+              "symbol": "WIPRO.NS",
+              "signal_type": "BUY",
+              "entry_price": 264.29998779296875,
+              "target_price": 272.22898742675784,
+              "stop_loss": 259.01398803710936,
+              "confidence": 51.06624640051902,
+              "strength": 51.06624640051903,
+              "timestamp": "2025-07-01T18:44:52.969586",
+              "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.094606221660705,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "momentum_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "momentum_stocks"
+            }
+          ],
+          "ranking_stats": {
+            "history_length": 1,
+            "ranking_window": 5,
+            "last_scan_time": "2025-07-01T18:44:52.969591"
+          }
+        }
+      },
+      "reversal_candidates": {
+        "theme": "reversal_candidates",
+        "total_recommendations": 4,
+        "avg_confidence": 51.188285914615584,
+        "avg_strength": 51.188285914615584,
+        "high_confidence_count": 0,
+        "recommendations": [
+          {
+            "symbol": "ULTRACEMCO.NS",
+            "signal_type": "BUY",
+            "entry_price": 12210.0,
+            "target_price": 12576.300000000001,
+            "stop_loss": 11965.8,
+            "confidence": 51.5289892022793,
+            "strength": 51.52898920227929,
+            "timestamp": "2025-07-01T18:44:53.589329",
+            "reason": "Chartink discovery (reversal_candidates): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 51.27268248624682,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "reversal_candidates"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "reversal_candidates"
+          },
+          {
+            "symbol": "RELIANCE.NS",
+            "signal_type": "BUY",
+            "entry_price": 1526.800048828125,
+            "target_price": 1572.6040502929689,
+            "stop_loss": 1496.2640478515625,
+            "confidence": 51.08587329866698,
+            "strength": 51.08587329866698,
+            "timestamp": "2025-07-01T18:44:53.589331",
+            "reason": "Chartink discovery (reversal_candidates): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.163687547965324,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "reversal_candidates"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "reversal_candidates"
+          },
+          {
+            "symbol": "TCS.NS",
+            "signal_type": "BUY",
+            "entry_price": 3429.0,
+            "target_price": 3531.87,
+            "stop_loss": 3360.42,
+            "confidence": 51.072034756997034,
+            "strength": 51.07203475699703,
+            "timestamp": "2025-07-01T18:44:53.589332",
+            "reason": "Chartink discovery (reversal_candidates): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.131184928040476,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "reversal_candidates"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "reversal_candidates"
+          },
+          {
+            "symbol": "WIPRO.NS",
+            "signal_type": "BUY",
+            "entry_price": 264.29998779296875,
+            "target_price": 272.22898742675784,
+            "stop_loss": 259.01398803710936,
+            "confidence": 51.06624640051902,
+            "strength": 51.06624640051903,
+            "timestamp": "2025-07-01T18:44:53.589333",
+            "reason": "Chartink discovery (reversal_candidates): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.094606221660705,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "reversal_candidates"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "reversal_candidates"
+          }
+        ],
+        "market_conditions": {
+          "scan_time": "2025-07-01T18:44:53.589335",
+          "active_signals": 4,
+          "avg_confidence": 51.188285914615584,
+          "avg_strength": 51.188285914615584,
+          "high_confidence_count": 0
+        },
+        "raw_response": {
+          "timestamp": "2025-07-01T18:44:53.589334",
+          "total_candidates_found": 5,
+          "recommendations_returned": 4,
+          "ranking_enabled": true,
+          "scan_sources": [
+            "intraday_service",
+            "breakout_screener",
+            "volume_screener"
+          ],
+          "chartink_theme": "reversal_candidates",
+          "filters_applied": {
+            "confidence_threshold": 50.0,
+            "strength_threshold": 50.0,
+            "limit": 5
+          },
+          "market_conditions": {
+            "scan_time": "2025-07-01T18:44:53.589335",
+            "active_signals": 4,
+            "avg_confidence": 51.188285914615584,
+            "avg_strength": 51.188285914615584,
+            "high_confidence_count": 0
+          },
+          "recommendations": [
+            {
+              "symbol": "ULTRACEMCO.NS",
+              "signal_type": "BUY",
+              "entry_price": 12210.0,
+              "target_price": 12576.300000000001,
+              "stop_loss": 11965.8,
+              "confidence": 51.5289892022793,
+              "strength": 51.52898920227929,
+              "timestamp": "2025-07-01T18:44:53.589329",
+              "reason": "Chartink discovery (reversal_candidates): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 51.27268248624682,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "reversal_candidates"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "reversal_candidates"
+            },
+            {
+              "symbol": "RELIANCE.NS",
+              "signal_type": "BUY",
+              "entry_price": 1526.800048828125,
+              "target_price": 1572.6040502929689,
+              "stop_loss": 1496.2640478515625,
+              "confidence": 51.08587329866698,
+              "strength": 51.08587329866698,
+              "timestamp": "2025-07-01T18:44:53.589331",
+              "reason": "Chartink discovery (reversal_candidates): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.163687547965324,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "reversal_candidates"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "reversal_candidates"
+            },
+            {
+              "symbol": "TCS.NS",
+              "signal_type": "BUY",
+              "entry_price": 3429.0,
+              "target_price": 3531.87,
+              "stop_loss": 3360.42,
+              "confidence": 51.072034756997034,
+              "strength": 51.07203475699703,
+              "timestamp": "2025-07-01T18:44:53.589332",
+              "reason": "Chartink discovery (reversal_candidates): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.131184928040476,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "reversal_candidates"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "reversal_candidates"
+            },
+            {
+              "symbol": "WIPRO.NS",
+              "signal_type": "BUY",
+              "entry_price": 264.29998779296875,
+              "target_price": 272.22898742675784,
+              "stop_loss": 259.01398803710936,
+              "confidence": 51.06624640051902,
+              "strength": 51.06624640051903,
+              "timestamp": "2025-07-01T18:44:53.589333",
+              "reason": "Chartink discovery (reversal_candidates): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.094606221660705,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "reversal_candidates"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "reversal_candidates"
+            }
+          ],
+          "ranking_stats": {
+            "history_length": 1,
+            "ranking_window": 5,
+            "last_scan_time": "2025-07-01T18:44:53.589338"
+          }
+        }
+      },
+      "gap_up_stocks": {
+        "theme": "gap_up_stocks",
+        "total_recommendations": 4,
+        "avg_confidence": 51.188285914615584,
+        "avg_strength": 51.188285914615584,
+        "high_confidence_count": 0,
+        "recommendations": [
+          {
+            "symbol": "ULTRACEMCO.NS",
+            "signal_type": "BUY",
+            "entry_price": 12210.0,
+            "target_price": 12576.300000000001,
+            "stop_loss": 11965.8,
+            "confidence": 51.5289892022793,
+            "strength": 51.52898920227929,
+            "timestamp": "2025-07-01T18:44:54.260060",
+            "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 51.27268248624682,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "gap_up_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "gap_up_stocks"
+          },
+          {
+            "symbol": "RELIANCE.NS",
+            "signal_type": "BUY",
+            "entry_price": 1526.800048828125,
+            "target_price": 1572.6040502929689,
+            "stop_loss": 1496.2640478515625,
+            "confidence": 51.08587329866698,
+            "strength": 51.08587329866698,
+            "timestamp": "2025-07-01T18:44:54.260061",
+            "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.163687547965324,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "gap_up_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "gap_up_stocks"
+          },
+          {
+            "symbol": "TCS.NS",
+            "signal_type": "BUY",
+            "entry_price": 3429.0,
+            "target_price": 3531.87,
+            "stop_loss": 3360.42,
+            "confidence": 51.072034756997034,
+            "strength": 51.07203475699703,
+            "timestamp": "2025-07-01T18:44:54.260062",
+            "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.131184928040476,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "gap_up_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "gap_up_stocks"
+          },
+          {
+            "symbol": "WIPRO.NS",
+            "signal_type": "BUY",
+            "entry_price": 264.29998779296875,
+            "target_price": 272.22898742675784,
+            "stop_loss": 259.01398803710936,
+            "confidence": 51.06624640051902,
+            "strength": 51.06624640051903,
+            "timestamp": "2025-07-01T18:44:54.260063",
+            "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.094606221660705,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "gap_up_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "gap_up_stocks"
+          }
+        ],
+        "market_conditions": {
+          "scan_time": "2025-07-01T18:44:54.260065",
+          "active_signals": 4,
+          "avg_confidence": 51.188285914615584,
+          "avg_strength": 51.188285914615584,
+          "high_confidence_count": 0
+        },
+        "raw_response": {
+          "timestamp": "2025-07-01T18:44:54.260064",
+          "total_candidates_found": 5,
+          "recommendations_returned": 4,
+          "ranking_enabled": true,
+          "scan_sources": [
+            "intraday_service",
+            "breakout_screener",
+            "volume_screener"
+          ],
+          "chartink_theme": "gap_up_stocks",
+          "filters_applied": {
+            "confidence_threshold": 50.0,
+            "strength_threshold": 50.0,
+            "limit": 5
+          },
+          "market_conditions": {
+            "scan_time": "2025-07-01T18:44:54.260065",
+            "active_signals": 4,
+            "avg_confidence": 51.188285914615584,
+            "avg_strength": 51.188285914615584,
+            "high_confidence_count": 0
+          },
+          "recommendations": [
+            {
+              "symbol": "ULTRACEMCO.NS",
+              "signal_type": "BUY",
+              "entry_price": 12210.0,
+              "target_price": 12576.300000000001,
+              "stop_loss": 11965.8,
+              "confidence": 51.5289892022793,
+              "strength": 51.52898920227929,
+              "timestamp": "2025-07-01T18:44:54.260060",
+              "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 51.27268248624682,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "gap_up_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "gap_up_stocks"
+            },
+            {
+              "symbol": "RELIANCE.NS",
+              "signal_type": "BUY",
+              "entry_price": 1526.800048828125,
+              "target_price": 1572.6040502929689,
+              "stop_loss": 1496.2640478515625,
+              "confidence": 51.08587329866698,
+              "strength": 51.08587329866698,
+              "timestamp": "2025-07-01T18:44:54.260061",
+              "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.163687547965324,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "gap_up_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "gap_up_stocks"
+            },
+            {
+              "symbol": "TCS.NS",
+              "signal_type": "BUY",
+              "entry_price": 3429.0,
+              "target_price": 3531.87,
+              "stop_loss": 3360.42,
+              "confidence": 51.072034756997034,
+              "strength": 51.07203475699703,
+              "timestamp": "2025-07-01T18:44:54.260062",
+              "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.131184928040476,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "gap_up_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "gap_up_stocks"
+            },
+            {
+              "symbol": "WIPRO.NS",
+              "signal_type": "BUY",
+              "entry_price": 264.29998779296875,
+              "target_price": 272.22898742675784,
+              "stop_loss": 259.01398803710936,
+              "confidence": 51.06624640051902,
+              "strength": 51.06624640051903,
+              "timestamp": "2025-07-01T18:44:54.260063",
+              "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.094606221660705,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "gap_up_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "gap_up_stocks"
+            }
+          ],
+          "ranking_stats": {
+            "history_length": 1,
+            "ranking_window": 5,
+            "last_scan_time": "2025-07-01T18:44:54.260068"
+          }
+        }
+      },
+      "high_beta_stocks": {
+        "theme": "high_beta_stocks",
+        "total_recommendations": 4,
+        "avg_confidence": 51.188285914615584,
+        "avg_strength": 51.188285914615584,
+        "high_confidence_count": 0,
+        "recommendations": [
+          {
+            "symbol": "ULTRACEMCO.NS",
+            "signal_type": "BUY",
+            "entry_price": 12210.0,
+            "target_price": 12576.300000000001,
+            "stop_loss": 11965.8,
+            "confidence": 51.5289892022793,
+            "strength": 51.52898920227929,
+            "timestamp": "2025-07-01T18:44:54.893135",
+            "reason": "Chartink discovery (high_beta_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 51.27268248624682,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "high_beta_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "high_beta_stocks"
+          },
+          {
+            "symbol": "RELIANCE.NS",
+            "signal_type": "BUY",
+            "entry_price": 1526.800048828125,
+            "target_price": 1572.6040502929689,
+            "stop_loss": 1496.2640478515625,
+            "confidence": 51.08587329866698,
+            "strength": 51.08587329866698,
+            "timestamp": "2025-07-01T18:44:54.893137",
+            "reason": "Chartink discovery (high_beta_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.163687547965324,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "high_beta_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "high_beta_stocks"
+          },
+          {
+            "symbol": "TCS.NS",
+            "signal_type": "BUY",
+            "entry_price": 3429.0,
+            "target_price": 3531.87,
+            "stop_loss": 3360.42,
+            "confidence": 51.072034756997034,
+            "strength": 51.07203475699703,
+            "timestamp": "2025-07-01T18:44:54.893138",
+            "reason": "Chartink discovery (high_beta_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.131184928040476,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "high_beta_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "high_beta_stocks"
+          },
+          {
+            "symbol": "WIPRO.NS",
+            "signal_type": "BUY",
+            "entry_price": 264.29998779296875,
+            "target_price": 272.22898742675784,
+            "stop_loss": 259.01398803710936,
+            "confidence": 51.06624640051902,
+            "strength": 51.06624640051903,
+            "timestamp": "2025-07-01T18:44:54.893139",
+            "reason": "Chartink discovery (high_beta_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+            "technical_indicators": {
+              "rsi": 0,
+              "momentum_score": 50.094606221660705,
+              "volume_ratio": 1.0,
+              "breakout_score": 70.0,
+              "chartink_source": "high_beta_stocks"
+            },
+            "risk_reward_ratio": 1.5,
+            "chartink_source": "high_beta_stocks"
+          }
+        ],
+        "market_conditions": {
+          "scan_time": "2025-07-01T18:44:54.893140",
+          "active_signals": 4,
+          "avg_confidence": 51.188285914615584,
+          "avg_strength": 51.188285914615584,
+          "high_confidence_count": 0
+        },
+        "raw_response": {
+          "timestamp": "2025-07-01T18:44:54.893139",
+          "total_candidates_found": 5,
+          "recommendations_returned": 4,
+          "ranking_enabled": true,
+          "scan_sources": [
+            "intraday_service",
+            "breakout_screener",
+            "volume_screener"
+          ],
+          "chartink_theme": "high_beta_stocks",
+          "filters_applied": {
+            "confidence_threshold": 50.0,
+            "strength_threshold": 50.0,
+            "limit": 5
+          },
+          "market_conditions": {
+            "scan_time": "2025-07-01T18:44:54.893140",
+            "active_signals": 4,
+            "avg_confidence": 51.188285914615584,
+            "avg_strength": 51.188285914615584,
+            "high_confidence_count": 0
+          },
+          "recommendations": [
+            {
+              "symbol": "ULTRACEMCO.NS",
+              "signal_type": "BUY",
+              "entry_price": 12210.0,
+              "target_price": 12576.300000000001,
+              "stop_loss": 11965.8,
+              "confidence": 51.5289892022793,
+              "strength": 51.52898920227929,
+              "timestamp": "2025-07-01T18:44:54.893135",
+              "reason": "Chartink discovery (high_beta_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 51.27268248624682,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "high_beta_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "high_beta_stocks"
+            },
+            {
+              "symbol": "RELIANCE.NS",
+              "signal_type": "BUY",
+              "entry_price": 1526.800048828125,
+              "target_price": 1572.6040502929689,
+              "stop_loss": 1496.2640478515625,
+              "confidence": 51.08587329866698,
+              "strength": 51.08587329866698,
+              "timestamp": "2025-07-01T18:44:54.893137",
+              "reason": "Chartink discovery (high_beta_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.163687547965324,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "high_beta_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "high_beta_stocks"
+            },
+            {
+              "symbol": "TCS.NS",
+              "signal_type": "BUY",
+              "entry_price": 3429.0,
+              "target_price": 3531.87,
+              "stop_loss": 3360.42,
+              "confidence": 51.072034756997034,
+              "strength": 51.07203475699703,
+              "timestamp": "2025-07-01T18:44:54.893138",
+              "reason": "Chartink discovery (high_beta_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.131184928040476,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "high_beta_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "high_beta_stocks"
+            },
+            {
+              "symbol": "WIPRO.NS",
+              "signal_type": "BUY",
+              "entry_price": 264.29998779296875,
+              "target_price": 272.22898742675784,
+              "stop_loss": 259.01398803710936,
+              "confidence": 51.06624640051902,
+              "strength": 51.06624640051903,
+              "timestamp": "2025-07-01T18:44:54.893139",
+              "reason": "Chartink discovery (high_beta_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+              "technical_indicators": {
+                "rsi": 0,
+                "momentum_score": 50.094606221660705,
+                "volume_ratio": 1.0,
+                "breakout_score": 70.0,
+                "chartink_source": "high_beta_stocks"
+              },
+              "risk_reward_ratio": 1.5,
+              "chartink_source": "high_beta_stocks"
+            }
+          ],
+          "ranking_stats": {
+            "history_length": 1,
+            "ranking_window": 5,
+            "last_scan_time": "2025-07-01T18:44:54.893144"
+          }
+        }
+      }
+    },
+    "summary_stats": [
+      {
+        "theme": "intraday_buy",
+        "total_recs": 5,
+        "avg_confidence": 51.50023174598929,
+        "high_conf_count": 0
+      },
+      {
+        "theme": "breakout_stocks",
+        "total_recs": 4,
+        "avg_confidence": 51.188285914615584,
+        "high_conf_count": 0
+      },
+      {
+        "theme": "volume_leaders",
+        "total_recs": 4,
+        "avg_confidence": 51.188285914615584,
+        "high_conf_count": 0
+      },
+      {
+        "theme": "momentum_stocks",
+        "total_recs": 4,
+        "avg_confidence": 51.188285914615584,
+        "high_conf_count": 0
+      },
+      {
+        "theme": "reversal_candidates",
+        "total_recs": 4,
+        "avg_confidence": 51.188285914615584,
+        "high_conf_count": 0
+      },
+      {
+        "theme": "gap_up_stocks",
+        "total_recs": 4,
+        "avg_confidence": 51.188285914615584,
+        "high_conf_count": 0
+      },
+      {
+        "theme": "high_beta_stocks",
+        "total_recs": 4,
+        "avg_confidence": 51.188285914615584,
+        "high_conf_count": 0
+      }
+    ],
+    "timestamp": "2025-07-01T18:44:55.397873"
+  },
+  "multi_theme_portfolio": {
+    "themes_used": [
+      "breakout_stocks",
+      "volume_leaders",
+      "momentum_stocks"
+    ],
+    "total_recommendations": 4,
+    "recommendations_by_theme": {
+      "breakout_stocks": [
+        {
+          "symbol": "ULTRACEMCO.NS",
+          "signal_type": "BUY",
+          "entry_price": 12210.0,
+          "target_price": 12576.300000000001,
+          "stop_loss": 11965.8,
+          "confidence": 51.5289892022793,
+          "strength": 51.52898920227929,
+          "timestamp": "2025-07-01T18:44:55.527888",
+          "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 51.27268248624682,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "breakout_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "breakout_stocks",
+          "source_theme": "breakout_stocks"
+        },
+        {
+          "symbol": "RELIANCE.NS",
+          "signal_type": "BUY",
+          "entry_price": 1526.800048828125,
+          "target_price": 1572.6040502929689,
+          "stop_loss": 1496.2640478515625,
+          "confidence": 51.08587329866698,
+          "strength": 51.08587329866698,
+          "timestamp": "2025-07-01T18:44:55.527890",
+          "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.163687547965324,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "breakout_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "breakout_stocks",
+          "source_theme": "breakout_stocks"
+        },
+        {
+          "symbol": "TCS.NS",
+          "signal_type": "BUY",
+          "entry_price": 3429.0,
+          "target_price": 3531.87,
+          "stop_loss": 3360.42,
+          "confidence": 51.072034756997034,
+          "strength": 51.07203475699703,
+          "timestamp": "2025-07-01T18:44:55.527891",
+          "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.131184928040476,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "breakout_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "breakout_stocks",
+          "source_theme": "breakout_stocks"
+        },
+        {
+          "symbol": "WIPRO.NS",
+          "signal_type": "BUY",
+          "entry_price": 264.29998779296875,
+          "target_price": 272.22898742675784,
+          "stop_loss": 259.01398803710936,
+          "confidence": 51.06624640051902,
+          "strength": 51.06624640051903,
+          "timestamp": "2025-07-01T18:44:55.527892",
+          "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.094606221660705,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "breakout_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "breakout_stocks",
+          "source_theme": "breakout_stocks"
+        }
+      ],
+      "volume_leaders": [
+        {
+          "symbol": "ULTRACEMCO.NS",
+          "signal_type": "BUY",
+          "entry_price": 12210.0,
+          "target_price": 12576.300000000001,
+          "stop_loss": 11965.8,
+          "confidence": 51.5289892022793,
+          "strength": 51.52898920227929,
+          "timestamp": "2025-07-01T18:44:55.666124",
+          "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 51.27268248624682,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "volume_leaders"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "volume_leaders",
+          "source_theme": "volume_leaders"
+        },
+        {
+          "symbol": "RELIANCE.NS",
+          "signal_type": "BUY",
+          "entry_price": 1526.800048828125,
+          "target_price": 1572.6040502929689,
+          "stop_loss": 1496.2640478515625,
+          "confidence": 51.08587329866698,
+          "strength": 51.08587329866698,
+          "timestamp": "2025-07-01T18:44:55.666126",
+          "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.163687547965324,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "volume_leaders"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "volume_leaders",
+          "source_theme": "volume_leaders"
+        },
+        {
+          "symbol": "TCS.NS",
+          "signal_type": "BUY",
+          "entry_price": 3429.0,
+          "target_price": 3531.87,
+          "stop_loss": 3360.42,
+          "confidence": 51.072034756997034,
+          "strength": 51.07203475699703,
+          "timestamp": "2025-07-01T18:44:55.666127",
+          "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.131184928040476,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "volume_leaders"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "volume_leaders",
+          "source_theme": "volume_leaders"
+        },
+        {
+          "symbol": "WIPRO.NS",
+          "signal_type": "BUY",
+          "entry_price": 264.29998779296875,
+          "target_price": 272.22898742675784,
+          "stop_loss": 259.01398803710936,
+          "confidence": 51.06624640051902,
+          "strength": 51.06624640051903,
+          "timestamp": "2025-07-01T18:44:55.666128",
+          "reason": "Chartink discovery (volume_leaders): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.094606221660705,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "volume_leaders"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "volume_leaders",
+          "source_theme": "volume_leaders"
+        }
+      ],
+      "momentum_stocks": [
+        {
+          "symbol": "ULTRACEMCO.NS",
+          "signal_type": "BUY",
+          "entry_price": 12210.0,
+          "target_price": 12576.300000000001,
+          "stop_loss": 11965.8,
+          "confidence": 51.5289892022793,
+          "strength": 51.52898920227929,
+          "timestamp": "2025-07-01T18:44:55.797277",
+          "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 51.27268248624682,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "momentum_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "momentum_stocks",
+          "source_theme": "momentum_stocks"
+        },
+        {
+          "symbol": "RELIANCE.NS",
+          "signal_type": "BUY",
+          "entry_price": 1526.800048828125,
+          "target_price": 1572.6040502929689,
+          "stop_loss": 1496.2640478515625,
+          "confidence": 51.08587329866698,
+          "strength": 51.08587329866698,
+          "timestamp": "2025-07-01T18:44:55.797279",
+          "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.163687547965324,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "momentum_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "momentum_stocks",
+          "source_theme": "momentum_stocks"
+        },
+        {
+          "symbol": "TCS.NS",
+          "signal_type": "BUY",
+          "entry_price": 3429.0,
+          "target_price": 3531.87,
+          "stop_loss": 3360.42,
+          "confidence": 51.072034756997034,
+          "strength": 51.07203475699703,
+          "timestamp": "2025-07-01T18:44:55.797280",
+          "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.131184928040476,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "momentum_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "momentum_stocks",
+          "source_theme": "momentum_stocks"
+        },
+        {
+          "symbol": "WIPRO.NS",
+          "signal_type": "BUY",
+          "entry_price": 264.29998779296875,
+          "target_price": 272.22898742675784,
+          "stop_loss": 259.01398803710936,
+          "confidence": 51.06624640051902,
+          "strength": 51.06624640051903,
+          "timestamp": "2025-07-01T18:44:55.797281",
+          "reason": "Chartink discovery (momentum_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.094606221660705,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "momentum_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "momentum_stocks",
+          "source_theme": "momentum_stocks"
+        }
+      ]
+    },
+    "combined_recommendations": [
+      {
+        "symbol": "ULTRACEMCO.NS",
+        "signal_type": "BUY",
+        "entry_price": 12210.0,
+        "target_price": 12576.300000000001,
+        "stop_loss": 11965.8,
+        "confidence": 51.5289892022793,
+        "strength": 51.52898920227929,
+        "timestamp": "2025-07-01T18:44:55.527888",
+        "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 51.27268248624682,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "breakout_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "breakout_stocks",
+        "source_theme": "breakout_stocks"
+      },
+      {
+        "symbol": "RELIANCE.NS",
+        "signal_type": "BUY",
+        "entry_price": 1526.800048828125,
+        "target_price": 1572.6040502929689,
+        "stop_loss": 1496.2640478515625,
+        "confidence": 51.08587329866698,
+        "strength": 51.08587329866698,
+        "timestamp": "2025-07-01T18:44:55.527890",
+        "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 50.163687547965324,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "breakout_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "breakout_stocks",
+        "source_theme": "breakout_stocks"
+      },
+      {
+        "symbol": "TCS.NS",
+        "signal_type": "BUY",
+        "entry_price": 3429.0,
+        "target_price": 3531.87,
+        "stop_loss": 3360.42,
+        "confidence": 51.072034756997034,
+        "strength": 51.07203475699703,
+        "timestamp": "2025-07-01T18:44:55.527891",
+        "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 50.131184928040476,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "breakout_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "breakout_stocks",
+        "source_theme": "breakout_stocks"
+      },
+      {
+        "symbol": "WIPRO.NS",
+        "signal_type": "BUY",
+        "entry_price": 264.29998779296875,
+        "target_price": 272.22898742675784,
+        "stop_loss": 259.01398803710936,
+        "confidence": 51.06624640051902,
+        "strength": 51.06624640051903,
+        "timestamp": "2025-07-01T18:44:55.527892",
+        "reason": "Chartink discovery (breakout_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 50.094606221660705,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "breakout_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "breakout_stocks",
+        "source_theme": "breakout_stocks"
+      }
+    ],
+    "portfolio_stats": {
+      "avg_confidence": 51.188285914615584,
+      "avg_strength": 51.188285914615584,
+      "high_confidence_count": 0,
+      "unique_symbols": 4,
+      "themes_contributed": 3
+    }
+  },
+  "gap_trading_test": {
+    "theme": "gap_up_stocks",
+    "total_recommendations": 4,
+    "avg_confidence": 51.188285914615584,
+    "avg_strength": 51.188285914615584,
+    "high_confidence_count": 0,
+    "recommendations": [
+      {
+        "symbol": "ULTRACEMCO.NS",
+        "signal_type": "BUY",
+        "entry_price": 12210.0,
+        "target_price": 12576.300000000001,
+        "stop_loss": 11965.8,
+        "confidence": 51.5289892022793,
+        "strength": 51.52898920227929,
+        "timestamp": "2025-07-01T18:44:55.937775",
+        "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 51.27268248624682,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "gap_up_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "gap_up_stocks"
+      },
+      {
+        "symbol": "RELIANCE.NS",
+        "signal_type": "BUY",
+        "entry_price": 1526.800048828125,
+        "target_price": 1572.6040502929689,
+        "stop_loss": 1496.2640478515625,
+        "confidence": 51.08587329866698,
+        "strength": 51.08587329866698,
+        "timestamp": "2025-07-01T18:44:55.937777",
+        "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 50.163687547965324,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "gap_up_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "gap_up_stocks"
+      },
+      {
+        "symbol": "TCS.NS",
+        "signal_type": "BUY",
+        "entry_price": 3429.0,
+        "target_price": 3531.87,
+        "stop_loss": 3360.42,
+        "confidence": 51.072034756997034,
+        "strength": 51.07203475699703,
+        "timestamp": "2025-07-01T18:44:55.937778",
+        "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 50.131184928040476,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "gap_up_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "gap_up_stocks"
+      },
+      {
+        "symbol": "WIPRO.NS",
+        "signal_type": "BUY",
+        "entry_price": 264.29998779296875,
+        "target_price": 272.22898742675784,
+        "stop_loss": 259.01398803710936,
+        "confidence": 51.06624640051902,
+        "strength": 51.06624640051903,
+        "timestamp": "2025-07-01T18:44:55.937779",
+        "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+        "technical_indicators": {
+          "rsi": 0,
+          "momentum_score": 50.094606221660705,
+          "volume_ratio": 1.0,
+          "breakout_score": 70.0,
+          "chartink_source": "gap_up_stocks"
+        },
+        "risk_reward_ratio": 1.5,
+        "chartink_source": "gap_up_stocks"
+      }
+    ],
+    "market_conditions": {
+      "scan_time": "2025-07-01T18:44:55.937781",
+      "active_signals": 4,
+      "avg_confidence": 51.188285914615584,
+      "avg_strength": 51.188285914615584,
+      "high_confidence_count": 0
+    },
+    "raw_response": {
+      "timestamp": "2025-07-01T18:44:55.937780",
+      "total_candidates_found": 5,
+      "recommendations_returned": 4,
+      "ranking_enabled": true,
+      "scan_sources": [
+        "intraday_service",
+        "breakout_screener",
+        "volume_screener"
+      ],
+      "chartink_theme": "gap_up_stocks",
+      "filters_applied": {
+        "confidence_threshold": 50.0,
+        "strength_threshold": 50.0,
+        "limit": 10
+      },
+      "market_conditions": {
+        "scan_time": "2025-07-01T18:44:55.937781",
+        "active_signals": 4,
+        "avg_confidence": 51.188285914615584,
+        "avg_strength": 51.188285914615584,
+        "high_confidence_count": 0
+      },
+      "recommendations": [
+        {
+          "symbol": "ULTRACEMCO.NS",
+          "signal_type": "BUY",
+          "entry_price": 12210.0,
+          "target_price": 12576.300000000001,
+          "stop_loss": 11965.8,
+          "confidence": 51.5289892022793,
+          "strength": 51.52898920227929,
+          "timestamp": "2025-07-01T18:44:55.937775",
+          "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 51.3), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 51.27268248624682,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "gap_up_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "gap_up_stocks"
+        },
+        {
+          "symbol": "RELIANCE.NS",
+          "signal_type": "BUY",
+          "entry_price": 1526.800048828125,
+          "target_price": 1572.6040502929689,
+          "stop_loss": 1496.2640478515625,
+          "confidence": 51.08587329866698,
+          "strength": 51.08587329866698,
+          "timestamp": "2025-07-01T18:44:55.937777",
+          "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.2), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.163687547965324,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "gap_up_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "gap_up_stocks"
+        },
+        {
+          "symbol": "TCS.NS",
+          "signal_type": "BUY",
+          "entry_price": 3429.0,
+          "target_price": 3531.87,
+          "stop_loss": 3360.42,
+          "confidence": 51.072034756997034,
+          "strength": 51.07203475699703,
+          "timestamp": "2025-07-01T18:44:55.937778",
+          "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.131184928040476,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "gap_up_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "gap_up_stocks"
+        },
+        {
+          "symbol": "WIPRO.NS",
+          "signal_type": "BUY",
+          "entry_price": 264.29998779296875,
+          "target_price": 272.22898742675784,
+          "stop_loss": 259.01398803710936,
+          "confidence": 51.06624640051902,
+          "strength": 51.06624640051903,
+          "timestamp": "2025-07-01T18:44:55.937779",
+          "reason": "Chartink discovery (gap_up_stocks): Strong momentum (score: 50.1), bullish breakout potential, volume spike 1.0x",
+          "technical_indicators": {
+            "rsi": 0,
+            "momentum_score": 50.094606221660705,
+            "volume_ratio": 1.0,
+            "breakout_score": 70.0,
+            "chartink_source": "gap_up_stocks"
+          },
+          "risk_reward_ratio": 1.5,
+          "chartink_source": "gap_up_stocks"
+        }
+      ],
+      "ranking_stats": {
+        "history_length": 1,
+        "ranking_window": 5,
+        "last_scan_time": "2025-07-01T18:44:55.937784"
+      }
+    }
+  },
+  "timestamp": "2025-07-01T18:44:55.938694"
+}

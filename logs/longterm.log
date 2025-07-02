@@ -1,0 +1,38 @@
+/Users/ashokkumar/Desktop/alg-discovery/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Full services not available - creating simplified version
+INFO:     Will watch for changes in these directories: ['/Users/ashokkumar/Desktop/alg-discovery']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [54950] using WatchFiles
+/Users/ashokkumar/Desktop/alg-discovery/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Full services not available - creating simplified version
+2025-07-02 00:15:50,815 - longterm_server - WARNING - Full services not available - creating simplified version
+INFO:     Started server process [54953]
+INFO:     Waiting for application startup.
+2025-07-02 00:15:50,820 - longterm_server - INFO - 🚀 Starting Long-Term Investment Server...
+2025-07-02 00:15:50,820 - longterm_server - INFO - ✅ Mock long-term investment services initialized
+INFO:     Application startup complete.
+2025-07-02 00:15:51,530 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:16:16,896 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:16:35,928 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:16:43,402 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:16:44,093 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:16:45,485 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:16:47,526 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:16:48,637 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:16:50,653 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:17:00,911 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:17:01,657 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:17:03,723 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:17:05,769 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:17:25,370 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:17:32,424 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:17:33,157 - watchfiles.main - INFO - 1 change detected
+2025-07-02 00:17:33,519 - watchfiles.main - INFO - 1 change detected
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-07-02 00:17:34,310 - longterm_server - INFO - 🛑 Long-term investment services stopped
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54953]
+INFO:     Stopping reloader process [54950]

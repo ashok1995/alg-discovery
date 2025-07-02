@@ -1,0 +1,343 @@
+{
+  "metadata": {
+    "file_version": "4.0.0",
+    "created_date": "2024-01-15T10:00:00Z",
+    "last_updated": "2024-01-15T10:00:00Z",
+    "description": "Unified trading configuration with versioned algorithms for all strategy types",
+    "author": "Algorithm Discovery System",
+    "market_focus": "Indian Equities (BSE/NSE)"
+  },
+  "current_versions": {
+    "long_term": "v2.1.0",
+    "short_term": "v1.2.0", 
+    "swing": "v1.3.0",
+    "intraday": "v1.1.0"
+  },
+  "strategies": {
+    "long_term": {
+      "name": "Long-Term Investment Strategy",
+      "timeframe": "3-24 months",
+      "target_return": 0.25,
+      "stop_loss": 0.12,
+      "min_holding_period": "90 days",
+      "algorithms": {
+        "v1.0.0": {
+          "name": "Basic Fundamental Growth",
+          "status": "deprecated",
+          "created_date": "2024-01-01",
+          "chartink_queries": {
+            "value_investing": {
+              "query": "( {cash} ( latest \"market cap\" > 1000 and latest \"p/e\" < 20 and latest \"return on equity\" > 15 and latest \"debt to equity\" < 0.5 and latest close > 50 and latest volume > 10000 ) )",
+              "description": "Value stocks with strong fundamentals",
+              "weight": 0.4,
+              "expected_results": 50
+            },
+            "growth_investing": {
+              "query": "( {cash} ( latest \"market cap\" > 500 and latest \"return on equity\" > 15 and latest close > latest sma(close,50) and latest volume > 50000 ) )",
+              "description": "Growth stocks with momentum",
+              "weight": 0.35,
+              "expected_results": 40
+            },
+            "dividend_investing": {
+              "query": "( {cash} ( latest \"market cap\" > 2000 and latest \"dividend yield\" > 2 and latest \"p/e\" < 15 and latest close > 100 ) )",
+              "description": "Dividend-paying stocks",
+              "weight": 0.25,
+              "expected_results": 30
+            }
+          }
+        },
+        "v2.0.0": {
+          "name": "Enhanced Fundamental Analysis",
+          "status": "active",
+          "created_date": "2024-01-10",
+          "chartink_queries": {
+            "value_investing": {
+              "query": "( {cash} ( latest \"market cap\" > 1000 and latest \"p/e\" < 18 and latest \"p/e\" > 5 and latest \"return on equity\" > 18 and latest \"debt to equity\" < 0.4 and latest \"current ratio\" > 1.2 and latest close > 50 and latest volume > 15000 ) )",
+              "description": "High-quality value stocks with strong balance sheets",
+              "weight": 0.35,
+              "expected_results": 40
+            },
+            "growth_investing": {
+              "query": "( {cash} ( latest \"market cap\" > 500 and latest \"return on equity\" > 20 and latest \"return on capital employed\" > 18 and latest \"p/e\" < 25 and latest close > latest sma(close,20) and latest sma(close,20) > latest sma(close,50) and latest volume > 50000 ) )",
+              "description": "Growth stocks with technical confirmation",
+              "weight": 0.35,
+              "expected_results": 35
+            },
+            "quality_dividend": {
+              "query": "( {cash} ( latest \"market cap\" > 2000 and latest \"dividend yield\" > 2.5 and latest \"dividend yield\" < 8 and latest \"p/e\" < 15 and latest \"return on equity\" > 15 and latest \"debt to equity\" < 0.6 and latest close > 150 and latest volume > 25000 ) )",
+              "description": "Quality dividend stocks with sustainable payouts",
+              "weight": 0.3,
+              "expected_results": 25
+            }
+          }
+        },
+        "v2.1.0": {
+          "name": "Advanced Multi-Factor",
+          "status": "active",
+          "created_date": "2024-01-15",
+          "chartink_queries": {
+            "value_momentum": {
+              "query": "( {cash} ( latest \"market cap\" > 1000 and latest \"p/e\" < 16 and latest \"p/e\" > 8 and latest \"return on equity\" > 20 and latest \"debt to equity\" < 0.3 and latest close > latest sma(close,50) and latest volume > latest sma(volume,20) * 1.3 and latest \"current ratio\" > 1.5 ) )",
+              "description": "Value stocks with momentum and quality metrics",
+              "weight": 0.4,
+              "expected_results": 30
+            },
+            "growth_quality": {
+              "query": "( {cash} ( latest \"market cap\" > 800 and latest \"return on equity\" > 22 and latest \"return on capital employed\" > 20 and latest \"p/e\" < 22 and latest \"debt to equity\" < 0.5 and latest close > latest sma(close,20) and latest sma(close,20) > latest sma(close,50) and latest volume > 40000 ) )",
+              "description": "High-quality growth stocks with strong fundamentals",
+              "weight": 0.35,
+              "expected_results": 25
+            },
+            "dividend_aristocrats": {
+              "query": "( {cash} ( latest \"market cap\" > 3000 and latest \"dividend yield\" > 3 and latest \"dividend yield\" < 7 and latest \"p/e\" < 12 and latest \"return on equity\" > 18 and latest \"debt to equity\" < 0.4 and latest \"interest coverage\" > 5 and latest close > 200 ) )",
+              "description": "High-quality dividend aristocrats",
+              "weight": 0.25,
+              "expected_results": 20
+            }
+          }
+        }
+      },
+      "fallback_queries": [
+        "( {cash} ( latest \"market cap\" > 500 and latest close > 50 and latest volume > 10000 ) )",
+        "( {cash} ( latest close > latest sma(close,50) and latest volume > 20000 ) )"
+      ]
+    },
+    "short_term": {
+      "name": "Short-Term Position Strategy",
+      "timeframe": "1-4 weeks",
+      "target_return": 0.15,
+      "stop_loss": 0.08,
+      "algorithms": {
+        "v1.0.0": {
+          "name": "Momentum Breakout",
+          "status": "deprecated",
+          "created_date": "2024-01-01",
+          "chartink_queries": {
+            "breakout_momentum": {
+              "query": "( {cash} ( latest close > latest sma(close,20) and latest close > latest sma(close,50) and latest volume > latest sma(volume,20) * 1.5 and latest rsi(14) > 50 and latest rsi(14) < 80 ) )",
+              "description": "Breakout stocks with momentum",
+              "weight": 0.5,
+              "expected_results": 60
+            },
+            "volume_surge": {
+              "query": "( {cash} ( latest volume > latest sma(volume,20) * 2 and latest close > latest open and latest close > latest sma(close,10) ) )",
+              "description": "Stocks with volume surge",
+              "weight": 0.5,
+              "expected_results": 40
+            }
+          }
+        },
+        "v1.2.0": {
+          "name": "Enhanced Momentum",
+          "status": "active",
+          "created_date": "2024-01-12",
+          "chartink_queries": {
+            "technical_breakout": {
+              "query": "( {cash} ( latest close > latest sma(close,20) and latest sma(close,20) > latest sma(close,50) and latest volume > latest sma(volume,20) * 1.8 and latest rsi(14) > 55 and latest rsi(14) < 75 and latest \"market cap\" > 500 ) )",
+              "description": "Technical breakout with strong momentum",
+              "weight": 0.4,
+              "expected_results": 50
+            },
+            "volume_price_surge": {
+              "query": "( {cash} ( latest volume > latest sma(volume,20) * 2.5 and latest close > latest open * 1.02 and latest close > latest sma(close,10) and latest \"market cap\" > 300 ) )",
+              "description": "Price and volume surge confirmation",
+              "weight": 0.35,
+              "expected_results": 35
+            },
+            "momentum_continuation": {
+              "query": "( {cash} ( latest close > latest sma(close,5) and latest sma(close,5) > latest sma(close,20) and latest volume > latest sma(volume,10) * 1.3 and latest rsi(14) > 60 and latest close > [0] 1 week ago close * 1.05 ) )",
+              "description": "Momentum continuation pattern",
+              "weight": 0.25,
+              "expected_results": 30
+            }
+          }
+        }
+      },
+      "fallback_queries": [
+        "( {cash} ( latest close > latest sma(close,20) and latest volume > latest sma(volume,20) ) )",
+        "( {cash} ( latest volume > 50000 and latest close > 100 ) )"
+      ]
+    },
+    "swing": {
+      "name": "Swing Trading Strategy",
+      "timeframe": "3-10 days",
+      "target_return": 0.08,
+      "stop_loss": 0.05,
+      "algorithms": {
+        "v1.0.0": {
+          "name": "Basic Swing Patterns",
+          "status": "deprecated",
+          "created_date": "2024-01-01",
+          "chartink_queries": {
+            "pullback_bounce": {
+              "query": "( {cash} ( latest close > latest sma(close,50) and latest close < latest sma(close,20) and latest rsi(14) < 40 and latest volume > latest sma(volume,20) ) )",
+              "description": "Pullback to support in uptrend",
+              "weight": 0.5,
+              "expected_results": 40
+            },
+            "breakout_retest": {
+              "query": "( {cash} ( latest close > latest sma(close,20) and latest close > latest sma(close,50) and latest volume > latest sma(volume,20) * 1.3 ) )",
+              "description": "Breakout with volume confirmation",
+              "weight": 0.5,
+              "expected_results": 35
+            }
+          }
+        },
+        "v1.3.0": {
+          "name": "Advanced Swing Patterns",
+          "status": "active",
+          "created_date": "2024-01-13",
+          "chartink_queries": {
+            "oversold_bounce": {
+              "query": "( {cash} ( latest close > latest sma(close,50) and latest close < latest sma(close,20) and latest rsi(14) < 35 and latest rsi(14) > 25 and latest volume > latest sma(volume,20) * 1.2 and latest \"market cap\" > 500 ) )",
+              "description": "Oversold bounce in uptrend with volume",
+              "weight": 0.35,
+              "expected_results": 35
+            },
+            "flag_pattern": {
+              "query": "( {cash} ( latest close > latest sma(close,20) and latest sma(close,20) > latest sma(close,50) and latest volume > latest sma(volume,20) * 1.5 and latest rsi(14) > 45 and latest rsi(14) < 70 and latest close > [0] 1 week ago close ) )",
+              "description": "Flag pattern with momentum confirmation",
+              "weight": 0.35,
+              "expected_results": 30
+            },
+            "support_test": {
+              "query": "( {cash} ( latest close > latest sma(close,50) * 0.98 and latest close > latest sma(close,50) * 1.02 and latest volume > latest sma(volume,20) and latest rsi(14) > 35 and latest rsi(14) < 55 ) )",
+              "description": "Support level test with bounce potential",
+              "weight": 0.3,
+              "expected_results": 25
+            }
+          }
+        }
+      },
+      "fallback_queries": [
+        "( {cash} ( latest close > latest sma(close,20) and latest volume > 30000 ) )",
+        "( {cash} ( latest rsi(14) > 40 and latest rsi(14) < 70 and latest volume > 20000 ) )"
+      ]
+    },
+    "intraday": {
+      "name": "Intraday Trading Strategy",
+      "timeframe": "1 day",
+      "target_return": 0.03,
+      "stop_loss": 0.02,
+      "algorithms": {
+        "v1.0.0": {
+          "name": "Gap and Volume",
+          "status": "deprecated",
+          "created_date": "2024-01-01",
+          "chartink_queries": {
+            "gap_up": {
+              "query": "( {cash} ( latest open > [0] 1 day ago close * 1.02 and latest volume > latest sma(volume,20) * 1.5 ) )",
+              "description": "Gap up with volume confirmation",
+              "weight": 0.5,
+              "expected_results": 30
+            },
+            "momentum_spike": {
+              "query": "( {cash} ( latest volume > latest sma(volume,20) * 3 and latest close > latest open and latest rsi(14) > 60 ) )",
+              "description": "Momentum spike with volume",
+              "weight": 0.5,
+              "expected_results": 25
+            }
+          }
+        },
+        "v1.1.0": {
+          "name": "Enhanced Intraday",
+          "status": "active",
+          "created_date": "2024-01-11",
+          "chartink_queries": {
+            "gap_momentum": {
+              "query": "( {cash} ( latest open > [0] 1 day ago close * 1.015 and latest open < [0] 1 day ago close * 1.05 and latest volume > latest sma(volume,20) * 2 and latest close > latest open and latest \"market cap\" > 1000 ) )",
+              "description": "Controlled gap up with momentum",
+              "weight": 0.4,
+              "expected_results": 25
+            },
+            "volume_breakout": {
+              "query": "( {cash} ( latest volume > latest sma(volume,20) * 4 and latest close > latest sma(close,5) and latest rsi(14) > 55 and latest rsi(14) < 80 and latest close > latest open * 1.01 ) )",
+              "description": "Volume breakout with price confirmation",
+              "weight": 0.35,
+              "expected_results": 20
+            },
+            "morning_momentum": {
+              "query": "( {cash} ( latest close > latest sma(close,5) and latest volume > latest sma(volume,5) * 2 and latest rsi(14) > 50 and latest close > latest open and latest \"market cap\" > 500 ) )",
+              "description": "Morning momentum with technical confirmation",
+              "weight": 0.25,
+              "expected_results": 18
+            }
+          }
+        }
+      },
+      "fallback_queries": [
+        "( {cash} ( latest volume > latest sma(volume,20) and latest close > latest open ) )",
+        "( {cash} ( latest close > 50 and latest volume > 100000 ) )"
+      ]
+    }
+  },
+  "global_settings": {
+    "api_limits": {
+      "max_requests_per_minute": 30,
+      "request_timeout": 30,
+      "retry_attempts": 3
+    },
+    "caching": {
+      "query_cache_duration": 300,
+      "connectivity_check_interval": 600
+    },
+    "fallback_behavior": {
+      "use_fallback_on_zero_results": true,
+      "max_fallback_attempts": 2,
+      "fallback_delay_seconds": 2
+    },
+    "quality_controls": {
+      "min_market_cap": 100,
+      "min_volume": 1000,
+      "max_results_per_query": 100
+    }
+  },
+  "experimental_features": {
+    "ai_scoring": {
+      "enabled": false,
+      "confidence_threshold": 0.8
+    },
+    "sentiment_integration": {
+      "enabled": false,
+      "weight": 0.1
+    },
+    "sector_rotation": {
+      "enabled": true,
+      "weight": 0.15
+    }
+  },
+  "algorithm_performance": {
+    "long_term": {
+      "v2.1.0": {
+        "success_rate": 0.0,
+        "avg_stocks_found": 0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "short_term": {
+      "v1.2.0": {
+        "success_rate": 0.0,
+        "avg_stocks_found": 0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "swing": {
+      "v1.3.0": {
+        "success_rate": 0.0,
+        "avg_stocks_found": 0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "intraday": {
+      "v1.1.0": {
+        "success_rate": 0.0,
+        "avg_stocks_found": 0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    }
+  }
+} 

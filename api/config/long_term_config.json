@@ -1,0 +1,251 @@
+{
+  "metadata": {
+    "file_version": "3.0",
+    "created_date": "2024-01-15",
+    "last_updated": "2024-01-15",
+    "description": "Long-term investment strategy with sub-algorithm variants for iterative testing",
+    "strategy_type": "long_term",
+    "market_focus": "Indian Equities (BSE/NSE)",
+    "timeframe": "3-24 months",
+    "target_return": 0.25,
+    "stop_loss": 0.12,
+    "min_holding_period": "90 days",
+    "author": "Algorithm Discovery System"
+  },
+  "current_version": "v2.1.0",
+  "current_algorithm": {
+    "name": "Advanced Multi-Factor Long-Term",
+    "version": "v2.1.0",
+    "status": "active",
+    "created_date": "2024-01-15",
+    "description": "Advanced algorithm combining best sub-algorithm variants for long-term investing"
+  },
+  "sub_algorithm_variants": {
+    "fundamental": {
+      "v1.0": {
+        "name": "Basic Fundamental Filter",
+        "description": "Simple P/E and ROE based filtering",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest sma ( latest close , 20 ) > latest sma ( latest close , 50 ) and latest volume > latest sma ( latest volume , 20 ) * 1.2 and latest close > latest ema ( latest close , 21 ) and ( latest close - 1 week ago close ) / 1 week ago close * 100 > 1 and market cap > 500 and latest sma ( latest close * latest volume , 20 ) > 100000 and quarterly sum ( quarterly net profit/reported profit after tax , 4 ) > 0 and yearly return on capital employed percentage > 12 and yearly debt equity ratio < 1.5 ) ) ",
+        "weight": 0.35,
+        "expected_results": 150
+      },
+      "v1.1": {
+        "name": "Enhanced Fundamental Quality",
+        "description": "Improved fundamental metrics with quality checks",
+        "query": "( {cash} ( yearly cash and cash equivalents at beginning of the year > 0 and market cap > 800 and market cap / quarterly sum ( quarterly net profit/reported profit after tax , 4 ) < 16 and market cap / quarterly sum ( quarterly net profit/reported profit after tax , 4 ) > 5 and quarterly sum ( quarterly net profit/reported profit after tax , 4 ) > 30 and yearly return on capital employed percentage > 12 and yearly debt equity ratio < 1.0 ) ) ",
+        "weight": 0.35,
+        "expected_results": 120
+      },
+      "v2.0": {
+        "name": "Advanced Fundamental Screening",
+        "description": "Comprehensive fundamental analysis with multiple ratios",
+        "query": "( {cash} ( market cap > 1000 and market cap / quarterly sum ( quarterly net profit/reported profit after tax , 4 ) < 16 and market cap / quarterly sum ( quarterly net profit/reported profit after tax , 4 ) > 8 and yearly return on net worth percentage > 20 and yearly debt equity ratio < 0.3 and yearly current ratio > 1.5 and yearly interest cover > 5 ) ) ",
+        "weight": 0.35,
+        "expected_results": 100
+      }
+    },
+    "momentum": {
+      "v1.0": {
+        "name": "Basic Price Momentum", 
+        "description": "Simple moving average and volume momentum",
+        "query": "( {cash} ( latest close > latest sma(close,20) and latest close > latest sma(close,50) and latest volume > latest sma(volume,20) * 1.2 ) )",
+        "weight": 0.25,
+        "expected_results": 200
+      },
+      "v1.1": {
+        "name": "Enhanced Volume Momentum",
+        "description": "Price momentum with strong volume confirmation",
+        "query" : "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest sma ( latest close , 20 ) > latest sma ( latest close , 50 ) and latest volume > latest sma ( latest volume , 20 ) * 1.5 and latest close > 1 week ago close ) )",
+        "weight": 0.25,
+        "expected_results": 150
+      },
+      "v2.0": {
+        "name": "Multi-Timeframe Momentum",
+        "description": "Momentum across multiple timeframes with breakout detection",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest sma ( latest close , 20 ) > latest sma ( latest close , 50 ) and latest volume > latest sma ( latest volume , 20 ) * 1.3 and latest close > latest ema ( latest close , 21 ) and latest close - 1 week ago close / 1 week ago close * 100 > 2 ) ) ",
+        "weight": 0.25,
+        "expected_results": 120
+      }
+    },
+    "value": {
+      "v1.0": {
+        "name": "Traditional Value Metrics",
+        "description": "Classic value investing approach",
+        "query": "( {cash} ( market cap / quarterly sum ( quarterly net profit/reported profit after tax , 4 ) < 15 and yearly book value / latest close < 2 and yearly dividend per share rupees / latest close * 100 > 1 and market cap > 1000 ) ) ",
+        "weight": 0.2,
+        "expected_results": 100
+      },
+      "v1.1": {
+        "name": "Modern Value with Quality",
+        "description": "Value approach with quality overlay",
+        "query": "( {cash} ( yearly debt equity ratio < 1.5 and market cap / quarterly sum ( quarterly net profit/reported profit after tax , 4 ) < 20 and yearly book value / latest close < 3 and yearly net profit/reported profit after tax / yearly book value * 100 > 10 and market cap > 800 ) ) ",
+        "weight": 0.2,
+        "expected_results": 120
+      },
+      "v1.2": {
+        "name": "Growth at Reasonable Price",
+        "description": "GARP strategy combining growth and value",
+        "query": "( {cash} ( market cap / quarterly sum ( quarterly net profit/reported profit after tax , 4 ) < 18 and yearly net profit/reported profit after tax / yearly book value * 100 > 20 and yearly debt equity ratio < 0.5 and latest close > latest sma ( latest close , 100 ) and market cap > 1000 and yearly net profit/reported profit after tax - 1 year ago net profit/reported profit after tax / 1 year ago net profit/reported profit after tax * 100 > 10 ) ) ",
+        "weight": 0.2,
+        "expected_results": 100
+      }
+    },
+    "quality": {
+      "v1.0": {
+        "name": "Basic Quality Metrics",
+        "description": "Essential quality and stability metrics",
+        "query": "( {cash} ( yearly debt equity ratio < 1 and yearly current ratio > 1 and market cap > 1000 and yearly net profit/reported profit after tax / yearly book value * 100 > 15 ) ) ",
+        "weight": 0.2,
+        "expected_results": 150
+      },
+      "v1.1": {
+        "name": "Enhanced Quality Assessment",
+        "description": "Comprehensive quality with profitability focus",
+        "query": "( {cash} ( yearly net profit/reported profit after tax / yearly book value * 100 > 20 and yearly return on capital employed percentage > 18 and yearly debt equity ratio < 0.5 and yearly current ratio > 1.5 and yearly interest cover > 5 and market cap > 500 ) ) ",
+        "weight": 0.2,
+        "expected_results": 100
+      },
+      "v1.2": {
+        "name": "Dividend Quality Focus",
+        "description": "Quality metrics with dividend sustainability",
+        "query": "( {cash} ( yearly net profit/reported profit after tax / yearly book value * 100 > 15 and yearly debt equity ratio < 1 and yearly interest cover > 5 and market cap > 3000 and yearly dividend per share rupees / latest close * 100 > 0.5 ) ) ",
+        "weight": 0.2,
+        "expected_results": 80
+      }
+    }
+  },
+  "algorithms": {
+    "v1.0.0": {
+      "name": "Basic Long-Term Growth",
+      "version": "v1.0.0",
+      "description": "Initial long-term algorithm focusing on fundamental growth",
+      "status": "active",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "fundamental": "v1.0",
+        "momentum": "v1.0", 
+        "value": "v1.0",
+        "quality": "v1.0"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "v1.1.0": {
+      "name": "Enhanced Long-Term Quality",
+      "version": "v1.1.0",
+      "description": "Enhanced algorithm with improved quality filters",
+      "status": "active", 
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "fundamental": "v1.1",
+        "momentum": "v1.1",
+        "value": "v1.1", 
+        "quality": "v1.1"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "v2.0.0": {
+      "name": "Advanced Multi-Factor",
+      "version": "v2.0.0",
+      "description": "Advanced algorithm combining best variants with momentum focus",
+      "status": "testing",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "fundamental": "v1.2",
+        "momentum": "v1.2",
+        "value": "v1.2",
+        "quality": "v1.1"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "v2.1.0": {
+      "name": "Experimental High-Performance Long-Term",
+      "version": "v2.1.0", 
+      "description": "Experimental version with latest sub-algorithm variants for long-term investing",
+      "status": "experimental",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "fundamental": "v2.0",
+        "momentum": "v2.0",
+        "value": "v1.2",
+        "quality": "v1.2"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    }
+  },
+  "chartink_queries": {
+    "value_momentum": {
+      "query": "( {cash} ( latest \"market cap\" > 1000 and latest \"p/e\" < 16 and latest \"p/e\" > 8 and latest \"return on equity\" > 20 and latest \"debt to equity\" < 0.3 and latest close > latest sma(close,50) and latest volume > latest sma(volume,20) * 1.3 and latest \"current ratio\" > 1.5 ) )",
+      "description": "Value stocks with momentum and quality metrics - derived from fundamental v2.0",
+      "weight": 0.4,
+      "expected_results": 30,
+      "source_sub_algorithm": "fundamental.v2.0"
+    },
+    "growth_quality": {
+      "query": "( {cash} ( latest \"market cap\" > 800 and latest \"return on equity\" > 18 and latest \"return on capital employed\" > 15 and latest \"p/e\" < 22 and latest \"debt to equity\" < 0.8 and latest close > latest sma(close,20) and latest sma(close,20) > latest sma(close,50) and latest volume > 40000 ) )",
+      "description": "High-quality growth stocks with strong fundamentals - derived from quality v1.1 + momentum v2.0",
+      "weight": 0.35,
+      "expected_results": 25,
+      "source_sub_algorithm": "quality.v1.1+momentum.v2.0"
+    },
+    "dividend_aristocrats": {
+      "query": "( {cash} ( latest \"market cap\" > 3000 and latest \"dividend yield\" > 0.5 and latest \"p/e\" < 20 and latest \"return on equity\" > 15 and latest \"debt to equity\" < 1 and latest \"interest coverage\" > 5 and latest close > 200 ) )",
+      "description": "High-quality dividend stocks - derived from quality v1.2 + value v1.2",
+      "weight": 0.25,
+      "expected_results": 20,
+      "source_sub_algorithm": "quality.v1.2+value.v1.2"
+    }
+  },
+  "fallback_queries": [
+    "( {cash} ( market cap > 500 and latest close > 50 and latest volume > 10000 ) ) ",
+    "( {cash} ( latest close > latest sma(close,50) and latest volume > 20000 ) )"
+  ],
+  "scoring_criteria": {
+    "fundamental_weight": 0.6,
+    "technical_weight": 0.3,
+    "quality_weight": 0.1,
+    "min_score_threshold": 60.0
+  },
+  "risk_management": {
+    "position_sizing": {
+      "max_position_size": 0.05,
+      "min_position_size": 0.01,
+      "diversification_sectors": 8
+    },
+    "quality_filters": {
+      "min_market_cap": 500,
+      "min_volume": 10000,
+      "max_debt_equity": 1.0,
+      "min_current_ratio": 1.0
+    }
+  },
+  "api_settings": {
+    "max_requests_per_minute": 20,
+    "request_timeout": 30,
+    "retry_attempts": 3,
+    "cache_duration": 600
+  }
+} 

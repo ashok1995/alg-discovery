@@ -18,7 +18,7 @@ from .order_manager import OrderManager
 from .execution_engine import ExecutionEngine
 from .risk_manager import RiskManager
 from .position_manager import PositionManager
-from .order_validator import OrderValidator
+from .validators import OrderValidator
 from .notification_service import NotificationService
 
 __version__ = "1.0.0"

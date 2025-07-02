@@ -1,276 +1,430 @@
-# AlgoDiscovery Trading System
+# Long-Term Investment Platform 🚀
 
-A comprehensive automated trading system with advanced intraday stock discovery, real-time data processing, and sophisticated trading algorithms.
+A comprehensive, enterprise-grade investment platform with distributed processing, intelligent caching, and automated market data collection.
 
-## 🎯 Project Overview
+## 🏗️ Architecture Overview
 
-AlgoDiscovery is a full-stack trading system that combines:
-- **Backend API**: FastAPI-based trading engine with real-time data processing
-- **Intraday Discovery**: Advanced stock screening and momentum analysis
-- **Yahoo Finance Integration**: Direct market data access
-- **WebSocket Support**: Real-time updates and live trading signals
-- **Technical Analysis**: RSI, MACD, Bollinger Bands, and custom strategies
-- **Portfolio Management**: Risk management and position tracking
+The platform is built with a microservices architecture featuring:
+
+- **Distributed Processing**: Background job scheduling with market-hours awareness
+- **Multi-Database Support**: PostgreSQL, Redis, and MongoDB integration
+- **Intelligent Caching**: Market-aware TTL and fallback mechanisms
+- **Automated Data Collection**: Real-time and historical market data
+- **System Monitoring**: Health checks, log rotation, and performance tracking
+- **Enterprise Logging**: Day-wise partitioned logs with rotation
+- **Frontend Separation**: Web UI handled by separate Streamlit module (not included in this core platform)
+
+> **Note**: The Streamlit-based web interface is maintained as a separate module to ensure clean separation of concerns between the core investment platform and the user interface.
+
+## 📁 Project Structure
+
+```
+alg-discovery/
+├── core/                           # Core business logic
+│   ├── database/                   # Database configurations
+│   │   ├── config.py              # Multi-database manager
+│   │   └── cache/                 
+│   │       └── redis_manager.py   # Intelligent Redis caching
+│   └── background/                # Background processing
+│       └── cron_jobs/             # Scheduled jobs
+│           ├── job_scheduler.py   # Distributed job scheduler
+│           ├── market_data_jobs.py # Market data collection
+│           └── system_maintenance_jobs.py # System maintenance
+├── services/                      # Microservices
+│   ├── analytics/                 # Analytics & backtesting
+│   ├── long_term_investment/      # Long-term investment service
+│   ├── main_orchestrator/         # Main API orchestrator
+│   └── order_management/          # Order management
+├── infrastructure/                # Infrastructure components
+│   ├── docker/                    # Docker configurations
+│   └── monitoring/                # Monitoring setup
+├── config/                        # Configuration files
+├── tests/                         # Comprehensive test suite
+│   ├── unit/                      # Unit tests
+│   ├── integration/               # Integration tests
+│   └── performance/               # Performance tests
+├── tools/                         # Development tools
+├── logs/                          # Application logs (day-wise)
+├── archive/                       # Archived files
+└── demo_service_manager.sh        # Service management script
+```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- pip or conda
 
-### Installation & Setup
+- Python 3.9+
+- PostgreSQL 13+
+- Redis 6+
+- MongoDB 5+
 
-1. **Clone the repository:**
+### Installation
+
+1. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd alg-discovery
    ```
 
-2. **Install dependencies:**
+2. **Create virtual environment**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Configure environment:**
+4. **Setup databases**
    ```bash
-   cp env.example .env
-   # Edit .env with your API keys and configuration
+   # Start PostgreSQL, Redis, and MongoDB
+   # Update connection strings in core/database/config.py
    ```
 
-4. **Start the trading system:**
+5. **Start services**
    ```bash
-   python start.py
+   # Start all services
+   ./demo_service_manager.sh start all
+   
+   # Or start individual services
+   ./demo_service_manager.sh start main
+   ./demo_service_manager.sh start analytics
+   ./demo_service_manager.sh start longterm
+   ./demo_service_manager.sh start orders
    ```
 
-The API will be available at `http://localhost:8888`
+## 🛠️ Service Management
 
-## 📖 API Documentation
+The platform includes a comprehensive service manager with logging and monitoring:
 
-- **Interactive Docs**: http://localhost:8888/docs
-- **ReDoc**: http://localhost:8888/redoc
-- **Health Check**: http://localhost:8888/health
+### Basic Commands
 
-## 🔧 Project Structure
+```bash
+# Start services
+./demo_service_manager.sh start <service|all>
+./demo_service_manager.sh stop <service|all>
+./demo_service_manager.sh restart <service|all>
 
-```
-alg-discovery/
-├── 📄 README.md              # This file - main project documentation
-├── 📄 requirements.txt       # All project dependencies
-├── 📄 start.py              # Main startup script
-├── 📄 env.example           # Environment configuration template
-├── 📁 api/                  # Backend API implementation
-│   ├── 📄 main.py           # FastAPI application
-│   ├── 📄 config.py         # Advanced configuration management
-│   ├── 📄 simple_config.py  # Simple configuration for development
-│   ├── 📁 models/           # Data models and schemas
-│   ├── 📁 services/         # Business logic and external integrations
-│   ├── 📄 README.md         # API-specific documentation
-│   └── 📁 data/             # API data storage
-├── 📁 data/                 # Global data storage
-├── 📁 logs/                 # Application logs
-├── 📁 config/               # Configuration files
-├── 📁 services/             # Shared services
-├── 📁 utils/                # Utility functions
-├── 📁 docs/                 # Additional documentation
-└── 📁 infrastructure/       # Deployment and infrastructure
+# Monitor services
+./demo_service_manager.sh status
+./demo_service_manager.sh show_logs <service> [lines]
+./demo_service_manager.sh show_all_logs
+
+# Get help
+./demo_service_manager.sh help
+./demo_service_manager.sh usage
 ```
 
-## 🌟 Key Features
+### Available Services
 
-### 🔥 Intraday Stock Discovery
-- **Momentum Breakout Screening**: High momentum stocks with breakout potential
-- **Gap & Go Strategy**: Stocks with significant overnight gaps
-- **Volume Spike Detection**: Unusual volume activity identification
-- **Consolidation Breakouts**: Pattern-based breakout detection
+- `main` - Main Orchestrator (API Gateway)
+- `analytics` - Analytics & Backtesting Service
+- `longterm` - Long-term Investment Service
+- `orders` - Order Management Service
 
-### 📊 Yahoo Finance Integration
-- **Real-time Data**: Current prices, volume, and market metrics
-- **Historical Analysis**: Flexible periods and intervals
-- **Batch Processing**: Multiple symbols in single requests
-- **Company Information**: Sector, market cap, financial metrics
+### Log Management
 
-### 🔄 WebSocket Support
-- **Live Price Updates**: Real-time market data streaming
-- **Trading Signals**: Instant signal notifications
-- **Portfolio Updates**: Live portfolio monitoring
-- **Market Status**: Real-time market hours and status
+Logs are automatically partitioned by day and stored in `logs/daily/YYYY-MM-DD/`:
 
-### 📈 Technical Analysis
-- **RSI Momentum**: Oversold/overbought analysis
-- **MACD Signals**: Trend and momentum indicators
-- **Bollinger Bands**: Volatility and price action
-- **Custom Strategies**: Extensible strategy framework
+```bash
+# View recent logs
+./demo_service_manager.sh show_logs main 50
 
-## 🎯 API Endpoints Overview
+# Show all service logs
+./demo_service_manager.sh show_all_logs
 
-### Core Endpoints
-- `GET /health` - System health check
-- `GET /api/version` - API version and features
-- `GET /api/market-status` - Current market status
+# Logs are automatically rotated and compressed
+```
 
-### Intraday Discovery
-- `GET /api/intraday/screener/{criteria}` - Stock screening
-- `GET /api/intraday/top-movers` - Top moving stocks
-- `GET /api/intraday/breakout-candidates` - Breakout opportunities
-- `GET /api/intraday/volume-leaders` - Volume spike stocks
-- `GET /api/intraday/gap-stocks` - Gap trading opportunities
-- `GET /api/intraday/momentum/{symbol}` - Momentum analysis
-- `GET /api/intraday/signals` - Trading signals generation
+## 🗄️ Database Architecture
 
-### Yahoo Finance Direct Access
-- `GET /api/yahoo/{symbol}` - Comprehensive stock data
-- `GET /api/yahoo/{symbol}/price` - Current price only
-- `GET /api/yahoo/{symbol}/history` - Historical data
-- `GET /api/yahoo/batch` - Multiple stocks data
+### Multi-Database Support
 
-### Stock Data & Analysis
-- `GET /api/stock/{symbol}` - Stock data
-- `GET /api/stock/{symbol}/technical` - Technical indicators
-- `GET /api/signals/{symbol}` - Trading signals
-- `GET /api/portfolio` - Portfolio overview
+The platform uses three databases for different purposes:
 
-### WebSocket Connections
-- `WS /ws/live-data` - Live market data
-- `WS /ws/signals` - Trading signals stream
+1. **PostgreSQL** - Primary data storage
+   - Stock data and historical records
+   - User portfolios and transactions
+   - System configuration
 
-## 🛠️ Configuration
+2. **Redis** - Intelligent caching
+   - Market-aware TTL (shorter during market hours)
+   - Real-time data caching
+   - Session management
+
+3. **MongoDB** - Document storage
+   - Market data archives
+   - Log aggregation
+   - Analytics results
+
+### Database Configuration
+
+```python
+from core.database.config import db_manager
+
+# Get database connections
+with db_manager.get_db() as db:
+    # PostgreSQL operations
+    
+with db_manager.get_redis() as redis:
+    # Redis operations
+    
+with db_manager.get_mongo() as mongo:
+    # MongoDB operations
+```
+
+## 🔄 Background Processing
+
+### Intelligent Job Scheduler
+
+The platform features a distributed job scheduler with market-hours awareness:
+
+```python
+from core.background.cron_jobs.job_scheduler import add_cron_job, add_interval_job
+
+# Add market-aware job
+add_cron_job(
+    job_id="market_data_collection",
+    name="Real-time Data Collection",
+    func=collect_market_data,
+    minute="*/1",  # Every minute
+    only_market_hours=True  # Only during market hours
+)
+```
+
+### Automated Jobs
+
+1. **Market Data Collection**
+   - Real-time data: Every 1 minute during market hours
+   - Historical data: Daily at 4 PM
+   - Cache warming: 15 minutes before market open
+
+2. **System Maintenance**
+   - Health monitoring: Every 5 minutes
+   - Log rotation: Daily at 1 AM
+   - System cleanup: Daily at 3 AM
+   - Daily reports: Daily at 11:59 PM
+
+## 💾 Intelligent Caching
+
+### Redis Cache Manager
+
+Market-aware caching with automatic TTL adjustment:
+
+```python
+from core.database.cache.redis_manager import cache_get_with_fallback
+
+# Intelligent caching with fallback
+data = cache_get_with_fallback(
+    "market_data_RELIANCE",
+    fallback_function=fetch_from_api,
+    ttl=None  # Uses market-aware TTL
+)
+```
+
+### Cache Features
+
+- **Market-aware TTL**: Shorter during market hours, longer when closed
+- **Fallback mechanisms**: Automatic fallback to cached data on errors
+- **Bulk operations**: Efficient bulk get/set operations
+- **Pattern invalidation**: Clean up related cache entries
+- **Statistics tracking**: Monitor cache performance
+
+## 📊 System Monitoring
+
+### Health Monitoring
+
+Comprehensive system health checks:
+
+```bash
+# Check system health
+curl http://localhost:8000/health
+
+# Detailed health metrics
+curl http://localhost:8000/health/detailed
+```
+
+### Performance Metrics
+
+- **CPU and Memory usage**
+- **Database connection health**
+- **Cache hit rates**
+- **Process monitoring**
+- **Disk usage tracking**
+
+### Alerting
+
+The system generates alerts for:
+- High CPU/Memory usage (>85%)
+- Database connection failures
+- Low cache hit rates (<50%)
+- Disk space issues (>85%)
+
+## 🧪 Testing
+
+### Test Structure
+
+```bash
+tests/
+├── unit/                  # Unit tests
+├── integration/           # Integration tests
+├── performance/           # Performance tests
+└── fixtures/              # Test data
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run specific test categories
+pytest tests/unit/                    # Unit tests
+pytest tests/integration/ -m integration  # Integration tests
+pytest tests/performance/ -m performance  # Performance tests
+
+# Run with coverage
+pytest --cov=core --cov-report=html
+```
+
+### Test Categories
+
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Test component interactions
+- **Performance Tests**: Measure system performance under load
+
+## 🔧 Configuration
 
 ### Environment Variables
-Key settings in `.env` file:
 
 ```bash
-# Server Configuration
-HOST=0.0.0.0
-PORT=8888
-DEBUG=true
+# Database URLs
+POSTGRES_URL=postgresql://user:pass@localhost/investment_db
+REDIS_URL=redis://localhost:6379/0
+MONGO_URL=mongodb://localhost:27017/investment_db
 
-# API Keys
-ALPHA_VANTAGE_API_KEY=your_key
-ZERODHA_API_KEY=your_key
+# Market Configuration
+MARKET_TIMEZONE=Asia/Kolkata
+MARKET_OPEN_TIME=09:15
+MARKET_CLOSE_TIME=15:30
 
-# Trading Settings
-DEFAULT_SYMBOLS=TCS.NS,INFY.NS,RELIANCE.NS
-MAX_POSITION_SIZE=100000.0
-MAX_DAILY_LOSS=50000.0
-
-# Performance
-CACHE_TTL_SECONDS=300
-DATA_FETCH_INTERVAL=30
+# Cache Configuration
+CACHE_DEFAULT_TTL=3600
+CACHE_MARKET_HOURS_TTL=300
 ```
 
-### Advanced Configuration
-For production deployments, use `api/config.py` for comprehensive settings management with validation and type safety.
+### Service Ports
 
-## 📊 Usage Examples
+- Main Orchestrator: `8000`
+- Analytics Service: `8002`
+- Long-term Investment: `8001`
+- Order Management: `8003`
 
-### Python Client Example
-```python
-import requests
-import websockets
-import asyncio
-
-# Get current stock price
-response = requests.get("http://localhost:8888/api/yahoo/AAPL/price")
-price_data = response.json()
-print(f"AAPL: ${price_data['current_price']}")
-
-# Screen for momentum breakouts
-response = requests.get("http://localhost:8888/api/intraday/screener/momentum_breakout")
-breakouts = response.json()
-for stock in breakouts[:5]:
-    print(f"{stock['symbol']}: {stock['score']:.2f}")
-
-# WebSocket for live updates
-async def live_data():
-    uri = "ws://localhost:8888/ws/live-data"
-    async with websockets.connect(uri) as websocket:
-        await websocket.send('{"action": "subscribe", "symbols": ["AAPL", "TSLA"]}')
-        async for message in websocket:
-            data = json.loads(message)
-            print(f"Live update: {data}")
-
-asyncio.run(live_data())
-```
-
-### curl Examples
-```bash
-# Get comprehensive stock data
-curl "http://localhost:8888/api/yahoo/TCS.NS?period=1y&interval=1d"
-
-# Screen momentum breakouts
-curl "http://localhost:8888/api/intraday/screener/momentum_breakout?limit=10"
-
-# Get batch stock prices
-curl "http://localhost:8888/api/yahoo/batch?symbols=AAPL,MSFT,GOOGL"
-
-# Get trading signals
-curl "http://localhost:8888/api/intraday/signals?symbols=TCS.NS,RELIANCE.NS"
-```
-
-## 🚀 Development
-
-### Running in Development Mode
-```bash
-# Start with auto-reload
-DEBUG=true python start.py
-
-# View logs
-tail -f logs/backend_api.log
-
-# Run tests
-pytest api/tests/
-```
-
-### Adding Custom Strategies
-1. Extend the `TradingStrategy` base class in `api/services/`
-2. Implement `analyze()` and `calculate_confidence()` methods
-3. Register the strategy in the analysis engine
-
-### Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## 📦 Deployment
+## 🚀 Deployment
 
 ### Docker Deployment
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-EXPOSE 8888
-CMD ["python", "start.py"]
-```
 
-### Production Settings
 ```bash
-ENVIRONMENT=production
-DEBUG=false
-WORKERS=4
-LOG_LEVEL=INFO
-SECRET_KEY=your-production-secret-key
+# Build and start services
+docker-compose up -d
+
+# Scale services
+docker-compose up -d --scale analytics=3
 ```
 
-## 🔗 Related Projects
+### Production Considerations
 
-- **Streamlit Frontend**: Interactive trading dashboard
-- **Jupyter Notebooks**: Strategy development and backtesting
-- **Mobile App**: Real-time alerts and portfolio monitoring
+1. **Database Clustering**: Setup PostgreSQL and MongoDB clusters
+2. **Redis Cluster**: Configure Redis cluster for high availability
+3. **Load Balancing**: Use nginx or similar for load balancing
+4. **Monitoring**: Setup Prometheus and Grafana
+5. **Logging**: Configure centralized logging with ELK stack
 
-## 📞 Support
+## 📈 Performance
 
-- **Documentation**: `/docs` endpoint for detailed API documentation
-- **Health Monitoring**: `/health` endpoint for system status
-- **Logs**: Check `logs/` directory for detailed application logs
+### Benchmarks
 
-## ⚠️ Disclaimer
+- **Market Data Collection**: <2 seconds for 20 stocks
+- **Cache Operations**: <1ms average response time
+- **Database Queries**: <100ms for complex queries
+- **API Response Times**: <50ms for cached data
 
-This is a development/educational trading system. Always test thoroughly before using with real money. Trading involves risk, and past performance doesn't guarantee future results.
+### Optimization Features
+
+- **Connection pooling**: Efficient database connections
+- **Bulk operations**: Batch processing for better performance
+- **Intelligent caching**: Reduces database load
+- **Async processing**: Non-blocking operations
+
+## 🔒 Security
+
+### Security Features
+
+- **Environment-based configuration**: Sensitive data in environment variables
+- **Database connection encryption**: SSL/TLS for database connections
+- **Input validation**: Pydantic models for data validation
+- **Error handling**: Graceful error handling without data exposure
+
+## 📚 API Documentation
+
+### Endpoints
+
+- **Health Check**: `GET /health`
+- **Market Data**: `GET /api/v1/market-data`
+- **Portfolio**: `GET /api/v1/portfolio`
+- **Analytics**: `GET /api/v1/analytics`
+
+### Interactive Documentation
+
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Run the test suite
+5. Create a pull request
+
+### Code Quality
+
+```bash
+# Format code
+black .
+isort .
+
+# Lint code
+flake8 .
+mypy .
+
+# Run all quality checks
+./tools/quality_check.sh
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- **FastAPI**: Modern web framework
+- **yfinance**: Market data provider
+- **Redis**: Intelligent caching
+- **PostgreSQL**: Reliable data storage
+- **APScheduler**: Background job scheduling
+
+## 🆘 Support
+
+For support and questions:
+
+1. Check the documentation
+2. Review existing issues
+3. Create a new issue with detailed information
+4. Join our community discussions
 
 ---
 
-**AlgoDiscovery Trading System** - Advanced algorithmic trading made accessible. 🚀📈 
+**Built with ❤️ for intelligent investment management** 
