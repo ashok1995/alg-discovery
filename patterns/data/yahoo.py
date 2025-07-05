@@ -5,10 +5,10 @@ Yahoo Finance data fetcher
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
-from config.settings import YAHOO_INTERVAL_MAPPING
+from shared.config.settings import YAHOO_INTERVAL_MAPPING
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="data_yahoo")
 
 def get_stock_data(symbol, period="1mo", interval="1d"):
     """

@@ -6,7 +6,7 @@ import streamlit as st
 from utils.logger import get_logger
 
 # Initialize logger
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="trading_day_summary")
 
 def render_trading_day_summary(market_data=None):
     """

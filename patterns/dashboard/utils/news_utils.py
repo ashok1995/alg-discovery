@@ -8,7 +8,7 @@ import pytz
 from utils.logger import get_logger
 
 # Initialize logger
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="news_utils")
 
 # Set timezone to IST
 IST = pytz.timezone('Asia/Kolkata')

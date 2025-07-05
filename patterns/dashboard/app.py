@@ -17,7 +17,7 @@ except ImportError:
 
 # Initialize logger FIRST - before using it
 from utils.logger import get_logger
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="dashboard_app")
 
 # Now import other modules after paths are set up
 import pandas as pd

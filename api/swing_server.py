@@ -9,6 +9,7 @@ This server provides swing trading recommendations using:
 - 3-10 day holding period optimization
 - Advanced pattern recognition and re-ranking
 - 0-100 scoring system for better usability
+- Database caching for improved performance
 
 Author: Algorithm Discovery System
 Created: 2024-01-15
@@ -27,16 +28,48 @@ from typing import Any, Dict, List, Optional, Tuple
 import httpx
 import numpy as np
 from bs4 import BeautifulSoup as bs
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Add models for caching
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Load environment configuration for swing server
+from env_loader import load_server_environment, setup_logging
+
+# Setup environment and logging
+server_config = load_server_environment('swing')
+if server_config:
+    setup_logging('swing')
+else:
+    # Fallback logging configuration
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+# Get logger instance
 logger = logging.getLogger(__name__)
+
+from models.recommendation_models import (
+    recommendation_cache, 
+    RecommendationType, 
+    RecommendationRequest
+)
+from models.recommendation_history_models import (
+    recommendation_history_storage,
+    RecommendationStrategy,
+    RecommendationSource
+)
+from api.services.market_timer import market_timer
+from api.services.config_manager import TradingConfigManager
+# from api.services.analysis_engine import AnalysisEngine
+
+from api.utils.api_logger import APILogger
 
 # =====================================================================
 # CONFIGURATION MANAGEMENT
@@ -46,7 +79,11 @@ class SwingConfigManager:
     """Manages swing trading configuration and variants."""
     
     def __init__(self):
-        self.config_path = Path(__file__).parent / "config" / "swing_config.json"
+        # Prefer central shared config; fallback to local api/config
+        project_root = Path(__file__).resolve().parent.parent
+        shared_path = project_root / "shared" / "config" / "swing_buy_config.json"
+        local_path = Path(__file__).parent / "config" / "swing_config.json"
+        self.config_path = shared_path if shared_path.exists() else local_path
         self.config = self._load_config()
         
     def _load_config(self) -> Dict:
@@ -55,7 +92,7 @@ class SwingConfigManager:
             with open(self.config_path, 'r') as file:
                 return json.load(file)
         except Exception as e:
-            logger.error(f"Failed to load swing config: {e}")
+            logger.error(f"Failed to load swing config from {self.config_path}: {e}")
             return self._get_fallback_config()
     
     def _get_fallback_config(self) -> Dict:
@@ -574,10 +611,19 @@ class SwingBuyRequest(BaseModel):
     limit_per_query: Optional[int] = 50  # Increased default to get more stocks from ChartInk
     min_score: Optional[float] = 25.0  # Score on 0-100 scale
     top_recommendations: Optional[int] = 20
+    force_refresh: Optional[bool] = False  # Force fresh analysis bypassing cache
 
 # =====================================================================
 # FASTAPI APPLICATION
 # =====================================================================
+
+# Get server configuration
+app_config = server_config or {
+    'server_type': 'swing',
+    'port': 8002,
+    'host': 'localhost',
+    'cors_origins': ['http://localhost:3000', 'http://localhost:8080', 'http://127.0.0.1:3000']
+}
 
 app = FastAPI(
     title="Swing Trading Server",
@@ -585,14 +631,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware
+# Add CORS middleware with configuration from environment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=app_config.get('cors_origins', ["*"]),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize API logger
+api_logger = APILogger("swing")
 
 # =====================================================================
 # API ENDPOINTS
@@ -608,6 +657,8 @@ async def root():
         "timeframe": "3-10 days",
         "endpoints": {
             "recommendations": "/api/swing/swing-buy-recommendations",
+            "variants": "/api/swing/available-variants",
+            "combination": "/api/swing/combination-buy-recommendations",
             "health": "/health"
         }
     }
@@ -636,8 +687,47 @@ async def health_check():
             "timestamp": datetime.now().isoformat()
         }
 
+# ---------------------------------------------------------------------------
+# New Endpoint: Available Sub-Algorithm Variants (SWING)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/swing/available-variants")
+async def get_available_variants():
+    """Return category → version listing for swing trading combinations."""
+    try:
+        variants_cfg = config_manager.config.get("sub_algorithm_variants", {})
+        variants_summary = {
+            cat: {
+                ver: {
+                    "name": data.get("name"),
+                    "description": data.get("description", ""),
+                    "weight": data.get("weight", 1.0),
+                    "expected_results": data.get("expected_results")
+                }
+                for ver, data in variants.items()
+            }
+            for cat, variants in variants_cfg.items()
+        }
+
+        total_categories = len(variants_summary)
+        total_combinations = 1
+        for variants in variants_summary.values():
+            total_combinations *= len(variants) or 1
+
+        return {
+            "status": "success",
+            "variants": variants_summary,
+            "total_categories": total_categories,
+            "total_combinations": total_combinations,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    except Exception as exc:
+        logger.exception("Error fetching swing variants")
+        raise HTTPException(status_code=500, detail=str(exc))
+
 @app.post("/api/swing/swing-buy-recommendations")
-async def get_swing_buy_recommendations(request: SwingBuyRequest):
+async def get_swing_buy_recommendations(request: SwingBuyRequest, raw_request: Request):
     """
     Get swing trading buy recommendations using configuration-driven seed algorithms.
     
@@ -646,12 +736,24 @@ async def get_swing_buy_recommendations(request: SwingBuyRequest):
     - Configurable algorithm variants
     - 0-100 scoring system for better usability
     - Enhanced stock data with market information
+    - Database caching for improved performance
     - DataFrame-ready response format
+    - Force refresh option to bypass cache
     """
     try:
         logger.info("🚀 SWING TRADING ANALYSIS STARTED")
         start_time = time.time()
         
+        # Log the raw request body for debugging
+        raw_body = await raw_request.body()
+        try:
+            raw_json = raw_body.decode()
+            logger.info(f"RAW REQUEST BODY: {raw_json}")
+            api_logger.log_request(json.loads(raw_json), '/api/swing/swing-buy-recommendations')
+        except Exception as e:
+            logger.warning(f"Could not decode raw request body: {e}")
+            api_logger.log_request(str(raw_body), '/api/swing/swing-buy-recommendations')
+
         # Get default combination from current algorithm config
         current_algo = config_manager.get_current_algorithm_config()
         default_combination = current_algo.get('sub_algorithm_config', {
@@ -664,6 +766,40 @@ async def get_swing_buy_recommendations(request: SwingBuyRequest):
         combination = request.combination or default_combination
         
         logger.info(f"📊 Using combination: {combination}")
+        logger.info(f"🔄 Force refresh: {request.force_refresh}")
+        
+        # Create cache request object
+        cache_request = RecommendationRequest(
+            combination=combination,
+            limit_per_query=request.limit_per_query or 50,
+            min_score=request.min_score or 25.0,
+            top_recommendations=request.top_recommendations or 20,
+            refresh=request.force_refresh or False  # Use force_refresh parameter
+        )
+        
+        # Check cache first (unless force_refresh is True)
+        if not request.force_refresh:
+            logger.info("🔍 Checking cache for recent recommendations...")
+            cached_result = await recommendation_cache.get_cached_recommendation(
+                RecommendationType.SWING, 
+                cache_request
+            )
+            
+            if cached_result:
+                processing_time = time.time() - start_time
+                logger.info(f"✅ CACHE HIT - Returning cached swing recommendations (processing: {processing_time:.2f}s)")
+                
+                # Add cache info to metadata
+                cached_result['metadata']['cache_hit'] = True
+                cached_result['metadata']['cache_processing_time_seconds'] = round(processing_time, 2)
+                cached_result['metadata']['fresh_analysis'] = False
+                cached_result['metadata']['force_refresh'] = False
+                
+                return cached_result
+            else:
+                logger.info("❌ CACHE MISS - Running fresh analysis...")
+        else:
+            logger.info("🔄 FORCE REFRESH - Bypassing cache and running fresh analysis...")
         
         # Run combination analysis
         result = await analysis_engine.run_combination_analysis(
@@ -733,27 +869,34 @@ async def get_swing_buy_recommendations(request: SwingBuyRequest):
         # Calculate processing time
         processing_time = time.time() - start_time
         
+        # Build metadata
+        metadata = {
+            "combination_used": combination,
+            "performance_metrics": result.get('metrics', {}),
+            "category_breakdown": result.get('category_results', {}),
+            "total_recommendations": len(recommendations),
+            "request_parameters": request.dict(),
+            "timestamp": datetime.now().isoformat(),
+            "processing_time_seconds": round(processing_time, 2),
+            "cache_hit": False,
+            "fresh_analysis": True,
+            "force_refresh": request.force_refresh or False,
+            "algorithm_info": {
+                "approach": "Multi-factor swing analysis",
+                "timeframe": "1-4 weeks",
+                "categories": ["breakout", "momentum", "pattern", "reversal"],
+                "scoring": "Weighted sum (0-100 scale)",
+                "max_possible_score": 100.0,
+                "score_breakdown": "Equal weight distribution based on category appearances",
+                "data_source": "ChartInk with nsecode symbols"
+            }
+        }
+        
         # Build final response
-        response = {
+        response_data = {
             "status": "success",
             "recommendations": recommendations,
-            "metadata": {
-                "combination_used": combination,
-                "performance_metrics": result.get('metrics', {}),
-                "category_breakdown": result.get('category_results', {}),
-                "total_recommendations": len(recommendations),
-                "request_parameters": request.dict(),
-                "timestamp": datetime.now().isoformat(),
-                "processing_time_seconds": round(processing_time, 2),
-                "algorithm_info": {
-                    "approach": "Multi-factor swing analysis",
-                    "timeframe": "1-4 weeks",
-                    "categories": ["breakout", "momentum", "pattern", "reversal"],
-                    "scoring": "Weighted sum (0-100 scale)",
-                    "max_possible_score": 100.0,
-                    "score_breakdown": "Equal weight distribution based on category appearances"
-                }
-            },
+            "metadata": metadata,
             "columns": [
                 "symbol", "name", "price", "score", "per_change", "volume",
                 "appearances", "category_count", "recommendation_type",
@@ -761,25 +904,114 @@ async def get_swing_buy_recommendations(request: SwingBuyRequest):
             ]
         }
         
-        # Log the exact JSON response with proper indentation before sending to client
-        response_data = {
-            "status": "success",
-            "recommendations": recommendations,
-            "metadata": response['metadata'],
-            "columns": response['columns']
-        }
+        # Always cache the results after fresh analysis (regardless of market hours when force_refresh is used)
+        try:
+            await recommendation_cache.store_recommendation(
+                RecommendationType.SWING,
+                cache_request,
+                recommendations,
+                metadata
+            )
+            if request.force_refresh:
+                logger.info(f"✅ Force refresh: Updated cache with {len(recommendations)} swing recommendations")
+            else:
+                logger.info(f"✅ Cached {len(recommendations)} swing recommendations")
+        except Exception as cache_error:
+            logger.warning(f"⚠️ Failed to cache results: {cache_error}")
         
+        # Store in historical database when force_refresh is used (API-triggered analysis)
+        if request.force_refresh:
+            try:
+                execution_id = f"api_swing_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}"
+                market_info = market_timer.get_market_session_info()
+                
+                batch_id = await recommendation_history_storage.store_recommendation_batch(
+                    execution_id=execution_id,
+                    cron_job_id="api_swing_force_refresh",
+                    strategy=RecommendationStrategy.SWING,
+                    recommendations=recommendations,
+                    metadata={
+                        "algorithm_info": metadata.get("algorithm_info", {}),
+                        "performance_metrics": {
+                            "api_response_time_ms": processing_time * 1000,
+                            "total_processing_time_seconds": processing_time,
+                            "cache_bypassed": True,
+                            "force_refresh": True
+                        },
+                        "source_info": {
+                            "trigger": "api_force_refresh",
+                            "endpoint": "/api/swing/swing-buy-recommendations",
+                            "user_agent": "API_Client"
+                        }
+                    },
+                    request_parameters={
+                        "combination": combination,
+                        "limit_per_query": request.limit_per_query or 50,
+                        "min_score": request.min_score or 25.0,
+                        "top_recommendations": request.top_recommendations or 20,
+                        "force_refresh": True
+                    },
+                    market_context={
+                        "market_condition": market_info.get('session', 'unknown'),
+                        "trading_session": market_info.get('session_id', ''),
+                        "market_open": market_info.get('is_open', False),
+                        "timestamp": datetime.now(),
+                        "source": "api_request"
+                    }
+                )
+                logger.info(f"✅ Stored swing recommendations batch in history: {batch_id}")
+                
+                # Add historical storage info to response metadata
+                metadata["historical_storage"] = {
+                    "batch_id": batch_id,
+                    "execution_id": execution_id,
+                    "stored": True
+                }
+                
+            except Exception as storage_error:
+                logger.warning(f"⚠️ Failed to store swing recommendations in history: {storage_error}")
+                metadata["historical_storage"] = {
+                    "stored": False,
+                    "error": str(storage_error)
+                }
+        
+        # Update response data with any metadata changes
+        response_data["metadata"] = metadata
+        
+        # Log the exact JSON response with proper indentation before sending to client
         logger.info("=" * 60)
         logger.info("EXACT JSON RESPONSE TO CLIENT:")
         logger.info("=" * 60)
         logger.info(json.dumps(response_data, indent=2, ensure_ascii=False))
         logger.info("=" * 60)
         
+        # Log the request
+        api_logger.log_request(request.dict(), '/api/swing/swing-buy-recommendations')
+        
+        # Log the response
+        api_logger.log_response(response_data, '/api/swing/swing-buy-recommendations')
+        
         return response_data
         
     except Exception as e:
         logger.error(f"❌ Error in swing analysis: {str(e)}")
+        error_response = {
+            "status": "error",
+            "message": str(e)
+        }
+        # Log the error
+        api_logger.log_error(str(e), '/api/swing/swing-buy-recommendations', error_response)
         raise HTTPException(status_code=500, detail=f"Swing analysis failed: {str(e)}")
+
+# ---------------------------------------------------------------------------
+# Alias route to match intraday naming convention
+# ---------------------------------------------------------------------------
+
+
+@app.post("/api/swing/combination-buy-recommendations")
+async def combination_buy_recommendations(request: SwingBuyRequest, raw_request: Request):
+    """Alias to the swing buy endpoint using intraday naming."""
+    return await get_swing_buy_recommendations(request, raw_request)
 
 @app.get("/api/swing/config")
 async def get_swing_config():

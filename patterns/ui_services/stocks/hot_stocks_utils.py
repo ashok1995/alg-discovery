@@ -6,7 +6,7 @@ import streamlit as st
 from datetime import datetime
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="ui_services", service="hot_stocks_utils")
 
 def add_to_watchlist(symbol, stock_data, data_service):
     """

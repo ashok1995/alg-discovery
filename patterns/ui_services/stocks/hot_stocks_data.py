@@ -6,7 +6,7 @@ import streamlit as st
 from utils.logger import get_logger
 from datetime import datetime
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="ui_services", service="hot_stocks_data")
 
 def fetch_stocks_data(data_service, selected_strategy=None):
     """

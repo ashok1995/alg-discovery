@@ -8,7 +8,7 @@ import random
 from datetime import datetime
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="ui_services", service="trading_paper_trade")
 
 def show_paper_trade_popup(symbol, db, on_close_callback=None):
     """

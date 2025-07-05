@@ -1,219 +1,83 @@
 {
-  "metadata": {
-    "file_version": "3.0",
-    "created_date": "2024-01-15",
-    "last_updated": "2024-01-15",
-    "description": "Versioned seed algorithms with sub-algorithm variants for iterative testing"
-  },
-  "current_version": "v1.0.0",
-  "sub_algorithm_variants": {
-    "momentum": {
-      "v1.0": {
-        "name": "Basic RSI Momentum",
-        "description": "Simple RSI-based momentum detection",
-        "query": "( {33489} ( latest rsi14 > 40 and latest rsi14 < 70 and latest \"close\" > latest sma( latest \"close\" , 20 ) ) )",
-        "weight": 0.25,
-        "expected_results": 150
-      },
-      "v1.1": {
-        "name": "Enhanced RSI + Volume",
-        "description": "RSI momentum with volume confirmation",
-        "query": "( {33489} ( latest rsi14 > 45 and latest rsi14 < 65 and latest \"close\" > latest sma( latest \"close\" , 20 ) and latest volume > latest sma( latest volume , 20 ) * 1.3 ) )",
-        "weight": 0.25,
-        "expected_results": 120
-      },
-      "v1.2": {
-        "name": "MACD + Moving Average",
-        "description": "MACD crossover with moving average trend",
-        "query": "( {33489} ( latest \"close\" > latest sma( latest \"close\" , 20 ) and latest sma( latest \"close\" , 20 ) > latest sma( latest \"close\" , 50 ) and latest volume > latest sma( latest volume , 10 ) * 1.1 ) )",
-        "weight": 0.25,
-        "expected_results": 130
-      },
-      "v2.0": {
-        "name": "Multi-Timeframe Momentum",
-        "description": "Momentum across multiple timeframes",
-        "query": "( {33489} ( latest \"close\" > latest sma( latest \"close\" , 20 ) and latest weekly per chg > 1 and latest monthly per chg > 3 and latest volume > latest sma( latest volume , 20 ) ) )",
-        "weight": 0.25,
-        "expected_results": 100
-      }
-    },
-    "fundamental": {
-      "v1.0": {
-        "name": "Basic PE/PB Filter",
-        "description": "Simple P/E and P/B ratio filters",
-        "query": "( {33489} ( latest pe < 25 and latest pe > 5 and latest pb < 3 and latest pb > 0.5 ) )",
-        "weight": 0.35,
-        "expected_results": 200
-      },
-      "v1.1": {
-        "name": "Growth + Profitability",
-        "description": "Growth metrics with profitability checks",
-        "query": "( {33489} ( latest pe < 30 and latest pe > 8 and latest roe > 15 and latest debt to equity < 1 ) )",
-        "weight": 0.35,
-        "expected_results": 180
-      },
-      "v1.2": {
-        "name": "Quality + Efficiency",
-        "description": "Quality metrics with operational efficiency",
-        "query": "( {33489} ( latest roe > 18 and latest roa > 8 and latest debt to equity < 0.8 and latest current ratio > 1.2 ) )",
-        "weight": 0.35,
-        "expected_results": 120
-      },
-      "v2.0": {
-        "name": "Advanced Fundamentals",
-        "description": "Comprehensive fundamental analysis",
-        "query": "( {33489} ( latest pe < 22 and latest roe > 20 and latest debt to equity < 0.6 and latest \"dividend yield\" > 0.5 and latest current ratio > 1.5 ) )",
-        "weight": 0.35,
-        "expected_results": 100
-      }
-    },
-    "value": {
-      "v1.0": {
-        "name": "Traditional Value",
-        "description": "Classic value investing metrics",
-        "query": "( {33489} ( latest pe < 15 and latest pb < 1.5 and latest \"dividend yield\" > 1 ) )",
-        "weight": 0.2,
-        "expected_results": 80
-      },
-      "v1.1": {
-        "name": "Modern Value",
-        "description": "Updated value approach with quality",
-        "query": "( {33489} ( latest pe < 18 and latest pb < 2 and latest roe > 12 and latest debt to equity < 1.2 ) )",
-        "weight": 0.2,
-        "expected_results": 100
-      },
-      "v1.2": {
-        "name": "Growth at Value",
-        "description": "Growth stocks at reasonable prices",
-        "query": "( {33489} ( latest pe < 20 and latest peg < 1.5 and latest roe > 15 and latest \"close\" > latest sma( latest \"close\" , 100 ) ) )",
-        "weight": 0.2,
-        "expected_results": 90
-      }
-    },
-    "quality": {
-      "v1.0": {
-        "name": "Basic Quality",
-        "description": "Essential quality metrics",
-        "query": "( {33489} ( latest roe > 15 and latest debt to equity < 1 and latest current ratio > 1 ) )",
-        "weight": 0.2,
-        "expected_results": 120
-      },
-      "v1.1": {
-        "name": "Enhanced Quality",
-        "description": "Comprehensive quality assessment",
-        "query": "( {33489} ( latest roe > 18 and latest roa > 10 and latest debt to equity < 0.8 and latest current ratio > 1.3 and latest interest coverage > 5 ) )",
-        "weight": 0.2,
-        "expected_results": 80
-      },
-      "v1.2": {
-        "name": "Consistency Focus",
-        "description": "Focus on consistent performance",
-        "query": "( {33489} ( latest roe > 15 and latest \"close\" > latest sma( latest \"close\" , 200 ) and latest debt to equity < 1 and latest \"dividend yield\" > 0.5 ) )",
-        "weight": 0.2,
-        "expected_results": 100
-      }
-    }
-  },
+  "current_version": "1.0.0",
   "algorithms": {
     "v1.0.0": {
-      "name": "Basic Fundamental Growth",
       "version": "v1.0.0",
-      "description": "Initial seed algorithm focusing on fundamental growth metrics",
+      "name": "Basic Long-term Value",
+      "description": "Basic value investing criteria with momentum",
+      "created_date": "2025-07-04T08:50:41.976838",
       "status": "active",
-      "created_date": "2024-01-15",
       "chartink_queries": {
-        "momentum_basic": {
-          "query": "( {cash} ( latest close > latest sma(close,20) and latest close > latest sma(close,50) and latest rsi(14) > 40 and latest rsi(14) < 70 and latest volume > latest sma(volume,20) * 1.2 ) )",
-          "description": "Basic momentum with RSI and volume confirmation",
-          "weight": 0.3,
+        "fundamental_growth": {
+          "query": "( {cash} ( latest close > latest sma(close,50) and latest close > latest sma(close,200) and latest rsi(14) > 30 and latest rsi(14) < 70 and latest volume > latest sma(volume,20) and latest \"close * volume\" > 10000000 and latest \"market cap\" > 1000 ) )",
+          "description": "Growth stocks with good fundamentals and momentum",
+          "weight": 0.4,
           "expected_results": 50
         },
-        "value_growth": {
-          "query": "( {cash} ( latest close > latest ema(close,21) and latest ema(close,21) > latest ema(close,50) and latest volume > latest sma(volume,10) and latest rsi(14) > 35 and latest rsi(14) < 75 and latest \"market cap\" > 1000 ) )",
-          "description": "Value stocks with growth potential",
-          "weight": 0.4,
-          "expected_results": 40
-        },
-        "quality_trend": {
-          "query": "( {cash} ( latest close > latest sma(close,20) and latest volume > 100000 and latest \"market cap\" > 5000 and latest close > [0] 1 week ago close and latest macd line(26,12,9) > latest macd signal(26,12,9) ) )",
-          "description": "Quality stocks with positive trend",
+        "value_momentum": {
+          "query": "( {cash} ( latest close > latest ema(close,21) and latest ema(close,21) > latest ema(close,50) and latest volume > latest sma(volume,10) and latest rsi(14) > 40 and latest rsi(14) < 80 and [0] 1 day ago close < [0] 1 day ago high * 0.98 ) )",
+          "description": "Value stocks showing momentum signals",
           "weight": 0.3,
           "expected_results": 30
+        },
+        "quality_filter": {
+          "query": "( {cash} ( latest close > latest sma(close,20) and latest volume > 100000 and latest \"market cap\" > 5000 and latest close > [0] 1 week ago close and latest macd line(26,12,9) > latest macd signal(26,12,9) ) )",
+          "description": "Quality stocks with recent performance",
+          "weight": 0.3,
+          "expected_results": 40
         }
       },
-      "sub_algorithm_config": {
-        "fundamental": "v1.0",
-        "momentum": "v1.0",
-        "value": "v1.0",
-        "quality": "v1.0"
-      },
       "performance_metrics": {
+        "accuracy": 0.0,
         "total_stocks_found": 0,
-        "avg_score": 0.0,
-        "success_rate": 0.0,
-        "last_tested": null,
-        "test_count": 0
+        "successful_picks": 0,
+        "avg_return": 0.0,
+        "test_runs": 0
       }
     },
     "v1.1.0": {
-      "name": "Enhanced Growth & Quality",
-      "version": "v1.1.0", 
-      "description": "Enhanced algorithm with improved quality filters and momentum indicators",
-      "status": "active",
-      "created_date": "2024-01-15",
-      "sub_algorithm_config": {
-        "fundamental": "v1.1",
-        "momentum": "v1.1",
-        "value": "v1.1",
-        "quality": "v1.1"
-      },
-      "performance_metrics": {
-        "total_stocks_found": 0,
-        "avg_score": 0.0,
-        "success_rate": 0.0,
-        "last_tested": null,
-        "test_count": 0
-      }
-    },
-    "v2.0.0": {
-      "name": "Advanced Multi-Strategy",
-      "version": "v2.0.0",
-      "description": "Advanced algorithm combining best sub-algorithm variants",
+      "version": "v1.1.0",
+      "name": "Enhanced Value with Sector Rotation",
+      "description": "Improved algorithm with sector rotation and better volume filters",
+      "created_date": "2025-07-04T08:50:41.976841",
       "status": "testing",
-      "created_date": "2024-01-15",
-      "sub_algorithm_config": {
-        "fundamental": "v1.2",
-        "momentum": "v1.2",
-        "value": "v1.2",
-        "quality": "v1.1"
+      "chartink_queries": {
+        "enhanced_fundamental": {
+          "query": "( {cash} ( latest close > latest sma(close,50) and latest close > latest sma(close,200) and latest rsi(14) > 35 and latest rsi(14) < 65 and latest volume > latest ema(volume,20) * 1.2 and latest \"close * volume\" > 20000000 and latest \"market cap\" > 2000 and [0] 1 week ago close > [0] 1 week ago low * 1.05 ) )",
+          "description": "Enhanced fundamental screening with better volume criteria",
+          "weight": 0.35,
+          "expected_results": 45
+        },
+        "momentum_breakout": {
+          "query": "( {cash} ( latest close > latest highest(close,20) * 0.95 and latest volume > latest ema(volume,20) * 1.5 and latest rsi(14) > 50 and latest macd line(26,12,9) > latest macd signal(26,12,9) and latest ema(close,8) > latest ema(close,21) and latest close > latest bollinger band upper(close,20,2) * 0.98 ) )",
+          "description": "Momentum breakout with volume confirmation",
+          "weight": 0.25,
+          "expected_results": 25
+        },
+        "sector_leaders": {
+          "query": "( {cash} ( latest close > latest sma(close,20) and latest volume > latest sma(volume,20) * 1.1 and latest \"market cap\" > 10000 and latest close > [0] 1 month ago close and latest rsi(14) > 45 and latest rsi(14) < 75 ) )",
+          "description": "Sector leading stocks with consistent performance",
+          "weight": 0.25,
+          "expected_results": 35
+        },
+        "dividend_quality": {
+          "query": "( {cash} ( latest close > latest sma(close,50) and latest volume > 50000 and latest \"market cap\" > 5000 and latest close > [0] 3 month ago close and latest rsi(14) > 40 and latest macd line(26,12,9) > latest macd signal(26,12,9) ) )",
+          "description": "Quality dividend-paying stocks",
+          "weight": 0.15,
+          "expected_results": 30
+        }
       },
       "performance_metrics": {
+        "accuracy": 0.0,
         "total_stocks_found": 0,
-        "avg_score": 0.0,
-        "success_rate": 0.0,
-        "last_tested": null,
-        "test_count": 0
-      }
-    },
-    "v2.1.0": {
-      "name": "Experimental High-Performance",
-      "version": "v2.1.0",
-      "description": "Experimental version testing latest sub-algorithm variants",
-      "status": "experimental",
-      "created_date": "2024-01-15",
-      "sub_algorithm_config": {
-        "fundamental": "v2.0",
-        "momentum": "v2.0",
-        "value": "v1.2",
-        "quality": "v1.2"
-      },
-      "performance_metrics": {
-        "total_stocks_found": 0,
-        "avg_score": 0.0,
-        "success_rate": 0.0,
-        "last_tested": null,
-        "test_count": 0
+        "successful_picks": 0,
+        "avg_return": 0.0,
+        "test_runs": 0
       }
     }
-  }
+  },
+  "sub_algorithm_variants": {},
+  "performance_history": {},
+  "last_updated": "2025-07-04T08:50:41.976853",
+  "total_versions": 2
 }

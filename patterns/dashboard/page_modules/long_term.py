@@ -15,7 +15,7 @@ from config.queries import LONG_TERM_QUERIES
 from strategies.long_term import analyze_stock_long_term
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="page_long_term")
 
 # Initialize MongoDB
 db = MongoDB()

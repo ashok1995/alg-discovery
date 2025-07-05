@@ -7,14 +7,13 @@ import time
 import threading
 from datetime import datetime, timedelta
 import pytz
-from config.settings import (
-    MARKET_OPEN_HOUR, MARKET_OPEN_MINUTE,
-    MARKET_CLOSE_HOUR, MARKET_CLOSE_MINUTE,
-    MARKET_DAYS
+from shared.config.settings import (
+    MARKET_DAYS, MARKET_OPEN_HOUR, MARKET_OPEN_MINUTE,
+    MARKET_CLOSE_HOUR, MARKET_CLOSE_MINUTE
 )
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="utils_scheduler")
 
 # Set timezone to IST
 IST = pytz.timezone('Asia/Kolkata')

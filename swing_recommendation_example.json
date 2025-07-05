@@ -1,0 +1,16 @@
+{
+  "symbol": "TATAMOTORS.NS",
+  "name": "Tata Motors",
+  "price": 900.0,
+  "score": 78.2,
+  "per_change": 5.1,
+  "volume": 3200000,
+  "appearances": 3,
+  "category_count": 3,
+  "recommendation_type": "Swing Buy",
+  "breakout": true,
+  "momentum": true,
+  "pattern": false,
+  "reversal": true,
+  "categories": ["breakout", "momentum", "reversal"]
+} 

@@ -7,7 +7,7 @@ import pandas as pd
 from datetime import datetime
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="page_swing_scanner")
 
 def show_swing_scanner(data_service):
     """

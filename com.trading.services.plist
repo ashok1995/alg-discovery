@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.trading.services</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/ashokkumar/Desktop/alg-discovery/.venv/bin/python</string>
+        <string>/Users/ashokkumar/Desktop/alg-discovery/start_all_services.py</string>
+    </array>
+    
+    <key>WorkingDirectory</key>
+    <string>/Users/ashokkumar/Desktop/alg-discovery</string>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <dict>
+        <key>NetworkState</key>
+        <true/>
+    </dict>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/ashokkumar/Desktop/alg-discovery/logs/launchd-stdout.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/ashokkumar/Desktop/alg-discovery/logs/launchd-stderr.log</string>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/ashokkumar/Desktop/alg-discovery/.venv/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>PYTHONPATH</key>
+        <string>/Users/ashokkumar/Desktop/alg-discovery</string>
+    </dict>
+    
+    <key>ThrottleInterval</key>
+    <integer>30</integer>
+    
+    <key>StartInterval</key>
+    <integer>60</integer>
+    
+    <key>ProcessType</key>
+    <string>Background</string>
+</dict>
+</plist> 

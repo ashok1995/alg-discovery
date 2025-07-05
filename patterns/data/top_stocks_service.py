@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from utils.logger import get_logger
 from data.chartink import get_chartink_scans
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="top_stocks_service")
 
 # Define ChartInk queries for different trading strategies
 CHARTINK_QUERIES = {

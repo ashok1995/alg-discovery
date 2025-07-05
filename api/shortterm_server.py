@@ -9,6 +9,7 @@ This server provides short-term trading recommendations using:
 - Advanced sector rotation and institutional volume analysis
 - 0-100 scoring system with re-ranking criteria
 - Trend persistence and volatility filtering
+- Database caching for improved performance
 
 Author: Algorithm Discovery System
 Created: 2024-01-15
@@ -27,16 +28,55 @@ from typing import Any, Dict, List, Optional, Tuple
 import httpx
 import numpy as np
 from bs4 import BeautifulSoup as bs
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Add models for caching
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Load environment configuration for shortterm server
+from env_loader import load_server_environment, setup_logging
+
+# Setup environment and logging
+server_config = load_server_environment('shortterm')
+if server_config:
+    setup_logging('shortterm')
+else:
+    # Fallback logging configuration
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+# Get logger instance
 logger = logging.getLogger(__name__)
+
+from models.recommendation_models import (
+    recommendation_cache, 
+    RecommendationType, 
+    RecommendationRequest
+)
+from models.recommendation_history_models import (
+    recommendation_history_storage,
+    RecommendationStrategy,
+    RecommendationSource
+)
+from api.services.market_timer import market_timer
+from api.services.config_manager import TradingConfigManager
+# from api.services.analysis_engine import AnalysisEngine
+
+# --------------------------------------------------------------
+# Robust import for APILogger (project root vs package import)
+# --------------------------------------------------------------
+
+try:
+    from utils.api_logger import APILogger
+except ModuleNotFoundError:
+    from api.utils.api_logger import APILogger
 
 # =====================================================================
 # CONFIGURATION MANAGEMENT
@@ -46,7 +86,11 @@ class ShortTermConfigManager:
     """Manages short-term trading configuration and variants."""
     
     def __init__(self):
-        self.config_path = Path(__file__).parent / "config" / "short_term_config.json"
+        # Prefer central shared config; fallback to local api/config
+        project_root = Path(__file__).resolve().parent.parent  # .../api → project root
+        shared_path = project_root / "shared" / "config" / "short_term_config.json"
+        local_path = Path(__file__).parent / "config" / "short_term_config.json"
+        self.config_path = shared_path if shared_path.exists() else local_path
         self.config = self._load_config()
         
     def _load_config(self) -> Dict:
@@ -55,7 +99,7 @@ class ShortTermConfigManager:
             with open(self.config_path, 'r') as file:
                 return json.load(file)
         except Exception as e:
-            logger.error(f"Failed to load short-term config: {e}")
+            logger.error(f"Failed to load short-term config from {self.config_path}: {e}")
             return self._get_fallback_config()
     
     def _get_fallback_config(self) -> Dict:
@@ -596,10 +640,19 @@ class ShortTermBuyRequest(BaseModel):
     limit_per_query: Optional[int] = 50  # Increased from 40 to 50 for more stocks from ChartInk
     min_score: Optional[float] = 35.0  # Score on 0-100 scale (higher threshold for short-term)
     top_recommendations: Optional[int] = 20
+    force_refresh: Optional[bool] = False  # Force fresh analysis bypassing cache
 
 # =====================================================================
 # FASTAPI APPLICATION
 # =====================================================================
+
+# Get server configuration
+app_config = server_config or {
+    'server_type': 'shortterm',
+    'port': 8003,
+    'host': 'localhost',
+    'cors_origins': ['http://localhost:3000', 'http://localhost:8080', 'http://127.0.0.1:3000']
+}
 
 app = FastAPI(
     title="Short-Term Trading Server",
@@ -607,14 +660,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware
+# Add CORS middleware with configuration from environment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=app_config.get('cors_origins', ["*"]),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize API logger
+api_logger = APILogger("shortterm")
 
 # =====================================================================
 # API ENDPOINTS
@@ -630,6 +686,8 @@ async def root():
         "timeframe": "1-4 weeks",
         "endpoints": {
             "recommendations": "/api/shortterm/shortterm-buy-recommendations",
+            "variants": "/api/shortterm/available-variants",
+            "combination": "/api/shortterm/combination-buy-recommendations",
             "health": "/health"
         }
     }
@@ -659,95 +717,209 @@ async def health_check():
             "timestamp": datetime.now().isoformat()
         }
 
+# ---------------------------------------------------------------------------
+# New Endpoint: Available Sub-Algorithm Variants (SHORT-TERM)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/shortterm/available-variants")
+async def get_available_variants():
+    """Return category → version map for building combination requests."""
+    try:
+        variants_cfg = config_manager.config.get("sub_algorithm_variants", {})
+        variants_summary = {
+            cat: {
+                ver: {
+                    "name": data.get("name"),
+                    "description": data.get("description", ""),
+                    "weight": data.get("weight", 1.0),
+                    "expected_results": data.get("expected_results")
+                }
+                for ver, data in variants.items()
+            }
+            for cat, variants in variants_cfg.items()
+        }
+
+        total_categories = len(variants_summary)
+        total_combinations = 1
+        for variants in variants_summary.values():
+            total_combinations *= len(variants) or 1
+
+        return {
+            "status": "success",
+            "variants": variants_summary,
+            "total_categories": total_categories,
+            "total_combinations": total_combinations,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    except Exception as exc:
+        logger.exception("Error fetching short-term variants")
+        raise HTTPException(status_code=500, detail=str(exc))
+
 @app.post("/api/shortterm/shortterm-buy-recommendations")
-async def get_shortterm_buy_recommendations(request: ShortTermBuyRequest):
+async def get_shortterm_buy_recommendations(request: ShortTermBuyRequest, raw_request: Request):
     """
-    Get short-term trading buy recommendations using ChartInk data directly.
+    Get short-term trading buy recommendations using configuration-driven seed algorithms.
     
     Features:
-    - Multi-factor combination analysis (momentum, sector_rotation, breakout, reversal)
-    - Direct ChartInk data usage with nsecode symbols
-    - 0-100 scoring system based on weighted sum
-    - DataFrame-ready response format
+    - Multi-factor combination analysis (momentum, reversal, volatility)
+    - Configurable algorithm variants with re-ranking
+    - 0-100 scoring system for better usability
+    - Enhanced stock data with market information
+    - Database caching for improved performance
+    - Force refresh option to bypass cache
     """
     try:
         logger.info("🚀 SHORT-TERM TRADING ANALYSIS STARTED")
         start_time = time.time()
         
+        # Log the raw request body for debugging
+        raw_body = await raw_request.body()
+        try:
+            raw_json = raw_body.decode()
+            logger.info(f"RAW REQUEST BODY: {raw_json}")
+            api_logger.log_request(json.loads(raw_json), '/api/shortterm/shortterm-buy-recommendations')
+        except Exception as e:
+            logger.warning(f"Could not decode raw request body: {e}")
+            api_logger.log_request(str(raw_body), '/api/shortterm/shortterm-buy-recommendations')
+
         # Get default combination from current algorithm config
         current_algo = config_manager.get_current_algorithm_config()
         default_combination = current_algo.get('sub_algorithm_config', {
             'momentum': 'v1.0',
-            'sector_rotation': 'v1.0',
-            'breakout': 'v1.0',
-            'reversal': 'v1.0'
+            'reversal': 'v1.0',
+            'volatility': 'v1.0'
         })
         
         combination = request.combination or default_combination
         
         logger.info(f"📊 Using combination: {combination}")
+        logger.info(f"🔄 Force refresh: {request.force_refresh}")
         
-        # Run combination analysis with ChartInk data
-        result = await analysis_engine.run_combination_analysis(
+        # Create cache request object
+        cache_request = RecommendationRequest(
             combination=combination,
-            limit_per_query=request.limit_per_query or 50
+            limit_per_query=request.limit_per_query or 50,
+            min_score=request.min_score or 35.0,
+            top_recommendations=request.top_recommendations or 20,
+            refresh=request.force_refresh or False  # Use force_refresh parameter
         )
         
-        # Get stocks with scores and details
+        # Check cache first (unless force_refresh is True)
+        if not request.force_refresh:
+            logger.info("🔍 Checking cache for recent recommendations...")
+            cached_result = await recommendation_cache.get_cached_recommendation(
+                RecommendationType.SHORT_TERM, 
+                cache_request
+            )
+            
+            if cached_result:
+                processing_time = time.time() - start_time
+                logger.info(f"✅ CACHE HIT - Returning cached short-term recommendations (processing: {processing_time:.2f}s)")
+                
+                # Add cache info to metadata
+                cached_result['metadata']['cache_hit'] = True
+                cached_result['metadata']['cache_processing_time_seconds'] = round(processing_time, 2)
+                cached_result['metadata']['fresh_analysis'] = False
+                cached_result['metadata']['force_refresh'] = False
+                
+                # Log the response
+                api_logger.log_response(cached_result, '/api/shortterm/shortterm-buy-recommendations')
+                
+                return cached_result
+            else:
+                logger.info("❌ CACHE MISS - Running fresh analysis...")
+        else:
+            logger.info("🔄 FORCE REFRESH - Bypassing cache and running fresh analysis...")
+        
+        # Run combination analysis
+        result = await analysis_engine.run_combination_analysis(
+            combination=combination,
+            limit_per_query=request.limit_per_query or 40
+        )
+        
+        # Get stocks with scores and apply re-ranking
         stocks_with_scores = result['stocks_with_scores']
         stock_details = result['stock_details']
         stock_categories = result['stock_categories']
+        
         logger.info(f"📊 Initial stocks from analysis: {len(stocks_with_scores)}")
         
-        # Filter by minimum score
-        if request.min_score:
-            original_count = len(stocks_with_scores)
-            filtered_stocks = {
-                symbol: score for symbol, score in stocks_with_scores.items() 
-                if score >= request.min_score
-            }
-            filtered_count = len(filtered_stocks)
-            logger.info(f"🔍 Score filtering (min_score={request.min_score}): {original_count} -> {filtered_count} stocks")
-        else:
-            filtered_stocks = stocks_with_scores
+        # Apply re-ranking logic
+        re_ranking_criteria = config_manager.get_re_ranking_criteria()
+        logger.info(f"🎯 Applying re-ranking criteria: {re_ranking_criteria}")
         
-        # Sort and limit to top recommendations
-        top_stocks_items = sorted(filtered_stocks.items(), key=lambda x: x[1], reverse=True)
-        before_limit = len(top_stocks_items)
-        top_stocks_items = top_stocks_items[:request.top_recommendations or 20]
-        after_limit = len(top_stocks_items)
-        logger.info(f"📋 Top stocks limiting: {before_limit} -> {after_limit} stocks")
-        
-        # Build final recommendations in DataFrame-ready format
-        recommendations = []
-        for symbol, score in top_stocks_items:
+        re_ranked_stocks = {}
+        for symbol, base_score in stocks_with_scores.items():
             stock_detail = stock_details.get(symbol, {})
             categories = stock_categories.get(symbol, [])
             
-            # Determine categories for this stock
+            # Apply re-ranking boost
+            re_ranking_boost = 0
+            
+            # Volume boost
+            volume = stock_detail.get('volume', 0)
+            if volume > re_ranking_criteria.get('min_volume_boost', 100000):
+                re_ranking_boost += re_ranking_criteria.get('volume_boost', 5)
+            
+            # Price change boost 
+            per_change = abs(float(stock_detail.get('per_change', 0)))
+            if per_change > re_ranking_criteria.get('min_price_change_boost', 2.0):
+                re_ranking_boost += re_ranking_criteria.get('price_change_boost', 10)
+            
+            # Multi-category boost
+            if len(categories) > 1:
+                re_ranking_boost += re_ranking_criteria.get('multi_category_boost', 15)
+            
+            final_score = min(100, base_score + re_ranking_boost)
+            re_ranked_stocks[symbol] = final_score
+        
+        # Filter by minimum score  
+        if request.min_score:
+            original_count = len(re_ranked_stocks)
+            re_ranked_stocks = {
+                symbol: score for symbol, score in re_ranked_stocks.items() 
+                if score >= request.min_score
+            }
+            filtered_count = len(re_ranked_stocks)
+            logger.info(f"🔍 Score filtering (min_score={request.min_score}): {original_count} -> {filtered_count} stocks")
+        
+        # Sort and limit to top recommendations
+        top_stocks_items = sorted(re_ranked_stocks.items(), key=lambda x: x[1], reverse=True)
+        top_stocks_items = top_stocks_items[:request.top_recommendations or 20]
+        
+        logger.info(f"📋 Final selection: {len(top_stocks_items)} stocks")
+        
+        # Build final recommendations
+        recommendations = []
+        
+        for i, (symbol, score) in enumerate(top_stocks_items):
+            stock_info = stock_details.get(symbol, {})
+            categories = list(stock_categories.get(symbol, []))
+            
             def _determine_categories(score: float) -> str:
-                """Determine category based on score and original categories."""
-                if score >= 75:
-                    return "Strong Short-Term"
-                elif score >= 55:
-                    return "Short-Term Buy"
-                else:
+                if score >= 80:
+                    return "Strong Buy"
+                elif score >= 60:
+                    return "Buy"
+                elif score >= 40:
                     return "Watch"
+                else:
+                    return "Hold"
             
             recommendation = {
                 "symbol": symbol,
-                "name": stock_detail.get('name', symbol),
-                "price": float(stock_detail.get('price', 0)),
+                "name": stock_info.get('name', symbol),
+                "price": float(stock_info.get('price', 0)),
                 "score": float(score),
-                "per_change": float(stock_detail.get('per_change', 0)),
-                "volume": int(stock_detail.get('volume', 0)),
-                "recommendation_type": _determine_categories(score),
+                "per_change": float(stock_info.get('per_change', 0)),
+                "volume": int(stock_info.get('volume', 0)),
                 "appearances": len(categories),
                 "category_count": len(categories),
+                "recommendation_type": _determine_categories(score),
                 "momentum": "momentum" in categories,
-                "sector_rotation": "sector_rotation" in categories,
-                "breakout": "breakout" in categories,
                 "reversal": "reversal" in categories,
+                "volatility": "volatility" in categories,
                 "categories": categories
             }
             recommendations.append(recommendation)
@@ -755,47 +927,134 @@ async def get_shortterm_buy_recommendations(request: ShortTermBuyRequest):
         # Calculate processing time
         processing_time = time.time() - start_time
         
+        # Build metadata
+        metadata = {
+            "combination_used": combination,
+            "performance_metrics": result.get('metrics', {}),
+            "category_breakdown": result.get('category_results', {}),
+            "total_recommendations": len(recommendations),
+            "request_parameters": request.dict(),
+            "timestamp": datetime.now().isoformat(),
+            "processing_time_seconds": round(processing_time, 2),
+            "cache_hit": False,
+            "fresh_analysis": True,
+            "force_refresh": request.force_refresh or False,
+            "algorithm_info": {
+                "approach": "Multi-factor short-term analysis with re-ranking",
+                "timeframe": "1-5 days",
+                "categories": ["momentum", "reversal", "volatility"],
+                "scoring": "Base score + re-ranking boosts (0-100 scale)",
+                "re_ranking": re_ranking_criteria,
+                "data_source": "ChartInk with nsecode symbols"
+            }
+        }
+        
         # Build final response
         response_data = {
             "status": "success",
             "recommendations": recommendations,
-            "metadata": {
-                "combination_used": combination,
-                "performance_metrics": result.get('metrics', {}),
-                "category_breakdown": result.get('category_results', {}),
-                "total_recommendations": len(recommendations),
-                "request_parameters": request.dict(),
-                "timestamp": datetime.now().isoformat(),
-                "processing_time_seconds": round(processing_time, 2),
-                "algorithm_info": {
-                    "approach": "Multi-factor short-term analysis with ChartInk data",
-                    "timeframe": "1-4 weeks", 
-                    "categories": ["momentum", "sector_rotation", "breakout", "reversal"],
-                    "scoring": "Weighted sum using ChartInk data (0-100 scale)",
-                    "max_possible_score": 100.0,
-                    "score_breakdown": "Momentum: 30pts, Sector Rotation: 25pts, Breakout: 25pts, Reversal: 20pts",
-                    "data_source": "ChartInk with nsecode symbols"
-                }
-            },
-            "columns": [
-                "symbol", "name", "price", "score", "per_change", "volume",
-                "recommendation_type", "appearances", "category_count",
-                "momentum", "sector_rotation", "breakout", "reversal", "categories"
-            ]
+            "metadata": metadata
         }
         
-        # Log the exact JSON response with proper indentation before sending to client
-        logger.info("=" * 60)
-        logger.info("EXACT JSON RESPONSE TO CLIENT:")
-        logger.info("=" * 60)
-        logger.info(json.dumps(response_data, indent=2, ensure_ascii=False))
-        logger.info("=" * 60)
+        # Always cache the results after fresh analysis (regardless of market hours when force_refresh is used)
+        try:
+            await recommendation_cache.store_recommendation(
+                RecommendationType.SHORT_TERM,
+                cache_request,
+                recommendations,
+                metadata
+            )
+            if request.force_refresh:
+                logger.info(f"✅ Force refresh: Updated cache with {len(recommendations)} short-term recommendations")
+            else:
+                logger.info(f"✅ Cached {len(recommendations)} short-term recommendations")
+        except Exception as cache_error:
+            logger.warning(f"⚠️ Failed to cache results: {cache_error}")
         
+        # Store in historical database when force_refresh is used (API-triggered analysis)
+        if request.force_refresh:
+            try:
+                execution_id = f"api_shortterm_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}"
+                market_info = market_timer.get_market_session_info()
+                
+                batch_id = await recommendation_history_storage.store_recommendation_batch(
+                    execution_id=execution_id,
+                    cron_job_id="api_shortterm_force_refresh",
+                    strategy=RecommendationStrategy.SHORTTERM,
+                    recommendations=recommendations,
+                    metadata={
+                        "algorithm_info": metadata.get("algorithm_info", {}),
+                        "performance_metrics": {
+                            "api_response_time_ms": processing_time * 1000,
+                            "total_processing_time_seconds": processing_time,
+                            "cache_bypassed": True,
+                            "force_refresh": True
+                        },
+                        "source_info": {
+                            "trigger": "api_force_refresh",
+                            "endpoint": "/api/shortterm/shortterm-buy-recommendations",
+                            "user_agent": "API_Client"
+                        }
+                    },
+                    request_parameters={
+                        "combination": combination,
+                        "limit_per_query": request.limit_per_query or 50,
+                        "min_score": request.min_score or 35.0,
+                        "top_recommendations": request.top_recommendations or 20,
+                        "force_refresh": True
+                    },
+                    market_context={
+                        "market_condition": market_info.get('session', 'unknown'),
+                        "trading_session": market_info.get('session_id', ''),
+                        "market_open": market_info.get('is_open', False),
+                        "timestamp": datetime.now(),
+                        "source": "api_request"
+                    }
+                )
+                logger.info(f"✅ Stored short-term recommendations batch in history: {batch_id}")
+                
+                # Add historical storage info to response metadata
+                metadata["historical_storage"] = {
+                    "batch_id": batch_id,
+                    "execution_id": execution_id,
+                    "stored": True
+                }
+                
+            except Exception as storage_error:
+                logger.warning(f"⚠️ Failed to store short-term recommendations in history: {storage_error}")
+                metadata["historical_storage"] = {
+                    "stored": False,
+                    "error": str(storage_error)
+                }
+        
+        # Update response data with any metadata changes
+        response_data["metadata"] = metadata
+        
+        # Log the response
+        api_logger.log_response(response_data, '/api/shortterm/shortterm-buy-recommendations')
+        
+        logger.info(f"✅ SHORT-TERM ANALYSIS COMPLETED (processing: {processing_time:.2f}s)")
         return response_data
         
     except Exception as e:
         logger.error(f"❌ Error in short-term analysis: {str(e)}")
+        error_response = {
+            "status": "error",
+            "message": str(e)
+        }
+        # Log the error
+        api_logger.log_error(str(e), '/api/shortterm/shortterm-buy-recommendations', error_response)
         raise HTTPException(status_code=500, detail=f"Short-term analysis failed: {str(e)}")
+
+# ---------------------------------------------------------------------------
+# Alias route for intraday-style naming
+# ---------------------------------------------------------------------------
+
+
+@app.post("/api/shortterm/combination-buy-recommendations")
+async def combination_buy_recommendations(request: ShortTermBuyRequest, raw_request: Request):
+    """Alias to the main short-term buy handler with intraday naming."""
+    return await get_shortterm_buy_recommendations(request, raw_request)
 
 @app.get("/api/shortterm/config")
 async def get_shortterm_config():

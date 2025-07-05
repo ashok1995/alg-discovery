@@ -16,7 +16,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.executors.pool import ThreadPoolExecutor
-from core.database.config import db_manager
+from common.db import db_manager
 from core.database.cache.redis_manager import cache_manager
 
 logger = logging.getLogger(__name__)

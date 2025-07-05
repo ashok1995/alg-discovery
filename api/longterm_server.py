@@ -6,6 +6,7 @@ Long-Term Investment Server
 Dedicated FastAPI server for long-term investment endpoints.
 Runs on port 8001 to separate long-term investment services.
 Focuses on Indian equity markets (BSE/NSE) with seed algorithms and re-ranking.
+Includes database caching for improved performance.
 """
 
 import asyncio
@@ -14,32 +15,70 @@ import uvicorn
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sys
 import os
 import json
+import time
+import uuid
+from pathlib import Path
+# --------------------------------------------------------------
+# Robust import for APILogger
+# Some environments run the server with project root on PYTHONPATH, others with the
+# `api` package as the root. Try the simple import first, then fall back.
+# --------------------------------------------------------------
+
+try:
+    from utils.api_logger import APILogger  # project-root level utils
+except ModuleNotFoundError:  # pragma: no cover – fallback only
+    from api.utils.api_logger import APILogger
 
 # Add the parent directory to the path to access modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.long_term_service import LongTermInvestmentService
-from services.data_service import RealTimeDataService
+# Load environment configuration for longterm server
+from api.env_loader import load_server_environment, setup_logging
+
+# Setup environment and logging
+server_config = load_server_environment('longterm')
+if server_config:
+    setup_logging('longterm')
+else:
+    # Fallback logging configuration
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+from api.services.long_term_service import LongTermInvestmentService
+from api.services.data_service import RealTimeDataService
+
+# Add models for caching
+from models.recommendation_models import (
+    recommendation_cache, 
+    RecommendationType, 
+    RecommendationRequest
+)
+from models.recommendation_history_models import (
+    recommendation_history_storage,
+    RecommendationStrategy,
+    RecommendationSource
+)
+from api.services.market_timer import market_timer
 
 # Import combination testing and query functions
-from test_queries import test_query_silent
+from api.tests.test_queries import test_query_silent
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 # Global services
 data_service: Optional[RealTimeDataService] = None
 long_term_service: Optional[LongTermInvestmentService] = None
+
+# Initialize API logger
+api_logger = APILogger("longterm")
 
 def load_long_term_config():
     """Load the long term config with all query variants"""
@@ -72,6 +111,14 @@ async def lifespan(app: FastAPI):
     finally:
         logger.info("🛑 Shutting down Long-Term Investment Service")
 
+# Get server configuration
+app_config = server_config or {
+    'server_type': 'longterm',
+    'port': 8001,
+    'host': 'localhost',
+    'cors_origins': ['http://localhost:3000', 'http://localhost:8080', 'http://127.0.0.1:3000']
+}
+
 # Create FastAPI app
 app = FastAPI(
     title="Indian Long-Term Investment API",
@@ -80,10 +127,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Add CORS middleware
+# Add CORS middleware with configuration from environment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=app_config.get('cors_origins', ["*"]),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -113,6 +160,7 @@ class LongBuyRequest(BaseModel):
     limit_per_query: Optional[int] = 50  # Increased from 30 to 50 for more stocks from ChartInk
     min_score: Optional[float] = 25.0  # Score on 0-100 scale (25 = appears in 1+ categories)
     top_recommendations: Optional[int] = 20
+    force_refresh: Optional[bool] = False  # Force fresh analysis bypassing cache
 
 class CombinationTestRequest(BaseModel):
     fundamental_version: str
@@ -256,36 +304,287 @@ async def get_strategy_info():
         raise HTTPException(status_code=500, detail=str(e))
 
 # POST Endpoints for Real-time Analysis
-@app.post("/api/longterm/realtime-recommendations")
-async def get_realtime_longterm_recommendations(request: LongBuyRequest):
-    """Get real-time long-term investment recommendations."""
+@app.post("/api/longterm/long-buy-recommendations")
+async def get_long_buy_recommendations(request: LongBuyRequest, raw_request: Request):
+    """
+    Get long-term investment recommendations using comprehensive fundamental + technical analysis.
+    
+    This endpoint provides sophisticated long-term stock recommendations by combining:
+    - Fundamental analysis for financial health
+    - Momentum analysis for technical strength  
+    - Value analysis for fair pricing
+    - Quality analysis for business excellence
+    - Database caching for improved performance
+    - Force refresh option to bypass cache
+    
+    The scoring system produces a 0-100 scale where:
+    - 70-100: Strong long-term investment candidates
+    - 50-69: Good investment options
+    - 25-49: Moderate potential, needs further research
+    - <25: Low confidence recommendations
+    """
     try:
-        if not long_term_service:
-            raise HTTPException(status_code=503, detail="Long-term investment service not available")
+        logger.info("🚀 LONG-TERM INVESTMENT ANALYSIS STARTED")
+        start_time = time.time()
         
-        recommendations_data = await long_term_service.get_recommendations(
-            limit=request.limit_per_query or 50,
-            min_score=request.min_score or 0.6
+        # Log the raw request body for debugging
+        raw_body = await raw_request.body()
+        try:
+            raw_json = raw_body.decode()
+            logger.info(f"RAW REQUEST BODY: {raw_json}")
+            api_logger.log_request(json.loads(raw_json), '/api/longterm/long-buy-recommendations')
+        except Exception as e:
+            logger.warning(f"Could not decode raw request body: {e}")
+            api_logger.log_request(str(raw_body), '/api/longterm/long-buy-recommendations')
+
+        # Get configuration
+        config = app.state.config
+        
+        # Default combination - use all four pillars of long-term investing
+        default_combination = {
+            "fundamental": "v1.0",
+            "momentum": "v1.0", 
+            "value": "v1.0",
+            "quality": "v1.0"
+        }
+        
+        combination = request.combination or default_combination
+        
+        logger.info(f"📊 Long-term combination: {combination}")
+        logger.info(f"🔄 Force refresh: {request.force_refresh}")
+        
+        # Create cache request object
+        cache_request = RecommendationRequest(
+            combination=combination,
+            limit_per_query=request.limit_per_query or 50,
+            min_score=request.min_score or 25.0,
+            top_recommendations=request.top_recommendations or 20,
+            refresh=request.force_refresh or False  # Use force_refresh parameter
         )
         
-        # Get market outlook for context
-        market_outlook = await long_term_service.get_market_outlook()
+        # Check cache first (unless force_refresh is True)
+        if not request.force_refresh:
+            logger.info("🔍 Checking cache for recent recommendations...")
+            cached_result = await recommendation_cache.get_cached_recommendation(
+                RecommendationType.LONG_TERM, 
+                cache_request
+            )
+            
+            if cached_result:
+                processing_time = time.time() - start_time
+                logger.info(f"✅ CACHE HIT - Returning cached long-term recommendations (processing: {processing_time:.2f}s)")
+                
+                # Add cache info to metadata
+                cached_result['metadata']['cache_hit'] = True
+                cached_result['metadata']['cache_processing_time_seconds'] = round(processing_time, 2)
+                cached_result['metadata']['fresh_analysis'] = False
+                cached_result['metadata']['force_refresh'] = False
+                
+                return cached_result
+            else:
+                logger.info("❌ CACHE MISS - Running fresh analysis...")
+        else:
+            logger.info("🔄 FORCE REFRESH - Bypassing cache and running fresh analysis...")
         
-        return {
-            "recommendations": recommendations_data.get('recommendations', []),
-            "market_context": {
-                "sentiment": market_outlook.get('market_sentiment'),
-                "average_score": market_outlook.get('average_market_score'),
-                "investment_advice": market_outlook.get('investment_advice')
-            },
+        # Extract individual versions
+        fundamental_v = combination.get("fundamental", "v1.0")
+        momentum_v = combination.get("momentum", "v1.0")
+        value_v = combination.get("value", "v1.0")
+        quality_v = combination.get("quality", "v1.0")
+        
+        logger.info(f"🎯 Running combination analysis: F={fundamental_v}, M={momentum_v}, V={value_v}, Q={quality_v}")
+        
+        # Run the comprehensive analysis
+        result = await run_combination_analysis(
+            config, 
+            fundamental_v, 
+            momentum_v, 
+            value_v, 
+            quality_v, 
+            limit=request.limit_per_query or 50
+        )
+        
+        # Get top stocks
+        top_stocks = result.get('top_stocks', [])
+        logger.info(f"📊 Analysis returned {len(top_stocks)} stocks")
+        
+        # Filter by minimum score if specified
+        if request.min_score and request.min_score > 0:
+            original_count = len(top_stocks)
+            top_stocks = [stock for stock in top_stocks if stock['score'] >= request.min_score]
+            filtered_count = len(top_stocks)
+            logger.info(f"🔍 Score filtering (min_score={request.min_score}): {original_count} -> {filtered_count} stocks")
+        
+        # Limit to top recommendations
+        top_stocks = top_stocks[:request.top_recommendations or 20]
+        logger.info(f"📋 Final selection: {len(top_stocks)} stocks")
+        
+        # Convert to the expected recommendation format
+        recommendations = []
+        for stock in top_stocks:
+            recommendation = {
+                "symbol": stock['symbol'],
+                "name": stock.get('name', stock['symbol']),
+                "price": float(stock.get('price', 0)) if stock.get('price') != 'N/A' else 0.0,
+                "score": float(stock['score']),
+                "per_change": float(stock.get('per_change', 0)) if stock.get('per_change') != 'N/A' else 0.0,
+                "volume": int(stock.get('volume', 0)) if stock.get('volume') != 'N/A' else 0,
+                "recommendation_type": (
+                    "Strong Long-term Buy" if stock['score'] >= 70 else 
+                    "Long-term Buy" if stock['score'] >= 50 else 
+                    "Hold"
+                ),
+                "appearances": len(stock['categories']),
+                "category_count": len(stock['categories']),
+                "categories": list(stock['categories']),
+                "fundamental": "fundamental" in stock['categories'],
+                "momentum": "momentum" in stock['categories'],
+                "value": "value" in stock['categories'],
+                "quality": "quality" in stock['categories']
+            }
+            recommendations.append(recommendation)
+        
+        # Calculate processing time
+        processing_time = time.time() - start_time
+        
+        # Build comprehensive metadata
+        metadata = {
+            "combination_used": combination,
+            "performance_metrics": result.get('metrics', {}),
+            "category_breakdown": result.get('category_results', {}),
+            "total_recommendations": len(recommendations),
             "request_parameters": request.dict(),
             "timestamp": datetime.now().isoformat(),
-            "total_found": len(recommendations_data.get('recommendations', [])),
-            "filtering_summary": recommendations_data.get('filtering_summary', {})
+            "processing_time_seconds": round(processing_time, 2),
+            "cache_hit": False,
+            "fresh_analysis": True,
+            "force_refresh": request.force_refresh or False,
+            "algorithm_info": {
+                "approach": "Multi-factor long-term analysis with re-ranking",
+                "timeframe": "6-18 months",
+                "categories": ["fundamental", "momentum", "value", "quality"],
+                "scoring": "Weighted sum with re-ranking criteria (0-100 scale)",
+                "max_possible_score": 100.0,
+                "score_breakdown": "Equal weight distribution + re-ranking boosts",
+                "data_source": "ChartInk with nsecode symbols"
+            }
         }
+        
+        # Build final response
+        response_data = {
+            "status": "success",
+            "recommendations": recommendations,
+            "metadata": metadata,
+            "columns": [
+                "symbol", "name", "price", "score", "per_change", "volume",
+                "recommendation_type", "appearances", "category_count", 
+                "fundamental", "momentum", "value", "quality", "categories"
+            ]
+        }
+        
+        # Always cache the results after fresh analysis (regardless of market hours when force_refresh is used)
+        try:
+            await recommendation_cache.store_recommendation(
+                RecommendationType.LONG_TERM,
+                cache_request,
+                recommendations,
+                metadata
+            )
+            if request.force_refresh:
+                logger.info(f"✅ Force refresh: Updated cache with {len(recommendations)} long-term recommendations")
+            else:
+                logger.info(f"✅ Cached {len(recommendations)} long-term recommendations")
+        except Exception as cache_error:
+            logger.warning(f"⚠️ Failed to cache results: {cache_error}")
+        
+        # Store in historical database when force_refresh is used (API-triggered analysis)
+        if request.force_refresh:
+            try:
+                execution_id = f"api_longterm_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}"
+                market_info = market_timer.get_market_session_info()
+                
+                batch_id = await recommendation_history_storage.store_recommendation_batch(
+                    execution_id=execution_id,
+                    cron_job_id="api_longterm_force_refresh",
+                    strategy=RecommendationStrategy.LONGTERM,
+                    recommendations=recommendations,
+                    metadata={
+                        "algorithm_info": metadata.get("algorithm_info", {}),
+                        "performance_metrics": {
+                            "api_response_time_ms": processing_time * 1000,
+                            "total_processing_time_seconds": processing_time,
+                            "cache_bypassed": True,
+                            "force_refresh": True
+                        },
+                        "source_info": {
+                            "trigger": "api_force_refresh",
+                            "endpoint": "/api/longterm/long-buy-recommendations",
+                            "user_agent": "API_Client"
+                        }
+                    },
+                    request_parameters={
+                        "combination": combination,
+                        "limit_per_query": request.limit_per_query or 50,
+                        "min_score": request.min_score or 25.0,
+                        "top_recommendations": request.top_recommendations or 20,
+                        "force_refresh": True
+                    },
+                    market_context={
+                        "market_condition": market_info.get('session', 'unknown'),
+                        "trading_session": market_info.get('session_id', ''),
+                        "market_open": market_info.get('is_open', False),
+                        "timestamp": datetime.now(),
+                        "source": "api_request"
+                    }
+                )
+                logger.info(f"✅ Stored long-term recommendations batch in history: {batch_id}")
+                
+                # Add historical storage info to response metadata
+                metadata["historical_storage"] = {
+                    "batch_id": batch_id,
+                    "execution_id": execution_id,
+                    "stored": True
+                }
+                
+            except Exception as storage_error:
+                logger.warning(f"⚠️ Failed to store long-term recommendations in history: {storage_error}")
+                metadata["historical_storage"] = {
+                    "stored": False,
+                    "error": str(storage_error)
+                }
+        
+        # Update response data with any metadata changes
+        response_data["metadata"] = metadata
+        
+        logger.info(f"✅ LONG-TERM ANALYSIS COMPLETED in {processing_time:.2f}s")
+        logger.info(f"📈 Top recommendation: {recommendations[0]['symbol']} (score: {recommendations[0]['score']:.1f})" if recommendations else "❌ No recommendations found")
+        
+        # Log the response
+        api_logger.log_response(response_data, '/api/longterm/long-buy-recommendations')
+        
+        return response_data
+        
     except Exception as e:
-        logger.error(f"Error getting real-time long-term recommendations: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"❌ Error in long-term analysis: {str(e)}")
+        import traceback
+        logger.error(f"📋 Full traceback:\n{traceback.format_exc()}")
+        error_response = {
+            "status": "error",
+            "message": str(e)
+        }
+        # Log the error
+        api_logger.log_error(str(e), '/api/longterm/long-buy-recommendations', error_response)
+        raise HTTPException(status_code=500, detail=f"Long-term analysis failed: {str(e)}")
+
+# ---------------------------------------------------------------------------
+# Alias route for consistency with intraday naming
+# ---------------------------------------------------------------------------
+
+
+@app.post("/api/longterm/combination-buy-recommendations")
+async def combination_buy_recommendations(request: LongBuyRequest, raw_request: Request):
+    """Alias to /long-buy-recommendations using Intraday-style naming."""
+    return await get_long_buy_recommendations(request, raw_request)
 
 @app.post("/api/longterm/portfolio/optimize")
 async def optimize_longterm_portfolio(request: LongBuyRequest):
@@ -725,139 +1024,6 @@ async def get_available_variants():
     except Exception as e:
         logger.error(f"Error getting available variants: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/api/longterm/long-buy-recommendations")
-async def get_long_buy_recommendations(request: LongBuyRequest):
-    """
-    Get long buy recommendations using combination of query variants.
-    
-    This endpoint runs queries from different categories (fundamental, momentum, value, quality)
-    and combines their results to provide scored stock recommendations.
-    """
-    try:
-        config = app.state.config
-        
-        # Use default combination if not specified
-        if not request.combination:
-            # Use the current experimental combination from config
-            current_algo = config.get('current_algorithm', {})
-            if current_algo.get('version') == 'v2.1.0':
-                # Use experimental high-performance combination
-                combination = {
-                    'fundamental': 'v2.0',
-                    'momentum': 'v2.0', 
-                    'value': 'v1.2',
-                    'quality': 'v1.2'
-                }
-            else:
-                # Use basic combination
-                combination = {
-                    'fundamental': 'v1.0',
-                    'momentum': 'v1.0',
-                    'value': 'v1.0', 
-                    'quality': 'v1.0'
-                }
-        else:
-            combination = request.combination
-        
-        logger.info(f"🔍 Running analysis: {combination['fundamental']}/{combination['momentum']}/{combination['value']}/{combination['quality']}")
-        
-        # Run combination analysis
-        result = await run_combination_analysis(
-            config, 
-            combination['fundamental'],
-            combination['momentum'],
-            combination['value'],
-            combination['quality'],
-            request.limit_per_query or 50
-        )
-        
-        # Extract and filter top recommendations
-        top_stocks = result.get('top_stocks', [])[:request.top_recommendations or 20]
-        
-        # Filter by minimum score if specified
-        if request.min_score:
-            top_stocks = [stock for stock in top_stocks if stock.get('score', 0) >= request.min_score]
-        
-        # Build final recommendations
-        combined_recommendations = []
-        for stock in top_stocks:
-            recommendation = {
-                "symbol": stock['symbol'],
-                "name": stock.get('name', 'N/A'),
-                "price": float(stock.get('price', 0)) if stock.get('price') != 'N/A' else 0.0,
-                "score": float(stock['score']),
-                "categories": list(stock['categories']),
-                "appearances": int(len(stock['categories'])),
-                "volume": int(stock.get('volume', 0)) if stock.get('volume') != 'N/A' else 0,
-                "per_change": float(stock.get('per_change', 0)) if stock.get('per_change') != 'N/A' else 0.0,
-                "recommendation_type": "Strong Buy" if stock['score'] >= 70 else "Buy" if stock['score'] >= 50 else "Hold",
-                "category_count": len(stock['categories']),
-                "fundamental": "fundamental" in stock['categories'],
-                "momentum": "momentum" in stock['categories'],
-                "value": "value" in stock['categories'],
-                "quality": "quality" in stock['categories']
-            }
-            combined_recommendations.append(recommendation)
-        
-        # Build final response
-        response = {
-            "status": "success",
-            "recommendations": combined_recommendations,
-            "metadata": {
-                "combination_used": combination,
-                "performance_metrics": result.get('metrics', {}),
-                "category_breakdown": result.get('category_results', {}),
-                "total_recommendations": len(combined_recommendations),
-                "request_parameters": request.dict(),
-                "timestamp": datetime.now().isoformat(),
-                "processing_time_seconds": round(result.get('processing_time_seconds', 0), 2),
-                "algorithm_info": {
-                    "approach": "Multi-factor long-term analysis with re-ranking",
-                    "timeframe": "6-18 months",
-                    "categories": ["value", "growth", "quality", "momentum"],
-                    "scoring": "Weighted sum with re-ranking criteria (0-100 scale)",
-                    "max_possible_score": 100.0,
-                    "score_breakdown": "Value: 30pts, Growth: 25pts, Quality: 25pts, Momentum: 20pts",
-                    "re_ranking_factors": ["fundamental_strength", "financial_health", "growth_trajectory", "value_metrics", "momentum_indicators"]
-                }
-            },
-            "columns": [
-                "symbol", "name", "price", "score", "per_change", "volume", "sector",
-                "appearances", "category_count", "recommendation_type",
-                "value", "growth", "quality", "momentum", "categories"
-            ]
-        }
-        
-        # DEBUG: Print complete recommendations data for frontend debugging
-        logger.info("=" * 50)
-        logger.info("COMPLETE RECOMMENDATIONS DATA STRUCTURE:")
-        logger.info("=" * 50)
-        for i, rec in enumerate(combined_recommendations, 1):
-            logger.info(f"Recommendation {i}: {rec}")
-        logger.info("=" * 50)
-        logger.info(f"Metadata: {response['metadata']}")
-        logger.info("=" * 50)
-        
-        # Log the exact JSON response with proper indentation before sending to client
-        response_data = {
-            "status": "success",
-            "recommendations": combined_recommendations,
-            "metadata": response['metadata'],
-            "columns": response['columns']
-        }
-        
-        logger.info("=" * 60)
-        logger.info("EXACT JSON RESPONSE TO CLIENT:")
-        logger.info("=" * 60)
-        logger.info(json.dumps(response_data, indent=2, ensure_ascii=False))
-        logger.info("=" * 60)
-        
-        return response_data
-        
-    except Exception as e:
-        logger.error(f"❌ Error in long buy recommendations: {e}")
-        raise HTTPException(status_code=500, detail=f"Error generating recommendations: {str(e)}")
 
 @app.post("/api/longterm/test-combination")
 async def test_combination(request: CombinationTestRequest):

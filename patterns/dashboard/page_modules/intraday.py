@@ -15,7 +15,7 @@ from config.queries import INTRADAY_QUERIES
 from strategies.intraday import analyze_stock_intraday
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="page_intraday")
 
 # Initialize MongoDB
 db = MongoDB()

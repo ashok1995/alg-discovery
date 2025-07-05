@@ -17,7 +17,7 @@ import json
 from core.background.cron_jobs.job_scheduler import (
     JobDefinition, JobPriority, add_cron_job, add_interval_job
 )
-from core.database.config import db_manager
+from common.db import db_manager
 from core.database.cache.redis_manager import cache_manager
 
 logger = logging.getLogger(__name__)

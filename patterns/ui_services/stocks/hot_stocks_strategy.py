@@ -5,7 +5,7 @@ Strategy selection functionality for hot stocks component
 import streamlit as st
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="ui_services", service="hot_stocks_strategy")
 
 def setup_strategy_selection(data_service):
     """

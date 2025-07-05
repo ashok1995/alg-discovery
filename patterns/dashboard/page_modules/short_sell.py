@@ -15,7 +15,7 @@ from config.queries import SHORT_SELL_QUERIES
 from strategies.short_sell import analyze_stock_short_sell
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="page_short_sell")
 
 # Initialize MongoDB
 db = MongoDB()

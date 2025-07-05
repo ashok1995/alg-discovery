@@ -8,7 +8,7 @@ from data.top_stocks_service import TopStocksService
 import inspect
 from datetime import datetime
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="patterns_app")
 
 # Force app to always use validated TopStocksService
 def initialize_app():

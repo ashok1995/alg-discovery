@@ -9,10 +9,10 @@ Core services for the automated trading system including:
 - Background job scheduling
 """
 
-from services.data_service import RealTimeDataService, DataCache, DataSource
-from services.analysis_engine import AnalysisEngine, TradingStrategy, RSIMomentumStrategy, MACDStrategy, BollingerBandsStrategy
-from services.websocket_manager import WebSocketManager, ConnectionManager
-from services.job_scheduler import JobScheduler, BackgroundJob, JobStatus, JobResult
+from api.services.data_service import RealTimeDataService, DataCache, DataSource
+from api.services.analysis_engine import AnalysisEngine, TradingStrategy, RSIMomentumStrategy, MACDStrategy, BollingerBandsStrategy
+from api.services.websocket_manager import WebSocketManager, ConnectionManager
+from api.services.job_scheduler import JobScheduler, BackgroundJob, JobStatus, JobResult
 
 __all__ = [
     # Data Service

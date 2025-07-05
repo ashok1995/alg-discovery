@@ -18,17 +18,39 @@ NC='\033[0m' # No Color
 
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="$SCRIPT_DIR/server.env"
 
-# Load environment variables
-if [ -f "$ENV_FILE" ]; then
-    echo -e "${GREEN}Loading configuration from $ENV_FILE${NC}"
+# Function to load environment for a specific server
+load_server_env() {
+    local server_name=$1
+    local env_file="$SCRIPT_DIR/env/${server_name}.env"
+    local fallback_env="$SCRIPT_DIR/env/server.env"
+    
+    if [ -f "$env_file" ]; then
+        echo -e "${GREEN}Loading configuration from $env_file${NC}"
+        set -a  # automatically export all variables
+        source "$env_file"
+        set +a  # stop auto-export
+        return 0
+    elif [ -f "$fallback_env" ]; then
+        echo -e "${YELLOW}Server-specific env file not found, loading from $fallback_env${NC}"
+        set -a  # automatically export all variables
+        source "$fallback_env"
+        set +a  # stop auto-export
+        return 0
+    else
+        echo -e "${RED}Error: No environment file found for $server_name${NC}"
+        return 1
+    fi
+}
+
+# Load default environment for global settings
+if [ -f "$SCRIPT_DIR/env/server.env" ]; then
+    echo -e "${GREEN}Loading global configuration from $SCRIPT_DIR/env/server.env${NC}"
     set -a  # automatically export all variables
-    source "$ENV_FILE"
+    source "$SCRIPT_DIR/env/server.env"
     set +a  # stop auto-export
 else
-    echo -e "${RED}Error: Environment file $ENV_FILE not found!${NC}"
-    exit 1
+    echo -e "${YELLOW}Warning: Global environment file not found, using defaults${NC}"
 fi
 
 # Set defaults if not in env file
@@ -130,6 +152,12 @@ start_server() {
     # Check if port is in use
     if is_port_in_use "$port"; then
         print_status $RED "Error: Port $port is already in use by another process"
+        return 1
+    fi
+    
+    # Load server-specific environment
+    if ! load_server_env "$server_name"; then
+        print_status $RED "Error: Failed to load environment for $server_name"
         return 1
     fi
     
@@ -361,7 +389,7 @@ show_help() {
     echo "  $0 status                 # Show status of all servers"
     echo ""
     echo "Configuration:"
-    echo "  Environment file: $ENV_FILE"
+    echo "  Environment file: $SCRIPT_DIR/env/server.env"
     echo "  PID directory: $PID_DIR"
     echo "  Log directory: $LOG_DIR"
     echo ""

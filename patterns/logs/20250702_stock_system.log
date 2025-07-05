@@ -4906,3 +4906,422 @@
 2025-07-02 21:47:45,538 - data.chartink - INFO - [CHARTINK-63410] ⏱️ API call started at 21:47:45.538
 2025-07-02 21:47:45,731 - data.chartink - INFO - [CHARTINK-63410] ⬇️ Received response in 0.19s with status code 200
 2025-07-02 21:47:45,734 - data.chartink - INFO - [CHARTINK-63410] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 21:58:30,584 - data.chartink - INFO - Checking ChartInk connectivity
+2025-07-02 21:58:30,934 - data.chartink - INFO - ✅ ChartInk connectivity check SUCCESS: HTTP 200 in 0.35s
+2025-07-02 21:59:05,023 - data.chartink - INFO - [CHARTINK-45023] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:05,023 - data.chartink - INFO - [CHARTINK-45023] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:05,363 - data.chartink - INFO - [CHARTINK-45023] ✅ CSRF token obtained successfully
+2025-07-02 21:59:05,363 - data.chartink - INFO - [CHARTINK-45023] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:05,363 - data.chartink - INFO - [CHARTINK-45023] ⏱️ API call started at 21:59:05.363
+2025-07-02 21:59:05,530 - data.chartink - INFO - [CHARTINK-45023] ⬇️ Received response in 0.17s with status code 200
+2025-07-02 21:59:05,535 - data.chartink - INFO - [CHARTINK-45023] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 21:59:05,539 - data.chartink - INFO - [CHARTINK-45539] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:05,539 - data.chartink - INFO - [CHARTINK-45539] Rate limiting: Sleeping for 1.82s
+2025-07-02 21:59:07,367 - data.chartink - INFO - [CHARTINK-45539] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:07,674 - data.chartink - INFO - [CHARTINK-45539] ✅ CSRF token obtained successfully
+2025-07-02 21:59:07,674 - data.chartink - INFO - [CHARTINK-45539] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:07,674 - data.chartink - INFO - [CHARTINK-45539] ⏱️ API call started at 21:59:07.674
+2025-07-02 21:59:08,074 - data.chartink - INFO - [CHARTINK-45539] ⬇️ Received response in 0.40s with status code 200
+2025-07-02 21:59:08,076 - data.chartink - INFO - [CHARTINK-45539] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 21:59:08,081 - data.chartink - INFO - [CHARTINK-48081] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:08,081 - data.chartink - INFO - [CHARTINK-48081] Rate limiting: Sleeping for 1.59s
+2025-07-02 21:59:09,679 - data.chartink - INFO - [CHARTINK-48081] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:10,053 - data.chartink - INFO - [CHARTINK-48081] ✅ CSRF token obtained successfully
+2025-07-02 21:59:10,053 - data.chartink - INFO - [CHARTINK-48081] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:10,053 - data.chartink - INFO - [CHARTINK-48081] ⏱️ API call started at 21:59:10.053
+2025-07-02 21:59:10,244 - data.chartink - INFO - [CHARTINK-48081] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 21:59:10,247 - data.chartink - INFO - [CHARTINK-48081] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 21:59:10,254 - data.chartink - INFO - [CHARTINK-50253] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:10,254 - data.chartink - INFO - [CHARTINK-50253] Rate limiting: Sleeping for 1.80s
+2025-07-02 21:59:12,056 - data.chartink - INFO - [CHARTINK-50253] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:12,427 - data.chartink - INFO - [CHARTINK-50253] ✅ CSRF token obtained successfully
+2025-07-02 21:59:12,428 - data.chartink - INFO - [CHARTINK-50253] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:12,428 - data.chartink - INFO - [CHARTINK-50253] ⏱️ API call started at 21:59:12.428
+2025-07-02 21:59:12,701 - data.chartink - INFO - [CHARTINK-50253] ⬇️ Received response in 0.27s with status code 200
+2025-07-02 21:59:12,704 - data.chartink - INFO - [CHARTINK-50253] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 21:59:19,517 - data.chartink - INFO - [CHARTINK-59517] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:19,517 - data.chartink - INFO - [CHARTINK-59517] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:19,898 - data.chartink - INFO - [CHARTINK-59517] ✅ CSRF token obtained successfully
+2025-07-02 21:59:19,899 - data.chartink - INFO - [CHARTINK-59517] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:19,899 - data.chartink - INFO - [CHARTINK-59517] ⏱️ API call started at 21:59:19.899
+2025-07-02 21:59:20,088 - data.chartink - INFO - [CHARTINK-59517] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 21:59:20,089 - data.chartink - INFO - [CHARTINK-59517] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 21:59:20,092 - data.chartink - INFO - [CHARTINK-60092] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:20,092 - data.chartink - INFO - [CHARTINK-60092] Rate limiting: Sleeping for 1.81s
+2025-07-02 21:59:21,902 - data.chartink - INFO - [CHARTINK-60092] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:22,200 - data.chartink - INFO - [CHARTINK-60092] ✅ CSRF token obtained successfully
+2025-07-02 21:59:22,200 - data.chartink - INFO - [CHARTINK-60092] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:22,201 - data.chartink - INFO - [CHARTINK-60092] ⏱️ API call started at 21:59:22.201
+2025-07-02 21:59:22,599 - data.chartink - INFO - [CHARTINK-60092] ⬇️ Received response in 0.40s with status code 200
+2025-07-02 21:59:22,601 - data.chartink - INFO - [CHARTINK-60092] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 21:59:22,610 - data.chartink - INFO - [CHARTINK-62610] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:22,610 - data.chartink - INFO - [CHARTINK-62610] Rate limiting: Sleeping for 1.59s
+2025-07-02 21:59:24,206 - data.chartink - INFO - [CHARTINK-62610] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:24,591 - data.chartink - INFO - [CHARTINK-62610] ✅ CSRF token obtained successfully
+2025-07-02 21:59:24,591 - data.chartink - INFO - [CHARTINK-62610] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:24,591 - data.chartink - INFO - [CHARTINK-62610] ⏱️ API call started at 21:59:24.591
+2025-07-02 21:59:24,903 - data.chartink - INFO - [CHARTINK-62610] ⬇️ Received response in 0.31s with status code 200
+2025-07-02 21:59:24,905 - data.chartink - INFO - [CHARTINK-62610] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 21:59:24,910 - data.chartink - INFO - [CHARTINK-64910] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:24,910 - data.chartink - INFO - [CHARTINK-64910] Rate limiting: Sleeping for 1.68s
+2025-07-02 21:59:26,595 - data.chartink - INFO - [CHARTINK-64910] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:26,995 - data.chartink - INFO - [CHARTINK-64910] ✅ CSRF token obtained successfully
+2025-07-02 21:59:26,995 - data.chartink - INFO - [CHARTINK-64910] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:26,995 - data.chartink - INFO - [CHARTINK-64910] ⏱️ API call started at 21:59:26.995
+2025-07-02 21:59:27,180 - data.chartink - INFO - [CHARTINK-64910] ⬇️ Received response in 0.18s with status code 200
+2025-07-02 21:59:27,183 - data.chartink - INFO - [CHARTINK-64910] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 21:59:27,240 - data.chartink - INFO - [CHARTINK-67240] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:27,240 - data.chartink - INFO - [CHARTINK-67240] Rate limiting: Sleeping for 1.76s
+2025-07-02 21:59:28,999 - data.chartink - INFO - [CHARTINK-67240] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:29,379 - data.chartink - INFO - [CHARTINK-67240] ✅ CSRF token obtained successfully
+2025-07-02 21:59:29,379 - data.chartink - INFO - [CHARTINK-67240] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:29,379 - data.chartink - INFO - [CHARTINK-67240] ⏱️ API call started at 21:59:29.379
+2025-07-02 21:59:29,558 - data.chartink - INFO - [CHARTINK-67240] ⬇️ Received response in 0.18s with status code 200
+2025-07-02 21:59:29,560 - data.chartink - INFO - [CHARTINK-67240] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 21:59:29,564 - data.chartink - INFO - [CHARTINK-69564] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:29,564 - data.chartink - INFO - [CHARTINK-69564] Rate limiting: Sleeping for 1.82s
+2025-07-02 21:59:31,385 - data.chartink - INFO - [CHARTINK-69564] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:31,799 - data.chartink - INFO - [CHARTINK-69564] ✅ CSRF token obtained successfully
+2025-07-02 21:59:31,799 - data.chartink - INFO - [CHARTINK-69564] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:31,799 - data.chartink - INFO - [CHARTINK-69564] ⏱️ API call started at 21:59:31.799
+2025-07-02 21:59:32,233 - data.chartink - INFO - [CHARTINK-69564] ⬇️ Received response in 0.43s with status code 200
+2025-07-02 21:59:32,235 - data.chartink - INFO - [CHARTINK-69564] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 21:59:32,240 - data.chartink - INFO - [CHARTINK-72240] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:32,240 - data.chartink - INFO - [CHARTINK-72240] Rate limiting: Sleeping for 1.56s
+2025-07-02 21:59:33,802 - data.chartink - INFO - [CHARTINK-72240] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:34,168 - data.chartink - INFO - [CHARTINK-72240] ✅ CSRF token obtained successfully
+2025-07-02 21:59:34,169 - data.chartink - INFO - [CHARTINK-72240] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:34,169 - data.chartink - INFO - [CHARTINK-72240] ⏱️ API call started at 21:59:34.169
+2025-07-02 21:59:34,374 - data.chartink - INFO - [CHARTINK-72240] ⬇️ Received response in 0.20s with status code 200
+2025-07-02 21:59:34,376 - data.chartink - INFO - [CHARTINK-72240] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 21:59:34,381 - data.chartink - INFO - [CHARTINK-74381] 🚀 Preparing ChartInk API request
+2025-07-02 21:59:34,381 - data.chartink - INFO - [CHARTINK-74381] Rate limiting: Sleeping for 1.79s
+2025-07-02 21:59:36,174 - data.chartink - INFO - [CHARTINK-74381] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 21:59:36,544 - data.chartink - INFO - [CHARTINK-74381] ✅ CSRF token obtained successfully
+2025-07-02 21:59:36,544 - data.chartink - INFO - [CHARTINK-74381] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 21:59:36,544 - data.chartink - INFO - [CHARTINK-74381] ⏱️ API call started at 21:59:36.544
+2025-07-02 21:59:36,738 - data.chartink - INFO - [CHARTINK-74381] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 21:59:36,740 - data.chartink - INFO - [CHARTINK-74381] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:11:13,337 - data.chartink - INFO - Checking ChartInk connectivity
+2025-07-02 22:11:13,683 - data.chartink - INFO - ✅ ChartInk connectivity check SUCCESS: HTTP 200 in 0.35s
+2025-07-02 22:11:13,686 - data.chartink - INFO - [CHARTINK-73686] 🚀 Preparing ChartInk API request
+2025-07-02 22:11:13,686 - data.chartink - INFO - [CHARTINK-73686] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:11:14,065 - data.chartink - INFO - [CHARTINK-73686] ✅ CSRF token obtained successfully
+2025-07-02 22:11:14,065 - data.chartink - INFO - [CHARTINK-73686] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:11:14,065 - data.chartink - INFO - [CHARTINK-73686] ⏱️ API call started at 22:11:14.065
+2025-07-02 22:11:14,254 - data.chartink - INFO - [CHARTINK-73686] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:11:14,257 - data.chartink - INFO - [CHARTINK-73686] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:11:14,259 - data.chartink - INFO - [CHARTINK-74259] 🚀 Preparing ChartInk API request
+2025-07-02 22:11:14,259 - data.chartink - INFO - [CHARTINK-74259] Rate limiting: Sleeping for 1.81s
+2025-07-02 22:11:16,070 - data.chartink - INFO - [CHARTINK-74259] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:11:16,450 - data.chartink - INFO - [CHARTINK-74259] ✅ CSRF token obtained successfully
+2025-07-02 22:11:16,450 - data.chartink - INFO - [CHARTINK-74259] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:11:16,451 - data.chartink - INFO - [CHARTINK-74259] ⏱️ API call started at 22:11:16.450
+2025-07-02 22:11:16,855 - data.chartink - INFO - [CHARTINK-74259] ⬇️ Received response in 0.40s with status code 200
+2025-07-02 22:11:16,857 - data.chartink - INFO - [CHARTINK-74259] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:11:16,862 - data.chartink - INFO - [CHARTINK-76862] 🚀 Preparing ChartInk API request
+2025-07-02 22:11:16,862 - data.chartink - INFO - [CHARTINK-76862] Rate limiting: Sleeping for 1.59s
+2025-07-02 22:11:18,455 - data.chartink - INFO - [CHARTINK-76862] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:11:18,856 - data.chartink - INFO - [CHARTINK-76862] ✅ CSRF token obtained successfully
+2025-07-02 22:11:18,856 - data.chartink - INFO - [CHARTINK-76862] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:11:18,856 - data.chartink - INFO - [CHARTINK-76862] ⏱️ API call started at 22:11:18.856
+2025-07-02 22:11:19,049 - data.chartink - INFO - [CHARTINK-76862] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:11:19,052 - data.chartink - INFO - [CHARTINK-76862] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:11:19,057 - data.chartink - INFO - [CHARTINK-79057] 🚀 Preparing ChartInk API request
+2025-07-02 22:11:19,057 - data.chartink - INFO - [CHARTINK-79057] Rate limiting: Sleeping for 1.80s
+2025-07-02 22:11:20,859 - data.chartink - INFO - [CHARTINK-79057] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:11:21,185 - data.chartink - INFO - [CHARTINK-79057] ✅ CSRF token obtained successfully
+2025-07-02 22:11:21,186 - data.chartink - INFO - [CHARTINK-79057] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:11:21,186 - data.chartink - INFO - [CHARTINK-79057] ⏱️ API call started at 22:11:21.186
+2025-07-02 22:11:21,380 - data.chartink - INFO - [CHARTINK-79057] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:11:21,383 - data.chartink - INFO - [CHARTINK-79057] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:11:21,442 - data.chartink - INFO - [CHARTINK-81442] 🚀 Preparing ChartInk API request
+2025-07-02 22:11:21,442 - data.chartink - INFO - [CHARTINK-81442] Rate limiting: Sleeping for 1.74s
+2025-07-02 22:11:23,187 - data.chartink - INFO - [CHARTINK-81442] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:11:23,549 - data.chartink - INFO - [CHARTINK-81442] ✅ CSRF token obtained successfully
+2025-07-02 22:11:23,549 - data.chartink - INFO - [CHARTINK-81442] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:11:23,549 - data.chartink - INFO - [CHARTINK-81442] ⏱️ API call started at 22:11:23.549
+2025-07-02 22:11:23,720 - data.chartink - INFO - [CHARTINK-81442] ⬇️ Received response in 0.17s with status code 200
+2025-07-02 22:11:23,722 - data.chartink - INFO - [CHARTINK-81442] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:11:23,726 - data.chartink - INFO - [CHARTINK-83726] 🚀 Preparing ChartInk API request
+2025-07-02 22:11:23,726 - data.chartink - INFO - [CHARTINK-83726] Rate limiting: Sleeping for 1.82s
+2025-07-02 22:11:25,550 - data.chartink - INFO - [CHARTINK-83726] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:11:25,974 - data.chartink - INFO - [CHARTINK-83726] ✅ CSRF token obtained successfully
+2025-07-02 22:11:25,975 - data.chartink - INFO - [CHARTINK-83726] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:11:25,975 - data.chartink - INFO - [CHARTINK-83726] ⏱️ API call started at 22:11:25.975
+2025-07-02 22:11:26,287 - data.chartink - INFO - [CHARTINK-83726] ⬇️ Received response in 0.31s with status code 200
+2025-07-02 22:11:26,289 - data.chartink - INFO - [CHARTINK-83726] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:11:26,294 - data.chartink - INFO - [CHARTINK-86294] 🚀 Preparing ChartInk API request
+2025-07-02 22:11:26,294 - data.chartink - INFO - [CHARTINK-86294] Rate limiting: Sleeping for 1.68s
+2025-07-02 22:11:27,980 - data.chartink - INFO - [CHARTINK-86294] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:11:28,364 - data.chartink - INFO - [CHARTINK-86294] ✅ CSRF token obtained successfully
+2025-07-02 22:11:28,364 - data.chartink - INFO - [CHARTINK-86294] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:11:28,364 - data.chartink - INFO - [CHARTINK-86294] ⏱️ API call started at 22:11:28.364
+2025-07-02 22:11:28,571 - data.chartink - INFO - [CHARTINK-86294] ⬇️ Received response in 0.21s with status code 200
+2025-07-02 22:11:28,573 - data.chartink - INFO - [CHARTINK-86294] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:11:28,578 - data.chartink - INFO - [CHARTINK-88578] 🚀 Preparing ChartInk API request
+2025-07-02 22:11:28,578 - data.chartink - INFO - [CHARTINK-88578] Rate limiting: Sleeping for 1.79s
+2025-07-02 22:11:30,368 - data.chartink - INFO - [CHARTINK-88578] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:11:30,746 - data.chartink - INFO - [CHARTINK-88578] ✅ CSRF token obtained successfully
+2025-07-02 22:11:30,746 - data.chartink - INFO - [CHARTINK-88578] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:11:30,746 - data.chartink - INFO - [CHARTINK-88578] ⏱️ API call started at 22:11:30.746
+2025-07-02 22:11:30,951 - data.chartink - INFO - [CHARTINK-88578] ⬇️ Received response in 0.21s with status code 200
+2025-07-02 22:11:30,954 - data.chartink - INFO - [CHARTINK-88578] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:23:20,141 - data.chartink - INFO - Checking ChartInk connectivity
+2025-07-02 22:23:20,490 - data.chartink - INFO - ✅ ChartInk connectivity check SUCCESS: HTTP 200 in 0.35s
+2025-07-02 22:23:20,492 - data.chartink - INFO - [CHARTINK-492] 🚀 Preparing ChartInk API request
+2025-07-02 22:23:20,493 - data.chartink - INFO - [CHARTINK-492] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:23:20,856 - data.chartink - INFO - [CHARTINK-492] ✅ CSRF token obtained successfully
+2025-07-02 22:23:20,856 - data.chartink - INFO - [CHARTINK-492] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:23:20,856 - data.chartink - INFO - [CHARTINK-492] ⏱️ API call started at 22:23:20.856
+2025-07-02 22:23:21,023 - data.chartink - INFO - [CHARTINK-492] ⬇️ Received response in 0.17s with status code 200
+2025-07-02 22:23:21,025 - data.chartink - INFO - [CHARTINK-492] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:23:21,027 - data.chartink - INFO - [CHARTINK-1027] 🚀 Preparing ChartInk API request
+2025-07-02 22:23:21,028 - data.chartink - INFO - [CHARTINK-1027] Rate limiting: Sleeping for 1.83s
+2025-07-02 22:23:22,859 - data.chartink - INFO - [CHARTINK-1027] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:23:23,240 - data.chartink - INFO - [CHARTINK-1027] ✅ CSRF token obtained successfully
+2025-07-02 22:23:23,240 - data.chartink - INFO - [CHARTINK-1027] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:23:23,240 - data.chartink - INFO - [CHARTINK-1027] ⏱️ API call started at 22:23:23.240
+2025-07-02 22:23:23,660 - data.chartink - INFO - [CHARTINK-1027] ⬇️ Received response in 0.42s with status code 200
+2025-07-02 22:23:23,661 - data.chartink - INFO - [CHARTINK-1027] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:23:23,666 - data.chartink - INFO - [CHARTINK-3666] 🚀 Preparing ChartInk API request
+2025-07-02 22:23:23,667 - data.chartink - INFO - [CHARTINK-3666] Rate limiting: Sleeping for 1.57s
+2025-07-02 22:23:25,242 - data.chartink - INFO - [CHARTINK-3666] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:23:25,639 - data.chartink - INFO - [CHARTINK-3666] ✅ CSRF token obtained successfully
+2025-07-02 22:23:25,639 - data.chartink - INFO - [CHARTINK-3666] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:23:25,639 - data.chartink - INFO - [CHARTINK-3666] ⏱️ API call started at 22:23:25.639
+2025-07-02 22:23:25,880 - data.chartink - INFO - [CHARTINK-3666] ⬇️ Received response in 0.24s with status code 200
+2025-07-02 22:23:25,881 - data.chartink - INFO - [CHARTINK-3666] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:23:25,887 - data.chartink - INFO - [CHARTINK-5887] 🚀 Preparing ChartInk API request
+2025-07-02 22:23:25,887 - data.chartink - INFO - [CHARTINK-5887] Rate limiting: Sleeping for 1.75s
+2025-07-02 22:23:27,642 - data.chartink - INFO - [CHARTINK-5887] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:23:28,086 - data.chartink - INFO - [CHARTINK-5887] ✅ CSRF token obtained successfully
+2025-07-02 22:23:28,087 - data.chartink - INFO - [CHARTINK-5887] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:23:28,087 - data.chartink - INFO - [CHARTINK-5887] ⏱️ API call started at 22:23:28.087
+2025-07-02 22:23:28,281 - data.chartink - INFO - [CHARTINK-5887] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:23:28,283 - data.chartink - INFO - [CHARTINK-5887] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:23:28,349 - data.chartink - INFO - [CHARTINK-8349] 🚀 Preparing ChartInk API request
+2025-07-02 22:23:28,349 - data.chartink - INFO - [CHARTINK-8349] Rate limiting: Sleeping for 1.74s
+2025-07-02 22:23:30,090 - data.chartink - INFO - [CHARTINK-8349] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:23:30,507 - data.chartink - INFO - [CHARTINK-8349] ✅ CSRF token obtained successfully
+2025-07-02 22:23:30,508 - data.chartink - INFO - [CHARTINK-8349] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:23:30,508 - data.chartink - INFO - [CHARTINK-8349] ⏱️ API call started at 22:23:30.508
+2025-07-02 22:23:30,692 - data.chartink - INFO - [CHARTINK-8349] ⬇️ Received response in 0.18s with status code 200
+2025-07-02 22:23:30,694 - data.chartink - INFO - [CHARTINK-8349] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:23:30,698 - data.chartink - INFO - [CHARTINK-10698] 🚀 Preparing ChartInk API request
+2025-07-02 22:23:30,698 - data.chartink - INFO - [CHARTINK-10698] Rate limiting: Sleeping for 1.81s
+2025-07-02 22:23:32,511 - data.chartink - INFO - [CHARTINK-10698] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:23:32,878 - data.chartink - INFO - [CHARTINK-10698] ✅ CSRF token obtained successfully
+2025-07-02 22:23:32,879 - data.chartink - INFO - [CHARTINK-10698] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:23:32,879 - data.chartink - INFO - [CHARTINK-10698] ⏱️ API call started at 22:23:32.879
+2025-07-02 22:23:33,217 - data.chartink - INFO - [CHARTINK-10698] ⬇️ Received response in 0.34s with status code 200
+2025-07-02 22:23:33,220 - data.chartink - INFO - [CHARTINK-10698] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:23:33,225 - data.chartink - INFO - [CHARTINK-13225] 🚀 Preparing ChartInk API request
+2025-07-02 22:23:33,225 - data.chartink - INFO - [CHARTINK-13225] Rate limiting: Sleeping for 1.65s
+2025-07-02 22:23:34,881 - data.chartink - INFO - [CHARTINK-13225] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:23:35,263 - data.chartink - INFO - [CHARTINK-13225] ✅ CSRF token obtained successfully
+2025-07-02 22:23:35,264 - data.chartink - INFO - [CHARTINK-13225] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:23:35,264 - data.chartink - INFO - [CHARTINK-13225] ⏱️ API call started at 22:23:35.264
+2025-07-02 22:23:35,455 - data.chartink - INFO - [CHARTINK-13225] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:23:35,457 - data.chartink - INFO - [CHARTINK-13225] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:23:35,465 - data.chartink - INFO - [CHARTINK-15465] 🚀 Preparing ChartInk API request
+2025-07-02 22:23:35,465 - data.chartink - INFO - [CHARTINK-15465] Rate limiting: Sleeping for 1.80s
+2025-07-02 22:23:37,269 - data.chartink - INFO - [CHARTINK-15465] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:23:37,600 - data.chartink - INFO - [CHARTINK-15465] ✅ CSRF token obtained successfully
+2025-07-02 22:23:37,600 - data.chartink - INFO - [CHARTINK-15465] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:23:37,600 - data.chartink - INFO - [CHARTINK-15465] ⏱️ API call started at 22:23:37.600
+2025-07-02 22:23:37,796 - data.chartink - INFO - [CHARTINK-15465] ⬇️ Received response in 0.20s with status code 200
+2025-07-02 22:23:37,799 - data.chartink - INFO - [CHARTINK-15465] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:31:11,666 - data.chartink - INFO - Checking ChartInk connectivity
+2025-07-02 22:31:11,979 - data.chartink - INFO - ✅ ChartInk connectivity check SUCCESS: HTTP 200 in 0.31s
+2025-07-02 22:31:11,982 - data.chartink - INFO - [CHARTINK-71982] 🚀 Preparing ChartInk API request
+2025-07-02 22:31:11,982 - data.chartink - INFO - [CHARTINK-71982] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:31:12,300 - data.chartink - INFO - [CHARTINK-71982] ✅ CSRF token obtained successfully
+2025-07-02 22:31:12,300 - data.chartink - INFO - [CHARTINK-71982] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:31:12,300 - data.chartink - INFO - [CHARTINK-71982] ⏱️ API call started at 22:31:12.300
+2025-07-02 22:31:12,611 - data.chartink - INFO - [CHARTINK-71982] ⬇️ Received response in 0.31s with status code 200
+2025-07-02 22:31:12,616 - data.chartink - INFO - [CHARTINK-71982] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:31:12,621 - data.chartink - INFO - [CHARTINK-72621] 🚀 Preparing ChartInk API request
+2025-07-02 22:31:12,621 - data.chartink - INFO - [CHARTINK-72621] Rate limiting: Sleeping for 1.68s
+2025-07-02 22:31:14,306 - data.chartink - INFO - [CHARTINK-72621] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:31:14,668 - data.chartink - INFO - [CHARTINK-72621] ✅ CSRF token obtained successfully
+2025-07-02 22:31:14,668 - data.chartink - INFO - [CHARTINK-72621] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:31:14,669 - data.chartink - INFO - [CHARTINK-72621] ⏱️ API call started at 22:31:14.669
+2025-07-02 22:31:15,081 - data.chartink - INFO - [CHARTINK-72621] ⬇️ Received response in 0.41s with status code 200
+2025-07-02 22:31:15,084 - data.chartink - INFO - [CHARTINK-72621] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:31:15,089 - data.chartink - INFO - [CHARTINK-75089] 🚀 Preparing ChartInk API request
+2025-07-02 22:31:15,089 - data.chartink - INFO - [CHARTINK-75089] Rate limiting: Sleeping for 1.58s
+2025-07-02 22:31:16,678 - data.chartink - INFO - [CHARTINK-75089] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:31:17,058 - data.chartink - INFO - [CHARTINK-75089] ✅ CSRF token obtained successfully
+2025-07-02 22:31:17,058 - data.chartink - INFO - [CHARTINK-75089] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:31:17,058 - data.chartink - INFO - [CHARTINK-75089] ⏱️ API call started at 22:31:17.058
+2025-07-02 22:31:17,247 - data.chartink - INFO - [CHARTINK-75089] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:31:17,248 - data.chartink - INFO - [CHARTINK-75089] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:31:17,253 - data.chartink - INFO - [CHARTINK-77253] 🚀 Preparing ChartInk API request
+2025-07-02 22:31:17,253 - data.chartink - INFO - [CHARTINK-77253] Rate limiting: Sleeping for 1.80s
+2025-07-02 22:31:19,063 - data.chartink - INFO - [CHARTINK-77253] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:31:19,438 - data.chartink - INFO - [CHARTINK-77253] ✅ CSRF token obtained successfully
+2025-07-02 22:31:19,438 - data.chartink - INFO - [CHARTINK-77253] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:31:19,439 - data.chartink - INFO - [CHARTINK-77253] ⏱️ API call started at 22:31:19.439
+2025-07-02 22:31:19,625 - data.chartink - INFO - [CHARTINK-77253] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:31:19,632 - data.chartink - INFO - [CHARTINK-77253] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:31:25,142 - data.chartink - INFO - [CHARTINK-85142] 🚀 Preparing ChartInk API request
+2025-07-02 22:31:25,142 - data.chartink - INFO - [CHARTINK-85142] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:31:25,508 - data.chartink - INFO - [CHARTINK-85142] ✅ CSRF token obtained successfully
+2025-07-02 22:31:25,509 - data.chartink - INFO - [CHARTINK-85142] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:31:25,509 - data.chartink - INFO - [CHARTINK-85142] ⏱️ API call started at 22:31:25.509
+2025-07-02 22:31:25,681 - data.chartink - INFO - [CHARTINK-85142] ⬇️ Received response in 0.17s with status code 200
+2025-07-02 22:31:25,681 - data.chartink - INFO - [CHARTINK-85142] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:31:25,683 - data.chartink - INFO - [CHARTINK-85683] 🚀 Preparing ChartInk API request
+2025-07-02 22:31:25,683 - data.chartink - INFO - [CHARTINK-85683] Rate limiting: Sleeping for 1.83s
+2025-07-02 22:31:27,514 - data.chartink - INFO - [CHARTINK-85683] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:31:27,898 - data.chartink - INFO - [CHARTINK-85683] ✅ CSRF token obtained successfully
+2025-07-02 22:31:27,899 - data.chartink - INFO - [CHARTINK-85683] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:31:27,899 - data.chartink - INFO - [CHARTINK-85683] ⏱️ API call started at 22:31:27.899
+2025-07-02 22:31:28,230 - data.chartink - INFO - [CHARTINK-85683] ⬇️ Received response in 0.33s with status code 200
+2025-07-02 22:31:28,232 - data.chartink - INFO - [CHARTINK-85683] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:31:28,237 - data.chartink - INFO - [CHARTINK-88237] 🚀 Preparing ChartInk API request
+2025-07-02 22:31:28,237 - data.chartink - INFO - [CHARTINK-88237] Rate limiting: Sleeping for 1.66s
+2025-07-02 22:31:29,904 - data.chartink - INFO - [CHARTINK-88237] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:31:30,312 - data.chartink - INFO - [CHARTINK-88237] ✅ CSRF token obtained successfully
+2025-07-02 22:31:30,312 - data.chartink - INFO - [CHARTINK-88237] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:31:30,312 - data.chartink - INFO - [CHARTINK-88237] ⏱️ API call started at 22:31:30.312
+2025-07-02 22:31:30,510 - data.chartink - INFO - [CHARTINK-88237] ⬇️ Received response in 0.20s with status code 200
+2025-07-02 22:31:30,512 - data.chartink - INFO - [CHARTINK-88237] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:31:30,517 - data.chartink - INFO - [CHARTINK-90517] 🚀 Preparing ChartInk API request
+2025-07-02 22:31:30,517 - data.chartink - INFO - [CHARTINK-90517] Rate limiting: Sleeping for 1.79s
+2025-07-02 22:31:32,316 - data.chartink - INFO - [CHARTINK-90517] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:31:32,694 - data.chartink - INFO - [CHARTINK-90517] ✅ CSRF token obtained successfully
+2025-07-02 22:31:32,695 - data.chartink - INFO - [CHARTINK-90517] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:31:32,695 - data.chartink - INFO - [CHARTINK-90517] ⏱️ API call started at 22:31:32.695
+2025-07-02 22:31:32,875 - data.chartink - INFO - [CHARTINK-90517] ⬇️ Received response in 0.18s with status code 200
+2025-07-02 22:31:32,878 - data.chartink - INFO - [CHARTINK-90517] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:41:35,475 - data.chartink - INFO - Checking ChartInk connectivity
+2025-07-02 22:41:35,835 - data.chartink - INFO - ✅ ChartInk connectivity check SUCCESS: HTTP 200 in 0.36s
+2025-07-02 22:41:35,838 - data.chartink - INFO - [CHARTINK-95838] 🚀 Preparing ChartInk API request
+2025-07-02 22:41:35,839 - data.chartink - INFO - [CHARTINK-95838] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:41:36,209 - data.chartink - INFO - [CHARTINK-95838] ✅ CSRF token obtained successfully
+2025-07-02 22:41:36,210 - data.chartink - INFO - [CHARTINK-95838] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:41:36,210 - data.chartink - INFO - [CHARTINK-95838] ⏱️ API call started at 22:41:36.210
+2025-07-02 22:41:36,381 - data.chartink - INFO - [CHARTINK-95838] ⬇️ Received response in 0.17s with status code 200
+2025-07-02 22:41:36,384 - data.chartink - INFO - [CHARTINK-95838] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:41:36,388 - data.chartink - INFO - [CHARTINK-96388] 🚀 Preparing ChartInk API request
+2025-07-02 22:41:36,388 - data.chartink - INFO - [CHARTINK-96388] Rate limiting: Sleeping for 1.82s
+2025-07-02 22:41:38,214 - data.chartink - INFO - [CHARTINK-96388] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:41:38,535 - data.chartink - INFO - [CHARTINK-96388] ✅ CSRF token obtained successfully
+2025-07-02 22:41:38,535 - data.chartink - INFO - [CHARTINK-96388] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:41:38,535 - data.chartink - INFO - [CHARTINK-96388] ⏱️ API call started at 22:41:38.535
+2025-07-02 22:41:38,885 - data.chartink - INFO - [CHARTINK-96388] ⬇️ Received response in 0.35s with status code 200
+2025-07-02 22:41:38,887 - data.chartink - INFO - [CHARTINK-96388] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:41:38,894 - data.chartink - INFO - [CHARTINK-98894] 🚀 Preparing ChartInk API request
+2025-07-02 22:41:38,894 - data.chartink - INFO - [CHARTINK-98894] Rate limiting: Sleeping for 1.64s
+2025-07-02 22:41:40,540 - data.chartink - INFO - [CHARTINK-98894] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:41:40,966 - data.chartink - INFO - [CHARTINK-98894] ✅ CSRF token obtained successfully
+2025-07-02 22:41:40,967 - data.chartink - INFO - [CHARTINK-98894] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:41:40,967 - data.chartink - INFO - [CHARTINK-98894] ⏱️ API call started at 22:41:40.967
+2025-07-02 22:41:41,164 - data.chartink - INFO - [CHARTINK-98894] ⬇️ Received response in 0.20s with status code 200
+2025-07-02 22:41:41,166 - data.chartink - INFO - [CHARTINK-98894] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:41:41,171 - data.chartink - INFO - [CHARTINK-1171] 🚀 Preparing ChartInk API request
+2025-07-02 22:41:41,171 - data.chartink - INFO - [CHARTINK-1171] Rate limiting: Sleeping for 1.80s
+2025-07-02 22:41:42,968 - data.chartink - INFO - [CHARTINK-1171] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:41:43,275 - data.chartink - INFO - [CHARTINK-1171] ✅ CSRF token obtained successfully
+2025-07-02 22:41:43,275 - data.chartink - INFO - [CHARTINK-1171] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:41:43,275 - data.chartink - INFO - [CHARTINK-1171] ⏱️ API call started at 22:41:43.275
+2025-07-02 22:41:43,462 - data.chartink - INFO - [CHARTINK-1171] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:41:43,465 - data.chartink - INFO - [CHARTINK-1171] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:41:47,043 - data.chartink - INFO - [CHARTINK-7043] 🚀 Preparing ChartInk API request
+2025-07-02 22:41:47,044 - data.chartink - INFO - [CHARTINK-7043] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:41:47,351 - data.chartink - INFO - [CHARTINK-7043] ✅ CSRF token obtained successfully
+2025-07-02 22:41:47,351 - data.chartink - INFO - [CHARTINK-7043] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:41:47,351 - data.chartink - INFO - [CHARTINK-7043] ⏱️ API call started at 22:41:47.351
+2025-07-02 22:41:47,542 - data.chartink - INFO - [CHARTINK-7043] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:41:47,543 - data.chartink - INFO - [CHARTINK-7043] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:41:47,545 - data.chartink - INFO - [CHARTINK-7545] 🚀 Preparing ChartInk API request
+2025-07-02 22:41:47,545 - data.chartink - INFO - [CHARTINK-7545] Rate limiting: Sleeping for 1.81s
+2025-07-02 22:41:49,353 - data.chartink - INFO - [CHARTINK-7545] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:41:49,709 - data.chartink - INFO - [CHARTINK-7545] ✅ CSRF token obtained successfully
+2025-07-02 22:41:49,709 - data.chartink - INFO - [CHARTINK-7545] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:41:49,709 - data.chartink - INFO - [CHARTINK-7545] ⏱️ API call started at 22:41:49.709
+2025-07-02 22:41:50,078 - data.chartink - INFO - [CHARTINK-7545] ⬇️ Received response in 0.37s with status code 200
+2025-07-02 22:41:50,080 - data.chartink - INFO - [CHARTINK-7545] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:41:50,085 - data.chartink - INFO - [CHARTINK-10085] 🚀 Preparing ChartInk API request
+2025-07-02 22:41:50,085 - data.chartink - INFO - [CHARTINK-10085] Rate limiting: Sleeping for 1.62s
+2025-07-02 22:41:51,714 - data.chartink - INFO - [CHARTINK-10085] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:41:52,126 - data.chartink - INFO - [CHARTINK-10085] ✅ CSRF token obtained successfully
+2025-07-02 22:41:52,126 - data.chartink - INFO - [CHARTINK-10085] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:41:52,126 - data.chartink - INFO - [CHARTINK-10085] ⏱️ API call started at 22:41:52.126
+2025-07-02 22:41:52,316 - data.chartink - INFO - [CHARTINK-10085] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:41:52,317 - data.chartink - INFO - [CHARTINK-10085] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:41:52,322 - data.chartink - INFO - [CHARTINK-12322] 🚀 Preparing ChartInk API request
+2025-07-02 22:41:52,322 - data.chartink - INFO - [CHARTINK-12322] Rate limiting: Sleeping for 1.80s
+2025-07-02 22:41:54,132 - data.chartink - INFO - [CHARTINK-12322] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:41:54,508 - data.chartink - INFO - [CHARTINK-12322] ✅ CSRF token obtained successfully
+2025-07-02 22:41:54,508 - data.chartink - INFO - [CHARTINK-12322] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:41:54,508 - data.chartink - INFO - [CHARTINK-12322] ⏱️ API call started at 22:41:54.508
+2025-07-02 22:41:54,696 - data.chartink - INFO - [CHARTINK-12322] ⬇️ Received response in 0.19s with status code 200
+2025-07-02 22:41:54,700 - data.chartink - INFO - [CHARTINK-12322] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:56:18,327 - data.chartink - INFO - Checking ChartInk connectivity
+2025-07-02 22:56:18,673 - data.chartink - INFO - ✅ ChartInk connectivity check SUCCESS: HTTP 200 in 0.35s
+2025-07-02 22:56:18,676 - data.chartink - INFO - [CHARTINK-78676] 🚀 Preparing ChartInk API request
+2025-07-02 22:56:18,676 - data.chartink - INFO - [CHARTINK-78676] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:56:19,068 - data.chartink - INFO - [CHARTINK-78676] ✅ CSRF token obtained successfully
+2025-07-02 22:56:19,068 - data.chartink - INFO - [CHARTINK-78676] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:56:19,068 - data.chartink - INFO - [CHARTINK-78676] ⏱️ API call started at 22:56:19.068
+2025-07-02 22:56:19,244 - data.chartink - INFO - [CHARTINK-78676] ⬇️ Received response in 0.18s with status code 200
+2025-07-02 22:56:19,248 - data.chartink - INFO - [CHARTINK-78676] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:56:19,253 - data.chartink - INFO - [CHARTINK-79253] 🚀 Preparing ChartInk API request
+2025-07-02 22:56:19,253 - data.chartink - INFO - [CHARTINK-79253] Rate limiting: Sleeping for 1.82s
+2025-07-02 22:56:21,073 - data.chartink - INFO - [CHARTINK-79253] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:56:21,403 - data.chartink - INFO - [CHARTINK-79253] ✅ CSRF token obtained successfully
+2025-07-02 22:56:21,403 - data.chartink - INFO - [CHARTINK-79253] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:56:21,403 - data.chartink - INFO - [CHARTINK-79253] ⏱️ API call started at 22:56:21.403
+2025-07-02 22:56:21,813 - data.chartink - INFO - [CHARTINK-79253] ⬇️ Received response in 0.41s with status code 200
+2025-07-02 22:56:21,817 - data.chartink - INFO - [CHARTINK-79253] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:56:21,823 - data.chartink - INFO - [CHARTINK-81823] 🚀 Preparing ChartInk API request
+2025-07-02 22:56:21,824 - data.chartink - INFO - [CHARTINK-81823] Rate limiting: Sleeping for 1.58s
+2025-07-02 22:56:23,409 - data.chartink - INFO - [CHARTINK-81823] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:56:23,803 - data.chartink - INFO - [CHARTINK-81823] ✅ CSRF token obtained successfully
+2025-07-02 22:56:23,803 - data.chartink - INFO - [CHARTINK-81823] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:56:23,803 - data.chartink - INFO - [CHARTINK-81823] ⏱️ API call started at 22:56:23.803
+2025-07-02 22:56:24,012 - data.chartink - INFO - [CHARTINK-81823] ⬇️ Received response in 0.21s with status code 200
+2025-07-02 22:56:24,014 - data.chartink - INFO - [CHARTINK-81823] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:56:24,021 - data.chartink - INFO - [CHARTINK-84021] 🚀 Preparing ChartInk API request
+2025-07-02 22:56:24,021 - data.chartink - INFO - [CHARTINK-84021] Rate limiting: Sleeping for 1.78s
+2025-07-02 22:56:25,808 - data.chartink - INFO - [CHARTINK-84021] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:56:26,187 - data.chartink - INFO - [CHARTINK-84021] ✅ CSRF token obtained successfully
+2025-07-02 22:56:26,187 - data.chartink - INFO - [CHARTINK-84021] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:56:26,187 - data.chartink - INFO - [CHARTINK-84021] ⏱️ API call started at 22:56:26.187
+2025-07-02 22:56:26,369 - data.chartink - INFO - [CHARTINK-84021] ⬇️ Received response in 0.18s with status code 200
+2025-07-02 22:56:26,372 - data.chartink - INFO - [CHARTINK-84021] ✅ SUCCESS: Parsed 245 rows from ChartInk
+2025-07-02 22:56:26,442 - data.chartink - INFO - [CHARTINK-86442] 🚀 Preparing ChartInk API request
+2025-07-02 22:56:26,442 - data.chartink - INFO - [CHARTINK-86442] Rate limiting: Sleeping for 1.74s
+2025-07-02 22:56:28,192 - data.chartink - INFO - [CHARTINK-86442] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:56:28,573 - data.chartink - INFO - [CHARTINK-86442] ✅ CSRF token obtained successfully
+2025-07-02 22:56:28,573 - data.chartink - INFO - [CHARTINK-86442] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:56:28,573 - data.chartink - INFO - [CHARTINK-86442] ⏱️ API call started at 22:56:28.573
+2025-07-02 22:56:28,748 - data.chartink - INFO - [CHARTINK-86442] ⬇️ Received response in 0.18s with status code 200
+2025-07-02 22:56:28,749 - data.chartink - INFO - [CHARTINK-86442] ✅ SUCCESS: Parsed 15 rows from ChartInk
+2025-07-02 22:56:28,754 - data.chartink - INFO - [CHARTINK-88754] 🚀 Preparing ChartInk API request
+2025-07-02 22:56:28,754 - data.chartink - INFO - [CHARTINK-88754] Rate limiting: Sleeping for 1.82s
+2025-07-02 22:56:30,575 - data.chartink - INFO - [CHARTINK-88754] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:56:30,953 - data.chartink - INFO - [CHARTINK-88754] ✅ CSRF token obtained successfully
+2025-07-02 22:56:30,953 - data.chartink - INFO - [CHARTINK-88754] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:56:30,953 - data.chartink - INFO - [CHARTINK-88754] ⏱️ API call started at 22:56:30.953
+2025-07-02 22:56:31,355 - data.chartink - INFO - [CHARTINK-88754] ⬇️ Received response in 0.40s with status code 200
+2025-07-02 22:56:31,357 - data.chartink - INFO - [CHARTINK-88754] ✅ SUCCESS: Parsed 168 rows from ChartInk
+2025-07-02 22:56:31,363 - data.chartink - INFO - [CHARTINK-91363] 🚀 Preparing ChartInk API request
+2025-07-02 22:56:31,363 - data.chartink - INFO - [CHARTINK-91363] Rate limiting: Sleeping for 1.59s
+2025-07-02 22:56:32,958 - data.chartink - INFO - [CHARTINK-91363] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:56:33,349 - data.chartink - INFO - [CHARTINK-91363] ✅ CSRF token obtained successfully
+2025-07-02 22:56:33,349 - data.chartink - INFO - [CHARTINK-91363] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:56:33,349 - data.chartink - INFO - [CHARTINK-91363] ⏱️ API call started at 22:56:33.349
+2025-07-02 22:56:33,557 - data.chartink - INFO - [CHARTINK-91363] ⬇️ Received response in 0.21s with status code 200
+2025-07-02 22:56:33,559 - data.chartink - INFO - [CHARTINK-91363] ✅ SUCCESS: Parsed 61 rows from ChartInk
+2025-07-02 22:56:33,563 - data.chartink - INFO - [CHARTINK-93563] 🚀 Preparing ChartInk API request
+2025-07-02 22:56:33,563 - data.chartink - INFO - [CHARTINK-93563] Rate limiting: Sleeping for 1.79s
+2025-07-02 22:56:35,355 - data.chartink - INFO - [CHARTINK-93563] 🔑 Fetching CSRF token from https://chartink.com/screener/
+2025-07-02 22:56:35,664 - data.chartink - INFO - [CHARTINK-93563] ✅ CSRF token obtained successfully
+2025-07-02 22:56:35,664 - data.chartink - INFO - [CHARTINK-93563] 📤 Sending request to https://chartink.com/screener/process
+2025-07-02 22:56:35,664 - data.chartink - INFO - [CHARTINK-93563] ⏱️ API call started at 22:56:35.664
+2025-07-02 22:56:35,938 - data.chartink - INFO - [CHARTINK-93563] ⬇️ Received response in 0.27s with status code 200
+2025-07-02 22:56:35,941 - data.chartink - INFO - [CHARTINK-93563] ✅ SUCCESS: Parsed 245 rows from ChartInk

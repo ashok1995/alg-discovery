@@ -1,0 +1,87 @@
+{
+  "metadata": {
+    "strategy_type": "intraday_sell",
+    "file_version": "1.2.0",
+    "created_date": "2024-01-15T10:00:00Z",
+    "last_updated": "2024-01-15T10:00:00Z",
+    "description": "Intraday sell signal configuration for Indian equities",
+    "author": "Algorithm Discovery System",
+    "market_focus": "Indian Equities (BSE/NSE)",
+    "timeframe": "1 day",
+    "target_return": -0.03,
+    "stop_loss": 0.02,
+    "max_holding_time": "6 hours",
+    "trading_session": "9:15 AM - 3:30 PM IST"
+  },
+  "current_version": "v1.0.0",
+  "current_algorithm": {
+    "name": "Enhanced Intraday Sell",
+    "version": "v1.1.0",
+    "status": "active",
+    "created_date": "2024-01-11"
+  },
+  "sub_algorithm_variants": {
+    "momentum": {
+      "v1.0": {
+        "name": "Gap Down Momentum",
+        "query": "(15 minute close < 15 minute open) and (15 minute volume > 1.5 * prev 15 minute volume)",
+        "weight": 1.0
+      },
+      "v1.1": {
+        "name": "Breakdown with Volume",
+        "query": "(15 minute close crosses below vwap) and (15 minute volume > 2 * avg(15, volume))",
+        "weight": 1.0
+      }
+    },
+    "reversal": {
+      "v1.0": {
+        "name": "Bearish Reversal Pattern",
+        "query": "(15 minute high > prev 15 minute high) and (15 minute close < prev 15 minute low)",
+        "weight": 1.0
+      },
+      "v1.1": {
+        "name": "Opening Range Breakdown",
+        "query": "(time > 0930) and (close < min(range(0915, 0930, low)))",
+        "weight": 1.2
+      }
+    },
+    "technical": {
+      "v1.0": {
+        "name": "VWAP Rejection",
+        "query": "(high > vwap) and (close < vwap) and (volume > avg(20, volume))",
+        "weight": 1.1
+      },
+      "v1.1": {
+        "name": "Previous Day High Failure",
+        "query": "(high > prev day high) and (close < prev day high)",
+        "weight": 1.0
+      }
+    },
+    "volume": {
+      "v1.0": {
+        "name": "High Relative Volume Drain",
+        "query": "(volume > 2 * avg(20, volume)) and (close < open) and (close < vwap)",
+        "weight": 1.1
+      },
+      "v1.1": {
+        "name": "Afternoon Breakdown",
+        "query": "(time > 1300) and (close < vwap) and (volume > 1.5 * avg(20, volume))",
+        "weight": 1.0
+      }
+    }
+  },
+  "algorithms": {
+    "v1.0.0": {
+      "name": "Baseline Intraday Sell",
+      "version": "v1.0.0",
+      "status": "active",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "momentum": "v1.0",
+        "reversal": "v1.0",
+        "technical": "v1.0",
+        "volume": "v1.0"
+      }
+    }
+  }
+} 

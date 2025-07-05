@@ -6,7 +6,7 @@ import streamlit as st
 from utils.logger import get_logger
 
 # Initialize logger
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="sectorial_performance")
 
 def render_sectorial_performance(market_data=None, position="main", compact=True):
     """

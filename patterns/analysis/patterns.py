@@ -7,7 +7,7 @@ import numpy as np
 from config.patterns import CANDLESTICK_PATTERNS, CHART_PATTERNS, TECHNICAL_PATTERNS
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="analysis_patterns")
 
 def identify_doji(df, tolerance=0.1):
     """

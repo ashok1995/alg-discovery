@@ -1,9 +1,11 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import QueuePool
+# Reuse shared DB utilities
+from common.db import Base, get_sync_engine, get_sync_session_factory
+
 import os
 from dotenv import load_dotenv
+
+# sqlalchemy imports retained for typing only
+from sqlalchemy.orm import Session  # noqa: F401
 
 # Load environment variables
 load_dotenv()
@@ -18,22 +20,9 @@ POSTGRES_DB = os.getenv("POSTGRES_DB", "algodiscovery")
 # Create database URL
 SQLALCHEMY_DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
-# Create engine with connection pooling
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    poolclass=QueuePool,
-    pool_size=5,
-    max_overflow=10,
-    pool_timeout=30,
-    pool_recycle=1800,  # Recycle connections after 30 minutes
-    echo=False  # Set to True for SQL query logging
-)
-
-# Create session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create base class for models
-Base = declarative_base()
+# Use shared sync engine & session factory
+engine = get_sync_engine()
+SessionLocal = get_sync_session_factory()
 
 def get_db():
     """Dependency for getting database session"""

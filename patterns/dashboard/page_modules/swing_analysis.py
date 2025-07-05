@@ -11,7 +11,7 @@ from data.yahoo import get_stock_data
 from utils.logger import get_logger
 from config import DEFAULT_RISK_PERCENT, DEFAULT_REWARD_RISK_RATIO
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="page_swing_analysis")
 
 def show_analysis_tab(db):
     """

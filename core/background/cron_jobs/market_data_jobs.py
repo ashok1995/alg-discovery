@@ -10,8 +10,9 @@ import logging
 from core.background.cron_jobs.job_scheduler import (
     JobDefinition, JobPriority, add_cron_job, add_interval_job
 )
-from core.database.config import db_manager, get_db, get_mongo
+from common.db import db_manager, get_db, get_mongo
 from core.database.cache.redis_manager import cache_manager
+from common.db.repository import MongoRepository
 import yfinance as yf
 import requests
 import pandas as pd
@@ -138,9 +139,7 @@ class MarketDataCollector:
         try:
             # This would normally use proper SQLAlchemy models
             # For now, we'll store in MongoDB as fallback
-            mongo_client = db_manager.get_mongo_client()
-            db = mongo_client[db_manager.config.mongo_db]
-            collection = db.market_data
+            repo = MongoRepository("market_data")
             
             # Prepare documents for MongoDB
             documents = []
@@ -170,7 +169,7 @@ class MarketDataCollector:
                     documents.append(doc)
             
             if documents:
-                collection.insert_many(documents)
+                repo.insert_many(documents)
                 logger.debug(f"Stored {len(documents)} market data records in MongoDB")
                 
         except Exception as e:
@@ -263,16 +262,10 @@ class MarketDataCollector:
             
             # Clean up old database records
             try:
-                mongo_client = db_manager.get_mongo_client()
-                db = mongo_client[db_manager.config.mongo_db]
-                collection = db.market_data
-                
+                repo = MongoRepository("market_data")
                 # Remove records older than 30 days
                 cutoff_date = datetime.utcnow() - timedelta(days=30)
-                delete_result = collection.delete_many({
-                    'timestamp': {'$lt': cutoff_date}
-                })
-                
+                delete_result = repo.delete_many({'timestamp': {'$lt': cutoff_date}})
                 results['db_cleaned'] = delete_result.deleted_count
                 
             except Exception as e:

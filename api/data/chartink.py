@@ -8,11 +8,11 @@ import pandas as pd
 import time
 import json
 from datetime import datetime
-from config.settings import CHARTINK_URL, CHARTINK_REFERER
+from shared.config.settings import CHARTINK_URL, CHARTINK_REFERER
 from utils.logger import get_logger
 from config.queries import SWING_QUERIES
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="api", service="data_chartink")
 
 # Track API calls to avoid rate limiting
 LAST_API_CALL = None

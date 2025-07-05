@@ -9,7 +9,7 @@ import hashlib
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union, Dict, List
 import redis
-from core.database.config import db_manager, DatabaseConfig
+from common.db import db_manager, DatabaseConfig
 import logging
 
 logger = logging.getLogger(__name__)

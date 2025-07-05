@@ -1,29 +1,35 @@
-"""
-Recommendation Engine Module
+"""Legacy package shim.
 
-A modular, self-learning recommendation system for stock trading
-with A/B testing capabilities and versioned algorithms.
+This remains at the original import path so that third-party code that still
+does `import recommendation_engine` continues to function after the package
+was moved to `alg_discovery.recommendation`.
 
-Key Features:
-- Modular seed algorithms for different trading themes
-- Versioned ranking algorithms with performance tracking
-- A/B testing framework for algorithm comparison
-- Self-learning capabilities with market feedback
-- Configuration-driven algorithm selection
+All public symbols are re-exported from the new location.
 """
 
-from .config.algorithm_registry import AlgorithmRegistry
-from .utils.version_manager import VersionManager
-from .utils.ab_testing import ABTestingFramework
-from .utils.performance_tracker import PerformanceTracker
+from importlib import import_module
 
-__version__ = "1.0.0"
-__author__ = "Algo Discovery Team"
+_new_pkg = import_module("alg_discovery.recommendation")
 
-# Core exports
-__all__ = [
-    'AlgorithmRegistry',
-    'VersionManager', 
-    'ABTestingFramework',
-    'PerformanceTracker'
-] 
+# Re-export every public attribute defined in the new package.
+globals().update({k: getattr(_new_pkg, k) for k in getattr(_new_pkg, "__all__", [])})
+
+# Additionally expose the module object under the same public names so that
+# `import recommendation_engine.config` continues to work.
+import sys
+
+for _sub in [
+    "config",
+    "utils",
+    "ranking_algorithms",
+    "seed_algorithms",
+]:
+    try:
+        sys.modules[f"recommendation_engine.{_sub}"] = import_module(f"alg_discovery.recommendation.{_sub}")
+    except ModuleNotFoundError:
+        # Submodule may not exist yet; ignore for now.
+        pass
+
+__all__ = getattr(_new_pkg, "__all__", [])
+__version__ = getattr(_new_pkg, "__version__", "1.0.0")
+__author__ = "Algo Discovery Team" 

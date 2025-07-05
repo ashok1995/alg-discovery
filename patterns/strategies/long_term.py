@@ -8,7 +8,7 @@ from analysis.technical import add_all_indicators
 from analysis.patterns import identify_all_patterns
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="strategy_long_term")
 
 def value_investing_strategy(df, fundamentals=None):
     """

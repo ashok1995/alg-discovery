@@ -7,10 +7,10 @@ import numpy as np
 from analysis.technical import add_all_indicators
 from analysis.patterns import identify_all_patterns
 from analysis.risk_reward import calculate_reward_risk, calculate_position_size
-from config.settings import DEFAULT_RISK_PERCENT, DEFAULT_REWARD_RISK_RATIO
+from shared.config.settings import DEFAULT_RISK_PERCENT, DEFAULT_REWARD_RISK_RATIO
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="strategy_intraday")
 
 def momentum_long_strategy(df, account_balance=100000, risk_percent=DEFAULT_RISK_PERCENT):
     """
