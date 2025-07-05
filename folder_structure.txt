@@ -1,0 +1,87 @@
+alg_discovery/
+├── pyproject.toml
+├── README.md
+├── .env.example
+├── docker-compose.yml
+├── requirements.txt
+├── .gitignore
+├── config/               # environment-specific yaml/toml settings (non-code)
+│   ├── base.yml
+│   ├── dev.yml           # development settings (DEBUG=True, ports :8000 etc.)
+│   └── prod.yml          # production settings (DEBUG=False, ports :9000 etc.)
+├── .env.dev              # env vars for development
+├── .env.prod             # env vars for production
+├── infra/                # deployment & operations artifacts
+│   ├── supervisor/
+│   │   ├── dev.conf      # supervisord program configs for dev
+│   │   └── prod.conf     # supervisord program configs for prod
+│   └── docker/
+│       └── Dockerfile
+├── logs/                 # runtime & analytics logs (gitignored)
+│   ├── api/
+│   ├── cron/
+│   └── backtesting/
+├── scripts/               # one-off CLI utilities; no business logic
+│   └── *.py
+├── tests/                # all test code
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+├── src/                  # application source code (adds to PYTHONPATH)
+│   ├── alg_discovery/     # top-level Python package
+│   │   ├── __init__.py
+│   │   ├── core/          # app-wide primitives & setup
+│   │   │   ├── config.py  # pydantic settings & env loading
+│   │   │   ├── logging.py # structlog or stdlib logging config
+│   │   │   ├── security.py
+│   │   │   └── exceptions.py
+│   │   ├── db/            # database layer
+│   │   │   ├── __init__.py
+│   │   │   ├── models/    # SQLAlchemy models or similar
+│   │   │   ├── repositories/  # CRUD abstractions
+│   │   │   └── migrations/    # alembic
+│   └── alg_discovery/     # top-level Python package
+│       ├── __init__.py
+│       ├── core/          # app-wide primitives & setup
+│       │   ├── config.py  # pydantic settings & env loading
+│       │   ├── logging.py # structlog or stdlib logging config
+│       │   ├── security.py
+│       │   └── exceptions.py
+│       ├── db/            # database layer
+│       │   ├── __init__.py
+│       │   ├── models/    # SQLAlchemy models or similar
+│       │   ├── repositories/  # CRUD abstractions
+│       │   └── migrations/    # alembic
+│       ├── api/           # FastAPI routers & dependencies
+│       │   ├── __init__.py
+│       │   ├── deps.py    # dependency-injection helpers (Depends)
+│       │   ├── v1/
+│       │   │   ├── __init__.py
+│       │   │   ├── routes/
+│       │   │   └── schemas/
+│       │   └── v2/
+│       ├── services/      # pure business logic (stateless)
+│       │   ├── __init__.py
+│       │   └── *service.py
+│       ├── algorithms/    # trading / strategy code
+│       ├── recommendation/  # recommendation engine modules
+│       ├── backtesting/    # historical strategy evaluation components
+│       │   ├── __init__.py
+│       │   ├── datasets/
+│       │   ├── metrics/
+│       │   └── run_backtest.py
+│       ├── cron/          # scheduled tasks (APS / Celery beat style)
+│       │   ├── runner.py     # CLI entrypoint to launch the scheduler (python -m alg_discovery.cron.runner)
+│       │   ├── jobs/      # individual cron job definitions
+│       │   │   ├── job_scheduler.py            # background job scheduler (generic)
+│       │   │   ├── recommendation_scheduler.py # APScheduler jobs for recommendations
+│       │   │   ├── trading_scheduler.py        # advanced scheduler with market timing
+│       │   │   └── market_timer.py             # market session utilities
+│       │   ├── schedules.py  # central schedule specification
+│       │   └── runner.py     # entrypoint to launch the scheduler
+│       ├── tasks/         # background workers (e.g., Celery, RQ)
+│       ├── utils/         # generic helper functions
+│       ├── settings/      # config management via pydantic Settings classes
+│       └── main.py        # FastAPI app factory / entrypoint
+└── docs/                  # architecture docs, ADRs, etc.
+    └── * 

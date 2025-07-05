@@ -6,7 +6,7 @@ from dashboard.page_modules.swing_watchlist import show_swing_watchlist
 from utils.data_wrapper import ensure_data_service, get_data_service
 from data.top_stocks_service import TopStocksService
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="page_swing")
 
 def show_swing_page(data_service=None):
     """

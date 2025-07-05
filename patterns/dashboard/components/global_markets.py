@@ -5,7 +5,7 @@ import pandas as pd
 from utils.logger import get_logger
 
 # Initialize logger
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="global_markets")
 
 def get_global_markets_data():
     """

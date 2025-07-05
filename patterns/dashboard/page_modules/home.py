@@ -35,11 +35,11 @@ try:
     from dashboard.components.sectorial_performance import render_sectorial_performance
     from dashboard.components.dashboard_top_strip import render_market_dashboard
 except ImportError as e:
-    logger = get_logger(__name__)
+    logger = get_logger(__name__, group="dashboard", service="page_home")
     logger.error(f"Error importing components: {e}")
 
 # Initialize logger
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="page_home")
 
 # Initialize MongoDB
 db = MongoDB()

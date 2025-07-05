@@ -13,7 +13,7 @@ from ui_services.stocks.hot_stocks_data import fetch_stocks_data, normalize_stoc
 from ui_services.stocks.hot_stocks_strategy import setup_strategy_selection
 from ui_services.stocks.hot_stocks_diagnostics import show_diagnostics
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="ui_services", service="hot_stocks")
 
 def show_hot_stocks(data_service, title="🔥 Hot Swing Trade Stocks"):
     """

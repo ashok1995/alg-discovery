@@ -6,7 +6,7 @@ import streamlit as st
 import pandas as pd
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="ui_services", service="hot_stocks_diagnostics")
 
 def show_diagnostics(data_service):
     """

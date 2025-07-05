@@ -8,11 +8,11 @@ import pandas as pd
 import time
 import json
 from datetime import datetime
-from config.settings import CHARTINK_URL, CHARTINK_REFERER
+from shared.config.settings import CHARTINK_URL, CHARTINK_REFERER
 from utils.logger import get_logger
 from config.queries import SWING_QUERIES
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="data_chartink")
 
 # Track API calls to avoid rate limiting
 LAST_API_CALL = None
@@ -275,7 +275,7 @@ def get_stocks_with_fallback(queries_dict=None):
     Get stock scan results from ChartInk API with fallback mechanisms
     
     Args:
-        queries_dict (dict): Dictionary of queries to try
+        queries_dict (dict): Dictionary of queries to try, format {"query_name": "query_string"}
         
     Returns:
         tuple: (DataFrame of stocks, name of query used)
@@ -293,8 +293,14 @@ def get_stocks_with_fallback(queries_dict=None):
         try:
             logger.info(f"Trying query: {query_name}")
             
-            # Get the query string
-            query = query_data["query"]
+            # Handle both old format (dict with 'query' key) and new format (direct string)
+            if isinstance(query_data, dict) and "query" in query_data:
+                query = query_data["query"]
+            elif isinstance(query_data, str):
+                query = query_data
+            else:
+                logger.warning(f"Invalid query format for {query_name}: {type(query_data)}")
+                continue
             
             # Use the new function to fetch results
             df = get_chartink_scans(query)

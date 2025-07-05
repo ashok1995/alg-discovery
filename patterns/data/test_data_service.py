@@ -8,7 +8,7 @@ from datetime import datetime
 from utils.logger import get_logger
 from setup.data_loader import TestDataLoader
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="test_data_service")
 
 class DictDataService:
     """

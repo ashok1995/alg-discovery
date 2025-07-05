@@ -4,7 +4,7 @@ Data service wrapper with ChartInk priority
 
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="utils_data_wrapper")
 
 def ensure_data_service(data_obj):
     """

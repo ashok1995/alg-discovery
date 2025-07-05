@@ -5,7 +5,7 @@ from utils.logger import get_logger
 from utils.market_utils import is_market_open, format_time_until_market_open
 
 # Initialize logger
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="sidebar")
 
 def render_sidebar(active_page="home"):
     """

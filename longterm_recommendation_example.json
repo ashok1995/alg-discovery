@@ -1,0 +1,16 @@
+{
+  "symbol": "RELIANCE.NS",
+  "name": "Reliance Industries",
+  "price": 2450.0,
+  "score": 84.5,
+  "per_change": 16.3,
+  "volume": 15420000,
+  "recommendation_type": "Strong Long-term Buy",
+  "appearances": 4,
+  "category_count": 4,
+  "categories": ["fundamental", "momentum", "value", "quality"],
+  "fundamental": true,
+  "momentum": true,
+  "value": true,
+  "quality": true
+} 

@@ -25,9 +25,9 @@ import traceback
 import weakref
 import os
 
-from services.data_service import RealTimeDataService
-from services.analysis_engine import AnalysisEngine
-from services.websocket_manager import WebSocketManager
+from api.services.data_service import RealTimeDataService
+from api.services.analysis_engine import AnalysisEngine
+from api.services.websocket_manager import WebSocketManager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

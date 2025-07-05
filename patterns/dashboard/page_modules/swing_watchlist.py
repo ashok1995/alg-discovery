@@ -8,7 +8,7 @@ from datetime import datetime
 from utils.logger import get_logger
 from utils.data_wrapper import ensure_data_service
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="dashboard", service="page_swing_watchlist")
 
 def show_swing_watchlist(data_service):
     """

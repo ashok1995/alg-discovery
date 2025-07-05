@@ -19,12 +19,15 @@ from dataclasses import asdict
 import yfinance as yf
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import os
 
-from models.stock_models import (
+from api.models.stock_models import (
     StockData, TechnicalIndicators, IntradaySignal, IntradayMomentum, 
     IntradayScreenerResult, VWAPData, IntradayAlert, SignalType, StockPrice
 )
-from services.data_service import RealTimeDataService
+from api.services.data_service import RealTimeDataService
+from shared.config import load_config
+from shared.config.settings import INTRADAY_CONFIG
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -37,10 +40,21 @@ class ChartinkIntegration:
         self.config_path = "recommendation_engine/config/chartink_filters.json"
         self.filters_config = {}
         self.session = None
+        self.loaded_theme = None
         self.load_chartink_config()
-    
-    def load_chartink_config(self):
-        """Load Chartink filter configuration."""
+
+    def load_chartink_config(self, theme=None):
+        """Load Chartink filter configuration, with special handling for intraday_buy and intraday_sell."""
+        if theme == "intraday_sell":
+            self.filters_config = {"trading_themes": {"intraday_sell": self._load_intraday_sell_filters()}}
+            self.loaded_theme = "intraday_sell"
+            logger.info("✅ Loaded intraday_sell filters from intraday_sell_config.json")
+            return
+        if theme == "intraday_buy":
+            self.filters_config = {"trading_themes": {"intraday_buy": self._load_intraday_buy_filters()}}
+            self.loaded_theme = "intraday_buy"
+            logger.info("✅ Loaded intraday_buy filters from intraday_buy_config.json")
+            return
         try:
             config_file = Path(self.config_path)
             if config_file.exists():
@@ -53,6 +67,34 @@ class ChartinkIntegration:
         except Exception as e:
             logger.error(f"❌ Error loading Chartink config: {e}")
             self.filters_config = self._get_default_config()
+
+    def _load_intraday_sell_filters(self):
+        config_path = "/Users/ashokkumar/Desktop/alg-discovery/api/config/intraday_sell_config.json"
+        try:
+            with open(config_path, "r") as f:
+                sell_config = json.load(f)
+            filters = {}
+            for key, variant in sell_config.get("sub_algorithm_variants", {}).items():
+                for vname, vdata in variant.items():
+                    filters[key] = {
+                        "name": vdata.get("name", key),
+                        "query": vdata.get("query", ""),
+                        "is_active": True,
+                        "priority": 1
+                    }
+            return {"filters": filters}
+        except Exception as e:
+            logger.error(f"Error loading intraday_sell_config.json: {e}")
+            return {"filters": {}}
+
+    def _load_intraday_buy_filters(self):
+        try:
+            config = load_config("intraday_buy")
+            logger.info("✅ Loaded intraday_buy filters from intraday_buy_config.json")
+            return config
+        except Exception as e:
+            logger.error(f"Error loading intraday_buy_config.json: {e}")
+            return {"filters": {}}
     
     def _get_default_config(self):
         """Get default Chartink configuration if file not found."""
@@ -73,6 +115,9 @@ class ChartinkIntegration:
     
     async def get_stocks_from_chartink(self, theme: str = "intraday_buy", limit: int = 50) -> List[str]:
         """Fetch stocks from Chartink using theme-specific filters."""
+        # If the theme is not loaded or changed, reload config for that theme
+        if getattr(self, "loaded_theme", None) != theme:
+            self.load_chartink_config(theme=theme)
         try:
             # Get filters for the trading theme
             theme_config = self.filters_config.get("trading_themes", {}).get(theme, {})
@@ -126,45 +171,20 @@ class ChartinkIntegration:
         """Execute a single Chartink query to fetch stocks."""
         try:
             logger.info(f"Attempting to fetch stocks for filter: {filter_name}")
-            
-            # Always return mock stocks for demonstration - Chartink module has issues
-            mock_stocks = self._get_mock_stocks_for_filter(filter_name)
-            logger.info(f"Returning {len(mock_stocks)} mock stocks for filter '{filter_name}': {mock_stocks[:5]}")
-            return mock_stocks
-            
-            # Original code (commented out due to import issues)
-            """
-            try:
-                from patterns.data.chartink import get_chartink_scans
-                
-                # Execute the query to fetch stock data
-                response = get_chartink_scans(query)
-                
-                if response and isinstance(response, pd.DataFrame) and not response.empty:
-                    # Extract stock symbols from the response
-                    if 'symbol' in response.columns:
-                        symbols = response['symbol'].tolist()
-                        logger.info(f"Fetched {len(symbols)} stocks from Chartink for filter: {filter_name}")
-                        return symbols
-                    else:
-                        logger.warning(f"No 'symbol' column found in Chartink response for filter: {filter_name}")
-                        return mock_stocks
-                else:
-                    logger.warning(f"Empty or invalid response from Chartink for filter: {filter_name}")
-                    return mock_stocks
-                    
-            except ImportError as e:
-                logger.warning(f"Chartink module not available: {e}. Using mock data.")
-                return mock_stocks
-            except Exception as e:
-                logger.error(f"Error fetching from Chartink for filter {filter_name}: {e}. Using mock data.")
-                return mock_stocks
-            """
-            
+            from patterns.data.chartink import get_chartink_scans
+            import pandas as pd
+            df = get_chartink_scans(query, debug=True, use_cache=True)
+            if df is not None and not df.empty:
+                # Chartink usually returns 'nsecode' as the symbol column
+                symbols = df['nsecode'].tolist() if 'nsecode' in df.columns else df.iloc[:,0].tolist()
+                logger.info(f"Fetched {len(symbols)} stocks from Chartink for filter: {filter_name}")
+                return symbols
+            else:
+                logger.warning(f"No stocks found from Chartink for filter: {filter_name}")
+                return []
         except Exception as e:
-            logger.error(f"Error in _fetch_stocks_from_query for {filter_name}: {str(e)}")
-            # Return fallback stocks even if mock function fails
-            return ["RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFC.NS", "ICICIBANK.NS"]
+            logger.error(f"Error fetching from Chartink for filter {filter_name}: {e}")
+            return []
     
     def _get_mock_stocks_for_filter(self, filter_name: str) -> List[str]:
         """Get mock stocks based on filter type for demonstration purposes."""
@@ -817,12 +837,44 @@ class IntradayService:
     async def get_intraday_buy_recommendations(self, limit: int = 10, 
                                              chartink_theme: str = "intraday_buy") -> List[IntradaySignal]:
         """Get intraday buy recommendations based on bullish signals from Chartink."""
+        import os
         try:
+            # ------------------------------------------------------------------
+            # Fast path – use Chartink list only, skip expensive YFinance calls
+            # Enable by setting env INTRADAY_CHARTINK_ONLY=true (useful during
+            # development when Yahoo throttles or when we don't need prices).
+            # ------------------------------------------------------------------
+
+            chartink_only = os.getenv("INTRADAY_CHARTINK_ONLY", "false").lower() == "true"
             # Get stocks from Chartink for intraday buying
             chartink_stocks = await self.screener.chartink.get_stocks_from_chartink(
                 theme=chartink_theme, limit=50
             )
-            
+
+            if chartink_only:
+                simple_recs = [
+                    IntradaySignal(
+                        id=str(uuid.uuid4()),
+                        symbol=s,
+                        signal_type=SignalType.BUY,
+                        entry_price=0.0,
+                        target_price=0.0,
+                        stop_loss=0.0,
+                        confidence=0.5,
+                        strength=50,
+                        timeframe="intraday",
+                        reasoning=f"Chartink ({chartink_theme}) – fast mode, price fetch skipped",
+                        indicators={},
+                        volume_spike=False,
+                        risk_reward_ratio=1.0,
+                    )
+                    for s in chartink_stocks[:limit]
+                ]
+                logger.info(
+                    f"Fast-mode: returning {len(simple_recs)} Chartink-only recommendations"
+                )
+                return simple_recs
+
             # Get breakout candidates using Chartink stocks
             breakout_candidates = await self.screener.screen_stocks(
                 criteria="momentum_breakout", 
@@ -890,12 +942,38 @@ class IntradayService:
     async def get_intraday_sell_recommendations(self, limit: int = 10,
                                               chartink_theme: str = "intraday_buy") -> List[IntradaySignal]:
         """Get intraday sell recommendations based on bearish signals and overbought conditions."""
+        import os
         try:
+            chartink_only = os.getenv("INTRADAY_CHARTINK_ONLY", "false").lower() == "true"
             # Get stocks from Chartink for analysis
             chartink_stocks = await self.screener.chartink.get_stocks_from_chartink(
                 theme=chartink_theme, limit=50
             )
             
+            if chartink_only:
+                simple_recs = [
+                    IntradaySignal(
+                        id=str(uuid.uuid4()),
+                        symbol=s,
+                        signal_type=SignalType.SELL,
+                        entry_price=0.0,
+                        target_price=0.0,
+                        stop_loss=0.0,
+                        confidence=0.5,
+                        strength=50,
+                        timeframe="intraday",
+                        reasoning=f"Chartink ({chartink_theme}) – fast mode, price fetch skipped",
+                        indicators={},
+                        volume_spike=False,
+                        risk_reward_ratio=1.0,
+                    )
+                    for s in chartink_stocks[:limit]
+                ]
+                logger.info(
+                    f"Fast-mode (SELL): returning {len(simple_recs)} Chartink-only recommendations"
+                )
+                return simple_recs
+
             # Screen for potential sell candidates
             all_stocks = await self.screener.screen_stocks(
                 criteria="momentum_breakout", 
@@ -990,6 +1068,49 @@ class IntradayService:
             return {
                 "status": "unhealthy",
                 "error": str(e)
+            }
+
+    async def get_available_variants(self) -> Dict[str, Any]:
+        """Get available algorithm variants for intraday buy analysis."""
+        try:
+            from shared.config import load_config
+            
+            # Load intraday buy configuration
+            config = load_config("intraday_buy")
+            
+            # Initialize response structure
+            variants_data = {
+                "status": "success",
+                "categories": {},
+                "total_categories": 0
+            }
+            
+            # Process sub_algorithm_variants from config
+            if "sub_algorithm_variants" in config:
+                for category, versions in config["sub_algorithm_variants"].items():
+                    if isinstance(versions, dict):
+                        variants_data["categories"][category] = {}
+                        for version, details in versions.items():
+                            variant_info = {
+                                "version": version,
+                                "name": details.get("name", f"{category.title()} {version}"),
+                                "description": details.get("description", f"{category.title()} algorithm variant"),
+                                "weight": details.get("weight", 1.0),
+                                "query": details.get("query", "")
+                            }
+                            variants_data["categories"][category][version] = variant_info
+                
+                variants_data["total_categories"] = len(variants_data["categories"])
+            
+            return variants_data
+        
+        except Exception as e:
+            logger.error(f"Error getting available variants: {str(e)}")
+            return {
+                "status": "error",
+                "message": str(e),
+                "categories": {},
+                "total_categories": 0
             }
 
 # Global intraday service instance

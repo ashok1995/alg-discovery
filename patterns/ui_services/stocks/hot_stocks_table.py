@@ -8,7 +8,7 @@ from utils.logger import get_logger
 import pandas as pd
 from ui_services.stocks.hot_stocks_utils import buy_stock_popup
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="ui_services", service="hot_stocks_table")
 
 def display_stock_table(hot_stocks, selected_stock=None):
     """

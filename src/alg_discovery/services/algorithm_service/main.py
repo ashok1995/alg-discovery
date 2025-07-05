@@ -1,0 +1,31 @@
+"""
+Algorithm Service - Main application entry point.
+"""
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from .health.router import router as health_router
+from .algorithms.router import router as algorithms_router
+
+app = FastAPI(
+    title="Algorithm Service",
+    description="Service for managing algorithm metadata and operations",
+    version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(health_router, prefix="/health", tags=["health"])
+app.include_router(algorithms_router, prefix="/algorithms", tags=["algorithms"])
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8013) 

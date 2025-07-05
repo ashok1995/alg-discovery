@@ -8,6 +8,11 @@ import pytz
 # Set timezone to IST
 IST = pytz.timezone('Asia/Kolkata')
 
+from shared.config.settings import (
+    MARKET_DAYS, MARKET_OPEN_HOUR, MARKET_OPEN_MINUTE,
+    MARKET_CLOSE_HOUR, MARKET_CLOSE_MINUTE
+)
+
 def is_market_open():
     """
     Check if market is open
@@ -15,9 +20,6 @@ def is_market_open():
     Returns:
         Boolean indicating if market is open
     """
-    # Import settings here to avoid circular imports
-    from config.settings import MARKET_DAYS, MARKET_OPEN_HOUR, MARKET_OPEN_MINUTE, MARKET_CLOSE_HOUR, MARKET_CLOSE_MINUTE
-    
     now = datetime.now(IST)
     
     # Check if today is a market day
@@ -37,9 +39,6 @@ def format_time_until_market_open():
     Returns:
         String with market time information
     """
-    # Import settings here to avoid circular imports
-    from config.settings import MARKET_DAYS, MARKET_OPEN_HOUR, MARKET_OPEN_MINUTE, MARKET_CLOSE_HOUR, MARKET_CLOSE_MINUTE
-    
     now = datetime.now(IST)
     today = now.strftime('%A')
     

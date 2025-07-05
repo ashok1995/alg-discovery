@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="analysis_risk_reward")
 
 def calculate_support_resistance(df, window=10):
     """

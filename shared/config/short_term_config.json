@@ -1,0 +1,246 @@
+{
+  "metadata": {
+    "file_version": "1.0",
+    "created_date": "2024-01-15",
+    "last_updated": "2024-01-15",
+    "description": "Short-term trading strategy with seed algorithms and variants for 1-4 week positions",
+    "strategy_type": "short_term",
+    "market_focus": "Indian Equities (BSE/NSE)",
+    "timeframe": "1-4 weeks",
+    "target_return": 0.15,
+    "stop_loss": 0.08,
+    "min_holding_period": "5 days",
+    "max_holding_period": "30 days",
+    "author": "Algorithm Discovery System"
+  },
+  "current_version": "v1.3.0",
+  "current_algorithm": {
+    "name": "Advanced Short-Term Momentum",
+    "version": "v1.3.0",
+    "status": "active",
+    "created_date": "2024-01-15",
+    "description": "Advanced short-term algorithm with sector rotation and momentum confirmation"
+  },
+  "sub_algorithm_variants": {
+    "momentum": {
+      "v1.0": {
+        "name": "Basic Price Momentum",
+        "description": "Simple momentum with trend confirmation",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest sma ( latest close , 20 ) > latest sma ( latest close , 50 ) and latest volume > latest sma ( latest volume , 20 ) * 1.2 and latest close > 100 ) ) ",
+        "weight": 0.3,
+        "expected_results": 150
+      },
+      "v1.1": {
+        "name": "Multi-Factor Momentum",
+        "description": "Momentum with RSI and volume confirmation",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close > latest ema ( latest close , 20 ) and latest rsi( 14 ) > 55 and latest rsi( 14 ) < 80 and latest volume > latest sma ( latest volume , 20 ) * 1.3 and latest close / 5 days ago close > 1.02 ) ) ",
+        "weight": 0.3,
+        "expected_results": 100
+      },
+      "v1.2": {
+        "name": "Acceleration Momentum",
+        "description": "Momentum with price acceleration and institutional volume",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close / 10 days ago close > 1.05 and latest volume > latest sma ( latest volume , 20 ) * 1.5 and latest rsi( 14 ) > 60 and latest close > latest ema ( latest close , 50 ) and market cap > 1000 ) ) ",
+        "weight": 0.3,
+        "expected_results": 80
+      }
+    },
+    "sector_rotation": {
+      "v1.0": {
+        "name": "Basic Sector Leaders",
+        "description": "Stocks leading their sectors",
+        "query": "( {cash} ( latest close > latest sma(close,20) and latest volume > latest sma(volume,20) * 1.2 and latest close / 20 day ago close > 1.03 and latest rsi( 14 ) > 50 ) )",
+        "weight": 0.25,
+        "expected_results": 120
+      },
+      "v1.1": {
+        "name": "Relative Strength Leaders",
+        "description": "Stocks with relative strength vs market",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 50 ) and latest close / 20 days ago close > 1.08 and latest volume > latest sma ( latest volume , 20 ) * 1.4 and latest rsi( 14 ) > 55 and latest close > 200 ) ) ",
+        "weight": 0.25,
+        "expected_results": 70
+      },
+      "v1.2": {
+        "name": "Institutional Rotation",
+        "description": "Large cap rotation with institutional interest",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest volume > latest sma ( latest volume , 20 ) * 1.8 and latest close / 30 days ago close > 1.1 and market cap > 2000 and latest rsi( 14 ) > 50 and latest rsi( 14 ) < 75 ) ) ",
+        "weight": 0.25,
+        "expected_results": 50
+      }
+    },
+    "breakout": {
+      "v1.0": {
+        "name": "Basic Range Breakout",
+        "description": "Simple consolidation breakouts",
+        "query": "( {cash} ( latest close > 20 days ago high and latest volume > latest sma ( latest volume , 20 ) * 1.5 and latest rsi( 14 ) > 55 and latest close > latest sma ( latest close , 20 ) ) ) ",
+        "weight": 0.25,
+        "expected_results": 60
+      },
+      "v1.1": {
+        "name": "Volume Confirmed Breakout",
+        "description": "Breakouts with strong volume confirmation",
+        "query": "( {cash} ( latest close > 30 days ago high and latest volume > latest sma ( latest volume , 20 ) * 2 and latest close > latest sma ( latest close , 50 ) and latest rsi( 14 ) > 60 and latest close / 5 days ago close > 1.03 ) ) ",
+        "weight": 0.25,
+        "expected_results": 40
+      },
+      "v1.2": {
+        "name": "Multi-Timeframe Breakout",
+        "description": "Breakouts confirmed across multiple timeframes",
+        "query": "( {cash} ( latest close > 30 days ago max ( 1 , latest high ) and latest sma ( latest close , 20 ) > latest sma ( latest close , 50 ) and latest volume > latest sma ( latest volume , 20 ) * 2.2 and latest rsi( 14 ) > 55 and latest close / 20 days ago close > 1.08 and market cap > 500 ) ) ",
+        "weight": 0.25,
+        "expected_results": 30
+      }
+    },
+    "reversal": {
+      "v1.0": {
+        "name": "Basic Mean Reversion",
+        "description": "Simple oversold reversal in uptrends",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 50 ) and latest rsi( 14 ) < 60 and 3 days ago rsi( 14 ) < latest rsi( 14 ) and latest volume > latest sma ( latest volume , 20 ) * 1.2 ) ) ",
+        "weight": 0.2,
+        "expected_results": 80
+      },
+      "v1.1": {
+        "name": "Pullback Reversal",
+        "description": "Pullback reversals in strong trends",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 50 ) and latest close < latest sma ( latest close , 20 ) and latest rsi( 14 ) < 55 and latest rsi( 14 ) > 30 and latest volume > latest sma ( latest volume , 20 ) * 1.3 and latest close / 30 days ago close > 0.95 ) ) ",
+        "weight": 0.2,
+        "expected_results": 60
+      },
+      "v1.2": {
+        "name": "Support Zone Reversal",
+        "description": "Reversals from key support zones",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 50 ) * 0.95 and latest close < latest sma ( latest close , 50 ) * 1.05 and latest rsi( 14 ) < 50 and latest rsi( 14 ) > 35 and latest volume > latest sma ( latest volume , 20 ) * 1.4 and 5 days ago close < latest close ) ) ",
+        "weight": 0.2,
+        "expected_results": 45
+      }
+    }
+  },
+  "algorithms": {
+    "v1.0.0": {
+      "name": "Basic Short-Term Trends",
+      "version": "v1.0.0",
+      "description": "Initial short-term algorithm with basic trend following",
+      "status": "active",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "momentum": "v1.0",
+        "sector_rotation": "v1.0",
+        "breakout": "v1.0",
+        "reversal": "v1.0"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "v1.1.0": {
+      "name": "Enhanced Trend Detection",
+      "version": "v1.1.0",
+      "description": "Enhanced algorithm with improved trend identification",
+      "status": "active",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "momentum": "v1.1",
+        "sector_rotation": "v1.1",
+        "breakout": "v1.1",
+        "reversal": "v1.1"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "v1.2.0": {
+      "name": "Advanced Multi-Factor",
+      "version": "v1.2.0",
+      "description": "Advanced algorithm with multi-factor analysis",
+      "status": "testing",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "momentum": "v1.2",
+        "sector_rotation": "v1.1",
+        "breakout": "v1.2",
+        "reversal": "v1.1"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "v1.3.0": {
+      "name": "Experimental High-Performance Short-Term",
+      "version": "v1.3.0",
+      "description": "Experimental version with latest variants for short-term trading",
+      "status": "experimental",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "momentum": "v1.2",
+        "sector_rotation": "v1.2",
+        "breakout": "v1.2",
+        "reversal": "v1.2"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    }
+  },
+  "re_ranking_criteria": {
+    "trend_persistence": {
+      "weight": 0.30,
+      "description": "Trend likely to persist for weeks",
+      "lookback_period": 20,
+      "min_trend_score": 65
+    },
+    "volume_profile": {
+      "weight": 0.25,
+      "description": "Institutional volume patterns",
+      "min_volume_ratio": 1.3,
+      "min_market_cap": 500
+    },
+    "sector_strength": {
+      "weight": 0.20,
+      "description": "Sector momentum and rotation",
+      "sector_lookback": 10,
+      "min_sector_score": 55
+    },
+    "volatility_filter": {
+      "weight": 0.15,
+      "description": "Optimal volatility for short-term moves",
+      "min_volatility": 0.015,
+      "max_volatility": 0.06
+    },
+    "fundamental_filter": {
+      "weight": 0.10,
+      "description": "Basic fundamental health check",
+      "min_market_cap": 300,
+      "avoid_penny_stocks": true
+    }
+  },
+  "scoring_system": {
+    "max_score": 100,
+    "category_weights": {
+      "momentum": 30,
+      "sector_rotation": 25,
+      "breakout": 25,
+      "reversal": 20
+    },
+    "min_score_thresholds": {
+      "conservative": 75,
+      "moderate": 55,
+      "aggressive": 35
+    }
+  }
+} 

@@ -1,0 +1,15 @@
+{
+  "symbol": "SBIN.NS",
+  "name": "State Bank of India",
+  "price": 650.0,
+  "score": 72.5,
+  "per_change": 3.2,
+  "volume": 2100000,
+  "appearances": 2,
+  "category_count": 2,
+  "recommendation_type": "Buy",
+  "momentum": true,
+  "reversal": true,
+  "volatility": false,
+  "categories": ["momentum", "reversal"]
+} 

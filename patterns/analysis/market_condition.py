@@ -8,7 +8,7 @@ from data.yahoo import get_market_index_data
 from analysis.technical import add_all_indicators
 from utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, group="shared", service="analysis_market_condition")
 
 def analyze_market_condition(index_symbol="^NSEI", period="3mo", interval="1d"):
     """
