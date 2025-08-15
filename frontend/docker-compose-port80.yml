@@ -1,0 +1,57 @@
+services:
+  # Main frontend container (runs on port 8080 internally)
+  algodiscovery-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: prod:80
+    container_name: algodiscovery-frontend-prod
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - HOSTNAME=algodiscovery.prod
+    volumes:
+      - ./logs:/var/log/nginx
+    networks:
+      - algodiscovery-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.algodiscovery.service=frontend"
+      - "com.algodiscovery.environment=production"
+
+  # Nginx reverse proxy (handles port 80 and forwards to frontend)
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: algodiscovery-nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx-reverse-proxy.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - algodiscovery-network
+    depends_on:
+      - algodiscovery-frontend
+    restart: unless-stopped
+    labels:
+      - "com.algodiscovery.service=proxy"
+      - "com.algodiscovery.environment=production"
+
+networks:
+  algodiscovery-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.90.0/24
+
+volumes:
+  nginx-logs:
+    driver: local
