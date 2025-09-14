@@ -9,9 +9,9 @@
 
 import axios, { AxiosInstance } from 'axios';
 
-// API base URLs for different services
-const THEME_API_BASE_URL = process.env.REACT_APP_THEME_API_BASE_URL || 'http://localhost:8020';
-const STRATEGIES_API_BASE_URL = process.env.REACT_APP_STRATEGIES_API_BASE_URL || 'http://localhost:8030';
+// API base URLs for different services - use relative URLs in development to work with proxy
+const THEME_API_BASE_URL = process.env.NODE_ENV === 'development' ? '' : (process.env.REACT_APP_THEME_API_BASE_URL || 'http://localhost:8020');
+const STRATEGIES_API_BASE_URL = process.env.NODE_ENV === 'development' ? '' : (process.env.REACT_APP_STRATEGIES_API_BASE_URL || 'http://localhost:8030');
 
 // Endpoint configuration
 const ENDPOINT_CONFIG = {

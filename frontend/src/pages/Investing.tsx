@@ -114,7 +114,7 @@ const Investing: React.FC = () => {
       const responses = await Promise.all(
         portfolioRequests.map(async (request) => {
           if (request.type === 'long-buy') {
-            return await recommendationAPIService.getLongBuyRecommendations({
+            return await recommendationAPIService.getRecommendationsByType('long-buy', {
               max_recommendations: request.max_recommendations,
               min_score: request.min_score,
               risk_profile: request.risk_profile,
@@ -129,24 +129,25 @@ const Investing: React.FC = () => {
       const allOpportunities: InvestmentOpportunity[] = [];
       
       responses.forEach((response, index) => {
-        if (response.status === 'success' && response.recommendations) {
-          const enhanced = response.recommendations.map((stock: any) => ({
+        if ('success' in response && response.success && (response.items || response.recommendations)) {
+          const items = response.items || response.recommendations || [];
+          const enhanced = items.map((stock: any) => ({
             symbol: stock.symbol,
-            companyName: stock.name || stock.companyName || 'Unknown',
-            name: stock.name || stock.companyName || 'Unknown',
+            companyName: stock.company_name || stock.name || 'Unknown',
+            name: stock.company_name || stock.name || 'Unknown',
             sector: stock.sector || 'Unknown',
             marketCap: stock.market_cap ?? 0,
-            peRatio: stock.analysis?.pe_ratio ?? 0,
-            pbRatio: stock.analysis?.pb_ratio ?? 0,
-            dividendYield: stock.analysis?.dividend_yield ?? 0,
-            roe: stock.analysis?.roe ?? 0,
-            debt_to_equity: stock.analysis?.debt_to_equity ?? 0,
-            currentRatio: stock.analysis?.current_ratio ?? 0,
-            price: stock.price || stock.currentPrice || 0,
-            targetPrice: stock.price || stock.currentPrice || 0,
+            peRatio: stock.pe_ratio ?? 0,
+            pbRatio: stock.pb_ratio ?? 0,
+            dividendYield: stock.dividend_yield ?? 0,
+            roe: stock.roe ?? 0,
+            debt_to_equity: stock.debt_to_equity ?? 0,
+            currentRatio: stock.current_ratio ?? 0,
+            price: stock.current_price || stock.last_price || 0,
+            targetPrice: stock.current_price || stock.last_price || 0,
             analystRating: 'N/A',
             investmentScore: stock.score || 0,
-            fundamentalScore: stock.analysis?.fundamental_score || 0,
+            fundamentalScore: stock.fundamental_score || 0,
             growthScore: 0,
             valueScore: 0,
             qualityScore: 0,

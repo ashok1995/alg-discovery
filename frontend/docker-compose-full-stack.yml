@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # Frontend Service - React App with Nginx
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: algodiscovery-frontend-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # SSL certificates (mount your SSL certs here)
+      - ./ssl:/etc/ssl:ro
+      # Nginx logs
+      - ./logs/nginx:/var/log/nginx
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_BASE_URL=https://api.algodiscovery.com
+    restart: unless-stopped
+    networks:
+      - algodiscovery-network
+    depends_on:
+      - recommendation-service
+      - theme-service
+      - strategy-service
+
+  # Recommendation Service (Port 8183)
+  recommendation-service:
+    image: your-registry/algodiscovery-recommendation:latest
+    container_name: algodiscovery-recommendation-prod
+    ports:
+      - "8183:8183"
+    environment:
+      - API_DOMAIN=api.algodiscovery.com
+      - FRONTEND_URL=https://api.algodiscovery.com
+      - CORS_ORIGINS=https://api.algodiscovery.com
+      - NODE_ENV=production
+      - PORT=8183
+    volumes:
+      - ./logs/recommendation:/app/logs
+    restart: unless-stopped
+    networks:
+      - algodiscovery-network
+
+  # Theme Service (Port 8020)
+  theme-service:
+    image: your-registry/algodiscovery-theme:latest
+    container_name: algodiscovery-theme-prod
+    ports:
+      - "8020:8020"
+    environment:
+      - API_DOMAIN=api.algodiscovery.com
+      - FRONTEND_URL=https://api.algodiscovery.com
+      - CORS_ORIGINS=https://api.algodiscovery.com
+      - NODE_ENV=production
+      - PORT=8020
+    volumes:
+      - ./logs/theme:/app/logs
+    restart: unless-stopped
+    networks:
+      - algodiscovery-network
+
+  # Strategy Service (Port 8030)
+  strategy-service:
+    image: your-registry/algodiscovery-strategy:latest
+    container_name: algodiscovery-strategy-prod
+    ports:
+      - "8030:8030"
+    environment:
+      - API_DOMAIN=api.algodiscovery.com
+      - FRONTEND_URL=https://api.algodiscovery.com
+      - CORS_ORIGINS=https://api.algodiscovery.com
+      - NODE_ENV=production
+      - PORT=8030
+    volumes:
+      - ./logs/strategy:/app/logs
+    restart: unless-stopped
+    networks:
+      - algodiscovery-network
+
+  # General API Service (Port 8002)
+  general-api-service:
+    image: your-registry/algodiscovery-general-api:latest
+    container_name: algodiscovery-general-api-prod
+    ports:
+      - "8002:8002"
+    environment:
+      - API_DOMAIN=api.algodiscovery.com
+      - FRONTEND_URL=https://api.algodiscovery.com
+      - CORS_ORIGINS=https://api.algodiscovery.com
+      - NODE_ENV=production
+      - PORT=8002
+    volumes:
+      - ./logs/general-api:/app/logs
+    restart: unless-stopped
+    networks:
+      - algodiscovery-network
+
+networks:
+  algodiscovery-network:
+    driver: bridge
+    name: algodiscovery-network
+
+volumes:
+  nginx-logs:
+  recommendation-logs:
+  theme-logs:
+  strategy-logs:
+  general-api-logs:

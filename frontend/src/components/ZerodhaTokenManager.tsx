@@ -42,6 +42,7 @@ import {
   VpnKey
 } from '@mui/icons-material';
 import { zerodhaTokenService, TokenStatus, TokenInstructions, CredentialStatus, CredentialTestResult, AllZerodhaData } from '../services/zerodhaTokenService';
+import KiteOAuthCallback from './KiteOAuthCallback';
 
 interface ZerodhaTokenManagerProps {
   onTokenUpdate?: () => void;
@@ -71,6 +72,10 @@ const ZerodhaTokenManager: React.FC<ZerodhaTokenManagerProps> = ({ onTokenUpdate
   // Partner service test states
   const [chartinkStatus, setChartinkStatus] = useState<boolean>(false);
   const [yahooFinanceStatus, setYahooFinanceStatus] = useState<boolean>(false);
+
+  // OAuth flow states
+  const [showOAuthCallback, setShowOAuthCallback] = useState<boolean>(false);
+  const [oauthToken, setOauthToken] = useState<string>('');
 
   // Load initial data
   useEffect(() => {
@@ -372,6 +377,90 @@ const ZerodhaTokenManager: React.FC<ZerodhaTokenManagerProps> = ({ onTokenUpdate
     }
   };
 
+  // New automated token refresh functionality
+  const handleAutomatedTokenRefresh = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+      
+      // First check if credentials are available
+      if (!credentialStatus?.api_key_valid) {
+        setError('API credentials not configured. Please update credentials first.');
+        return;
+      }
+
+      // Show OAuth callback component to handle the flow
+      setShowOAuthCallback(true);
+      
+      // Attempt automated token refresh
+      const result = await zerodhaTokenService.refreshTokenAutomatically();
+      
+      if (result.success) {
+        if (result.token_refreshed) {
+          setSuccess('Token refreshed automatically! New token is now active.');
+        } else if (result.token_valid) {
+          setSuccess('Token is still valid. No refresh needed.');
+        } else {
+          setError(result.error || 'Failed to refresh token automatically');
+        }
+        
+        // Reload status to show updated information
+        await loadTokenStatus();
+        onTokenUpdate?.();
+      } else {
+        setError(result.error || 'Failed to refresh token automatically');
+        setShowOAuthCallback(false);
+      }
+    } catch (error: any) {
+      setError(error.message || 'Failed to refresh token automatically');
+      console.error('Error in automated token refresh:', error);
+      setShowOAuthCallback(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForceTokenRefresh = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+      
+      // Force refresh even if token seems valid
+      const result = await zerodhaTokenService.forceTokenRefresh();
+      
+      if (result.success) {
+        setSuccess('Token force refreshed successfully! New token is now active.');
+        await loadTokenStatus();
+        onTokenUpdate?.();
+      } else {
+        setError(result.error || 'Failed to force refresh token');
+      }
+    } catch (error: any) {
+      setError(error.message || 'Failed to force refresh token');
+      console.error('Error in force token refresh:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuthTokenReceived = (token: string) => {
+    setOauthToken(token);
+    setShowOAuthCallback(false);
+    setSuccess('Access token received successfully!');
+    
+    // Store the token locally and update status
+    zerodhaTokenService.storeAccessToken(token);
+    loadTokenStatus();
+    if (onTokenUpdate) onTokenUpdate();
+  };
+
+  const handleOAuthError = (error: string) => {
+    setShowOAuthCallback(false);
+    setError(`OAuth error: ${error}`);
+  };
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Never';
     return new Date(dateString).toLocaleString();
@@ -400,6 +489,37 @@ const ZerodhaTokenManager: React.FC<ZerodhaTokenManagerProps> = ({ onTokenUpdate
           <Typography variant="h6">Partners Configuration & Details</Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
+          {/* Automated Token Refresh Button */}
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Refresh />}
+            onClick={handleAutomatedTokenRefresh}
+            disabled={loading}
+            size="small"
+            sx={{ 
+              background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+              color: 'white',
+              fontWeight: 'bold',
+              minWidth: '140px'
+            }}
+          >
+            🔄 Auto Refresh
+          </Button>
+          
+          {/* Force Token Refresh Button */}
+          <Button
+            variant="outlined"
+            color="warning"
+            startIcon={<Refresh />}
+            onClick={handleForceTokenRefresh}
+            disabled={loading}
+            size="small"
+            title="Force refresh token even if current one seems valid"
+          >
+            ⚡ Force
+          </Button>
+          
           <Chip
             label={getStatusText()}
             color={getStatusColor()}
@@ -426,6 +546,92 @@ const ZerodhaTokenManager: React.FC<ZerodhaTokenManagerProps> = ({ onTokenUpdate
           {success}
         </Alert>
       )}
+
+      {/* Automated Token Refresh Status */}
+      <Card sx={{ mb: 3, background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <VpnKey color="primary" />
+            Automated Token Management
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Automatically refresh your Kite access token using stored API credentials. 
+            No manual intervention required for daily token refresh.
+          </Typography>
+          
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={4}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Security color="primary" />
+                <Typography variant="body2">
+                  <strong>Credentials:</strong> {credentialStatus?.api_key_valid ? '✅ Valid' : '❌ Invalid'}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CheckCircle color={tokenStatus?.is_valid ? "success" : "error"} />
+                <Typography variant="body2">
+                  <strong>Token:</strong> {tokenStatus?.is_valid ? '✅ Valid' : '❌ Invalid'}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <VpnKey color="primary" />
+                <Typography variant="body2">
+                  <strong>File:</strong> {tokenStatus?.token_file_exists ? '✅ Exists' : '❌ Missing'}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+          
+          {/* Quick Actions */}
+          <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleAutomatedTokenRefresh}
+              disabled={loading}
+              startIcon={<Refresh />}
+            >
+              Quick Refresh
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleForceTokenRefresh}
+              disabled={loading}
+              startIcon={<Refresh />}
+              color="warning"
+            >
+              Force Refresh
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => zerodhaTokenService.clearAccessToken()}
+              disabled={loading}
+              startIcon={<Delete />}
+              color="error"
+            >
+              Clear Token
+            </Button>
+          </Box>
+          
+          {/* Current Token Display */}
+          {zerodhaTokenService.getCurrentAccessToken() && (
+            <Box sx={{ mt: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Current Access Token:
+              </Typography>
+              <Typography variant="body2" fontFamily="monospace" sx={{ wordBreak: 'break-all' }}>
+                {zerodhaTokenService.getCurrentAccessToken()?.substring(0, 20)}...
+              </Typography>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
 
       <Grid container spacing={3}>
         {/* Left Column - Partner Configurations */}
@@ -932,6 +1138,14 @@ const ZerodhaTokenManager: React.FC<ZerodhaTokenManagerProps> = ({ onTokenUpdate
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* OAuth Callback Component */}
+      {showOAuthCallback && (
+        <KiteOAuthCallback
+          onTokenReceived={handleOAuthTokenReceived}
+          onError={handleOAuthError}
+        />
+      )}
     </Box>
   );
 };

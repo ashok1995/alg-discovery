@@ -17,19 +17,16 @@ import RecommendationServiceTest from './components/RecommendationServiceTest';
 import Dashboard from './pages/Dashboard';
 import Backtesting from './pages/Backtesting';
 import SystemControl from './pages/SystemControl';
-import SwingBuy from './pages/SwingBuy';
 import QueryManager from './pages/QueryManager';
 import Home from './pages/Home';
-import IntradayBuy from './pages/IntradayBuy';
-import IntradaySell from './pages/IntradaySell';
 import CandidateQueryRegistry from './pages/CandidateQueryRegistry';
 
-import LongBuy from './pages/LongBuy';
 import Investing from './pages/Investing';
 import Settings from './pages/Settings';
 import StockMappingManager from './pages/StockMappingManager';
 import StockCandidatePopulatorPage from './pages/StockCandidatePopulatorPage';
 import KiteWebSocketTest from './components/KiteWebSocketTest';
+import UnifiedRecommendations from './pages/UnifiedRecommendations';
 
 // Create React Query client
 const queryClient = new QueryClient({
@@ -129,15 +126,15 @@ function App() {
   const getServiceComponent = (serviceName: string) => {
     switch (serviceName) {
       case 'swing-api':
-        return <SwingBuy />;
+        return <UnifiedRecommendations />;
       case 'longterm-api':
-        return <LongBuy />;
+        return <UnifiedRecommendations />;
       case 'shortterm-api':
-        return <SwingBuy />;
+        return <UnifiedRecommendations />;
       case 'intraday-api':
-        return <IntradayBuy />;
+        return <UnifiedRecommendations />;
       case 'intraday-service-api':
-        return <IntradaySell />;
+        return <UnifiedRecommendations />;
       case 'dashboard-api':
         return <Dashboard />;
       case 'stock-mapping-api':
@@ -149,7 +146,7 @@ function App() {
       case 'candidate-query-registry':
         return <QueryManager />;
       case 'swing-recommendations':
-        return <SwingBuy />;
+        return <UnifiedRecommendations />;
       case 'backtesting':
         return <Backtesting />;
       case 'system-control':
@@ -175,14 +172,10 @@ function App() {
               {/* Legacy routes */}
               <Route path="/backtesting" element={<Backtesting />} />
               <Route path="/system-control" element={<SystemControl />} />
-              <Route path="/swing-buy-ai" element={<SwingBuy />} />
               <Route path="/chartink-query-tester" element={<QueryManager />} />
               <Route path="/candidate-query-registry" element={<QueryManager />} />
-              <Route path="/swing-recommendations" element={<SwingBuy />} />
-              <Route path="/intraday-buy" element={<IntradayBuy />} />
-              <Route path="/intraday-sell" element={<IntradaySell />} />
-              <Route path="/short-buy" element={<SwingBuy />} />
-              <Route path="/long-buy" element={<LongBuy />} />
+              <Route path="/swing-recommendations" element={<UnifiedRecommendations />} />
+              <Route path="/unified-recommendations" element={<UnifiedRecommendations />} />
               <Route path="/investing" element={<Investing />} />
               
               {/* Redirect old long-term-trading route */}
@@ -193,11 +186,10 @@ function App() {
               <Route path="/stock-candidate-populator" element={<StockCandidatePopulatorPage />} />
               
               {/* Service-specific routes */}
-              <Route path="/swing-api" element={<SwingBuy />} />
+              <Route path="/swing-api" element={<UnifiedRecommendations />} />
               <Route path="/longterm-api" element={<Investing />} />
-              <Route path="/shortterm-api" element={<SwingBuy />} />
-              <Route path="/intraday-api" element={<IntradayBuy />} />
-              <Route path="/intraday-service-api" element={<IntradaySell />} />
+              <Route path="/shortterm-api" element={<UnifiedRecommendations />} />
+              <Route path="/intraday-service-api" element={<div>Intraday Service - Use Unified Recommendations</div>} />
               <Route path="/variants-api" element={<div>Strategy Variants - Coming Soon</div>} />
               <Route path="/facts-api" element={<div>Market Facts - Coming Soon</div>} />
               <Route path="/dashboard-api" element={<Dashboard />} />

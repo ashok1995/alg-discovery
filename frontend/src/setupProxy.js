@@ -1,16 +1,17 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function(app) {
-  // Get proxy target from environment variable
-  const proxyTarget = process.env.REACT_APP_PROXY_TARGET || 'http://127.0.0.1:8893';
+  // Force proxy to use port 8183 for recommendation service
+  const proxyTarget = 'http://127.0.0.1:8183';
   
+  console.log('Proxy enabled for backend testing:', proxyTarget);
   app.use(
     '/api',
     createProxyMiddleware({
       target: proxyTarget,
       changeOrigin: true,
       pathRewrite: {
-        '^/api': '/api', // no rewrite needed
+        '^/api': '/api',
       },
       onProxyReq: (proxyReq, req, res) => {
         console.log('Proxying request:', req.method, req.url, 'to', proxyTarget + req.url);

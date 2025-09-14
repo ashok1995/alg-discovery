@@ -9,10 +9,7 @@ export type EndpointKey =
   | 'swing.real_time_prices'
   | 'intraday.recommendations'
   | 'intraday.real_time_prices'
-  | 'recommendation.recommendations.swing'
-  | 'recommendation.recommendations.long_buy'
-  | 'recommendation.recommendations.intraday_buy'
-  | 'recommendation.recommendations.intraday_sell'
+  | 'recommendation.recommendations.dynamic'
   | 'theme.strategies_available'
   | 'theme.strategies_theme'
   | 'health'
@@ -27,10 +24,8 @@ const REGISTRY: EndpointRegistry = {
   'swing.real_time_prices': { path: API_CONFIG.ENDPOINTS.SWING.REAL_TIME_PRICES, domain: 'core' },
   'intraday.recommendations': { path: API_CONFIG.ENDPOINTS.INTRADAY.RECOMMENDATIONS, domain: 'core' },
   'intraday.real_time_prices': { path: API_CONFIG.ENDPOINTS.INTRADAY.REAL_TIME_PRICES, domain: 'core' },
-  'recommendation.recommendations.swing': { path: '/api/recommendations/swing', domain: 'recommendation' },
-  'recommendation.recommendations.long_buy': { path: '/api/recommendations/long-buy', domain: 'recommendation' },
-  'recommendation.recommendations.intraday_buy': { path: '/api/recommendations/intraday-buy', domain: 'recommendation' },
-  'recommendation.recommendations.intraday_sell': { path: '/api/recommendations/intraday-sell', domain: 'recommendation' },
+  // Dynamic v1 unified endpoint (dev preferred)
+  'recommendation.recommendations.dynamic': { path: '/api/v1/recommendations/dynamic', domain: 'recommendation' },
   'theme.strategies_available': { path: API_CONFIG.ENDPOINTS.THEME.STRATEGIES_AVAILABLE, domain: 'strategies' },
   'theme.strategies_theme': { path: API_CONFIG.ENDPOINTS.THEME.STRATEGIES_THEME, domain: 'strategies' },
   health: { path: '/health', domain: 'core' },

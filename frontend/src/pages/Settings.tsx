@@ -43,8 +43,8 @@ import {
   Warning,
   Cloud
 } from '@mui/icons-material';
-import ZerodhaTokenManager from '../components/ZerodhaTokenManager';
 import ZerodhaContainerIntegration from '../components/ZerodhaContainerIntegration';
+import KiteTokenManagement from '../components/KiteTokenManagement';
 import zerodhaAPIService from '../services/ZerodhaAPIService';
 
 interface SystemSettings {
@@ -297,10 +297,10 @@ const Settings: React.FC = () => {
               </Card>
             </Grid>
 
-            {/* Partners Configuration & Details - Main Focus */}
+            {/* Kite Token Management - Main Focus */}
             <Grid item xs={12} md={8}>
-              <ZerodhaTokenManager onTokenUpdate={() => {
-                console.log('Zerodha token updated');
+              <KiteTokenManagement onTokenUpdate={() => {
+                console.log('Kite token updated');
                 // Refresh any dependent components when token is updated
               }} />
             </Grid>

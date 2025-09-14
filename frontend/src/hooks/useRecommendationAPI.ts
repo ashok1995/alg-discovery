@@ -111,7 +111,7 @@ export function useRecommendationAPI(
       }
 
       setState({
-        recommendations: response.recommendations || [],
+        recommendations: (response.items || response.recommendations || []) as any,
         loading: false,
         error: null,
         lastUpdated: response.timestamp || new Date().toISOString(),
@@ -119,7 +119,7 @@ export function useRecommendationAPI(
         executionTime: response.execution_time || 0
       });
 
-      onSuccess?.(response);
+      onSuccess?.(response as any);
     } catch (error) {
       if (abortControllerRef.current?.signal.aborted) {
         return;
@@ -257,7 +257,7 @@ export function useAllRecommendations(
         ...request
       });
 
-      setAllRecommendations(response);
+      setAllRecommendations(response as any);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setError(errorMessage);

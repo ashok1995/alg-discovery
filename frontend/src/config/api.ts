@@ -3,6 +3,13 @@
  * No hardcoded URLs - all from environment variables or current domain
  */
 
+// Helper function to determine if we're in production
+const isProduction = () => {
+  return process.env.NODE_ENV === 'production' || 
+         process.env.REACT_APP_NODE_ENV === 'production' ||
+         (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
+};
+
 // Helper function to get the current domain for production
 const getCurrentDomain = () => {
   if (typeof window !== 'undefined') {
@@ -17,15 +24,19 @@ export const API_CONFIG = {
   // Base URL from environment or current domain
   BASE_URL: process.env.REACT_APP_API_BASE_URL || getCurrentDomain(),
   
-  // Recommendation API URL (preferred) with backwards compatibility to THEME
+  // Recommendation API URL - Use DNS-based approach for production
   RECOMMENDATION_API_BASE_URL:
     process.env.REACT_APP_RECOMMENDATION_API_BASE_URL ||
-    process.env.REACT_APP_THEME_API_BASE_URL ||
-    getCurrentDomain(),
+    (isProduction() ? 'http://recommendations.algodiscovery.prod:8183' : 'http://localhost:8183'),
+
+  // Seed service API URL (for fallback recommendations)
+  SEED_API_BASE_URL: process.env.REACT_APP_SEED_API_BASE_URL || 'http://localhost:8021',
 
   // Theme recommendations API URLs (legacy naming, kept for ThemeRecommendationsService)
-  THEME_API_BASE_URL: process.env.REACT_APP_THEME_API_BASE_URL || getCurrentDomain(),
-  STRATEGIES_API_BASE_URL: process.env.REACT_APP_STRATEGIES_API_BASE_URL || getCurrentDomain(),
+  THEME_API_BASE_URL: process.env.REACT_APP_THEME_API_BASE_URL || 
+                      (isProduction() ? 'https://algodiscovery.com' : 'http://localhost:8020'),
+  STRATEGIES_API_BASE_URL: process.env.REACT_APP_STRATEGIES_API_BASE_URL || 
+                           (isProduction() ? 'https://algodiscovery.com' : 'http://localhost:8030'),
   // Query service (v1) base URL (must include the version prefix, e.g., /api/v1)
   QUERY_API_BASE_URL: process.env.REACT_APP_QUERY_API_BASE_URL || `${getCurrentDomain()}/api/v1`,
   // Zerodha v1 service (separate container)
@@ -105,7 +116,8 @@ export const API_CONFIG = {
   
   // Proxy Configuration
   PROXY: {
-    TARGET: process.env.REACT_APP_PROXY_TARGET || 'http://127.0.0.1:8893'
+    TARGET: process.env.REACT_APP_PROXY_TARGET || 
+            (isProduction() ? 'https://algodiscovery.com' : 'http://127.0.0.1:8183')
   }
 };
 
@@ -135,6 +147,13 @@ export const getRecommendationApiUrl = (endpoint: string): string => {
  */
 export const getStrategiesApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.STRATEGIES_API_BASE_URL}${endpoint}`;
+};
+
+/**
+ * Get seed API URL
+ */
+export const getSeedApiUrl = (endpoint: string): string => {
+  return `${API_CONFIG.SEED_API_BASE_URL}${endpoint}`;
 };
 
 /**

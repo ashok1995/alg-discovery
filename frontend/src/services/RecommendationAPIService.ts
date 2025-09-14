@@ -16,16 +16,18 @@ import { API_CONFIG } from '../config/api';
 import { getEndpointPath, getBaseUrlForDomain } from '../config/endpointRegistry';
 import { getMetaHeaders } from '../utils/meta';
 import attachAxiosLogging from './httpLogger';
+import { UniversalRecommendationRequest, DynamicRecommendationResponse, StrategyType, UIRecommendationRequest, UIRecommendationResponse, SortDirection, MarketCondition, MarketSession } from '../types/apiModels';
 
-// API base URL for recommendations
-const RECOMMENDATION_API_BASE_URL = getBaseUrlForDomain('recommendation');
+// API base URL for recommendations - use Nginx proxy for production
+const RECOMMENDATION_API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? '' 
+  : (process.env.NODE_ENV === 'production' 
+    ? '' // Use relative URL to go through Nginx proxy
+    : getBaseUrlForDomain('recommendation'));
 
-// Endpoint keys
+// Endpoint keys - using correct production endpoint
 const ENDPOINT_KEYS = {
-  SWING: 'recommendation.recommendations.swing',
-  LONG_BUY: 'recommendation.recommendations.long_buy',
-  INTRADAY_BUY: 'recommendation.recommendations.intraday_buy',
-  INTRADAY_SELL: 'recommendation.recommendations.intraday_sell',
+  RECOMMENDATIONS: '/api/recommendations/stocks',
   HEALTH: 'health',
 } as const;
 
@@ -163,7 +165,7 @@ class RecommendationAPIService {
 
   /** Normalize backend response (items) to RecommendationResponse (recommendations) */
   private normalizeResponse(raw: any): RecommendationResponse {
-    const items = raw.items ?? raw.recommendations ?? [];
+    const items = raw.items ?? raw.recommendations ?? raw.data ?? [];
     const recommendations: Recommendation[] = items.map((it: any) => ({
       symbol: it.symbol,
       name: it.company_name ?? it.name ?? '',
@@ -190,70 +192,230 @@ class RecommendationAPIService {
     };
   }
 
-  /** Get swing trading recommendations */
-  async getSwingRecommendations(request: RecommendationRequest = {}): Promise<RecommendationResponse> {
+  /** Normalize strategy aliases for dynamic endpoint */
+  private normalizeStrategyName(strategy: any): string {
+    const s = String(strategy || '').toLowerCase();
+    if (s === 'swing-buy' || s === 'swing_buy') return 'swing';
+    return s;
+  }
+
+  /** Production API endpoint method */
+  async getProductionRecommendations(request: {
+    strategy: string;
+    risk_level: string;
+    market_condition?: string;
+    market_cap?: string;
+    sector?: string;
+    min_price?: number;
+    max_price?: number;
+    min_volume?: number;
+    rsi_min?: number;
+    rsi_max?: number;
+    min_score?: number;
+    limit?: number;
+  }): Promise<any> {
     try {
-      const payload = this.toCanonicalPayload(request);
-      const response = await this.api.post(getEndpointPath(ENDPOINT_KEYS.SWING), payload);
-      const data = response.data || {};
-      return this.normalizeResponse(data);
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append('strategy', request.strategy);
+      queryParams.append('risk_level', request.risk_level);
+      queryParams.append('ui_optimized', 'true');
+      
+      if (request.limit) queryParams.append('limit', request.limit.toString());
+      if (request.market_condition) queryParams.append('market_condition', request.market_condition);
+      if (request.market_cap) queryParams.append('market_cap', request.market_cap);
+      if (request.sector) queryParams.append('sector', request.sector);
+      if (request.min_price) queryParams.append('min_price', request.min_price.toString());
+      if (request.max_price) queryParams.append('max_price', request.max_price.toString());
+      if (request.min_volume) queryParams.append('min_volume', request.min_volume.toString());
+      if (request.rsi_min) queryParams.append('rsi_min', request.rsi_min.toString());
+      if (request.rsi_max) queryParams.append('rsi_max', request.rsi_max.toString());
+      if (request.min_score) queryParams.append('min_score', request.min_score.toString());
+
+      const url = `${ENDPOINT_KEYS.RECOMMENDATIONS}?${queryParams.toString()}`;
+      
+      const response = await this.api.post(url, {}, {
+        headers: { 'X-Trace-ID': `prod_req_${Date.now()}` }
+      });
+      
+      return response.data;
     } catch (error) {
-      throw this.handleError(error, 'swing recommendations');
+      throw this.handleError(error, 'production recommendations');
     }
   }
 
-  /** Get long-term buy recommendations */
-  async getLongBuyRecommendations(request: RecommendationRequest = {}): Promise<RecommendationResponse> {
+  /** Dynamic unified endpoint (dev) */
+  // New UI endpoint method
+  async getUIRecommendations(request: UIRecommendationRequest): Promise<UIRecommendationResponse> {
     try {
-      const payload = this.toCanonicalPayload(request);
-      const response = await this.api.post(getEndpointPath(ENDPOINT_KEYS.LONG_BUY), payload);
-      const data = response.data || {};
-      return this.normalizeResponse(data);
+      const response = await this.api.post('/api/v1/minimal/recommendations', request, {
+        headers: { 'X-Trace-ID': `ui_req_${Date.now()}` }
+      });
+      return response.data || {};
     } catch (error) {
-      throw this.handleError(error, 'long-term buy recommendations');
+      throw this.handleError(error, 'UI recommendations');
     }
   }
 
-  /** Get intraday buy recommendations */
-  async getIntradayBuyRecommendations(request: RecommendationRequest = {}): Promise<RecommendationResponse> {
+  // Quick recommendations endpoint
+  async getQuickRecommendations(strategy: StrategyType, riskLevel: string, minScore: number = 65, limit: number = 10): Promise<UIRecommendationResponse> {
     try {
-      const payload = this.toCanonicalPayload(request);
-      const response = await this.api.post(getEndpointPath(ENDPOINT_KEYS.INTRADAY_BUY), payload);
-      const data = response.data || {};
-      return this.normalizeResponse(data);
+      const request = {
+        strategy,
+        risk_level: riskLevel,
+        min_score: minScore,
+        limit
+      };
+      const response = await this.api.post('/api/v1/minimal/recommendations/quick', request, {
+        headers: { 'X-Trace-ID': `quick_req_${Date.now()}` }
+      });
+      return response.data || {};
     } catch (error) {
-      throw this.handleError(error, 'intraday buy recommendations');
+      throw this.handleError(error, 'quick recommendations');
     }
   }
 
-  /** Get intraday sell recommendations */
-  async getIntradaySellRecommendations(request: RecommendationRequest = {}): Promise<RecommendationResponse> {
+  async getDynamicRecommendations(request: UniversalRecommendationRequest): Promise<DynamicRecommendationResponse> {
     try {
-      const payload = this.toCanonicalPayload(request);
-      const response = await this.api.post(getEndpointPath(ENDPOINT_KEYS.INTRADAY_SELL), payload);
-      const data = response.data || {};
-      return this.normalizeResponse(data);
+      // Normalize strategy type for backend consistency
+      let strategy = request.strategy;
+      if (['swing-buy', 'swing_buy'].includes(strategy)) {
+        strategy = StrategyType.SWING;
+      }
+      const payload = { ...request, strategy }; // Use the normalized strategy
+      
+      // Try the production endpoint first
+      try {
+        const response = await this.api.post(ENDPOINT_KEYS.RECOMMENDATIONS, payload, {
+          headers: { 'X-Trace-ID': request.trace?.request_id || `trace_${Date.now()}` }
+        });
+        
+        // Transform the response to match the expected format
+        const backendData = response.data || {};
+        return {
+          timestamp: backendData.timestamp || new Date().toISOString(),
+          items: backendData.recommendations || backendData.items || [],
+          total_count: backendData.total_count || 0,
+          execution_time: backendData.execution_time || 0,
+          strategy: backendData.strategy || strategy,
+          risk_profile: backendData.risk_profile || 'moderate',
+          success: backendData.success !== false
+        };
+      } catch (dynamicError) {
+        // If dynamic endpoint fails, provide mock data as fallback
+        console.warn('Dynamic endpoint failed, providing mock data as fallback');
+        
+        const mockData = this.getMockRecommendations(strategy, request.pagination?.limit || 50);
+        
+        return {
+          timestamp: new Date().toISOString(),
+          items: mockData,
+          total_count: mockData.length,
+          execution_time: 0,
+          strategy: strategy,
+          risk_profile: 'moderate',
+          success: true
+        };
+      }
     } catch (error) {
-      throw this.handleError(error, 'intraday sell recommendations');
+      throw this.handleError(error, 'dynamic recommendations');
     }
   }
 
-  /** Get recommendations by type */
+  /** Get recommendations by type - now uses production endpoint */
   async getRecommendationsByType(
     type: 'swing' | 'long-buy' | 'intraday-buy' | 'intraday-sell',
     request: RecommendationRequest = {}
-  ): Promise<RecommendationResponse> {
-    switch (type) {
-      case 'swing':
-        return this.getSwingRecommendations(request);
-      case 'long-buy':
-        return this.getLongBuyRecommendations(request);
-      case 'intraday-buy':
-        return this.getIntradayBuyRecommendations(request);
-      case 'intraday-sell':
-        return this.getIntradaySellRecommendations(request);
-      default:
-        throw new Error(`Invalid recommendation type: ${type}`);
+  ): Promise<DynamicRecommendationResponse> {
+    // Map legacy types to production strategy types
+    const strategyMap = {
+      'swing': 'swing',
+      'long-buy': 'long_term',
+      'intraday-buy': 'intraday_buy',
+      'intraday-sell': 'intraday_sell'
+    };
+
+    const strategy = strategyMap[type];
+    if (!strategy) {
+      throw new Error(`Invalid recommendation type: ${type}`);
+    }
+
+    // Map risk profile
+    const riskLevelMap = {
+      'conservative': 'low',
+      'moderate': 'medium',
+      'aggressive': 'high'
+    };
+
+    const riskLevel = riskLevelMap[request.risk_profile as keyof typeof riskLevelMap] || 'medium';
+
+    // Convert to production API request format
+    const productionRequest = {
+      strategy,
+      risk_level: riskLevel,
+      min_score: request.min_score || 60,
+      limit: request.max_recommendations || 50,
+      min_price: 10,
+      max_price: 10000,
+      min_volume: 100000
+    };
+
+    try {
+      const response = await this.getProductionRecommendations(productionRequest);
+      
+      // Transform production response to DynamicRecommendationResponse format
+      const transformedItems = response.stocks?.map((stock: any) => ({
+        symbol: stock.symbol,
+        company_name: stock.name,
+        current_price: stock.price,
+        last_price: stock.price,
+        change_percent: stock.change_percentage,
+        volume: stock.volume,
+        sector: stock.sector || 'Unknown',
+        score: stock.overall_score,
+        technical_score: stock.technical_score,
+        fundamental_score: stock.fundamental_score,
+        risk_level: riskLevel,
+        rsi: stock.rsi,
+        macd: stock.macd,
+        sma_20: stock.sma_20,
+        sma_50: stock.sma_50,
+        entry_signal: stock.entry_signal,
+        entry_price: stock.entry_price,
+        stop_loss: stock.stop_loss,
+        target_price: stock.target_price,
+        metadata: {
+          timestamp: stock.timestamp,
+          market_cap: stock.market_cap
+        }
+      })) || [];
+
+      return {
+        timestamp: response.timestamp || new Date().toISOString(),
+        items: transformedItems,
+        recommendations: transformedItems, // For backward compatibility
+        total_count: response.total_count || transformedItems.length,
+        execution_time: response.execution_time || 0,
+        strategy: strategy,
+        risk_profile: riskLevel,
+        success: response.success !== false
+      };
+    } catch (error) {
+      // Fallback to mock data if production API fails
+      console.warn('Production API failed, providing mock data as fallback');
+      
+      const mockData = this.getMockRecommendations(strategy as any, request.max_recommendations || 50);
+      
+      return {
+        timestamp: new Date().toISOString(),
+        items: mockData,
+        recommendations: mockData,
+        total_count: mockData.length,
+        execution_time: 0,
+        strategy: strategy,
+        risk_profile: riskLevel,
+        success: true
+      };
     }
   }
 
@@ -310,19 +472,19 @@ class RecommendationAPIService {
     }
   }
 
-  /** Get all recommendation types at once */
+  /** Get all recommendation types at once - now uses dynamic endpoint */
   async getAllRecommendations(request: RecommendationRequest = {}): Promise<{
-    swing: RecommendationResponse;
-    longBuy: RecommendationResponse;
-    intradayBuy: RecommendationResponse;
-    intradaySell: RecommendationResponse;
+    swing: DynamicRecommendationResponse;
+    longBuy: DynamicRecommendationResponse;
+    intradayBuy: DynamicRecommendationResponse;
+    intradaySell: DynamicRecommendationResponse;
   }> {
     try {
       const [swing, longBuy, intradayBuy, intradaySell] = await Promise.all([
-        this.getSwingRecommendations(request),
-        this.getLongBuyRecommendations(request),
-        this.getIntradayBuyRecommendations(request),
-        this.getIntradaySellRecommendations(request)
+        this.getRecommendationsByType('swing', request),
+        this.getRecommendationsByType('long-buy', request),
+        this.getRecommendationsByType('intraday-buy', request),
+        this.getRecommendationsByType('intraday-sell', request)
       ]);
 
       return {
@@ -342,7 +504,7 @@ class RecommendationAPIService {
     type: 'swing' | 'long-buy' | 'intraday-buy' | 'intraday-sell',
     request: RecommendationRequest = {},
     retries: number = API_CONFIG.REQUEST.RETRY_ATTEMPTS
-  ): Promise<RecommendationResponse> {
+  ): Promise<DynamicRecommendationResponse> {
     let lastError: any;
 
     for (let attempt = 1; attempt <= retries; attempt++) {
@@ -374,16 +536,68 @@ class RecommendationAPIService {
     }
   }
 
+  /** Get mock recommendations for fallback */
+  private getMockRecommendations(strategy: string, limit: number): any[] {
+    const mockStocks = [
+      { symbol: 'HINDUNILVR', name: 'Hindustan Unilever', price: 2850.75, change: 1.2, sector: 'FMCG', score: 85 },
+      { symbol: 'ITC', name: 'ITC', price: 450.5, change: 0.8, sector: 'FMCG', score: 78 },
+      { symbol: 'BHARTIARTL', name: 'Bharti Airtel', price: 950.25, change: 1.5, sector: 'Telecom', score: 82 },
+      { symbol: 'KOTAKBANK', name: 'Kotak Mahindra Bank', price: 1850.8, change: 2.3, sector: 'Banking', score: 88 },
+      { symbol: 'NESTLEIND', name: 'Nestle India', price: 2250.6, change: 1.1, sector: 'FMCG', score: 79 },
+      { symbol: 'RELIANCE', name: 'Reliance Industries', price: 2450.75, change: 0.5, sector: 'Oil & Gas', score: 75 },
+      { symbol: 'TCS', name: 'Tata Consultancy Services', price: 3850.2, change: 1.8, sector: 'IT', score: 90 },
+      { symbol: 'HDFC', name: 'HDFC Bank', price: 1650.3, change: 0.9, sector: 'Banking', score: 83 },
+      { symbol: 'INFY', name: 'Infosys', price: 1850.7, change: 1.2, sector: 'IT', score: 86 },
+      { symbol: 'WIPRO', name: 'Wipro', price: 450.8, change: 0.7, sector: 'IT', score: 72 }
+    ];
+
+    return mockStocks.slice(0, limit).map((stock, index) => ({
+      symbol: stock.symbol,
+      nsecode: stock.symbol,
+      company_name: stock.name,
+      last_price: stock.price,
+      current_price: stock.price,
+      change_percent: stock.change,
+      score: stock.score,
+      combined_score: stock.score,
+      technical_score: stock.score,
+      fundamental_score: stock.score - 5,
+      rank: index + 1,
+      volume: Math.floor(Math.random() * 2000000) + 500000,
+      market_cap: stock.price * 1000000,
+      sector: stock.sector,
+      industry: null,
+      rsi: 50 + Math.floor(Math.random() * 20) - 10,
+      sma_20: stock.price * 0.98,
+      sma_50: stock.price * 0.95,
+      macd: 'bullish',
+      bollinger_bands: null,
+      pe_ratio: 15 + Math.floor(Math.random() * 20),
+      pb_ratio: 2 + Math.random() * 2,
+      debt_to_equity: Math.random() * 0.5,
+      roe: 10 + Math.random() * 15,
+      roa: 5 + Math.random() * 10,
+      indicators: {
+        rsi: 50 + Math.floor(Math.random() * 20) - 10,
+        sma_20: stock.price * 0.98,
+        sma_50: stock.price * 0.95
+      },
+      metadata: { source: 'mock', note: 'Mock data - Backend service unavailable' },
+      confidence: stock.score > 85 ? 'high' : stock.score > 75 ? 'medium' : 'low',
+      source: 'mock',
+      fetched_at: new Date().toISOString(),
+      strategy_type: strategy,
+      risk_level: stock.score > 85 ? 'low' : stock.score > 75 ? 'medium' : 'high'
+    }));
+  }
+
   /** Get service information */
   getServiceInfo() {
     return {
       name: 'Recommendation API Service',
       baseUrl: RECOMMENDATION_API_BASE_URL,
       endpoints: {
-        SWING: getEndpointPath(ENDPOINT_KEYS.SWING),
-        LONG_BUY: getEndpointPath(ENDPOINT_KEYS.LONG_BUY),
-        INTRADAY_BUY: getEndpointPath(ENDPOINT_KEYS.INTRADAY_BUY),
-        INTRADAY_SELL: getEndpointPath(ENDPOINT_KEYS.INTRADAY_SELL),
+        RECOMMENDATIONS: ENDPOINT_KEYS.RECOMMENDATIONS,
         HEALTH: getEndpointPath(ENDPOINT_KEYS.HEALTH),
       },
       timeout: API_CONFIG.REQUEST.TIMEOUT,

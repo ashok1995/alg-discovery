@@ -33,20 +33,26 @@
     "start:prod": "PORT=80 env-cmd -f env.production.80 react-scripts start",
     "start:prod:3000": "PORT=3000 env-cmd -f env.production react-scripts start",
     "start:prod:8080": "PORT=8080 env-cmd -f env.production.8080 react-scripts start",
+    "start:prod:domain": "PORT=443 env-cmd -f env.production.domain react-scripts start",
     "build": "react-scripts build",
     "build:dev": "env-cmd -f env.development react-scripts build",
     "build:local": "env-cmd -f env.local react-scripts build",
     "build:prod": "env-cmd -f env.production.80 react-scripts build",
     "build:prod:80": "env-cmd -f env.production.80 react-scripts build",
     "build:prod:8080": "env-cmd -f env.production.8080 react-scripts build",
+    "build:prod:domain": "env-cmd -f env.production.domain react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "serve:prod": "PORT=80 serve -s build -l 80",
     "serve:prod:8080": "PORT=8080 serve -s build -l 8080",
+    "serve:prod:domain": "PORT=443 serve -s build -l 443",
     "serve:dev": "PORT=3000 serve -s build -l 3000",
     "docker:build": "docker build -t algodiscovery-frontend .",
     "docker:run": "docker run -d -p 80:80 --name algodiscovery-frontend-prod algodiscovery-frontend",
     "docker:deploy": "./docker-deploy.sh",
+    "docker:deploy:domain": "./deploy-production-domain.sh",
+    "docker:deploy:prod": "./deploy-production-docker.sh",
+    "docker:deploy:frontend": "./deploy-frontend-only.sh",
     "docker:dev": "./docker-dev.sh",
     "docker:stop": "docker-compose down",
     "docker:logs": "docker-compose logs -f algodiscovery-frontend",
@@ -74,6 +80,5 @@
   "devDependencies": {
     "@types/react-router-dom": "^5.3.3",
     "env-cmd": "^10.1.0"
-  },
-  "proxy": "http://localhost:8893"
+  }
 } 

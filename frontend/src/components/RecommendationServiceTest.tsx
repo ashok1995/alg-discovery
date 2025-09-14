@@ -35,10 +35,10 @@ const RecommendationServiceTest: React.FC = () => {
         risk_profile: 'moderate'
       });
       
-      if (response.status === 'success') {
-        setSwingRecommendations(response.recommendations);
+      if (response.success) {
+        setSwingRecommendations(response.items || response.recommendations || []);
       } else {
-        setError(`API returned error: ${response.error}`);
+        setError('API returned error');
       }
     } catch (err: any) {
       setError(`Failed to fetch swing recommendations: ${err.message}`);
@@ -57,10 +57,10 @@ const RecommendationServiceTest: React.FC = () => {
         risk_profile: 'conservative'
       });
       
-      if (response.status === 'success') {
-        setLongBuyRecommendations(response.recommendations);
+      if (response.success) {
+        setLongBuyRecommendations(response.items || response.recommendations || []);
       } else {
-        setError(`API returned error: ${response.error}`);
+        setError('API returned error');
       }
     } catch (err: any) {
       setError(`Failed to fetch long-buy recommendations: ${err.message}`);

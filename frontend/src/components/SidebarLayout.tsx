@@ -28,6 +28,7 @@ import {
   FilterList,
   Menu as MenuIcon,
   Close as CloseIcon,
+  AutoAwesome,
   ExpandLess,
   ExpandMore,
   AccountBalance,
@@ -83,31 +84,10 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
     
     // Trading Services
     {
-      text: 'Swing Buy',
-      icon: <TrendingUp />,
-      path: '/swing-recommendations',
-      description: 'Swing trading with AI mode & customizable algorithms',
-      category: 'trading'
-    },
-    {
-      text: 'Intraday Buy',
-      icon: <ShowChart />,
-      path: '/intraday-buy',
-      description: 'Intraday buying opportunities',
-      category: 'trading'
-    },
-    {
-      text: 'Intraday Sell',
-      icon: <TrendingDown />,
-      path: '/intraday-sell',
-      description: 'Intraday selling signals',
-      category: 'trading'
-    },
-    {
-      text: 'Long Buy',
-      icon: <AccountBalance />,
-      path: '/long-buy',
-      description: 'Long-term stock buying opportunities',
+      text: 'Stock Recommendations',
+      icon: <AutoAwesome />,
+      path: '/unified-recommendations',
+      description: 'AI-powered stock recommendations with comprehensive metrics',
       category: 'trading'
     },
     {
