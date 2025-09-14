@@ -70,8 +70,7 @@ export enum StrategyType {
   SWING = 'swing',
   INTRADAY_BUY = 'intraday_buy',
   INTRADAY_SELL = 'intraday_sell',
-  LONG_TERM = 'long_term',
-  SHORT_TERM = 'short_term'
+  LONG_TERM = 'long_term'
 }
 
 export enum RiskLevel {

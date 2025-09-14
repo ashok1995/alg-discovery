@@ -184,15 +184,6 @@ const UnifiedRecommendations: React.FC = () => {
       riskLevel: 'low',
       minScore: 75,
       timeFrame: 'Weeks-Months'
-    },
-    [StrategyType.SHORT_TERM]: {
-      label: 'Short Term',
-      description: '1-3 day positions',
-      icon: <TimelineIcon />,
-      color: '#f57c00',
-      riskLevel: 'medium',
-      minScore: 70,
-      timeFrame: '1-3 days'
     }
   };
 
@@ -203,6 +194,17 @@ const UnifiedRecommendations: React.FC = () => {
     
     // Create a copy to avoid mutating the original array
     let filteredItems = [...items];
+    
+    // Check if we have valid scores (not all null)
+    const hasValidScores = filteredItems.some(item => item.score !== null && item.score !== undefined);
+    
+    if (!hasValidScores) {
+      // If no valid scores, just return items with basic sorting by price
+      console.log(`🎯 No valid scores found, returning ${filteredItems.length} items without score filtering`);
+      return filteredItems
+        .sort((a, b) => (b.current_price || b.last_price || 0) - (a.current_price || a.last_price || 0))
+        .slice(0, Math.min(maxResults, filteredItems.length));
+    }
     
     // Apply different filtering logic based on risk level
     switch (riskLevel) {
@@ -290,8 +292,7 @@ const UnifiedRecommendations: React.FC = () => {
         [StrategyType.SWING]: 'swing',
         [StrategyType.INTRADAY_BUY]: 'intraday-buy',
         [StrategyType.INTRADAY_SELL]: 'intraday-sell',
-        [StrategyType.LONG_TERM]: 'long-buy',
-        [StrategyType.SHORT_TERM]: 'swing' // Map short term to swing for now
+        [StrategyType.LONG_TERM]: 'long-buy'
       };
       
       const legacyType = strategyTypeMap[selectedStrategy];
