@@ -29,8 +29,13 @@ export const API_CONFIG = {
     process.env.REACT_APP_RECOMMENDATION_API_BASE_URL ||
     (isProduction() ? 'http://recommendations.algodiscovery.prod:8183' : 'http://localhost:8183'),
 
-  // Seed service API URL (for fallback recommendations)
-  SEED_API_BASE_URL: process.env.REACT_APP_SEED_API_BASE_URL || 'http://localhost:8021',
+  // Chartink Authentication Service URL (port 8081)
+  CHARTINK_AUTH_BASE_URL: process.env.REACT_APP_CHARTINK_AUTH_BASE_URL || 
+                          (isProduction() ? 'http://algodiscovery.com:8081' : 'http://localhost:8081'),
+
+  // Seed service API URL (primary recommendations service) 
+  SEED_API_BASE_URL: process.env.REACT_APP_SEED_API_BASE_URL || 
+                     (isProduction() ? 'http://algodiscovery.com:8082' : 'http://localhost:8082'),
 
   // Theme recommendations API URLs (legacy naming, kept for ThemeRecommendationsService)
   THEME_API_BASE_URL: process.env.REACT_APP_THEME_API_BASE_URL || 

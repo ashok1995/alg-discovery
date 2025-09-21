@@ -44,7 +44,10 @@ import {
   Cloud
 } from '@mui/icons-material';
 import ZerodhaContainerIntegration from '../components/ZerodhaContainerIntegration';
-import KiteTokenManagement from '../components/KiteTokenManagement';
+// import KiteTokenManagement from '../components/KiteTokenManagement';
+// import EnhancedKiteTokenManagement from '../components/EnhancedKiteTokenManagement';
+import SimpleKiteTokenManagement from '../components/SimpleKiteTokenManagement';
+import ChartinkAuthManager from '../components/ChartinkAuthManager';
 import zerodhaAPIService from '../services/ZerodhaAPIService';
 
 interface SystemSettings {
@@ -297,12 +300,17 @@ const Settings: React.FC = () => {
               </Card>
             </Grid>
 
-            {/* Kite Token Management - Main Focus */}
+            {/* Simple Kite Token Management - Direct Login Fallback */}
             <Grid item xs={12} md={8}>
-              <KiteTokenManagement onTokenUpdate={() => {
+              <SimpleKiteTokenManagement onTokenUpdate={() => {
                 console.log('Kite token updated');
                 // Refresh any dependent components when token is updated
               }} />
+            </Grid>
+
+            {/* Chartink Authentication Management */}
+            <Grid item xs={12} md={6}>
+              <ChartinkAuthManager />
             </Grid>
           </Grid>
         </TabPanel>

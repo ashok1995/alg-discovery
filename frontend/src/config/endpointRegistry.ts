@@ -1,6 +1,6 @@
 import { API_CONFIG } from './api';
 
-export type ApiDomain = 'core' | 'recommendation' | 'theme' | 'strategies';
+export type ApiDomain = 'core' | 'recommendation' | 'theme' | 'strategies' | 'seed' | 'chartink';
 
 export type EndpointKey =
   | 'strategy.recommendations'
@@ -10,6 +10,11 @@ export type EndpointKey =
   | 'intraday.recommendations'
   | 'intraday.real_time_prices'
   | 'recommendation.recommendations.dynamic'
+  | 'seed.recommendations.v2'
+  | 'seed.health'
+  | 'chartink.auth.session_status'
+  | 'chartink.auth.browser_login'
+  | 'chartink.health'
   | 'theme.strategies_available'
   | 'theme.strategies_theme'
   | 'health'
@@ -26,6 +31,13 @@ const REGISTRY: EndpointRegistry = {
   'intraday.real_time_prices': { path: API_CONFIG.ENDPOINTS.INTRADAY.REAL_TIME_PRICES, domain: 'core' },
   // Dynamic v1 unified endpoint (dev preferred)
   'recommendation.recommendations.dynamic': { path: '/api/v1/recommendations/dynamic', domain: 'recommendation' },
+  // Seed Service v2 API endpoints (port 8082)
+  'seed.recommendations.v2': { path: '/api/v2/stocks/recommendations', domain: 'seed' },
+  'seed.health': { path: '/health', domain: 'seed' },
+  // Chartink Authentication Service endpoints (port 8181)
+  'chartink.auth.session_status': { path: '/api/v1/auth/session-status', domain: 'chartink' },
+  'chartink.auth.browser_login': { path: '/api/v1/auth/browser-login', domain: 'chartink' },
+  'chartink.health': { path: '/health', domain: 'chartink' },
   'theme.strategies_available': { path: API_CONFIG.ENDPOINTS.THEME.STRATEGIES_AVAILABLE, domain: 'strategies' },
   'theme.strategies_theme': { path: API_CONFIG.ENDPOINTS.THEME.STRATEGIES_THEME, domain: 'strategies' },
   health: { path: '/health', domain: 'core' },
@@ -36,6 +48,10 @@ export const getBaseUrlForDomain = (domain: ApiDomain): string => {
   switch (domain) {
     case 'recommendation':
       return API_CONFIG.RECOMMENDATION_API_BASE_URL;
+    case 'seed':
+      return API_CONFIG.SEED_API_BASE_URL;
+    case 'chartink':
+      return API_CONFIG.CHARTINK_AUTH_BASE_URL;
     case 'theme':
       return API_CONFIG.THEME_API_BASE_URL;
     case 'strategies':
