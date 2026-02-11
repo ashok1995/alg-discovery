@@ -260,18 +260,10 @@ const EnhancedKiteTokenManagement: React.FC<EnhancedKiteTokenManagementProps> = 
               )}
 
               <Grid container spacing={2}>
-                {tokenStatus.expires_at && (
+                {tokenStatus.kite_token_expires_at && (
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" color="text.secondary">
-                      <strong>Expires:</strong> {new Date(tokenStatus.expires_at).toLocaleString()}
-                    </Typography>
-                  </Grid>
-                )}
-                
-                {tokenStatus.last_updated && (
-                  <Grid item xs={12} sm={6}>
-                    <Typography variant="body2" color="text.secondary">
-                      <strong>Last Updated:</strong> {new Date(tokenStatus.last_updated).toLocaleString()}
+                      <strong>Expires:</strong> {new Date(tokenStatus.kite_token_expires_at).toLocaleString()}
                     </Typography>
                   </Grid>
                 )}
@@ -320,11 +312,13 @@ const EnhancedKiteTokenManagement: React.FC<EnhancedKiteTokenManagementProps> = 
                 📋 Service Information:
               </Typography>
               <Typography variant="caption" display="block">
-                <strong>API Key:</strong> {refreshInfo.api_key}
+                <strong>Login URL:</strong> {refreshInfo.login_url}
               </Typography>
-              <Typography variant="caption" display="block">
-                <strong>Callback URL:</strong> {refreshInfo.callback_url}
-              </Typography>
+              {refreshInfo.callback_url && (
+                <Typography variant="caption" display="block">
+                  <strong>Callback URL:</strong> {refreshInfo.callback_url}
+                </Typography>
+              )}
             </Box>
           )}
         </CardContent>
@@ -437,10 +431,7 @@ const EnhancedKiteTokenManagement: React.FC<EnhancedKiteTokenManagementProps> = 
 
                     <Box sx={{ mb: 2, p: 2, bgcolor: 'success.50', borderRadius: 1 }}>
                       <Typography variant="body2" sx={{ mb: 1 }}>
-                        <strong>User:</strong> {accessTokenData.user_name} ({accessTokenData.user_id})
-                      </Typography>
-                      <Typography variant="body2" sx={{ mb: 1 }}>
-                        <strong>Email:</strong> {accessTokenData.email}
+                        <strong>User:</strong> {accessTokenData.user_name ?? accessTokenData.user_id ?? '—'}
                       </Typography>
                       
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
