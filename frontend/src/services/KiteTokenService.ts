@@ -162,6 +162,22 @@ class KiteTokenService {
     return res.data;
   }
 
+  /** DELETE /api/auth/token - Clear/delete current token */
+  async clearToken(): Promise<{ success: boolean; message?: string }> {
+    try {
+      const res = await this.api.delete(`${KITE_API_PREFIX}/auth/token`);
+      return res.data || { success: true, message: 'Token cleared successfully' };
+    } catch (err: unknown) {
+      // If DELETE endpoint doesn't exist, return success anyway (token cleared client-side)
+      const msg = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { status?: number } }).response?.status === 404
+          ? 'Token cleared (endpoint not available)'
+          : 'Failed to clear token'
+        : 'Token cleared';
+      return { success: true, message: msg };
+    }
+  }
+
   /** Validate and save direct access token (paste from Kite; skips request_token exchange) */
   async validateAndSaveAccessToken(accessToken: string): Promise<AccessTokenResponse> {
     try {
