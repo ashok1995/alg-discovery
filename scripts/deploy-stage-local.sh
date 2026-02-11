@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Stage deployment: develop branch only, local machine.
-# Same process as prod: build image, Docker, port 8080.
-# Use this to validate develop before merging to main.
-# For quick test/debug on other branches (no Docker), use run-quick-test.sh.
+# Fetches and deploys from origin/develop (same process as prod: build image, Docker, 8080).
+# PUSH FIRST: script refuses to run if develop has unpushed commits. Push then deploy.
+# For quick test on other branches without Docker, use run-quick-test.sh.
 #
 # Usage: ./scripts/deploy-stage-local.sh
 # Repo: ALGODISCOVERY_REPO_DIR or $HOME/alg-discovery
@@ -40,6 +40,12 @@ cd "$REPO_DIR"
 
 log "Fetching origin..."
 git fetch origin
+
+# Strict: script deploys from origin/develop; unpushed commits would be lost
+AHEAD=$(git rev-list --count origin/develop..develop 2>/dev/null || echo "0")
+if [ "${AHEAD}" -gt 0 ]; then
+  fail "Develop has ${AHEAD} unpushed commit(s). Push first: git push origin develop — then run this script again. This script deploys from origin/develop."
+fi
 
 log "Checking out develop and resetting to origin/develop..."
 git checkout develop
