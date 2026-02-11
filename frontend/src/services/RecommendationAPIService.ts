@@ -14,6 +14,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { API_CONFIG } from '../config/api';
 import { getEndpointPath, getBaseUrlForDomain } from '../config/endpointRegistry';
+import { fetchV2Recommendations } from './RecommendationV2Service';
 import { getMetaHeaders } from '../utils/meta';
 import attachAxiosLogging from './httpLogger';
 import { 
@@ -227,31 +228,23 @@ class RecommendationAPIService {
     return riskMap[riskLevel.toLowerCase()] || SeedRiskLevel.MODERATE;
   }
 
-  /** Call Seed Service API for recommendations */
+  /** Call Seed Service API for recommendations (POST /api/v2/recommendations) */
   async getSeedServiceRecommendations(request: Partial<SeedRecommendationRequest>): Promise<SeedRecommendationResponse> {
     try {
-      // Ensure mandatory strategy field is provided
       if (!request.strategy) {
         throw new Error('Strategy is required for Seed Service API');
       }
 
-      // Use proxy endpoint for development to avoid CORS issues
-      const seedServiceUrl = '/api/seed/recommendations';
-      
-      console.log(`🌱 [SeedService] Making proxy call to: ${seedServiceUrl}`);
-      console.log(`🌱 [SeedService] Request:`, request);
-      console.log(`🌱 [SeedService] Request JSON:`, JSON.stringify(request, null, 2));
-      
-      const response = await axios.post(seedServiceUrl, request, {
-        headers: { 
-          'X-Trace-ID': `seed_req_${Date.now()}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 30000
-      });
-      
-      console.log(`✅ [SeedService] Response received:`, response.data);
-      return response.data;
+      const strategy = String(request.strategy);
+      const risk_level = request.risk_level != null ? String(request.risk_level) : 'moderate';
+      const limit = request.limit ?? 20;
+
+      const v2Request = { strategy, risk_level, limit };
+      console.log(`🌱 [SeedService] POST ${API_CONFIG.SEED_V2_RECOMMENDATIONS_PATH}`, v2Request);
+
+      const data = await fetchV2Recommendations(v2Request);
+      console.log(`✅ [SeedService] Response: ${data.recommendations?.length ?? 0} recommendations`);
+      return data;
     } catch (error) {
       console.error(`❌ [SeedService] Error:`, error);
       throw this.handleError(error, 'Seed Service recommendations');
