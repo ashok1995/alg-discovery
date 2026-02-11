@@ -65,7 +65,8 @@ alg-discovery/
 │   │   ├── architecture/   # System design
 │   │   ├── user-experience/# UX flows
 │   │   └── configuration/ # Env, deployment
-│   ├── envs/               # env.dev, env.stage, env.prod
+│   ├── envs/               # ONLY env.dev, env.stage, env.prod, env.example
+│   ├── nginx.conf          # ONLY nginx config (no nginx-*.conf)
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
 │   │   ├── config/         # API config (no duplicate config files)
@@ -118,3 +119,11 @@ alg-discovery/
 - **No irrelevant code**: Remove unused components, duplicate services, one-off scripts. If it's not referenced, delete it.
 - **No duplicate files**: One source of truth per config (e.g. one openai.json, one env pattern).
 - **Before adding**: Scan for existing equivalent; reuse or refactor. Do not add similar new files.
+
+## 9. FORBIDDEN (STRICTLY enforce)
+
+- **Env**: ONLY `frontend/envs/env.dev`, `env.stage`, `env.prod`, `env.example`. No `env.*` at frontend root.
+- **Nginx**: ONLY `frontend/nginx.conf`. No `nginx-*.conf`, no multiple nginx configs.
+- **Config**: No duplicate config files (e.g. one openai.json). No hardcoded values.
+- **Redundant logic**: No duplicate services doing the same thing. No copy-paste; refactor.
+- **Scripts**: No redundant npm scripts. One canonical script per action.

@@ -1,42 +1,15 @@
-version: '3.8'
-
 services:
-  # Frontend service - serves React app from api.algodiscovery.com
   algodiscovery-frontend-domain:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: algodiscovery-frontend-domain
     ports:
-      - "443:443"
+      - "80:80"
     volumes:
-      - ./nginx-domain.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./build:/usr/share/nginx/html:ro
+      - ./ssl:/etc/ssl:ro
     environment:
       - NODE_ENV=production
     restart: unless-stopped
-    networks:
-      - algodiscovery-network
-
-  # Nginx reverse proxy for domain-based serving
-  nginx-domain-proxy:
-    image: nginx:alpine
-    container_name: nginx-domain-proxy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx-domain.conf:/etc/nginx/nginx.conf:ro
-      - ./build:/usr/share/nginx/html:ro
-      # SSL certificates (you'll need to add these)
-      - ./ssl:/etc/ssl:ro
-    depends_on:
-      - algodiscovery-frontend-domain
-    restart: unless-stopped
-    networks:
-      - algodiscovery-network
-
-networks:
-  algodiscovery-network:
-    driver: bridge
-    external: false

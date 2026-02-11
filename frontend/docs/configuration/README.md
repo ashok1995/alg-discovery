@@ -20,6 +20,11 @@ npm run build:prod   # Prod build
 
 See `frontend/envs/README.md` for env file details.
 
+## Config Files
+
+- **Env**: `frontend/envs/` only (env.dev, env.stage, env.prod, env.example). No env.* at root.
+- **Nginx**: `frontend/nginx.conf` only. Single source of truth.
+
 ## Deployment
 
 - **Local**: `npm run build:prod && npm run serve:prod`

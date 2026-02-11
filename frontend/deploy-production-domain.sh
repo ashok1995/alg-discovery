@@ -33,7 +33,7 @@ mkdir -p logs/nginx ssl
 
 # Step 2: Build frontend Docker image for domain
 echo -e "${YELLOW}🔨 Building frontend Docker image for domain access...${NC}"
-docker build -f Dockerfile.production.domain -t $FRONTEND_IMAGE .
+docker build -f Dockerfile.production -t $FRONTEND_IMAGE .
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅ Frontend image built successfully${NC}"
