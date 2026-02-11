@@ -13,7 +13,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 import { API_CONFIG } from '../config/api';
-import { getEndpointPath, getBaseUrlForDomain, getEndpointUrl } from '../config/endpointRegistry';
+import { getEndpointPath, getBaseUrlForDomain } from '../config/endpointRegistry';
 import { getMetaHeaders } from '../utils/meta';
 import attachAxiosLogging from './httpLogger';
 import { 
@@ -22,9 +22,6 @@ import {
   StrategyType, 
   UIRecommendationRequest, 
   UIRecommendationResponse, 
-  SortDirection, 
-  MarketCondition, 
-  MarketSession,
   SeedRecommendationRequest,
   SeedRecommendationResponse,
   SeedStrategyType,

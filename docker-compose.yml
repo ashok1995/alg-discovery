@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13-alpine
+    container_name: algodiscovery_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-algodiscovery}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-algodiscovery}
+      POSTGRES_DB: ${POSTGRES_DB:-algodiscovery}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/docker/postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U algodiscovery"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching
+  redis:
+    image: redis:6-alpine
+    container_name: algodiscovery_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Market Data Service
+  market_data:
+    build:
+      context: .
+      dockerfile: services/market_data/Dockerfile
+    container_name: algodiscovery_market_data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=redis
+    volumes:
+      - ./services/market_data:/app
+    ports:
+      - "8001:8000"
+
+volumes:
+  postgres_data:
+  redis_data: 

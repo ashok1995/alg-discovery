@@ -3,7 +3,7 @@
  * Defines the common interface for all API services
  */
 
-import { API_CONFIG, getServiceUrl } from '../config/api';
+import { getServiceUrl } from '../config/api';
 
 export interface HealthStatus {
   success: boolean;

@@ -9,22 +9,14 @@ import {
   Button,
   Switch,
   FormControlLabel,
-  Divider,
   Alert,
-  Chip,
   List,
   ListItem,
   ListItemText,
   ListItemIcon,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  IconButton,
-  Tooltip,
   Tabs,
   Tab,
-  Paper,
-  CircularProgress
+  Paper
 } from '@mui/material';
 import {
   Security,
@@ -140,6 +132,7 @@ const Settings: React.FC = () => {
     cacheActive: false,
     securityAuthenticated: false
   });
+  void systemStatus; // used by setSystemStatus for updates
 
   const handleSettingChange = (key: keyof SystemSettings, value: any) => {
     setSettings(prev => ({

@@ -1,0 +1,39 @@
+stock_system/
+├── config/
+│   ├── __init__.py
+│   ├── queries.py           # ChartInk queries with fallback options
+│   ├── patterns.py          # Trading patterns definitions
+│   └── settings.py          # Global settings
+├── data/
+│   ├── __init__.py
+│   ├── chartink.py          # ChartInk data fetcher
+│   ├── yahoo.py             # Yahoo Finance data fetcher
+│   └── mongodb.py           # MongoDB connection and operations
+├── analysis/
+│   ├── __init__.py
+│   ├── technical.py         # Technical indicators and analysis
+│   ├── patterns.py          # Pattern recognition
+│   ├── market_condition.py  # Overall market condition analyzer
+│   └── risk_reward.py       # Risk/reward calculator
+├── strategies/
+│   ├── __init__.py
+│   ├── intraday.py          # Intraday trading strategies
+│   ├── swing.py             # Swing trading strategies
+│   ├── long_term.py         # Long-term investment strategies
+│   └── short_sell.py        # Short selling strategies
+├── dashboard/
+│   ├── __init__.py
+│   ├── app.py               # Main Streamlit app
+│   ├── home.py              # Home page
+│   ├── intraday.py          # Intraday trading page
+│   ├── swing.py             # Swing trading page
+│   └── long_term.py         # Long-term investment page
+├── utils/
+│   ├── __init__.py
+│   ├── logger.py            # Logging utilities
+│   └── scheduler.py         # Scheduling utilities
+├── models/
+│   ├── __init__.py
+│   ├── stock.py             # Stock data models
+│   └── pattern_learner.py   # ML model for pattern learning
+└── main.py                  # Main entry point

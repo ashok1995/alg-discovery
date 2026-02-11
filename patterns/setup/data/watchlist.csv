@@ -1,0 +1,9 @@
+symbol,name,type,pattern,entry_price,current_price,added_at,notes
+RELIANCE,Reliance Industries,swing,Breakout,2550.75,2612.30,2025-04-15 14:30:00,Strong momentum
+HDFCBANK,HDFC Bank,swing,Bullish Flag,1680.25,1710.80,2025-04-16 09:45:00,Watch for breakout
+INFY,Infosys Ltd,swing,Support Bounce,1490.50,1503.75,2025-04-17 11:20:00,Bounced off support
+ADANIENT,Adani Enterprises,swing,Ascending Triangle,2950.00,3044.50,2025-04-15 10:15:00,Potential breakout
+BAJFINANCE,Bajaj Finance,swing,Pullback,7240.25,7342.80,2025-04-17 15:40:00,Pullback to support
+TCS,Tata Consultancy Services,day,Cup and Handle,3820.50,3865.25,2025-04-18 09:30:00,Day trade setup
+SBIN,State Bank of India,day,Double Bottom,625.75,632.25,2025-04-18 10:45:00,Intraday opportunity
+MARUTI,Maruti Suzuki,day,Golden Cross,10250.00,10465.50,2025-04-18 11:15:00,Strong momentum 

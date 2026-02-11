@@ -19,8 +19,6 @@ import Backtesting from './pages/Backtesting';
 import SystemControl from './pages/SystemControl';
 import QueryManager from './pages/QueryManager';
 import Home from './pages/Home';
-import CandidateQueryRegistry from './pages/CandidateQueryRegistry';
-
 import Investing from './pages/Investing';
 import Settings from './pages/Settings';
 import StockMappingManager from './pages/StockMappingManager';

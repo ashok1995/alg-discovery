@@ -1,0 +1,5 @@
+# Ignore Python files in root directory for Streamlit page detection
+/*.py
+!main.py
+!config.py
+!launcher.py 

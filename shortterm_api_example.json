@@ -1,0 +1,48 @@
+{
+  "endpoint": "/api/shortterm/shortterm-buy-recommendations",
+  "api": "POST /api/shortterm/shortterm-buy-recommendations (Short-Term Trading Recommendations)",
+  "request": {
+    "combination": {
+      "momentum": "v1.0",
+      "reversal": "v1.0",
+      "volatility": "v1.0"
+    },
+    "limit_per_query": 50,
+    "min_score": 35.0,
+    "top_recommendations": 10,
+    "force_refresh": true
+  },
+  "response": {
+    "status": "success",
+    "recommendations": [
+      {
+        "symbol": "SBIN.NS",
+        "name": "State Bank of India",
+        "price": 650.0,
+        "score": 72.5,
+        "per_change": 3.2,
+        "volume": 2100000,
+        "appearances": 2,
+        "category_count": 2,
+        "recommendation_type": "Buy",
+        "momentum": true,
+        "reversal": true,
+        "volatility": false,
+        "categories": ["momentum", "reversal"]
+      }
+    ],
+    "metadata": {
+      "combination_used": {
+        "momentum": "v1.0",
+        "reversal": "v1.0",
+        "volatility": "v1.0"
+      },
+      "performance_metrics": {
+        "unique_stocks": 25,
+        "total_stocks_across_categories": 60
+      },
+      "total_recommendations": 10,
+      "timestamp": "2025-07-03T17:00:00.000Z"
+    }
+  }
+} 

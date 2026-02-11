@@ -1,0 +1,246 @@
+{
+  "metadata": {
+    "file_version": "1.0",
+    "created_date": "2024-01-15",
+    "last_updated": "2024-01-15",
+    "description": "Swing trading strategy with seed algorithms and variants for 3-10 day positions",
+    "strategy_type": "swing",
+    "market_focus": "Indian Equities (BSE/NSE)",
+    "timeframe": "3-10 days",
+    "target_return": 0.08,
+    "stop_loss": 0.05,
+    "min_holding_period": "2 days",
+    "max_holding_period": "15 days",
+    "author": "Algorithm Discovery System"
+  },
+  "current_version": "v1.3.0",
+  "current_algorithm": {
+    "name": "Advanced Swing Momentum",
+    "version": "v1.3.0",
+    "status": "active",
+    "created_date": "2024-01-15",
+    "description": "Advanced swing algorithm with breakout patterns and momentum confirmation"
+  },
+  "sub_algorithm_variants": {
+    "breakout": {
+      "v1.0": {
+        "name": "Basic Breakout Pattern",
+        "description": "Simple resistance breakout with volume",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest volume > latest sma ( latest volume , 20 ) * 1.5 and latest close > 1 day ago high and latest close > 50 ) ) ",
+        "weight": 0.35,
+        "expected_results": 80
+      },
+      "v1.1": {
+        "name": "Multi-Timeframe Breakout",
+        "description": "Breakout with multiple timeframe confirmation",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and  latest volume > latest sma ( latest volume , 20 ) * 1.8 and latest close > 5 days ago max( 5 , latest high ) and latest sma ( latest close , 20 ) > latest sma ( latest close , 50 ) and latest rsi( 14 ) > 45 ) ) ",
+        "weight": 0.35,
+        "expected_results": 60
+      },
+      "v1.2": {
+        "name": "Volume Confirmed Breakout",
+        "description": "Strong breakout with institutional volume patterns",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close > latest sma ( latest close , 50 ) and latest volume > latest sma ( latest volume , 20 ) * 2.0 and latest close / 10 days ago close > 1.05 and latest rsi( 14 ) > 50 and latest rsi( 14 ) < 75 and market cap > 500 ) ) ",
+        "weight": 0.35,
+        "expected_results": 45
+      }
+    },
+    "momentum": {
+      "v1.0": {
+        "name": "Basic Price Momentum",
+        "description": "Simple momentum with moving averages",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 10 ) and latest sma ( latest close , 10 ) > latest sma ( latest close , 20 ) and latest volume > latest sma ( latest volume , 10 ) * 1.2 and latest close > 50 ) ) ",
+        "weight": 0.25,
+        "expected_results": 120
+      },
+      "v1.1": {
+        "name": "RSI Momentum Combo",
+        "description": "Momentum with RSI oversold to overbought transition",
+        "query": "( {cash} ( latest close > latest sma( latest close , 20 ) and latest rsi( 14 ) > 50 and latest rsi( 14 ) < 70 and 3 days ago rsi( 14 ) < 45 and latest volume > latest sma( latest volume , 20 ) * 1.3 ) )",
+        "weight": 0.25,
+        "expected_results": 80
+      },
+      "v1.2": {
+        "name": "Acceleration Momentum",
+        "description": "Momentum with price acceleration patterns",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and latest close / 3 days ago close > 1.03 and latest volume > latest sma ( latest volume , 20 ) * 1.5 and latest rsi( 14 ) > 55 and latest close > latest ema ( latest close , 21 ) ) ) ",
+        "weight": 0.25,
+        "expected_results": 65
+      }
+    },
+    "pattern": {
+      "v1.0": {
+        "name": "Support Bounce",
+        "description": "Bounce from key support levels",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 50 ) * 0.98 and latest close < latest sma ( latest close , 50 ) * 1.02 and latest rsi( 14 ) > 40 and latest rsi( 14 ) < 60 and latest volume > latest sma ( latest volume , 20 ) * 1.2 ) ) ",
+        "weight": 0.2,
+        "expected_results": 70
+      },
+      "v1.1": {
+        "name": "Flag Pattern",
+        "description": "Bull flag continuation patterns",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 20 ) and 1 day ago close / 5 days ago close > 1.05 and latest close / 1 day ago close > 0.98 and latest close / 1 day ago close < 1.02 and latest volume < 3 days ago volume and latest rsi( 14 ) > 45 ) ) ",
+        "weight": 0.2,
+        "expected_results": 50
+      },
+      "v1.2": {
+        "name": "Cup and Handle",
+        "description": "Cup and handle breakout patterns",
+        "query": "( {cash} ( latest close > 20 days ago high and latest close > latest sma ( latest close , 20 ) and latest volume > latest sma ( latest volume , 20 ) * 1.6 and 10 days ago close < 15 days ago close and latest rsi( 14 ) > 55 ) ) ",
+        "weight": 0.2,
+        "expected_results": 35
+      }
+    },
+    "reversal": {
+      "v1.0": {
+        "name": "Basic Reversal",
+        "description": "Simple oversold reversal patterns",
+        "query": "( {cash} ( latest rsi( 14 ) < 35 and 1 day ago rsi( 14 ) < latest rsi( 14 ) and latest close > latest open and latest volume > ( latest sma ( latest volume , 20 ) * 1.3 ) ) ) ",
+        "weight": 0.2,
+        "expected_results": 60
+      },
+      "v1.1": {
+        "name": "Hammer Reversal",
+        "description": "Hammer candlestick reversal with volume",
+        "query": "( {cash} ( latest low < 3 days ago low and latest close > latest open and latest close > ( latest high + latest low ) / 2 and latest volume > latest sma ( latest volume , 20 ) * 1.4 and latest rsi( 14 ) < 40 ) ) ",
+        "weight": 0.2,
+        "expected_results": 40
+      },
+      "v1.2": {
+        "name": "Double Bottom Reversal",
+        "description": "Double bottom pattern with volume confirmation",
+        "query": "( {cash} ( latest close > latest sma ( latest close , 10 ) and 5 days ago low < 10 days ago low and latest low > 5 days ago low and latest volume > latest sma ( latest volume , 20 ) * 1.5 and latest rsi( 14 ) > 45 ) ) ",
+        "weight": 0.2,
+        "expected_results": 30
+      }
+    }
+  },
+  "algorithms": {
+    "v1.0.0": {
+      "name": "Basic Swing Patterns",
+      "version": "v1.0.0",
+      "description": "Initial swing algorithm with basic patterns",
+      "status": "active",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "breakout": "v1.0",
+        "momentum": "v1.0",
+        "pattern": "v1.0",
+        "reversal": "v1.0"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "v1.1.0": {
+      "name": "Enhanced Swing Detection",
+      "version": "v1.1.0",
+      "description": "Enhanced algorithm with improved pattern recognition",
+      "status": "active",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "breakout": "v1.1",
+        "momentum": "v1.1",
+        "pattern": "v1.1",
+        "reversal": "v1.1"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "v1.2.0": {
+      "name": "Advanced Pattern Recognition",
+      "version": "v1.2.0",
+      "description": "Advanced algorithm with sophisticated pattern analysis",
+      "status": "testing",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "breakout": "v1.2",
+        "momentum": "v1.1",
+        "pattern": "v1.2",
+        "reversal": "v1.1"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    },
+    "v1.3.0": {
+      "name": "Experimental High-Performance Swing",
+      "version": "v1.3.0",
+      "description": "Experimental version with latest pattern variants for swing trading",
+      "status": "experimental",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "breakout": "v1.2",
+        "momentum": "v1.2",
+        "pattern": "v1.2",
+        "reversal": "v1.2"
+      },
+      "performance_metrics": {
+        "total_stocks_found": 0,
+        "avg_score": 0.0,
+        "success_rate": 0.0,
+        "last_tested": null,
+        "test_count": 0
+      }
+    }
+  },
+  "re_ranking_criteria": {
+    "volatility_filter": {
+      "weight": 0.15,
+      "description": "Optimal volatility for swing moves",
+      "min_volatility": 0.02,
+      "max_volatility": 0.08
+    },
+    "liquidity_score": {
+      "weight": 0.25,
+      "description": "Sufficient liquidity for swing positions",
+      "min_volume_ratio": 1.5,
+      "min_market_cap": 300
+    },
+    "trend_strength": {
+      "weight": 0.30,
+      "description": "Trend strength for swing continuation",
+      "lookback_period": 10,
+      "min_trend_score": 60
+    },
+    "sector_momentum": {
+      "weight": 0.15,
+      "description": "Sector relative strength",
+      "sector_lookback": 5,
+      "min_sector_score": 50
+    },
+    "risk_reward": {
+      "weight": 0.15,
+      "description": "Risk-reward ratio for swing trades",
+      "min_rr_ratio": 2.0,
+      "max_risk_percent": 5.0
+    }
+  },
+  "scoring_system": {
+    "max_score": 100,
+    "category_weights": {
+      "breakout": 35,
+      "momentum": 25,
+      "pattern": 20,
+      "reversal": 20
+    },
+    "min_score_thresholds": {
+      "conservative": 70,
+      "moderate": 50,
+      "aggressive": 30
+    }
+  }
+} 

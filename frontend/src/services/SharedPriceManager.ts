@@ -184,8 +184,6 @@ class SharedPriceManager extends EventEmitter {
    */
   private async fetchBatchPrices(symbols: string[]): Promise<void> {
     try {
-      const batchId = `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
       console.log(`📡 Fetching prices for batch: ${symbols.length} symbols`);
       
       // Check cache first

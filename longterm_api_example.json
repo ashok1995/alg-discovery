@@ -1,0 +1,51 @@
+{
+  "endpoint": "/api/longterm/long-buy-recommendations",
+  "api": "POST /api/longterm/long-buy-recommendations (Long-Term Investment Recommendations)",
+  "request": {
+    "combination": {
+      "fundamental": "v1.0",
+      "momentum": "v1.0",
+      "value": "v1.0",
+      "quality": "v1.0"
+    },
+    "limit_per_query": 50,
+    "min_score": 25.0,
+    "top_recommendations": 10,
+    "force_refresh": true
+  },
+  "response": {
+    "status": "success",
+    "recommendations": [
+      {
+        "symbol": "RELIANCE.NS",
+        "name": "Reliance Industries",
+        "price": 2450.0,
+        "score": 84.5,
+        "per_change": 16.3,
+        "volume": 15420000,
+        "recommendation_type": "Strong Long-term Buy",
+        "appearances": 4,
+        "category_count": 4,
+        "categories": ["fundamental", "momentum", "value", "quality"],
+        "fundamental": true,
+        "momentum": true,
+        "value": true,
+        "quality": true
+      }
+    ],
+    "metadata": {
+      "combination_used": {
+        "fundamental": "v1.0",
+        "momentum": "v1.0",
+        "value": "v1.0",
+        "quality": "v1.0"
+      },
+      "performance_metrics": {
+        "unique_stocks": 45,
+        "total_stocks_found": 120
+      },
+      "total_recommendations": 10,
+      "timestamp": "2025-07-03T17:00:00.000Z"
+    }
+  }
+} 

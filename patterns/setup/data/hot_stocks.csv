@@ -1,0 +1,21 @@
+symbol,name,pattern,change,strength,sector,volume,market_cap
+RELIANCE,Reliance Industries,Breakout,2.5,85,Energy,12500000,3450000
+HDFCBANK,HDFC Bank,Bullish Flag,1.8,82,Finance,8700000,1820000
+TCS,Tata Consultancy Services,Cup and Handle,1.2,79,Technology,5400000,1680000
+INFY,Infosys Ltd,Support Bounce,0.9,77,Technology,7200000,1250000
+ICICIBANK,ICICI Bank,Bullish Engulfing,1.5,80,Finance,9800000,960000
+ADANIENT,Adani Enterprises,Ascending Triangle,3.2,88,Infrastructure,6500000,870000
+SBIN,State Bank of India,Double Bottom,1.1,76,Finance,15600000,680000
+TATASTEEL,Tata Steel,Momentum,2.3,81,Manufacturing,8900000,520000
+LTIM,L&T Infotech,Moving Average Cross,0.8,75,Technology,2100000,480000
+BAJFINANCE,Bajaj Finance,Pullback,1.4,78,Finance,3800000,760000
+HINDUNILVR,Hindustan Unilever,Breakout,1.7,79,Consumer Goods,4500000,940000
+MARUTI,Maruti Suzuki,Golden Cross,2.1,83,Automotive,2800000,680000
+BHARTIARTL,Bharti Airtel,Cup with Handle,1.3,78,Telecom,7600000,890000
+ASIANPAINT,Asian Paints,Channel Breakout,0.9,74,Manufacturing,1900000,540000
+AXISBANK,Axis Bank,Trend Line Break,1.9,81,Finance,8300000,640000
+WIPRO,Wipro Ltd,Support Bounce,0.7,73,Technology,3700000,370000
+KOTAKBANK,Kotak Mahindra Bank,Double Bottom,1.5,80,Finance,4600000,720000
+TITAN,Titan Company,Flag Pattern,2.4,84,Consumer Goods,2200000,490000
+HCLTECH,HCL Technologies,Bollinger Bounce,1.1,76,Technology,3100000,420000
+SUNPHARMA,Sun Pharma,Reversal,1.6,79,Pharmaceutical,5200000,580000 

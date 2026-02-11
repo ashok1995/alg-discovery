@@ -1,0 +1,672 @@
+2025-07-01 09:30:40,772 - __main__ - INFO - 🚀 Initializing Chartink + Recommendation Engine Demo
+2025-07-01 09:30:40,772 - __main__ - INFO - 🔧 Initializing Chartink and Recommendation systems...
+2025-07-01 09:30:41,034 - bs4.dammit - WARNING - Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+2025-07-01 09:30:41,036 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ CSRF token not found
+2025-07-01 09:30:41,036 - __main__ - INFO - ✅ Chartink fetcher initialized
+2025-07-01 09:30:41,036 - recommendation_engine.config.algorithm_registry - INFO - Loaded 6 algorithms and 3 A/B tests
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - INFO - ✅ Loaded configuration with 6 algorithms
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - INFO - 🔄 Initializing algorithms...
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load momentum_intraday_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load volume_surge_intraday_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load momentum_intraday_v2: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load weighted_ensemble_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load swing_momentum_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load long_term_value_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - INFO - ✅ Initialized 0 algorithms
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - INFO - 🧪 Setting up A/B tests...
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - INFO - 🧪 Active A/B test: Momentum Algorithm V1 vs V2 Comparison
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - INFO - ✅ Setup 1 active A/B tests
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - INFO - ✅ Started background monitoring
+2025-07-01 09:30:41,036 - recommendation_engine.utils.chartink_integration - INFO - ✅ Recommendation orchestrator initialized
+2025-07-01 09:30:41,036 - __main__ - INFO - ✅ Chartink recommendation engine initialized
+2025-07-01 09:30:41,036 - recommendation_engine.config.algorithm_registry - INFO - Loaded 6 algorithms and 3 A/B tests
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - INFO - ✅ Loaded configuration with 6 algorithms
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - INFO - 🔄 Initializing algorithms...
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load momentum_intraday_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load volume_surge_intraday_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load momentum_intraday_v2: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load weighted_ensemble_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,036 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load swing_momentum_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,037 - recommendation_engine.recommendation_orchestrator - ERROR - ❌ Failed to load long_term_value_v1: register_algorithm() got an unexpected keyword argument 'alg_id'
+2025-07-01 09:30:41,037 - recommendation_engine.recommendation_orchestrator - INFO - ✅ Initialized 0 algorithms
+2025-07-01 09:30:41,037 - recommendation_engine.recommendation_orchestrator - INFO - 🧪 Setting up A/B tests...
+2025-07-01 09:30:41,037 - recommendation_engine.recommendation_orchestrator - INFO - 🧪 Active A/B test: Momentum Algorithm V1 vs V2 Comparison
+2025-07-01 09:30:41,037 - recommendation_engine.recommendation_orchestrator - INFO - ✅ Setup 1 active A/B tests
+2025-07-01 09:30:41,037 - recommendation_engine.recommendation_orchestrator - INFO - ✅ Started background monitoring
+2025-07-01 09:30:41,037 - __main__ - INFO - ✅ Recommendation orchestrator initialized
+2025-07-01 09:30:41,037 - __main__ - INFO - 
+======================================================================
+2025-07-01 09:30:41,037 - __main__ - INFO - 📊 CHARTINK FILTERS DEMONSTRATION
+2025-07-01 09:30:41,037 - __main__ - INFO - ======================================================================
+2025-07-01 09:30:41,038 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: momentum_breakout
+2025-07-01 09:30:41,038 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:41,038 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:41,149 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:41,258 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:41,373 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:41,373 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:41,373 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:41,373 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: volume_surge
+2025-07-01 09:30:41,373 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:41,373 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:41,510 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:41,610 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:41,721 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:41,721 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:41,722 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:41,722 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: gap_up
+2025-07-01 09:30:41,722 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:41,722 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:41,820 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:41,912 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,046 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,047 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:42,047 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:42,047 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: rsi_oversold_bounce
+2025-07-01 09:30:42,047 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:42,047 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:42,145 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,263 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,388 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,388 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:42,388 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:42,388 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: trend_continuation
+2025-07-01 09:30:42,388 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: swing_buy
+2025-07-01 09:30:42,388 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 3000 ) and 
+                ( latest sma( close , 20 ) > latest sma( close , 50 ) ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1.5 ) ) )
+                
+2025-07-01 09:30:42,476 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,572 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,680 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,680 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:42,680 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 3000 ) and 
+                ( latest sma( close , 20 ) > latest sma( close , 50 ) ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1.5 ) ) )
+                
+2025-07-01 09:30:42,680 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: support_bounce
+2025-07-01 09:30:42,680 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: swing_buy
+2025-07-01 09:30:42,680 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 2500 ) and 
+                ( latest close > latest sma( close , 20 ) * 0.98 ) and
+                ( latest rsi( 14 ) > 40 and latest rsi( 14 ) < 70 ) ) )
+                
+2025-07-01 09:30:42,783 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,884 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,990 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:42,990 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:42,991 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 2500 ) and 
+                ( latest close > latest sma( close , 20 ) * 0.98 ) and
+                ( latest rsi( 14 ) > 40 and latest rsi( 14 ) < 70 ) ) )
+                
+2025-07-01 09:30:42,991 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: breakout_volume
+2025-07-01 09:30:42,991 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: swing_buy
+2025-07-01 09:30:42,991 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > latest sma( close , 50 ) ) and
+                ( latest close > 100 ) and
+                ( latest close < 3000 ) and
+                ( latest volume > 1 day ago volume * 1.3 ) ) )
+                
+2025-07-01 09:30:43,084 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:43,188 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:43,307 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:43,307 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:43,308 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > latest sma( close , 50 ) ) and
+                ( latest close > 100 ) and
+                ( latest close < 3000 ) and
+                ( latest volume > 1 day ago volume * 1.3 ) ) )
+                
+2025-07-01 09:30:43,308 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: weekly_momentum
+2025-07-01 09:30:43,308 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: short_term_buy
+2025-07-01 09:30:43,308 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 2500 ) and 
+                ( latest "close - 5 day ago close / 5 day ago close * 100" > 3 ) and
+                ( latest rsi( 14 ) < 80 ) ) )
+                
+2025-07-01 09:30:43,403 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:43,503 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:43,613 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:43,613 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:43,613 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 2500 ) and 
+                ( latest "close - 5 day ago close / 5 day ago close * 100" > 3 ) and
+                ( latest rsi( 14 ) < 80 ) ) )
+                
+2025-07-01 09:30:43,613 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: moving_average_crossover
+2025-07-01 09:30:43,613 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: short_term_buy
+2025-07-01 09:30:43,613 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest sma( close , 10 ) > latest sma( close , 21 ) ) and
+                ( 1 day ago sma( close , 10 ) <= 1 day ago sma( close , 21 ) ) and
+                ( latest close > 100 ) and
+                ( latest close < 3000 ) ) )
+                
+2025-07-01 09:30:43,736 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:43,845 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:43,940 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:43,940 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:43,940 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest sma( close , 10 ) > latest sma( close , 21 ) ) and
+                ( 1 day ago sma( close , 10 ) <= 1 day ago sma( close , 21 ) ) and
+                ( latest close > 100 ) and
+                ( latest close < 3000 ) ) )
+                
+2025-07-01 09:30:43,940 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: fundamental_growth
+2025-07-01 09:30:43,940 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: long_term_buy
+2025-07-01 09:30:43,941 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 200 ) and 
+                ( latest close < 5000 ) and 
+                ( latest "close - 1 month ago close / 1 month ago close * 100" > 5 ) and
+                ( latest volume > 500000 ) ) )
+                
+2025-07-01 09:30:44,038 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:44,131 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:44,232 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:44,232 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:44,232 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 200 ) and 
+                ( latest close < 5000 ) and 
+                ( latest "close - 1 month ago close / 1 month ago close * 100" > 5 ) and
+                ( latest volume > 500000 ) ) )
+                
+2025-07-01 09:30:44,232 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: value_with_momentum
+2025-07-01 09:30:44,233 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: long_term_buy
+2025-07-01 09:30:44,233 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 200 ) and 
+                ( latest close < 4000 ) and 
+                ( latest pe < 30 ) and
+                ( latest "close - 1 week ago close / 1 week ago close * 100" > 2 ) ) )
+                
+2025-07-01 09:30:44,329 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:44,435 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:44,530 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:44,530 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:44,530 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 200 ) and 
+                ( latest close < 4000 ) and 
+                ( latest pe < 30 ) and
+                ( latest "close - 1 week ago close / 1 week ago close * 100" > 2 ) ) )
+                
+2025-07-01 09:30:44,530 - __main__ - INFO - 
+======================================================================
+2025-07-01 09:30:44,530 - __main__ - INFO - 🧮 MULTI-ALGORITHM SCORING DEMONSTRATION
+2025-07-01 09:30:44,530 - __main__ - INFO - ======================================================================
+2025-07-01 09:30:44,530 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: momentum_breakout
+2025-07-01 09:30:44,530 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:44,530 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:44,620 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:44,719 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:44,809 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:44,810 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:44,810 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:44,810 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: volume_surge
+2025-07-01 09:30:44,810 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:44,810 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:44,910 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,005 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,114 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,115 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:45,116 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:45,117 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: gap_up
+2025-07-01 09:30:45,117 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:45,117 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:45,212 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,310 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,410 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,411 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:45,411 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:45,411 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: rsi_oversold_bounce
+2025-07-01 09:30:45,411 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:45,411 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:45,517 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,616 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,751 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,751 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:45,751 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:45,751 - __main__ - INFO - 
+======================================================================
+2025-07-01 09:30:45,751 - __main__ - INFO - 🔄 INTEGRATED WORKFLOW DEMONSTRATION
+2025-07-01 09:30:45,751 - __main__ - INFO - ======================================================================
+2025-07-01 09:30:45,751 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Getting ranked recommendations for intraday_buy
+2025-07-01 09:30:45,751 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: momentum_breakout
+2025-07-01 09:30:45,751 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:45,751 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:45,856 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:45,955 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:46,048 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:46,049 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:46,049 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:46,049 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: volume_surge
+2025-07-01 09:30:46,049 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:46,049 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:46,154 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:46,273 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:46,410 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:46,410 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:46,410 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:46,410 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: gap_up
+2025-07-01 09:30:46,410 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:46,410 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:46,515 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:46,614 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:46,714 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:46,714 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:46,715 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:46,715 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: rsi_oversold_bounce
+2025-07-01 09:30:46,715 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:46,715 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:46,812 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:46,947 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:47,053 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:47,053 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:47,054 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:47,054 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No candidates found from Chartink
+2025-07-01 09:30:47,054 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Getting ranked recommendations for swing_buy
+2025-07-01 09:30:47,054 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: trend_continuation
+2025-07-01 09:30:47,054 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: swing_buy
+2025-07-01 09:30:47,054 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 3000 ) and 
+                ( latest sma( close , 20 ) > latest sma( close , 50 ) ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1.5 ) ) )
+                
+2025-07-01 09:30:47,157 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:47,251 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:47,371 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:47,371 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:47,371 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 3000 ) and 
+                ( latest sma( close , 20 ) > latest sma( close , 50 ) ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1.5 ) ) )
+                
+2025-07-01 09:30:47,371 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: support_bounce
+2025-07-01 09:30:47,372 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: swing_buy
+2025-07-01 09:30:47,372 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 2500 ) and 
+                ( latest close > latest sma( close , 20 ) * 0.98 ) and
+                ( latest rsi( 14 ) > 40 and latest rsi( 14 ) < 70 ) ) )
+                
+2025-07-01 09:30:47,509 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:47,639 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:47,735 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:47,735 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:47,739 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 100 ) and 
+                ( latest close < 2500 ) and 
+                ( latest close > latest sma( close , 20 ) * 0.98 ) and
+                ( latest rsi( 14 ) > 40 and latest rsi( 14 ) < 70 ) ) )
+                
+2025-07-01 09:30:47,739 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: breakout_volume
+2025-07-01 09:30:47,739 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: swing_buy
+2025-07-01 09:30:47,739 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > latest sma( close , 50 ) ) and
+                ( latest close > 100 ) and
+                ( latest close < 3000 ) and
+                ( latest volume > 1 day ago volume * 1.3 ) ) )
+                
+2025-07-01 09:30:47,864 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:47,955 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,055 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,055 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:48,055 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > latest sma( close , 50 ) ) and
+                ( latest close > 100 ) and
+                ( latest close < 3000 ) and
+                ( latest volume > 1 day ago volume * 1.3 ) ) )
+                
+2025-07-01 09:30:48,055 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No candidates found from Chartink
+2025-07-01 09:30:48,055 - __main__ - INFO - 
+======================================================================
+2025-07-01 09:30:48,056 - __main__ - INFO - ⚖️  FILTER PERFORMANCE COMPARISON
+2025-07-01 09:30:48,056 - __main__ - INFO - ======================================================================
+2025-07-01 09:30:48,056 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:48,056 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:48,150 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,244 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,347 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,347 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:48,348 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:48,348 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:48,348 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:48,481 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,593 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,691 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,691 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:48,692 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:48,692 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:48,692 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:48,789 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,882 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,979 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:48,979 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:48,979 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:48,979 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:48,979 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:49,075 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:49,175 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:49,272 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:49,272 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:49,272 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:49,273 - __main__ - INFO - 
+======================================================================
+2025-07-01 09:30:49,273 - __main__ - INFO - ⚡ CACHE & PERFORMANCE DEMONSTRATION
+2025-07-01 09:30:49,273 - __main__ - INFO - ======================================================================
+2025-07-01 09:30:49,273 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: momentum_breakout
+2025-07-01 09:30:49,273 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:49,273 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:49,373 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:49,479 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:49,575 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:49,575 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:49,576 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:49,576 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: volume_surge
+2025-07-01 09:30:49,576 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:49,576 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:49,674 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:49,773 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:49,886 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:49,887 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:49,887 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:49,887 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: gap_up
+2025-07-01 09:30:49,887 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:49,887 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:49,999 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:50,093 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:50,191 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:50,191 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:50,192 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:50,192 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: rsi_oversold_bounce
+2025-07-01 09:30:50,192 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:50,192 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:50,297 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:50,402 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:50,510 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:50,510 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:50,511 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:50,511 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: momentum_breakout
+2025-07-01 09:30:50,511 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:50,511 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:50,606 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:50,708 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:50,798 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:50,798 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:50,798 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest volume > 1 day ago volume * 1.5 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:50,798 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: volume_surge
+2025-07-01 09:30:50,798 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:50,799 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:50,911 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:51,002 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:51,104 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:51,104 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:51,105 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 3000 ) and 
+                ( latest volume > 1 day ago volume * 2 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 0.5 ) ) )
+                
+2025-07-01 09:30:51,105 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: gap_up
+2025-07-01 09:30:51,105 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:51,105 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:51,200 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:51,325 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:51,422 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:51,422 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:51,422 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and
+                ( latest close > 50 ) and
+                ( latest close < 2500 ) and
+                ( latest volume > 100000 ) ) )
+                
+2025-07-01 09:30:51,423 - recommendation_engine.utils.chartink_integration - INFO - 🎯 Applying filter: rsi_oversold_bounce
+2025-07-01 09:30:51,423 - recommendation_engine.utils.chartink_integration - INFO - 🔍 Fetching stocks for theme: intraday_buy
+2025-07-01 09:30:51,423 - recommendation_engine.utils.chartink_integration - INFO - 📊 Filter query: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:51,530 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:51,626 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:51,734 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ HTTP 419 from Chartink
+2025-07-01 09:30:51,734 - recommendation_engine.utils.chartink_integration - ERROR - ❌ All retry attempts failed
+2025-07-01 09:30:51,735 - recommendation_engine.utils.chartink_integration - WARNING - ⚠️ No stocks found for filter: 
+                ( {cash} ( ( {33489} ( latest close > 50 ) and 
+                ( latest close < 2000 ) and 
+                ( latest rsi( 14 ) < 40 ) and
+                ( latest "close - 1 day ago close / 1 day ago close * 100" > 1 ) ) )
+                
+2025-07-01 09:30:51,735 - __main__ - INFO - 
+======================================================================
+2025-07-01 09:30:51,735 - __main__ - INFO - 📋 COMPREHENSIVE SUMMARY REPORT
+2025-07-01 09:30:51,735 - __main__ - INFO - ======================================================================

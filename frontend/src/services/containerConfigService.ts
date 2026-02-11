@@ -384,13 +384,12 @@ class ContainerConfigService {
       }
 
       // Check partner services
-      let partnerStatus = { chartink: false, yahoo_finance: false };
       try {
         const partnerResponse = await fetch(this.getEndpointUrl('partner'), {
           signal: AbortSignal.timeout(this.config.timeout),
         });
         if (partnerResponse.ok) {
-          partnerStatus = await partnerResponse.json();
+          void partnerResponse.json();
         }
       } catch (e) {
         console.warn('Partner services check failed:', e);

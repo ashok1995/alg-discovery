@@ -1,0 +1,70 @@
+/* Button styles */
+.action-button {
+  display: inline-block;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-decoration: none;
+}
+
+.action-button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.action-button.secondary {
+  background-color: var(--secondary);
+}
+
+.action-button.success {
+  background-color: var(--success);
+}
+
+.action-button.danger {
+  background-color: var(--danger);
+}
+
+.action-button.warning {
+  background-color: var(--warning);
+}
+
+.action-button.info {
+  background-color: var(--info);
+}
+
+.action-button.outline {
+  background-color: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.action-button.outline:hover {
+  background-color: var(--primary-light);
+}
+
+.action-button.small {
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-2);
+}
+
+.action-button.large {
+  font-size: var(--font-size-md);
+  padding: var(--space-3) var(--space-5);
+}
+
+.action-button.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-button.icon svg {
+  margin-right: var(--space-2);
+} 

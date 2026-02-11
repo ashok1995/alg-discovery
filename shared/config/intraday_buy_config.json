@@ -1,0 +1,195 @@
+{
+  "metadata": {
+    "strategy_type": "intraday_buy",
+    "file_version": "1.2.0",
+    "created_date": "2024-01-15T10:00:00Z",
+    "last_updated": "2024-01-15T10:00:00Z",
+    "description": "Intraday buy signal configuration for Indian equities",
+    "author": "Algorithm Discovery System",
+    "market_focus": "Indian Equities (BSE/NSE)",
+    "timeframe": "1 day",
+    "target_return": 0.03,
+    "stop_loss": 0.02,
+    "max_holding_time": "6 hours",
+    "trading_session": "9:15 AM - 3:30 PM IST"
+  },
+  "current_version": "v1.0.0",
+  "current_algorithm": {
+    "name": "Enhanced Intraday Buy",
+    "version": "v1.1.0",
+    "status": "active",
+    "created_date": "2024-01-11"
+  },
+  "sub_algorithm_variants": {
+    "momentum": {
+      "v1.0": {
+        "name": "Gap Up Momentum",
+        "query": "(15 minute close > 15 minute open) and (15 minute volume > 1.5 * prev 15 minute volume)",
+        "weight": 1.0
+      },
+      "v1.1": {
+        "name": "Breakout with Volume",
+        "query": "(15 minute close crosses above vwap) and (15 minute volume > 2 * avg(15, volume))",
+        "weight": 1.0
+      }
+    },
+    "reversal": {
+      "v1.0": {
+        "name": "Bullish Reversal Pattern",
+        "query": "(15 minute low < prev 15 minute low) and (15 minute close > prev 15 minute high)",
+        "weight": 1.0
+      },
+      "v1.1": {
+        "name": "Opening Range Breakout",
+        "query": "(time > 0930) and (close > max(range(0915, 0930, high)))",
+        "weight": 1.2
+      }
+    },
+    "technical": {
+      "v1.0": {
+        "name": "VWAP Support",
+        "query": "(low < vwap) and (close > vwap) and (volume > avg(20, volume))",
+        "weight": 1.1
+      },
+      "v1.1": {
+        "name": "Previous Day High Breakout",
+        "query": "(close > prev day high) and (volume > 1.5 * avg(20, volume))",
+        "weight": 1.0
+      }
+    },
+    "volume": {
+      "v1.0": {
+        "name": "High Relative Volume Surge",
+        "query": "(volume > 2 * avg(20, volume)) and (close > open) and (close > vwap)",
+        "weight": 1.1
+      },
+      "v1.1": {
+        "name": "Afternoon Breakout",
+        "query": "(time > 1300) and (close > vwap) and (volume > 1.5 * avg(20, volume))",
+        "weight": 1.0
+      }
+    }
+  },
+  "algorithms": {
+    "v1.0.0": {
+      "name": "Baseline Intraday Buy",
+      "version": "v1.0.0",
+      "status": "active",
+      "created_date": "2024-01-15",
+      "sub_algorithm_config": {
+        "momentum": "v1.0",
+        "reversal": "v1.0",
+        "technical": "v1.0",
+        "volume": "v1.0"
+      }
+    }
+  },
+  "re_ranking_criteria": {
+    "volume_spike": { "weight": 0.25, "min_volume_ratio": 2.0 },
+    "momentum_score": { "weight": 0.30, "min_momentum": 60 },
+    "gap_size": { "weight": 0.15, "max_gap": 0.05 },
+    "vwap_distance": { "weight": 0.15, "max_distance_percent": 1.0 },
+    "risk_reward": { "weight": 0.15, "min_rr_ratio": 1.5 }
+  },
+  "scoring_system": {
+    "max_score": 100,
+    "category_weights": {
+      "gap_momentum": 40,
+      "volume_breakout": 35,
+      "morning_momentum": 25
+    },
+    "min_score_thresholds": {
+      "conservative": 70,
+      "moderate": 50,
+      "aggressive": 35
+    }
+  },
+  "chartink_queries": {
+    "gap_momentum": {
+      "query": "( {cash} ( latest open > [0] 1 day ago close * 1.015 and latest open < [0] 1 day ago close * 1.05 and latest volume > latest sma(volume,20) * 2 and latest close > latest open and latest \"market cap\" > 1000 ) )",
+      "description": "Controlled gap up with momentum confirmation",
+      "weight": 0.4,
+      "expected_results": 25,
+      "entry_time": "9:30-10:30 AM",
+      "exit_time": "3:00-3:20 PM"
+    },
+    "volume_breakout": {
+      "query": "( {cash} ( latest volume > latest sma(volume,20) * 4 and latest close > latest sma(close,5) and latest rsi(14) > 55 and latest rsi(14) < 80 and latest close > latest open * 1.01 ) )",
+      "description": "Volume breakout with price confirmation",
+      "weight": 0.35,
+      "expected_results": 20,
+      "entry_time": "10:00-11:30 AM",
+      "exit_time": "2:30-3:20 PM"
+    },
+    "morning_momentum": {
+      "query": "( {cash} ( latest close > latest sma(close,5) and latest volume > latest sma(volume,5) * 2 and latest rsi(14) > 50 and latest close > latest open and latest \"market cap\" > 500 ) )",
+      "description": "Morning momentum with technical confirmation",
+      "weight": 0.25,
+      "expected_results": 18,
+      "entry_time": "9:45-10:15 AM",
+      "exit_time": "2:00-3:15 PM"
+    }
+  },
+  "fallback_queries": [
+    "( {cash} ( latest volume > latest sma(volume,20) and latest close > latest open ) )",
+    "( {cash} ( latest close > 50 and latest volume > 100000 ) )"
+  ],
+  "intraday_settings": {
+    "trading_hours": {
+      "market_open": "09:15",
+      "market_close": "15:30",
+      "entry_window_start": "09:30",
+      "entry_window_end": "14:00",
+      "exit_window_start": "14:30",
+      "mandatory_exit": "15:20"
+    },
+    "volume_criteria": {
+      "min_volume_surge": 2.0,
+      "min_absolute_volume": 50000,
+      "volume_sma_period": 20
+    },
+    "gap_criteria": {
+      "min_gap_up": 0.015,
+      "max_gap_up": 0.05,
+      "avoid_large_gaps": true
+    }
+  },
+  "scoring_criteria": {
+    "momentum_weight": 0.4,
+    "volume_weight": 0.3,
+    "gap_weight": 0.2,
+    "technical_weight": 0.1,
+    "min_score_threshold": 50.0
+  },
+  "risk_management": {
+    "position_sizing": {
+      "max_position_size": 0.10,
+      "min_position_size": 0.02,
+      "max_concurrent_trades": 3
+    },
+    "entry_rules": {
+      "min_volume": 50000,
+      "min_market_cap": 500,
+      "avoid_penny_stocks": true,
+      "min_price": 50
+    },
+    "exit_rules": {
+      "profit_target": 0.03,
+      "stop_loss": 0.02,
+      "trailing_stop": 0.015,
+      "time_based_exit": "15:20"
+    }
+  },
+  "technical_indicators": {
+    "primary": ["Volume", "RSI", "Price Action"],
+    "secondary": ["VWAP", "Opening Range"],
+    "rsi_bullish": 50,
+    "volume_surge_threshold": 2.0
+  },
+  "api_settings": {
+    "max_requests_per_minute": 40,
+    "request_timeout": 20,
+    "retry_attempts": 2,
+    "cache_duration": 180
+  }
+} 

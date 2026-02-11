@@ -7,8 +7,8 @@ alwaysApply: true
 
 ## 1. Branch & Commit Policy
 
-- **main**: NEVER commit directly. main is pull-only for deploy to stage and prod.
-- **All code changes**: Commit only on other branches (e.g. `frontend_streamline_v1.1.1`, `feature/*`). Merge to main via PR.
+- **main**: NEVER commit directly. Direct changes on main are forbidden. main is pull-only for deploy to stage and prod.
+- **All code changes**: Commit only on other branches (e.g. `develop`, `frontend_streamline_v1.1.1`, `feature/*`). Merge to main via PR only.
 - **Issues found in staging**: Create a branch from main → fix → commit → merge. This is the only way to fix staging issues.
 - **Flow**: Branch → develop/fix → commit → PR → merge to main → GCP pull main → deploy.
 

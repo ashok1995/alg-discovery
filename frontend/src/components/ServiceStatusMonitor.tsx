@@ -141,13 +141,14 @@ const ServiceStatusMonitor: React.FC<ServiceStatusMonitorProps> = ({
     } finally {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- checkServiceStatus, serviceConfigs are stable
   }, [onStatusChange]);
 
   useEffect(() => {
     refreshStatuses();
-    
     const interval = setInterval(refreshStatuses, refreshInterval);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- checkServiceStatus/serviceConfigs are stable refs
   }, [refreshStatuses, refreshInterval]);
 
   const getStatusIcon = (status: ServiceStatus['status']) => {

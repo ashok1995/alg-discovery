@@ -1,0 +1,51 @@
+{
+  "endpoint": "/api/swing/swing-buy-recommendations",
+  "api": "POST /api/swing/swing-buy-recommendations (Swing Trading Recommendations)",
+  "request": {
+    "combination": {
+      "breakout": "v1.0",
+      "momentum": "v1.0",
+      "pattern": "v1.0",
+      "reversal": "v1.0"
+    },
+    "limit_per_query": 50,
+    "min_score": 25.0,
+    "top_recommendations": 10,
+    "force_refresh": true
+  },
+  "response": {
+    "status": "success",
+    "recommendations": [
+      {
+        "symbol": "TATAMOTORS.NS",
+        "name": "Tata Motors",
+        "price": 900.0,
+        "score": 78.2,
+        "per_change": 5.1,
+        "volume": 3200000,
+        "appearances": 3,
+        "category_count": 3,
+        "recommendation_type": "Swing Buy",
+        "breakout": true,
+        "momentum": true,
+        "pattern": false,
+        "reversal": true,
+        "categories": ["breakout", "momentum", "reversal"]
+      }
+    ],
+    "metadata": {
+      "combination_used": {
+        "breakout": "v1.0",
+        "momentum": "v1.0",
+        "pattern": "v1.0",
+        "reversal": "v1.0"
+      },
+      "performance_metrics": {
+        "unique_stocks": 30,
+        "total_stocks_across_categories": 80
+      },
+      "total_recommendations": 10,
+      "timestamp": "2025-07-03T17:00:00.000Z"
+    }
+  }
+} 

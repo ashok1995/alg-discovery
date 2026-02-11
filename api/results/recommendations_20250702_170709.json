@@ -1,0 +1,339 @@
+{
+  "generated_at": "2025-07-02T17:07:09.309767",
+  "total_recommendations": 25,
+  "recommendations": [
+    {
+      "rank": 1,
+      "symbol": "BAYERCROP",
+      "name": "Bayer Cropscience Limited",
+      "price": 6350.0,
+      "final_score": 3.0,
+      "base_score": 1.7,
+      "appearances": 7,
+      "categories": [
+        "quality",
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 2,
+      "symbol": "SANOFICONR",
+      "name": "Sanofi Consumer Healthcare India Ltd",
+      "price": 5319.0,
+      "final_score": 3.0,
+      "base_score": 1.7,
+      "appearances": 7,
+      "categories": [
+        "quality",
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 3,
+      "symbol": "SKFINDIA",
+      "name": "Skf India Limited",
+      "price": 4969.6,
+      "final_score": 3.0,
+      "base_score": 1.7,
+      "appearances": 7,
+      "categories": [
+        "quality",
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 4,
+      "symbol": "FINEORG",
+      "name": "Fine Organic Industries Ltd",
+      "price": 5158.8,
+      "final_score": 2.7,
+      "base_score": 1.5,
+      "appearances": 6,
+      "categories": [
+        "quality",
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 5,
+      "symbol": "SHARDAMOTR",
+      "name": "Sharda Motor Industries Limited",
+      "price": 2084.4,
+      "final_score": 2.7,
+      "base_score": 1.5,
+      "appearances": 6,
+      "categories": [
+        "value",
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 6,
+      "symbol": "COFORGE",
+      "name": "Coforge (Niit Tech)",
+      "price": 1926.1,
+      "final_score": 2.2,
+      "base_score": 1.3,
+      "appearances": 5,
+      "categories": [
+        "value",
+        "fundamental"
+      ]
+    },
+    {
+      "rank": 7,
+      "symbol": "NATCOPHARM",
+      "name": "Natco Pharma Limited",
+      "price": 921.95,
+      "final_score": 2.2,
+      "base_score": 1.3,
+      "appearances": 5,
+      "categories": [
+        "value",
+        "fundamental"
+      ]
+    },
+    {
+      "rank": 8,
+      "symbol": "CONTROLPR",
+      "name": "Control Print Limited",
+      "price": 832.3,
+      "final_score": 2.2,
+      "base_score": 1.3,
+      "appearances": 5,
+      "categories": [
+        "value",
+        "fundamental"
+      ]
+    },
+    {
+      "rank": 9,
+      "symbol": "TIIL",
+      "name": "Technocraft Industries (india) Limited",
+      "price": 3123.1,
+      "final_score": 2.05,
+      "base_score": 1.05,
+      "appearances": 4,
+      "categories": [
+        "quality",
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 10,
+      "symbol": "RAYMOND",
+      "name": "Raymond Limited",
+      "price": 758.0,
+      "final_score": 2.05,
+      "base_score": 1.05,
+      "appearances": 4,
+      "categories": [
+        "value",
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 11,
+      "symbol": "BHARATRAS",
+      "name": "Bharat Rasayan Limited",
+      "price": 11542.0,
+      "final_score": 1.9,
+      "base_score": 1.1,
+      "appearances": 4,
+      "categories": [
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 12,
+      "symbol": "APOLLOHOSP",
+      "name": "Apollo Hospitals Enterprise Limited",
+      "price": 7457.0,
+      "final_score": 1.9,
+      "base_score": 1.1,
+      "appearances": 4,
+      "categories": [
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 13,
+      "symbol": "VSTTILLERS",
+      "name": "V.s.t Tillers Tractors Limited",
+      "price": 3940.3,
+      "final_score": 1.9,
+      "base_score": 1.1,
+      "appearances": 4,
+      "categories": [
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 14,
+      "symbol": "SMLISUZU",
+      "name": "Sml Isuzu Limited",
+      "price": 2335.0,
+      "final_score": 1.9,
+      "base_score": 1.1,
+      "appearances": 4,
+      "categories": [
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 15,
+      "symbol": "FIEMIND",
+      "name": "Fiem Industries Limited",
+      "price": 1927.5,
+      "final_score": 1.9,
+      "base_score": 1.1,
+      "appearances": 4,
+      "categories": [
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 16,
+      "symbol": "BLUESTARCO",
+      "name": "Blue Star Limited",
+      "price": 1756.1,
+      "final_score": 1.9,
+      "base_score": 1.1,
+      "appearances": 4,
+      "categories": [
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 17,
+      "symbol": "TEGA",
+      "name": "Tega Industries Ltd",
+      "price": 1600.1,
+      "final_score": 1.9,
+      "base_score": 1.1,
+      "appearances": 4,
+      "categories": [
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 18,
+      "symbol": "VENUSPIPES",
+      "name": "Venus Pipes & Tubes Ltd",
+      "price": 1461.7,
+      "final_score": 1.9,
+      "base_score": 1.1,
+      "appearances": 4,
+      "categories": [
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 19,
+      "symbol": "GANESHHOUC",
+      "name": "Ganesh Housing Corporation Limited",
+      "price": 977.35,
+      "final_score": 1.9,
+      "base_score": 1.1,
+      "appearances": 4,
+      "categories": [
+        "value",
+        "fundamental"
+      ]
+    },
+    {
+      "rank": 20,
+      "symbol": "MGL",
+      "name": "Mahanagar Gas Limited",
+      "price": 1509.5,
+      "final_score": 1.75,
+      "base_score": 0.95,
+      "appearances": 4,
+      "categories": [
+        "value",
+        "fundamental"
+      ]
+    },
+    {
+      "rank": 21,
+      "symbol": "LICI",
+      "name": "Life Insurance Corporation of India",
+      "price": 958.0,
+      "final_score": 1.75,
+      "base_score": 0.95,
+      "appearances": 4,
+      "categories": [
+        "value",
+        "fundamental"
+      ]
+    },
+    {
+      "rank": 22,
+      "symbol": "BIRLANU",
+      "name": "BirlaNu Ltd",
+      "price": 2361.2,
+      "final_score": 1.75,
+      "base_score": 0.95,
+      "appearances": 4,
+      "categories": [
+        "value",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 23,
+      "symbol": "SANDESH",
+      "name": "The Sandesh Limited",
+      "price": 1195.0,
+      "final_score": 1.7,
+      "base_score": 0.8,
+      "appearances": 3,
+      "categories": [
+        "value",
+        "fundamental",
+        "momentum"
+      ]
+    },
+    {
+      "rank": 24,
+      "symbol": "AIIL",
+      "name": "Authum Investment & Infrastructure Ltd",
+      "price": 2500.0,
+      "final_score": 1.6,
+      "base_score": 0.9,
+      "appearances": 3,
+      "categories": [
+        "value",
+        "fundamental"
+      ]
+    },
+    {
+      "rank": 25,
+      "symbol": "ITC",
+      "name": "Itc Limited",
+      "price": 412.95,
+      "final_score": 1.6,
+      "base_score": 0.9,
+      "appearances": 3,
+      "categories": [
+        "value",
+        "fundamental"
+      ]
+    }
+  ]
+}

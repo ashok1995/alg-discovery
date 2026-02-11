@@ -1,0 +1,239 @@
+{
+  "filter_metadata": {
+    "version": "1.0",
+    "last_updated": "2025-07-01T09:43:39.697402",
+    "description": "Chartink filter queries organized by trading themes",
+    "notes": "Use {cash} for NSE cash market and {33489} for equity filters"
+  },
+  "trading_themes": {
+    "intraday_buy": {
+      "description": "Short-term momentum plays for intraday trading",
+      "filters": {
+        "momentum_breakout": {
+          "name": "Momentum Breakout",
+          "description": "Stocks breaking out with volume confirmation",
+          "query": "( {cash} ( ( {33489} ( latest close > 50 ) and ( latest close < 2000 ) and ( latest volume > 1 day ago volume * 1.5 ) and ( latest \"close - 1 day ago close / 1 day ago close * 100\" > 1 ) ) ) )",
+          "parameters": {
+            "min_price": 50,
+            "max_price": 2000,
+            "volume_surge_factor": 1.5,
+            "min_price_change_pct": 1.0
+          },
+          "is_active": true,
+          "priority": 1
+        },
+        "volume_surge": {
+          "name": "Volume Surge",
+          "description": "High volume activity with price momentum",
+          "query": "( {cash} ( ( {33489} ( latest close > 50 ) and ( latest close < 3000 ) and ( latest volume > 1 day ago volume * 2 ) and ( latest \"close - 1 day ago close / 1 day ago close * 100\" > 0.5 ) ) ) )",
+          "parameters": {
+            "min_price": 50,
+            "max_price": 3000,
+            "volume_surge_factor": 2.0,
+            "min_price_change_pct": 0.5
+          },
+          "is_active": true,
+          "priority": 2
+        },
+        "gap_up": {
+          "name": "Gap Up Opening",
+          "description": "Stocks opening with positive gaps",
+          "query": "( {cash} ( ( {33489} ( latest open > 1 day ago close * 1.02 ) and ( latest close > 50 ) and ( latest close < 2500 ) and ( latest volume > 100000 ) ) ) )",
+          "parameters": {
+            "gap_percentage": 2.0,
+            "min_price": 50,
+            "max_price": 2500,
+            "min_volume": 100000
+          },
+          "is_active": true,
+          "priority": 3
+        },
+        "rsi_oversold_bounce": {
+          "name": "RSI Oversold Bounce",
+          "description": "Oversold stocks showing bounce signals",
+          "query": "( {cash} ( ( {33489} ( latest close > 50 ) and ( latest close < 2000 ) and ( latest rsi( 14 ) < 40 ) and ( latest \"close - 1 day ago close / 1 day ago close * 100\" > 1 ) ) ) )",
+          "parameters": {
+            "min_price": 50,
+            "max_price": 2000,
+            "rsi_threshold": 40,
+            "min_price_change_pct": 1.0
+          },
+          "is_active": true,
+          "priority": 4
+        },
+        "high_volume_breakout": {
+          "name": "High Volume Breakout",
+          "description": "Stocks breaking out with exceptional volume",
+          "query": "\n        ( {cash} ( ( {33489} ( latest close > 100 ) and \n        ( latest close < 1500 ) and \n        ( latest volume > 1 day ago volume * 3 ) and\n        ( latest \"close - 1 day ago close / 1 day ago close * 100\" > 2 ) ) )\n        ",
+          "parameters": {
+            "min_price": 100,
+            "max_price": 1500,
+            "volume_multiplier": 3,
+            "min_change_percent": 2
+          },
+          "is_active": true,
+          "priority": 1
+        }
+      }
+    },
+    "swing_buy": {
+      "description": "2-10 day position trades with technical setups",
+      "filters": {
+        "trend_continuation": {
+          "name": "Trend Continuation",
+          "description": "Stocks in uptrend with momentum",
+          "query": "( {cash} ( ( {33489} ( latest close > 100 ) and ( latest close < 3000 ) and ( latest sma( close , 20 ) > latest sma( close , 50 ) ) and ( latest \"close - 1 day ago close / 1 day ago close * 100\" > 1.5 ) ) ) )",
+          "parameters": {
+            "min_price": 100,
+            "max_price": 3000,
+            "sma_short": 20,
+            "sma_long": 50,
+            "min_price_change_pct": 1.5
+          },
+          "is_active": true,
+          "priority": 1
+        },
+        "support_bounce": {
+          "name": "Support Level Bounce",
+          "description": "Stocks bouncing from key support levels",
+          "query": "( {cash} ( ( {33489} ( latest close > 100 ) and ( latest close < 2500 ) and ( latest close > latest sma( close , 20 ) * 0.98 ) and ( latest rsi( 14 ) > 40 and latest rsi( 14 ) < 70 ) ) ) )",
+          "parameters": {
+            "min_price": 100,
+            "max_price": 2500,
+            "support_buffer": 0.98,
+            "rsi_min": 40,
+            "rsi_max": 70
+          },
+          "is_active": true,
+          "priority": 2
+        },
+        "breakout_volume": {
+          "name": "Volume Breakout",
+          "description": "Technical breakouts with volume confirmation",
+          "query": "( {cash} ( ( {33489} ( latest close > latest sma( close , 50 ) ) and ( latest close > 100 ) and ( latest close < 3000 ) and ( latest volume > 1 day ago volume * 1.3 ) ) ) )",
+          "parameters": {
+            "min_price": 100,
+            "max_price": 3000,
+            "sma_period": 50,
+            "volume_surge_factor": 1.3
+          },
+          "is_active": true,
+          "priority": 3
+        },
+        "momentum_consolidation": {
+          "name": "Momentum with Consolidation",
+          "description": "Stocks showing momentum after consolidation phase",
+          "query": "\n        ( {cash} ( ( {33489} ( latest close > 200 ) and \n        ( latest close < 2000 ) and \n        ( latest sma( close , 10 ) > latest sma( close , 20 ) ) and\n        ( latest rsi( 14 ) > 50 and latest rsi( 14 ) < 75 ) and\n        ( latest \"close - 5 day ago close / 5 day ago close * 100\" > 1 ) ) )\n        ",
+          "parameters": {
+            "min_price": 200,
+            "max_price": 2000,
+            "rsi_min": 50,
+            "rsi_max": 75,
+            "lookback_days": 5
+          },
+          "is_active": true,
+          "priority": 2
+        }
+      }
+    },
+    "short_term_buy": {
+      "description": "1-4 week positions with fundamental and technical screening",
+      "filters": {
+        "weekly_momentum": {
+          "name": "Weekly Momentum",
+          "description": "Stocks with strong weekly performance",
+          "query": "( {cash} ( ( {33489} ( latest close > 100 ) and ( latest close < 2500 ) and ( latest \"close - 5 day ago close / 5 day ago close * 100\" > 3 ) and ( latest rsi( 14 ) < 80 ) ) ) )",
+          "parameters": {
+            "min_price": 100,
+            "max_price": 2500,
+            "weekly_lookback": 5,
+            "min_weekly_change_pct": 3.0,
+            "rsi_max": 80
+          },
+          "is_active": true,
+          "priority": 1
+        },
+        "moving_average_crossover": {
+          "name": "MA Crossover",
+          "description": "Moving average crossover signals",
+          "query": "( {cash} ( ( {33489} ( latest sma( close , 10 ) > latest sma( close , 21 ) ) and ( 1 day ago sma( close , 10 ) <= 1 day ago sma( close , 21 ) ) and ( latest close > 100 ) and ( latest close < 3000 ) ) ) )",
+          "parameters": {
+            "min_price": 100,
+            "max_price": 3000,
+            "sma_fast": 10,
+            "sma_slow": 21
+          },
+          "is_active": true,
+          "priority": 2
+        }
+      }
+    },
+    "long_term_buy": {
+      "description": "Multi-month holdings with value and growth screening",
+      "filters": {
+        "fundamental_growth": {
+          "name": "Fundamental Growth",
+          "description": "Growth stocks with strong fundamentals",
+          "query": "( {cash} ( ( {33489} ( latest close > 200 ) and ( latest close < 5000 ) and ( latest \"close - 1 month ago close / 1 month ago close * 100\" > 5 ) and ( latest volume > 500000 ) ) ) )",
+          "parameters": {
+            "min_price": 200,
+            "max_price": 5000,
+            "monthly_lookback": 30,
+            "min_monthly_change_pct": 5.0,
+            "min_volume": 500000
+          },
+          "is_active": true,
+          "priority": 1
+        },
+        "value_with_momentum": {
+          "name": "Value with Momentum",
+          "description": "Value stocks showing price momentum",
+          "query": "( {cash} ( ( {33489} ( latest close > 200 ) and ( latest close < 4000 ) and ( latest pe < 30 ) and ( latest \"close - 1 week ago close / 1 week ago close * 100\" > 2 ) ) ) )",
+          "parameters": {
+            "min_price": 200,
+            "max_price": 4000,
+            "max_pe_ratio": 30,
+            "weekly_lookback": 7,
+            "min_weekly_change_pct": 2.0
+          },
+          "is_active": true,
+          "priority": 2
+        }
+      }
+    }
+  },
+  "default_filters": {
+    "basic": {
+      "name": "Basic Filter",
+      "description": "Basic price filter for fallback",
+      "query": "( {cash} ( latest close > 50 ) )",
+      "parameters": {
+        "min_price": 50
+      },
+      "is_active": true
+    }
+  },
+  "filter_validation": {
+    "required_fields": [
+      "name",
+      "description",
+      "query",
+      "parameters",
+      "is_active"
+    ],
+    "query_validation": {
+      "must_contain": [
+        "{cash}",
+        "{33489}"
+      ],
+      "reserved_keywords": [
+        "latest",
+        "close",
+        "volume",
+        "open",
+        "high",
+        "low"
+      ]
+    }
+  }
+}

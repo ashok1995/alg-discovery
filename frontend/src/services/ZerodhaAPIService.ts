@@ -1,4 +1,4 @@
-import { AbstractAPIService, BaseAPIRequest, BaseAPIResponse } from './BaseAPIService';
+import { AbstractAPIService, BaseAPIResponse } from './BaseAPIService';
 import { API_CONFIG } from '../config/api';
 
 export class ZerodhaAPIService extends AbstractAPIService {

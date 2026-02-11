@@ -1,0 +1,108 @@
+{
+  "data_provider": {
+    "chartink_base_url": "https://chartink.com",
+    "request_timeout": 30,
+    "rate_limit_delay": 1.0
+  },
+  "stock_selection": {
+    "min_price": 50.0,
+    "max_price": 2000.0,
+    "min_volume": 100000,
+    "min_momentum_change": 2.0,
+    "volume_surge_threshold": 2.0,
+    "top_stocks_count": 50,
+    "max_stocks_for_signals": 20
+  },
+  "ranking_algorithms": {
+    "weights": {
+      "momentum": 0.25,
+      "volume": 0.20,
+      "volatility": 0.15,
+      "technical": 0.25,
+      "liquidity": 0.15
+    },
+    "momentum_thresholds": {
+      "high": 5.0,
+      "medium": 2.0,
+      "low": 0.5
+    },
+    "volume_thresholds": {
+      "very_high": 1000000,
+      "high": 500000,
+      "medium": 200000,
+      "low": 100000
+    }
+  },
+  "trading_strategies": {
+    "gap_trading": {
+      "enabled": true,
+      "gap_threshold_pct": 2.0,
+      "target_pct": 1.5,
+      "stop_loss_pct": 0.75
+    },
+    "scalping": {
+      "enabled": true,
+      "target_pct": 0.4,
+      "stop_loss_pct": 0.2,
+      "volume_threshold": 2.0
+    },
+    "support_resistance": {
+      "enabled": true,
+      "target_pct": 1.2,
+      "stop_loss_pct": 0.6,
+      "min_touches": 2
+    }
+  },
+  "orchestrator": {
+    "max_positions": 5,
+    "risk_per_trade": 0.02,
+    "min_volume": 100000
+  },
+  "scanner": {
+    "volume_surge_threshold": 1.5,
+    "gap_threshold": 1.0,
+    "max_results": 20
+  },
+  "timing": {
+    "rerank_interval_minutes": 15,
+    "signal_refresh_seconds": 30,
+    "market_hours": {
+      "open": "09:15",
+      "close": "15:30",
+      "no_trade_zones": [
+        ["11:30", "12:00"],
+        ["15:15", "15:30"]
+      ]
+    }
+  },
+  "database": {
+    "mongo_uri": "mongodb://localhost:27017/",
+    "database_name": "stocks_dynamic",
+    "collections": {
+      "rankings": "stock_rankings",
+      "signals": "trading_signals",
+      "performance": "strategy_performance"
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "log_directory": "logs",
+    "max_log_files": 30
+  },
+  "alternative_data_sources": {
+    "yahoo_finance": {
+      "enabled": true,
+      "timeout": 10
+    },
+    "alpha_vantage": {
+      "enabled": false,
+      "api_key": "",
+      "requests_per_minute": 5
+    },
+    "polygon": {
+      "enabled": false,
+      "api_key": "",
+      "requests_per_minute": 50
+    }
+  }
+} 

@@ -1,0 +1,11 @@
+trade_id,symbol,name,trade_type,order_type,entry_price,exit_price,quantity,timestamp,status,pnl,pnl_percent,notes
+1001,RELIANCE,Reliance Industries,buy,market,2530.50,2585.25,10,2025-04-10 10:15:00,closed,547.50,2.16,Breakout trade
+1002,HDFCBANK,HDFC Bank,buy,limit,1670.80,1725.40,15,2025-04-11 09:30:00,closed,819.00,3.27,Support level entry
+1003,INFY,Infosys Ltd,buy,market,1505.25,1480.60,20,2025-04-12 14:45:00,closed,-493.00,-1.64,Failed breakout
+1004,ADANIENT,Adani Enterprises,sell,market,2980.75,2920.40,5,2025-04-13 11:20:00,closed,301.75,2.02,Resistance rejection
+1005,BAJFINANCE,Bajaj Finance,buy,limit,7200.50,7350.25,8,2025-04-14 10:05:00,closed,1198.00,2.08,Bullish pattern
+1006,TCS,Tata Consultancy Services,buy,market,3800.25,3845.75,12,2025-04-15 09:45:00,closed,546.00,1.20,Technical breakout
+1007,SBIN,State Bank of India,buy,limit,622.50,630.80,50,2025-04-16 10:30:00,closed,415.00,1.33,Support bounce
+1008,MARUTI,Maruti Suzuki,buy,market,10180.50,10320.75,3,2025-04-17 09:35:00,closed,420.75,1.38,Momentum play
+1009,ICICIBANK,ICICI Bank,sell,limit,950.25,930.50,25,2025-04-18 10:10:00,closed,493.75,2.08,Bearish pattern
+1010,TATASTEEL,Tata Steel,buy,market,145.80,149.25,100,2025-04-18 11:45:00,open,0.00,0.00,Active position 

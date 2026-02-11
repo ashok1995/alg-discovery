@@ -19,9 +19,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Divider,
 } from '@mui/material';
 import {
@@ -76,6 +73,7 @@ const StockCandidatePopulator: React.FC<StockCandidatePopulatorProps> = ({
   // Check connection on component mount
   useEffect(() => {
     checkConnection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
 
   const checkConnection = async () => {

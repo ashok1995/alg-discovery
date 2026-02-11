@@ -48,7 +48,7 @@ const ChartinkAuthManager: React.FC = () => {
   const [vncUrl, setVncUrl] = useState<string | null>(null);
   const [fetchingVnc, setFetchingVnc] = useState(false);
   const [forceInProgress, setForceInProgress] = useState(false);
-  const [forceDone, setForceDone] = useState(false);
+  const [, setForceDone] = useState(false);
   const [waitCountdown, setWaitCountdown] = useState<number | null>(null);
   const [canRecheck, setCanRecheck] = useState(false);
 

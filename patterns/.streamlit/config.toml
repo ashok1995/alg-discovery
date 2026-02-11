@@ -1,0 +1,17 @@
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "dark"
+primaryColor = "#4CAF50"
+
+[server]
+enableStaticServing = true
+
+[ui]
+hideTopBar = true
+
+[runner]
+# This forces Streamlit to only recognize dashboard/app.py
+# and ignore all other .py files for page detection
+fastReruns = true 

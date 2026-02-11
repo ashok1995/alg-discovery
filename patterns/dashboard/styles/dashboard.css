@@ -1,0 +1,348 @@
+/* Modern Dashboard CSS for Market Analyzer */
+
+/* Main Layout */
+body {
+    background-color: #f5f7fa;
+    color: #2c3e50;
+    font-family: 'Inter', sans-serif;
+}
+
+.dark-mode body {
+    background-color: #1e1e2e;
+    color: #e0e0e0;
+}
+
+/* Sidebar Styling */
+.sidebar .sidebar-content {
+    background-color: #262730;
+    color: #fff;
+    padding: 1rem;
+}
+
+.sidebar-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.sidebar-nav {
+    margin-top: 2rem;
+}
+
+.sidebar-nav-item {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-nav-item svg {
+    margin-right: 0.75rem;
+}
+
+.active-nav-item {
+    background-color: #4CAF50 !important;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-footer {
+    position: absolute;
+    bottom: 1rem;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Cards */
+.card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dark-mode .card {
+    background-color: #2d3748;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.dark-mode .card-title {
+    color: #e2e8f0;
+}
+
+/* Trade cards */
+.trade-card {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.buy-card {
+    border: 1px solid #4CAF50;
+    background-color: rgba(76, 175, 80, 0.05);
+}
+
+.sell-card {
+    border: 1px solid #F44336;
+    background-color: rgba(244, 67, 54, 0.05);
+}
+
+.trade-symbol {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.buy-card .trade-symbol {
+    color: #4CAF50;
+}
+
+.sell-card .trade-symbol {
+    color: #F44336;
+}
+
+.trade-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.trade-detail-label {
+    font-weight: 500;
+    color: #64748b;
+}
+
+/* Section titles */
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 1.5rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.dark-mode .section-title {
+    border-bottom-color: #4a5568;
+}
+
+/* Metrics */
+.metrics-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .metric-card {
+    background-color: #2d3748;
+}
+
+.metric-title {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.metric-change {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.positive-change {
+    color: #4CAF50;
+}
+
+.negative-change {
+    color: #F44336;
+}
+
+/* Tables */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.styled-table th {
+    background-color: #f8fafc;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.dark-mode .styled-table th {
+    background-color: #1a202c;
+    border-bottom-color: #4a5568;
+}
+
+.styled-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.dark-mode .styled-table td {
+    border-bottom-color: #4a5568;
+}
+
+.styled-table tr:hover {
+    background-color: #f1f5f9;
+}
+
+.dark-mode .styled-table tr:hover {
+    background-color: #2d3748;
+}
+
+/* Buttons */
+.primary-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.primary-button:hover {
+    background-color: #388E3C;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.secondary-button {
+    background-color: transparent;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.secondary-button:hover {
+    background-color: #f1f5f9;
+    color: #334155;
+}
+
+.dark-mode .secondary-button {
+    border-color: #4a5568;
+    color: #cbd5e1;
+}
+
+.dark-mode .secondary-button:hover {
+    background-color: #4a5568;
+    color: #f8fafc;
+}
+
+/* Charts */
+.chart-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.dark-mode .chart-container {
+    background-color: #2d3748;
+}
+
+.chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Market status indicators */
+.market-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.market-open {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #388E3C;
+}
+
+.market-closed {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: #D32F2F;
+}
+
+/* Responsive utility classes */
+.grid-1-2 {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+}
+
+.grid-2-1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+.grid-1-1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.grid-1-1-1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .grid-1-2, .grid-2-1, .grid-1-1, .grid-1-1-1 {
+        grid-template-columns: 1fr;
+    }
+}

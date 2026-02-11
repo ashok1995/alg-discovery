@@ -1,4 +1,4 @@
-import { AbstractAPIService, BaseAPIRequest, BaseAPIResponse } from './BaseAPIService';
+import { AbstractAPIService, BaseAPIResponse } from './BaseAPIService';
 
 export class FactsAPIService extends AbstractAPIService {
   constructor() {

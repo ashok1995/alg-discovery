@@ -1,0 +1,139 @@
+2025-07-01 08:57:37,559 - IntegratedTradingSystem - INFO - Integrated Trading System initialized
+2025-07-01 08:57:37,559 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:57:37,559 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:57:37,927 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:57:38,087 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:57:38,310 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:57:38,310 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:57:38,310 - IntegratedTradingSystem - ERROR - Stock selection failed: 'DynamicStockSelector' object has no attribute 'get_top_stocks'
+2025-07-01 08:57:38,311 - IntegratedTradingSystem - INFO - Integrated Trading System initialized
+2025-07-01 08:57:38,311 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:57:38,311 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:57:38,668 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:57:38,878 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:57:39,059 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:57:39,059 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:57:39,059 - IntegratedTradingSystem - ERROR - Stock selection failed: 'DynamicStockSelector' object has no attribute 'get_top_stocks'
+2025-07-01 08:57:40,065 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:57:40,065 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:57:40,283 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:57:40,445 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:57:40,613 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:57:40,613 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:57:40,613 - IntegratedTradingSystem - ERROR - Stock selection failed: 'DynamicStockSelector' object has no attribute 'get_top_stocks'
+2025-07-01 08:57:41,618 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:57:41,619 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:57:41,887 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:57:42,058 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:57:42,223 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:57:42,223 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:57:42,223 - IntegratedTradingSystem - ERROR - Stock selection failed: 'DynamicStockSelector' object has no attribute 'get_top_stocks'
+2025-07-01 08:58:40,227 - IntegratedTradingSystem - INFO - Integrated Trading System initialized
+2025-07-01 08:58:40,227 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:58:40,227 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:58:40,616 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:58:40,799 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:58:40,984 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:58:40,984 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:58:40,984 - IntegratedTradingSystem - ERROR - Stock selection failed: 'max_stocks'
+2025-07-01 08:58:40,985 - IntegratedTradingSystem - INFO - Integrated Trading System initialized
+2025-07-01 08:58:40,985 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:58:40,985 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:58:41,475 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:58:41,638 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:58:41,796 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:58:41,796 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:58:41,796 - IntegratedTradingSystem - ERROR - Stock selection failed: 'max_stocks'
+2025-07-01 08:58:42,802 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:58:42,802 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:58:43,099 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:58:43,276 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:58:43,419 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:58:43,419 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:58:43,419 - IntegratedTradingSystem - ERROR - Stock selection failed: 'max_stocks'
+2025-07-01 08:58:44,424 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:58:44,425 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:58:44,761 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:58:44,927 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:58:45,090 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:58:45,090 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:58:45,090 - IntegratedTradingSystem - ERROR - Stock selection failed: 'max_stocks'
+2025-07-01 08:59:06,939 - IntegratedTradingSystem - INFO - Integrated Trading System initialized
+2025-07-01 08:59:06,939 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:59:06,939 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:59:07,393 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:59:07,556 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:59:07,740 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:59:07,740 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:59:07,741 - IntegratedTradingSystem - INFO - Selected 50 stocks for trading
+2025-07-01 08:59:07,741 - IntegratedTradingSystem - INFO - Running enhanced intraday scanner...
+2025-07-01 08:59:07,741 - IntegratedTradingSystem - ERROR - Scanner analysis failed: 'IntradayScanner' object has no attribute 'scan_stocks'
+2025-07-01 08:59:07,741 - IntegratedTradingSystem - INFO - Running intraday analysis on selected stocks...
+2025-07-01 08:59:07,741 - IntegratedTradingSystem - ERROR - Intraday analysis failed: 'IntradayOrchestrator' object has no attribute 'run_strategies'
+2025-07-01 08:59:07,742 - IntegratedTradingSystem - INFO - Integrated Trading System initialized
+2025-07-01 08:59:07,742 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:59:07,743 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:59:08,102 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:59:08,276 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:59:08,436 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:59:08,436 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:59:08,436 - IntegratedTradingSystem - INFO - Selected 50 stocks for trading
+2025-07-01 08:59:08,437 - IntegratedTradingSystem - INFO - Running intraday analysis on selected stocks...
+2025-07-01 08:59:08,437 - IntegratedTradingSystem - ERROR - Intraday analysis failed: 'IntradayOrchestrator' object has no attribute 'run_strategies'
+2025-07-01 08:59:09,442 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:59:09,443 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:59:09,748 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:59:09,915 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:59:10,075 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:59:10,075 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:59:10,075 - IntegratedTradingSystem - INFO - Selected 50 stocks for trading
+2025-07-01 08:59:10,075 - IntegratedTradingSystem - INFO - Running intraday analysis on selected stocks...
+2025-07-01 08:59:10,075 - IntegratedTradingSystem - ERROR - Intraday analysis failed: 'IntradayOrchestrator' object has no attribute 'run_strategies'
+2025-07-01 08:59:11,081 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:59:11,081 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:59:11,439 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:59:11,603 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:59:11,797 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:59:11,797 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:59:11,797 - IntegratedTradingSystem - INFO - Selected 50 stocks for trading
+2025-07-01 08:59:11,798 - IntegratedTradingSystem - INFO - Running intraday analysis on selected stocks...
+2025-07-01 08:59:11,798 - IntegratedTradingSystem - ERROR - Intraday analysis failed: 'IntradayOrchestrator' object has no attribute 'run_strategies'
+2025-07-01 08:59:45,915 - IntegratedTradingSystem - INFO - Integrated Trading System initialized
+2025-07-01 08:59:45,915 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:59:45,915 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:59:46,280 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:59:46,451 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:59:46,604 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:59:46,604 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:59:46,605 - IntegratedTradingSystem - INFO - Selected 50 stocks for trading
+2025-07-01 08:59:46,605 - IntegratedTradingSystem - INFO - Running enhanced intraday scanner...
+2025-07-01 08:59:46,606 - IntegratedTradingSystem - INFO - Running intraday analysis on selected stocks...
+2025-07-01 08:59:46,606 - IntegratedTradingSystem - ERROR - Intraday analysis failed: 'IntradayOrchestrator' object has no attribute 'analyze_multiple_symbols'
+2025-07-01 08:59:46,608 - IntegratedTradingSystem - INFO - Integrated Trading System initialized
+2025-07-01 08:59:46,608 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:59:46,608 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:59:46,961 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:59:47,135 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:59:47,296 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:59:47,296 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:59:47,296 - IntegratedTradingSystem - INFO - Selected 50 stocks for trading
+2025-07-01 08:59:47,297 - IntegratedTradingSystem - INFO - Running intraday analysis on selected stocks...
+2025-07-01 08:59:47,297 - IntegratedTradingSystem - ERROR - Intraday analysis failed: 'IntradayOrchestrator' object has no attribute 'analyze_multiple_symbols'
+2025-07-01 08:59:48,302 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:59:48,303 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:59:48,560 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:59:48,739 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:59:48,922 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:59:48,922 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:59:48,922 - IntegratedTradingSystem - INFO - Selected 50 stocks for trading
+2025-07-01 08:59:48,922 - IntegratedTradingSystem - INFO - Running intraday analysis on selected stocks...
+2025-07-01 08:59:48,922 - IntegratedTradingSystem - ERROR - Intraday analysis failed: 'IntradayOrchestrator' object has no attribute 'analyze_multiple_symbols'
+2025-07-01 08:59:49,928 - IntegratedTradingSystem - INFO - Starting stock selection process...
+2025-07-01 08:59:49,929 - dynamic_stock_selector - INFO - Updating stock universe...
+2025-07-01 08:59:50,164 - dynamic_stock_selector - INFO - Retrieved 929 stocks from Chartink
+2025-07-01 08:59:50,339 - dynamic_stock_selector - INFO - Retrieved 201 stocks from Chartink
+2025-07-01 08:59:50,505 - dynamic_stock_selector - INFO - Stored 50 ranking records
+2025-07-01 08:59:50,505 - dynamic_stock_selector - INFO - Updated universe with 50 stocks
+2025-07-01 08:59:50,505 - IntegratedTradingSystem - INFO - Selected 50 stocks for trading
+2025-07-01 08:59:50,506 - IntegratedTradingSystem - INFO - Running intraday analysis on selected stocks...
+2025-07-01 08:59:50,506 - IntegratedTradingSystem - ERROR - Intraday analysis failed: 'IntradayOrchestrator' object has no attribute 'analyze_multiple_symbols'

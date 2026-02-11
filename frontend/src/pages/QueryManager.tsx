@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Card, CardContent, Chip, Divider, Grid, IconButton, InputAdornment, MenuItem, Select, Stack, Tab, Tabs, TextField, Tooltip, Typography, Alert, LinearProgress } from '@mui/material';
-import { Add, Delete, Edit, Refresh, Save, Search } from '@mui/icons-material';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Card, CardContent, Chip, Divider, Grid, InputAdornment, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography, Alert, LinearProgress } from '@mui/material';
+import { Add, Refresh, Save, Search } from '@mui/icons-material';
 import { API_CONFIG } from '../config/api';
-import { CandidateQueryRegistryService, QueryDetail, QueryIdsResponse, QueryListResponse, QuerySearchResponse } from '../services/CandidateQueryRegistryService';
+import { CandidateQueryRegistryService, QueryListResponse, QuerySearchResponse } from '../services/CandidateQueryRegistryService';
 
 const service = new CandidateQueryRegistryService(API_CONFIG.QUERY_API_BASE_URL);
 
@@ -75,7 +75,7 @@ const QueryManager: React.FC = () => {
         version: form.version || undefined,
         is_active: true,
       };
-      const res = await service.storeQuery(payload);
+      await service.storeQuery(payload);
       await loadList();
     } catch (err: any) {
       setError(err.message || 'Save failed');
@@ -109,6 +109,7 @@ const QueryManager: React.FC = () => {
 
   useEffect(() => {
     loadList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadList depends on limit/offset
   }, [limit, offset]);
 
   return (
