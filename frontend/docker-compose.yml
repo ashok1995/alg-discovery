@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        BUILD_ENV: ${BUILD_ENV:-prod}
     container_name: algodiscovery-frontend-prod
     ports:
       - "80:80"

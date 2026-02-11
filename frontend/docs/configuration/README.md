@@ -27,6 +27,6 @@ See `frontend/envs/README.md` for env file details.
 
 ## Deployment
 
-- **Local**: `npm run build:prod && npm run serve:prod`
-- **Docker**: `docker build -f Dockerfile.production -t algodiscovery-frontend .`
+- **Local**: `npm run build:prod && npm run serve:prod` or `./deploy.sh [prod|stage]`
+- **Docker**: `docker-compose up -d` or `./deploy.sh`
 - **GCP**: [Repo docs/DEPLOYMENT.md](../../../docs/DEPLOYMENT.md) – `./scripts/deploy-from-git.sh [stage|prod]`

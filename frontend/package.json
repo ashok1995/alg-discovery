@@ -42,16 +42,11 @@
     "serve:stage": "PORT=8080 serve -s build -l 8080",
     "serve:dev": "PORT=3000 serve -s build -l 3000",
     "docker:build": "docker build -t algodiscovery-frontend .",
-    "docker:run": "docker run -d -p 80:80 --name algodiscovery-frontend-prod algodiscovery-frontend",
-    "docker:deploy": "./docker-deploy.sh",
-    "docker:deploy:domain": "./deploy-production-domain.sh",
-    "docker:deploy:prod": "./deploy-production-docker.sh",
-    "docker:deploy:frontend": "./deploy-frontend-only.sh",
-    "docker:dev": "./docker-dev.sh",
+    "docker:run": "docker run -d -p 80:80 --name algodiscovery-frontend algodiscovery-frontend",
+    "docker:deploy": "./deploy.sh",
     "docker:stop": "docker-compose down",
     "docker:logs": "docker-compose logs -f algodiscovery-frontend",
-    "docker:status": "docker-compose ps",
-    "dns:setup": "./setup-local-dns.sh"
+    "docker:status": "docker-compose ps"
   },
   "eslintConfig": {
     "extends": [

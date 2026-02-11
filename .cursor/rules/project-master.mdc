@@ -53,35 +53,39 @@ alwaysApply: true
 
 ---
 
-## 4. Folder Design & Structure
+## 4. Folder Design & Structure (SUPER CLEAN – TARGET)
 
 ```
 alg-discovery/
-├── .cursor/rules/          # Cursor rules (project-master, etc.)
-├── frontend/
-│   ├── docs/               # All frontend docs (only README at root)
-│   │   ├── README.md        # Index (only file at docs root)
-│   │   ├── integration/    # API, services, auth
-│   │   ├── architecture/   # System design
-│   │   ├── user-experience/# UX flows
-│   │   └── configuration/ # Env, deployment
-│   ├── envs/               # ONLY env.dev, env.stage, env.prod, env.example
-│   ├── nginx.conf          # ONLY nginx config (no nginx-*.conf)
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── config/         # API config (no duplicate config files)
-│   │   ├── hooks/
-│   │   ├── pages/
-│   │   ├── services/       # One concern per file, no duplicates
-│   │   └── types/
-│   └── public/
-├── scripts/                # Deploy, CI scripts
-└── docs/                   # Repo-level deployment docs
+├── .cursor/rules/
+├── docs/                    # Repo-level: deployment only
+│   └── DEPLOYMENT.md
+├── scripts/                 # Deploy only (no scattered .sh in frontend)
+│   └── deploy-from-git.sh   # Canonical deploy for stage/prod
+└── frontend/
+    ├── docs/                # All frontend docs (README at root only)
+    │   ├── README.md
+    │   ├── integration/
+    │   ├── architecture/
+    │   ├── user-experience/
+    │   └── configuration/
+    ├── envs/                # env.dev, env.stage, env.prod, env.example
+    ├── nginx.conf           # Single nginx config
+    ├── Dockerfile           # Single Dockerfile (prod build)
+    ├── docker-compose.yml   # Single compose file
+    ├── src/
+    │   ├── components/
+    │   ├── config/
+    │   ├── hooks/
+    │   ├── pages/
+    │   ├── services/
+    │   └── types/
+    └── public/
 ```
 
-- **Docs**: All frontend docs in `frontend/docs/`. Only `docs/README.md` at docs root; all content in subfolders (integration, architecture, user-experience, configuration). No loose `.md` in frontend root.
-- **Config**: Use env files and config modules; no hardcoded values. No duplicate config files.
-- **Services**: One concern per file. Scan for similar logic; consolidate, don't duplicate.
+- **Docs**: All `.md` in `frontend/docs/`. Only README at docs root; content in subfolders.
+- **Config**: Env, config modules. No hardcoding. No duplicates.
+- **Services**: One concern per file. No duplicate logic.
 
 ---
 
@@ -123,7 +127,25 @@ alg-discovery/
 ## 9. FORBIDDEN (STRICTLY enforce)
 
 - **Env**: ONLY `frontend/envs/env.dev`, `env.stage`, `env.prod`, `env.example`. No `env.*` at frontend root.
-- **Nginx**: ONLY `frontend/nginx.conf`. No `nginx-*.conf`, no multiple nginx configs.
-- **Config**: No duplicate config files (e.g. one openai.json). No hardcoded values.
-- **Redundant logic**: No duplicate services doing the same thing. No copy-paste; refactor.
+- **Nginx**: ONLY `frontend/nginx.conf`. No `nginx-*.conf`.
+- **Config**: No duplicate config files. No hardcoded values.
+- **Redundant logic**: No duplicate services. No copy-paste; refactor.
 - **Scripts**: No redundant npm scripts. One canonical script per action.
+
+## 10. DOCKER (STRICT – ONE of each)
+
+- **Dockerfile**: ONE `frontend/Dockerfile`. No `Dockerfile.*` variants.
+- **docker-compose**: ONE `frontend/docker-compose.yml`. No `docker-compose-*.yml` (port80, 8080, domain, full-stack).
+- **Build arg**: Use `BUILD_ENV=prod|stage` in single Dockerfile. No separate Dockerfiles per port/domain.
+- **FORBIDDEN**: `Dockerfile.*` (except Dockerfile), `docker-compose-*.yml` variants.
+
+## 11. DEPLOY SCRIPTS (STRICT – MINIMAL)
+
+- **Canonical**: `scripts/deploy-from-git.sh [stage|prod]` — the ONLY deploy script for GCP. Git-only, main branch.
+- **Frontend**: ONE optional `frontend/deploy.sh` for local Docker run. No `deploy-*.sh`, `docker-deploy*.sh` variants.
+- **FORBIDDEN**: Multiple deploy scripts. Only `frontend/deploy.sh` (local) and `scripts/deploy-from-git.sh` (GCP). No `deploy-*.sh`, `docker-deploy*.sh`, `setup-*.sh`, `manage-*.sh`, `test-*.sh` variants.
+- **Rule**: If a script duplicates `deploy-from-git.sh` or does a subset, DELETE it.
+
+## 12. OVERALL PRINCIPLE
+
+**Super clean = One source of truth per concern.** No variants, no duplicates, no legacy files. Before adding any file: Does an equivalent exist? If yes, extend it. If no, add minimally. Strictly follow this structure; deviations are FORBIDDEN.
