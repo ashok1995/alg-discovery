@@ -260,6 +260,10 @@ venv*/
 env*/
 .env*/
 
+# Exception: frontend env configs (env.dev, env.stage, env.prod)
+!frontend/envs/
+!frontend/envs/*
+
 # Lock files (uncomment if you want to ignore them)
 # Pipfile.lock
 # poetry.lock

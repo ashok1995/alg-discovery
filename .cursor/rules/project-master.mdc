@@ -1,0 +1,101 @@
+---
+description: Master project rules - deployment, ports, folder design, refactoring, integration tests
+alwaysApply: true
+---
+
+# AlgoDiscovery Project Master Rules
+
+## 1. Deployment Policy (GIT-ONLY, MAIN BRANCH)
+
+- **Production deployment**: ONLY via Git. NO direct file transfer (no scp, rsync, ftp).
+- **Prod source**: Always fetch and deploy from `main` branch only. No feature branches, no tags, no other branches.
+- **Flow**: Local dev → merge to main → GCP pulls from main → deploy.
+- **GCP deploy command**: `./scripts/deploy-from-git.sh [stage|prod]` (runs on GCP instance).
+- **Dev**: Local machine, port 3000, `frontend/envs/env.dev`.
+- **Stage**: Port 3001 (dev) / 8080 (served), `frontend/envs/env.stage`.
+- **Prod**: GCP instance, port 80/443, `frontend/envs/env.prod`, main branch only.
+
+### Deployment Checklist
+- Before deploy: Run integration tests locally (`npm run test` in frontend).
+- Never push unmerged feature branches to prod.
+- Env files: `frontend/envs/env.dev`, `env.stage`, `env.prod` (no envs outside `envs/`).
+
+---
+
+## 2. Port Reference (Update Master Rule When Changes Occur)
+
+| Port | Service | Environment | Notes |
+|------|---------|-------------|-------|
+| 3000 | React dev server | Dev | `npm run start:dev` |
+| 3001 | React dev server | Stage | `npm run start:stage` |
+| 8080 | Served build | Stage | `npm run serve:stage` |
+| 80 / 443 | Frontend (Nginx) | Prod | Docker serves here |
+| 8001 | Longterm API, Chartink | Prod | Internal |
+| 8002 | Swing API, Unified Strategy | Dev/Prod | REACT_APP_API_BASE_URL (dev) |
+| 8010 | Recommendation API | Dev | |
+| 8013 | Algorithm API, Zerodha | Dev/Prod | |
+| 8018 | Stock Candidate Populator | Dev/Prod | |
+| 8020 | Theme API | Dev/Prod | |
+| 8030 | Strategies API | Dev/Prod | |
+| 8079 | Kite Services, Kite Token | Dev/Prod | |
+| 8081 | Chartink Auth | Dev | Local proxy target |
+| 8082 | Seed API | Dev/Prod | |
+| 8182 | Seed Service | Prod | External (algodiscovery.com) |
+| 8183 | Recommendation/Proxy target | Dev | setupProxy target |
+
+**Kill process by port**: Use `lsof -ti:<PORT> | xargs kill -9` — never kill by partial command that other processes use.
+
+---
+
+## 3. Folder Design & Structure
+
+```
+alg-discovery/
+├── .cursor/rules/          # Cursor rules (project-master, etc.)
+├── frontend/               # React app
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── config/        # API config, env mappings
+│   │   ├── hooks/         # Custom hooks
+│   │   ├── pages/         # Route pages
+│   │   ├── services/      # API clients, business logic
+│   │   └── types/         # TS types, models
+│   ├── envs/              # env.dev, env.stage, env.prod (never hardcode)
+│   └── public/
+├── scripts/                # Deploy, CI, maintenance scripts
+└── docs/                   # Deployment, architecture docs
+```
+
+- **config over code**: Use env files and config modules; no hardcoded values in scripts.
+- **services/**: API clients, shared logic. One concern per file.
+- **components/**: Presentational + container pattern; extract hooks for stateful logic.
+
+---
+
+## 4. Refactoring Rules
+
+- Scan for similar logic before writing; refactor instead of duplicating.
+- Prefer small, focused modules with clear exports.
+- Use data models (types/interfaces) for API payloads and state.
+- Use minimal code with maximum reusability.
+- Log to files for debugging and audit; follow project logging patterns.
+
+---
+
+## 5. Integration Test & Verification
+
+- Run `npm run test` before commit when touching frontend.
+- Quick verification: `npm run build:prod` (uses `envs/env.prod`) must succeed.
+- Health checks: `curl -f http://localhost/health` (prod), `curl http://localhost:3000` (dev).
+- After deploy: verify `/health` and main app route load.
+
+---
+
+## 6. Code Standards (from User Rules)
+
+1. Follow state-of-the-art system design principles.
+2. Log to files; avoid console-only logging for production paths.
+3. Minimal code, maximum reusability.
+4. Scan for similar logic; refactor instead of rewriting.
+5. Always use data models for structured data.
+6. No hardcoded variables; use config/env.
