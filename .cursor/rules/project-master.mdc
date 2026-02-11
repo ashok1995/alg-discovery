@@ -59,10 +59,12 @@ alwaysApply: true
 alg-discovery/
 ├── .cursor/rules/          # Cursor rules (project-master, etc.)
 ├── frontend/
-│   ├── docs/               # All frontend docs (no loose .md in root)
-│   │   ├── README.md        # Index
-│   │   ├── environment.md
-│   │   └── deployment.md
+│   ├── docs/               # All frontend docs (only README at root)
+│   │   ├── README.md        # Index (only file at docs root)
+│   │   ├── integration/    # API, services, auth
+│   │   ├── architecture/   # System design
+│   │   ├── user-experience/# UX flows
+│   │   └── configuration/ # Env, deployment
 │   ├── envs/               # env.dev, env.stage, env.prod
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
@@ -76,7 +78,7 @@ alg-discovery/
 └── docs/                   # Repo-level deployment docs
 ```
 
-- **Docs**: All frontend docs in `frontend/docs/`. No loose `.md` files in frontend root.
+- **Docs**: All frontend docs in `frontend/docs/`. Only `docs/README.md` at docs root; all content in subfolders (integration, architecture, user-experience, configuration). No loose `.md` in frontend root.
 - **Config**: Use env files and config modules; no hardcoded values. No duplicate config files.
 - **Services**: One concern per file. Scan for similar logic; consolidate, don't duplicate.
 

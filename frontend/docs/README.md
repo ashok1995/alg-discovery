@@ -1,18 +1,23 @@
 # Frontend Documentation
 
-All frontend docs live under `frontend/docs/`. No loose `.md` files in frontend root.
+All frontend docs live under `frontend/docs/`. Only `README.md` at docs root; all other content in subfolders.
 
 ## Structure
 
 ```
 frontend/docs/
-├── README.md         # This index
-├── environment.md    # Env setup (envs/, 3-env)
-└── deployment.md    # Docker, build, deploy (links to repo docs/DEPLOYMENT)
+├── README.md              # This index (only file at root)
+├── integration/           # API, services, auth integration
+├── architecture/          # System design, folder structure
+├── user-experience/        # UX flows, user journeys
+└── configuration/         # Env, deployment
 ```
 
 ## Quick Links
 
-- [Environment setup](./environment.md)
-- [Deployment](./deployment.md)
-- [Repo deployment guide](../../docs/DEPLOYMENT.md) - GCP deploy
+| Folder | Contents |
+|--------|----------|
+| [integration](./integration/) | API integration, backend services, auth |
+| [architecture](./architecture/) | System design, components, services |
+| [user-experience](./user-experience/) | UX flows, user journeys |
+| [configuration](./configuration/) | Env setup, deployment |

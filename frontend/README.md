@@ -21,11 +21,13 @@ Env files: `frontend/envs/env.dev`, `env.stage`, `env.prod`
 
 ## Documentation
 
-**All docs**: `frontend/docs/` (no loose `.md` in root)
+**All docs**: `frontend/docs/` (only README at root; content in subfolders)
 
 - [docs/README.md](./docs/README.md) – Index
-- [docs/environment.md](./docs/environment.md) – Env setup
-- [docs/deployment.md](./docs/deployment.md) – Build, deploy
+- `docs/integration/` – API, services
+- `docs/architecture/` – System design
+- `docs/user-experience/` – UX flows
+- `docs/configuration/` – Env, deployment
 
 ## Scripts
 
