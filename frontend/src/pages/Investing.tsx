@@ -36,16 +36,13 @@ import {
   Assessment,
   AccountBalance,
   PieChart,
-  Timeline,
   AttachMoney,
   Security,
   Refresh,
   FilterList,
   Analytics,
-  Info,
   ShowChart
 } from '@mui/icons-material';
-import { useBackgroundRefresh } from '../hooks/useBackgroundRefresh';
 import { recommendationAPIService } from '../services/RecommendationAPIService';
 
 interface InvestmentOpportunity {
@@ -89,6 +86,7 @@ const Investing: React.FC = () => {
   const [investmentHorizon, setInvestmentHorizon] = useState('medium');
   const [riskTolerance, setRiskTolerance] = useState('moderate');
   const [minMarketCap, setMinMarketCap] = useState(1000);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- reserved for future sector filter
   const [sectors] = useState<string[]>(['Technology', 'Healthcare', 'Finance']);
   const [autoRebalance, setAutoRebalance] = useState(true);
 
@@ -179,20 +177,6 @@ const Investing: React.FC = () => {
   useEffect(() => {
     fetchInvestmentData();
   }, []);
-
-  const getInvestmentGrade = (score: number) => {
-    if (score >= 90) return { grade: 'A+', color: 'success' };
-    if (score >= 80) return { grade: 'A', color: 'success' };
-    if (score >= 70) return { grade: 'B+', color: 'info' };
-    if (score >= 60) return { grade: 'B', color: 'warning' };
-    return { grade: 'C', color: 'error' };
-  };
-
-  const getRiskLevel = (score: number) => {
-    if (score <= 30) return { level: 'Low', color: 'success' };
-    if (score <= 60) return { level: 'Medium', color: 'warning' };
-    return { level: 'High', color: 'error' };
-  };
 
   const TabPanel = ({ children, value, index }: { children: React.ReactNode; value: number; index: number }) => (
     <div hidden={value !== index}>

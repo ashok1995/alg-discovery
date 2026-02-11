@@ -3,7 +3,7 @@
  * Handles communication with the Swing Buy AI API endpoints
  */
 
-import { AbstractAPIService, BaseAPIRequest, BaseAPIResponse } from './BaseAPIService';
+import { AbstractAPIService } from './BaseAPIService';
 import swingBuyAIService, { 
   SwingBuyAIRequest, 
   SwingBuyAIResponse, 

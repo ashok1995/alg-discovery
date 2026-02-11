@@ -20,13 +20,9 @@ import {
   Tooltip
 } from '@mui/material';
 import {
-  TrendingUp,
-  TrendingDown,
   PlayArrow,
   Stop,
-  Refresh,
   Visibility,
-  Warning,
   CheckCircle,
   Error
 } from '@mui/icons-material';

@@ -5,15 +5,10 @@ import {
   CardContent,
   Typography,
   Grid,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
   Chip,
   CircularProgress,
   Alert,
   IconButton,
-  Tooltip,
   Table,
   TableBody,
   TableCell,
@@ -27,10 +22,7 @@ import {
   TrendingDown,
   Refresh,
   Info,
-  CheckCircle,
   Error,
-  Warning,
-  Schedule,
   ShowChart
 } from '@mui/icons-material';
 import { zerodhaMarketService } from '../services/zerodhaMarketService';
@@ -78,6 +70,7 @@ const MarketDataDisplay: React.FC<MarketDataDisplayProps> = ({
       const interval = setInterval(fetchMarketData, refreshInterval);
       return () => clearInterval(interval);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchMarketData is stable, symbols/autoRefresh/refreshInterval drive effect
   }, [symbols, autoRefresh, refreshInterval]);
 
   const getChangeColor = (change: string) => {

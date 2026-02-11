@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { recommendationAPIService } from '../services/RecommendationAPIService';
-import { API_CONFIG } from '../config/api';
 
 const RecommendationServiceTest: React.FC = () => {
   const [healthStatus, setHealthStatus] = useState<string>('Checking...');

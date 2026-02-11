@@ -1,4 +1,4 @@
-import { AbstractAPIService, BaseAPIRequest, BaseAPIResponse } from './BaseAPIService';
+import { AbstractAPIService, BaseAPIResponse } from './BaseAPIService';
 
 export class StockCandidatePopulatorAPIService extends AbstractAPIService {
   constructor() {

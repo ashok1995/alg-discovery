@@ -25,7 +25,6 @@ import {
 import {
   Dashboard,
   TrendingUp,
-  TrendingDown,
   ShowChart,
   Assessment,
   PieChart,
@@ -312,9 +311,9 @@ const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({
   // Auto-refresh
   useEffect(() => {
     refreshServices();
-    
     const interval = setInterval(refreshServices, 30000); // 30 seconds
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once, refreshServices is stable
   }, []);
 
   // Get status color

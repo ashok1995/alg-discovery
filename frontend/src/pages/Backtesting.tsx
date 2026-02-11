@@ -32,11 +32,7 @@ import {
   PlayArrow,
   Stop,
   Refresh,
-  ExpandMore,
-  TrendingUp,
-  TrendingDown,
-  Assessment,
-  Timeline
+  ExpandMore
 } from '@mui/icons-material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 

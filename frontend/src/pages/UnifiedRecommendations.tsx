@@ -16,27 +16,19 @@ import {
   InputLabel,
   Chip,
   Alert,
-  LinearProgress,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Tabs,
-  Tab,
   IconButton,
   Tooltip,
-  Badge,
   Avatar,
-  Stack,
-  Divider,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Slider,
-  TextField,
-  InputAdornment,
   CircularProgress,
   Fade,
   Zoom
@@ -45,75 +37,28 @@ import {
   Refresh,
   TrendingUp,
   TrendingDown,
-  ShowChart,
   Info,
-  Settings,
-  AutoAwesome,
-  Search,
   FilterList,
-  Tune,
   Analytics,
   Timeline,
-  Psychology,
-  Speed,
   AccountBalance,
   Assessment,
-  BarChart,
-  PieChart,
   Timeline as TimelineIcon,
-  Warning,
-  CheckCircle,
-  Error,
-  PlayArrow,
-  Pause,
-  Stop,
   ExpandMore,
-  KeyboardArrowUp,
-  KeyboardArrowDown,
   Star,
   StarBorder,
-  Favorite,
-  FavoriteBorder,
-  Bookmark,
-  BookmarkBorder,
-  Share,
-  Download,
-  Print,
-  Fullscreen,
-  FullscreenExit
+  Share
 } from '@mui/icons-material';
 import { useBackgroundRefresh } from '../hooks/useBackgroundRefresh';
 import { recommendationAPIService } from '../services/RecommendationAPIService';
 import { 
   UniversalRecommendationRequest, 
   StrategyType,
-  MarketCondition,
-  MarketSession,
+  DynamicRecommendationItem,
   SortDirection,
-  DynamicRecommendationResponse,
-  DynamicRecommendationItem
+  MarketCondition,
+  MarketSession
 } from '../types/apiModels';
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`strategy-tabpanel-${index}`}
-      aria-labelledby={`strategy-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
 
 interface RecommendationMetrics {
   totalRecommendations: number;
@@ -140,6 +85,7 @@ const UnifiedRecommendations: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshCount, setRefreshCount] = useState(0);
+  void refreshCount; // display or effects may use
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const [expandedFilters, setExpandedFilters] = useState(false);
   const [minScore, setMinScore] = useState(60);
@@ -354,6 +300,7 @@ const UnifiedRecommendations: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- applyRiskBasedFiltering, strategyConfig are stable
   }, [selectedStrategy, selectedRisk, minScore, maxResults, sortBy, sortDirection]);
 
   // Helper functions
@@ -384,30 +331,8 @@ const UnifiedRecommendations: React.FC = () => {
     return '#757575'; // Gray
   };
 
-  const getConfidenceIcon = (confidence: string) => {
-    switch (confidence) {
-      case 'high': return <CheckCircle color="success" />;
-      case 'medium': return <Warning color="warning" />;
-      case 'low': return <Error color="error" />;
-      default: return <Info color="info" />;
-    }
-  };
-
-  const getRiskColor = (riskLevel: string): string => {
-    switch (riskLevel) {
-      case 'low': return '#2e7d32';
-      case 'medium': return '#f57c00';
-      case 'high': return '#d32f2f';
-      default: return '#757575';
-    }
-  };
-
   // Background refresh hook
-  const { 
-    backgroundRefreshQueue, 
-    lastRefreshTime: hookLastRefreshTime,
-    fetchData 
-  } = useBackgroundRefresh(fetchRecommendations, {
+  useBackgroundRefresh(fetchRecommendations, {
     autoRefreshInterval: autoRefresh ? 30000 : 0,
     strategy: selectedStrategy.toLowerCase().replace('_', '-'),
     initialAutoRefresh: true,
@@ -417,6 +342,7 @@ const UnifiedRecommendations: React.FC = () => {
   // Effects
   useEffect(() => {
     fetchRecommendations(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchRecommendations is stable, filters drive effect
   }, [selectedStrategy, selectedRisk, minScore, maxResults, sortBy, sortDirection]);
 
   // Event handlers
