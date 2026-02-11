@@ -1,58 +1,52 @@
 /**
- * Kite Token Management Service
- * =============================
- * 
- * Complete token management including request token to access token conversion
- * Integrates with the token refresh API on port 8079
+ * Kite Auth Service
+ * Integrates with Kite Services API (prod: 203.57.85.72:8179)
+ * API: GET /api/auth/login-url, POST /api/auth/login, GET /api/auth/status, PUT /api/auth/token
  */
 
 import axios, { AxiosInstance } from 'axios';
 
+const KITE_API_PREFIX = '/api/kite';
+
 export interface TokenStatus {
   kite_token_valid: boolean;
-  needs_refresh: boolean;
-  last_checked?: string;
-  kite_token_expires_at?: string | null;
-  kite_token_masked?: string;
-  yahoo_finance_available?: boolean;
+  token_valid?: boolean;
+  authenticated?: boolean;
+  needs_refresh?: boolean;
   user_id?: string;
   user_name?: string;
-  email?: string;
-  // Computed properties for compatibility
+  kite_token_masked?: string;
+  kite_token_expires_at?: string | null;
+  message?: string;
   is_valid: boolean;
-  last_updated?: string;
-  expires_at?: string;
 }
 
 export interface TokenRefreshInfo {
   login_url: string;
+  callback_url?: string;
+  message?: string;
+}
+
+/** GET /api/token/callback-url - Callback URL for Kite app setup */
+export interface CallbackUrlResponse {
   callback_url: string;
-  api_key: string;
-  instructions: string[];
+  configured: boolean;
 }
 
 export interface AccessTokenResponse {
   success: boolean;
+  status?: string;
   access_token?: string;
   user_id?: string;
   user_name?: string;
-  user_shortname?: string;
-  email?: string;
-  user_type?: string;
-  broker?: string;
-  exchanges?: string[];
-  products?: string[];
-  order_types?: string[];
   message?: string;
-  instructions?: string;
   error?: string;
 }
 
-export interface CredentialStatus {
-  has_credentials: boolean;
+/** GET /api/auth/credentials/status - API key configuration status */
+export interface CredentialsStatusResponse {
   api_key_configured: boolean;
-  api_secret_configured: boolean;
-  missing_credentials?: string[];
+  message?: string | null;
 }
 
 class KiteTokenService {
@@ -60,38 +54,22 @@ class KiteTokenService {
   private api: AxiosInstance;
 
   private constructor() {
-    // Use proxy endpoints for CORS compatibility
-    const baseURL = '';
-
     this.api = axios.create({
-      baseURL,
+      baseURL: '',
       timeout: 30000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    // Add request logging
-    this.api.interceptors.request.use(
-      (config) => {
-        console.log(`🔐 [KiteToken] ${config.method?.toUpperCase()} ${config.url}`);
-        return config;
-      },
-      (error) => {
-        console.error('❌ [KiteToken] Request error:', error);
-        return Promise.reject(error);
-      }
-    );
-
-    // Add response logging
     this.api.interceptors.response.use(
-      (response) => {
-        console.log(`✅ [KiteToken] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`);
-        return response;
-      },
-      (error) => {
-        console.error('❌ [KiteToken] Response error:', error.response?.status, error.response?.data);
-        return Promise.reject(error);
+      (r) => r,
+      (err) => {
+        const d = err.response?.data?.detail;
+        const msg =
+          typeof d === 'string'
+            ? d
+            : Array.isArray(d)
+              ? d.map((x: { msg?: string }) => x?.msg ?? '').join('; ')
+              : err.message;
+        throw new Error(msg || err.message);
       }
     );
   }
@@ -103,177 +81,127 @@ class KiteTokenService {
     return KiteTokenService.instance;
   }
 
-  /**
-   * Check current token status
-   */
+  /** GET /api/auth/credentials/status - Check if API key is configured */
+  async getCredentialsStatus(): Promise<CredentialsStatusResponse> {
+    const res = await this.api.get(`${KITE_API_PREFIX}/auth/credentials/status`);
+    return res.data;
+  }
+
+  /** POST /api/auth/credentials - Save api_key and api_secret (optional, long-lived) */
+  async saveCredentials(
+    apiKey: string,
+    apiSecret: string
+  ): Promise<{ success: boolean; message?: string }> {
+    const res = await this.api.post(`${KITE_API_PREFIX}/auth/credentials`, {
+      api_key: apiKey.trim(),
+      api_secret: apiSecret.trim(),
+    });
+    return res.data;
+  }
+
+  /** GET /api/auth/status - Check auth and token validity */
   async getTokenStatus(): Promise<TokenStatus> {
+    const res = await this.api.get(`${KITE_API_PREFIX}/auth/status`);
+    const d = res.data;
+    const valid = d.token_valid ?? d.authenticated ?? false;
+    return {
+      ...d,
+      kite_token_valid: valid,
+      is_valid: valid,
+      kite_token_expires_at: d.token_expiry ?? d.kite_token_expires_at,
+    };
+  }
+
+  /** GET /api/token/callback-url - Get callback URL for Kite app (Redirect URL in developers.kite.trade) */
+  async getCallbackUrl(): Promise<CallbackUrlResponse | null> {
     try {
-      const response = await this.api.get('/api/token/status');
-      const data = response.data;
-      
-      // Transform response to match our interface
+      const res = await this.api.get(`${KITE_API_PREFIX}/token/callback-url`);
+      const d = res.data;
       return {
-        ...data,
-        kite_token_valid: data.token_valid || data.kite_token_valid, // Handle both backend formats
-        kite_token_masked: data.token_masked || data.kite_token_masked,
-        is_valid: data.token_valid || data.kite_token_valid,
-        last_updated: data.last_checked,
-        expires_at: data.kite_token_expires_at
+        callback_url: d.callback_url ?? '',
+        configured: d.configured ?? false,
       };
-    } catch (error) {
-      console.error('❌ [KiteToken] Token status failed:', error);
-      throw this.handleError(error, 'token status check');
-    }
-  }
-
-  /**
-   * Get refresh information including login URL
-   */
-  async getRefreshInfo(): Promise<TokenRefreshInfo> {
-    try {
-      const response = await this.api.get('/api/token/refresh-info');
-      const data = response.data;
-      
-      // Transform API response to match our interface
-      return {
-        login_url: data.step_1?.login_url || '',
-        callback_url: 'http://localhost:8079/auth/callback', // Default callback URL
-        api_key: data.api_key || '',
-        instructions: data.step_1?.instructions ? [data.step_1.instructions] : []
-      };
-    } catch (error) {
-      console.error('❌ [KiteToken] Refresh info failed:', error);
-      throw this.handleError(error, 'refresh info');
-    }
-  }
-
-  /**
-   * Get callback URL for Kite Connect app
-   */
-  async getCallbackUrl(): Promise<{ callback_url: string }> {
-    try {
-      const response = await this.api.get('/api/token/callback-url');
-      return response.data;
-    } catch (error) {
-      console.error('❌ [KiteToken] Callback URL failed:', error);
-      throw this.handleError(error, 'callback URL');
-    }
-  }
-
-  /**
-   * Convert request token to access token (THE KEY METHOD)
-   */
-  async generateAccessToken(requestToken: string): Promise<AccessTokenResponse> {
-    try {
-      const response = await this.api.post('/api/token/submit-token', {
-        request_token: requestToken
-      });
-      return response.data;
-    } catch (error) {
-      console.error('❌ [KiteToken] Access token generation failed:', error);
-      throw this.handleError(error, 'access token generation');
-    }
-  }
-
-  /**
-   * Extract request token from callback URL
-   */
-  extractRequestTokenFromUrl(callbackUrl: string): string | null {
-    try {
-      const url = new URL(callbackUrl);
-      return url.searchParams.get('request_token');
-    } catch (error) {
-      console.error('❌ [KiteToken] Invalid callback URL:', error);
+    } catch {
       return null;
     }
   }
 
-  /**
-   * Complete token refresh flow from callback URL
-   */
-  async completeTokenRefresh(callbackUrl: string): Promise<AccessTokenResponse> {
-    // Step 1: Extract request token
-    const requestToken = this.extractRequestTokenFromUrl(callbackUrl);
-    
-    if (!requestToken) {
-      throw new Error('No request token found in callback URL');
-    }
-
-    console.log('🎯 [KiteToken] Extracted request token:', requestToken);
-
-    // Step 2: Convert to access token
-    return await this.generateAccessToken(requestToken);
-  }
-
-  /**
-   * Check credential status
-   */
-  async getCredentialStatus(): Promise<CredentialStatus> {
-    try {
-      const response = await this.api.get('/api/credentials/status');
-      return response.data;
-    } catch (error) {
-      console.error('❌ [KiteToken] Credential status failed:', error);
-      throw this.handleError(error, 'credential status');
-    }
-  }
-
-  /**
-   * Clear current token
-   */
-  async clearToken(): Promise<{ success: boolean; message: string }> {
-    try {
-      const response = await this.api.delete('/api/token/clear');
-      return response.data;
-    } catch (error) {
-      console.error('❌ [KiteToken] Clear token failed:', error);
-      throw this.handleError(error, 'clear token');
-    }
-  }
-
-  /**
-   * Get service information
-   */
-  getServiceInfo() {
-    const isProduction = process.env.NODE_ENV === 'production' || 
-                        process.env.REACT_APP_NODE_ENV === 'production' ||
-                        (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
-    
+  /** GET /api/auth/login-url - Get login URL from service (when configured) */
+  async getRefreshInfo(): Promise<TokenRefreshInfo> {
+    const res = await this.api.get(`${KITE_API_PREFIX}/auth/login-url`);
+    const d = res.data;
     return {
-      name: 'Kite Token Management Service',
-      baseUrl: isProduction ? 'http://algodiscovery.com:8079' : 'http://localhost:8079',
-      endpoints: {
-        TOKEN_STATUS: '/api/token/status',
-        REFRESH_INFO: '/api/token/refresh-info',
-        CALLBACK_URL: '/api/token/callback-url',
-        SUBMIT_TOKEN: '/api/token/submit-token',
-        CREDENTIAL_STATUS: '/api/credentials/status',
-        CLEAR_TOKEN: '/api/token/clear'
-      },
-      features: [
-        'Request Token to Access Token Conversion',
-        'Automatic Token Expiry Detection',
-        'OAuth Flow Management',
-        'Credential Status Monitoring'
-      ]
+      login_url: d.login_url ?? '',
+      callback_url: d.callback_url,
+      message: d.message,
     };
   }
 
-  /**
-   * Handle API errors consistently
-   */
-  private handleError(error: any, operation: string): Error {
-    if (error.response) {
-      const status = error.response.status;
-      const data = error.response.data;
-      return new Error(`Kite Token ${operation} failed (${status}): ${data?.detail || data?.message || 'Unknown error'}`);
-    } else if (error.request) {
-      return new Error(`Kite Token ${operation} failed: No response from server`);
-    } else {
-      return new Error(`Kite Token ${operation} failed: ${error.message}`);
+  /** POST /api/auth/login - Convert request_token to access_token */
+  async generateAccessToken(requestToken: string): Promise<AccessTokenResponse> {
+    const res = await this.api.post(`${KITE_API_PREFIX}/auth/login`, {
+      request_token: requestToken.trim(),
+    });
+    const d = res.data;
+    return {
+      success: d.status === 'authenticated' && !!d.access_token,
+      status: d.status,
+      access_token: d.access_token,
+      user_id: d.user_id,
+      user_name: d.user_name,
+      message: d.message,
+    };
+  }
+
+  /** PUT /api/auth/token - Validate and save access token (for direct token paste) */
+  async updateToken(accessToken: string, userId?: string): Promise<{ success: boolean; message?: string }> {
+    const res = await this.api.put(`${KITE_API_PREFIX}/auth/token`, {
+      access_token: accessToken.trim(),
+      user_id: userId,
+    });
+    return res.data;
+  }
+
+  /** Validate and save direct access token (paste from Kite; skips request_token exchange) */
+  async validateAndSaveAccessToken(accessToken: string): Promise<AccessTokenResponse> {
+    try {
+      const res = await this.api.put(`${KITE_API_PREFIX}/auth/token`, {
+        access_token: accessToken.trim(),
+      });
+      const d = res.data;
+      return {
+        success: !!d.access_token || !!d.status,
+        status: d.status ?? 'authenticated',
+        access_token: d.access_token ?? accessToken,
+        user_id: d.user_id,
+        user_name: d.user_name,
+        message: d.message ?? 'Token saved successfully',
+      };
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+        : err instanceof Error ? err.message : 'Failed to save token';
+      return { success: false, error: String(msg) };
     }
+  }
+
+  extractRequestTokenFromUrl(callbackUrl: string): string | null {
+    try {
+      const url = new URL(callbackUrl);
+      const token = url.searchParams.get('request_token');
+      if (token) return token;
+    } catch {
+      /* fallback to regex for partial URLs */
+    }
+    const m = callbackUrl.match(/request_token=([^&\s]+)/);
+    return m ? m[1] : null;
+  }
+
+  /** GET /health - Service health (proxy maps to root /health) */
+  async getHealth(): Promise<{ status: string; service?: string; services?: Record<string, unknown> }> {
+    const res = await this.api.get(`${KITE_API_PREFIX}/health`);
+    return res.data;
   }
 }
 
-// Export singleton instance
 export const kiteTokenService = KiteTokenService.getInstance();

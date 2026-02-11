@@ -1,150 +1,103 @@
 /**
  * useChartinkAuth Hook
  * ====================
- * 
- * React hook for managing Chartink authentication state
+ *
+ * React hook for Chartink auth (prod 8181: check, vnc-url, force-update)
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { chartinkAuthService, type ChartinkAuthStatus, type ChartinkLoginResponse } from '../services/ChartinkAuthService';
+import {
+  chartinkAuthService,
+  type ChartinkCheckStatus,
+  type ChartinkForceUpdateResponse,
+} from '../services/ChartinkAuthService';
 
 interface UseChartinkAuthReturn {
-  // State
-  authStatus: ChartinkAuthStatus | null;
+  checkStatus: ChartinkCheckStatus | null;
   loading: boolean;
   error: string | null;
-  loginInProgress: boolean;
-  
-  // Actions
   refreshStatus: () => Promise<void>;
-  triggerLogin: () => Promise<void>;
   clearError: () => void;
-  
-  // Computed properties
   isAuthenticated: boolean;
-  isHealthy: boolean;
-  needsLogin: boolean;
-  healthScore: number;
+  getVncUrl: () => Promise<string | null>;
+  forceAuthenticate: () => Promise<ChartinkForceUpdateResponse | null>;
 }
 
-export function useChartinkAuth(autoRefreshInterval: number = 30000): UseChartinkAuthReturn {
-  const [authStatus, setAuthStatus] = useState<ChartinkAuthStatus | null>(null);
-  const [loading, setLoading] = useState(false);
+export function useChartinkAuth(autoRefreshInterval = 60000): UseChartinkAuthReturn {
+  const [checkStatus, setCheckStatus] = useState<ChartinkCheckStatus | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [loginInProgress, setLoginInProgress] = useState(false);
 
-  /**
-   * Refresh authentication status
-   */
   const refreshStatus = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const status = await chartinkAuthService.getSessionStatus();
-      setAuthStatus(status);
-      
-      console.log('📈 [useChartinkAuth] Status refreshed:', status.status);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setError(errorMessage);
-      console.error('❌ [useChartinkAuth] Status refresh failed:', error);
+      const res = await chartinkAuthService.getAuthStatus();
+      setCheckStatus(res);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Check failed');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /**
-   * Trigger browser login
-   */
-  const triggerLogin = useCallback(async () => {
+  const getVncUrl = useCallback(async (): Promise<string | null> => {
     try {
-      setLoginInProgress(true);
-      setError(null);
-      
-      console.log('🔐 [useChartinkAuth] Triggering browser login...');
-      const loginResponse = await chartinkAuthService.triggerBrowserLogin();
-      
-      if (loginResponse.success) {
-        console.log('✅ [useChartinkAuth] Login successful:', loginResponse.message);
-        
-        // Refresh status after successful login
-        setTimeout(() => {
-          refreshStatus();
-        }, 3000);
-      } else {
-        throw new Error(loginResponse.error || 'Login failed');
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
-      setError(errorMessage);
-      console.error('❌ [useChartinkAuth] Login failed:', error);
-    } finally {
-      setLoginInProgress(false);
+      const res = await chartinkAuthService.getVncUrl();
+      return res?.vnc_url ?? null;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'VNC URL failed');
+      return null;
     }
-  }, [refreshStatus]);
-
-  /**
-   * Clear error state
-   */
-  const clearError = useCallback(() => {
-    setError(null);
   }, []);
 
-  // Auto-refresh on mount and interval
+  const forceAuthenticate = useCallback(async (): Promise<ChartinkForceUpdateResponse | null> => {
+    try {
+      setError(null);
+      const res = await chartinkAuthService.forceAuthenticate();
+      return res;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Force auth failed');
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
     refreshStatus();
-    
     if (autoRefreshInterval > 0) {
-      const interval = setInterval(refreshStatus, autoRefreshInterval);
-      return () => clearInterval(interval);
+      const id = setInterval(refreshStatus, autoRefreshInterval);
+      return () => clearInterval(id);
     }
   }, [refreshStatus, autoRefreshInterval]);
 
-  // Computed properties
-  const isAuthenticated = authStatus?.session_working || false;
-  const isHealthy = authStatus?.status === 'healthy';
-  const needsLogin = authStatus?.status === 'unhealthy' || !authStatus?.session_working;
-  const healthScore = authStatus?.health_score || 0;
+  const isAuthenticated = Boolean(
+    checkStatus?.success && checkStatus?.status?.authenticated === true
+  );
 
   return {
-    authStatus,
+    checkStatus,
     loading,
     error,
-    loginInProgress,
     refreshStatus,
-    triggerLogin,
-    clearError,
+    clearError: () => setError(null),
     isAuthenticated,
-    isHealthy,
-    needsLogin,
-    healthScore
+    getVncUrl,
+    forceAuthenticate,
   };
 }
 
-/**
- * Hook for just checking if Chartink is authenticated (lightweight)
- */
+/** Lightweight hook for auth check only */
 export function useChartinkAuthStatus(): { isAuthenticated: boolean; loading: boolean } {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkStatus = async () => {
-      try {
-        const status = await chartinkAuthService.getSessionStatus();
-        setIsAuthenticated(status.session_working);
-      } catch (error) {
-        console.error('❌ Auth status check failed:', error);
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkStatus();
+    chartinkAuthService
+      .getAuthStatus()
+      .then((res) => setIsAuthenticated(res?.success && res?.status?.authenticated === true))
+      .catch(() => setIsAuthenticated(false))
+      .finally(() => setLoading(false));
   }, []);
 
   return { isAuthenticated, loading };
 }
-

@@ -73,7 +73,7 @@ fi
 log "Building Docker image..."
 BUILD_ARG=""
 [ "$DEPLOY_ENV" = "stage" ] && BUILD_ARG="--build-arg BUILD_ENV=stage"
-docker build -f Dockerfile.production $BUILD_ARG -t "$IMAGE_NAME" . || docker build -t "$IMAGE_NAME" .
+docker build $BUILD_ARG -t "$IMAGE_NAME" .
 
 log "Stopping existing container..."
 docker stop "$CONTAINER_NAME" 2>/dev/null || true
