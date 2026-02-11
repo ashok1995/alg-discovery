@@ -1,254 +1,237 @@
 /**
- * Chartink Authentication Manager Component
- * =========================================
- * 
- * Manages Chartink authentication with browser login integration
- * Uses the authentication service on port 8181
+ * Chartink Authentication Manager
+ * ==============================
+ *
+ * 2-step flow for VNC-based Chartink auth (prod 8181):
+ * 1) Check status → Login to VNC (opens URL)
+ * 2) Force Authenticate → Wait 1 min → Check Status
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box,
   Card,
   CardContent,
   Typography,
+  Box,
   Button,
   Alert,
   CircularProgress,
   Chip,
-  Divider,
   IconButton,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import {
-  Refresh as RefreshIcon,
-  Login as LoginIcon,
-  CheckCircle as CheckCircleIcon,
+  Security,
+  Refresh,
+  Login,
+  CheckCircle,
   Error as ErrorIcon,
-  Warning as WarningIcon,
-  Help as HelpIcon
+  OpenInNew,
+  HourglassEmpty,
 } from '@mui/icons-material';
-import { chartinkAuthService } from '../services/ChartinkAuthService';
+import { useChartinkAuth } from '../hooks/useChartinkAuth';
 
-interface AuthStatus {
-  success: boolean;
-  session_working: boolean;
-  status: 'healthy' | 'degraded' | 'unhealthy' | 'error';
-  health_score: number;
-  message: string;
-  details?: {
-    endpoint_used: string;
-    data_count: number;
-    response_time_ms: number;
-    http_status: number;
-  };
-  actions?: {
-    login_browser: string;
-    trigger_login: string;
-    clear_session: string;
-  };
-  timestamp: number;
-}
-
-interface LoginResponse {
-  success: boolean;
-  message: string;
-  status: string;
-  login_time_seconds?: number;
-  action: string;
-  error?: string;
-}
+const WAIT_SECONDS = 60;
 
 const ChartinkAuthManager: React.FC = () => {
-  const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [loginInProgress, setLoginInProgress] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    checkStatus,
+    loading,
+    error,
+    refreshStatus,
+    clearError,
+    isAuthenticated,
+    getVncUrl,
+    forceAuthenticate,
+  } = useChartinkAuth(5 * 60 * 1000);
 
-  // Fetch authentication status
-  const fetchAuthStatus = async () => {
+  const [vncUrl, setVncUrl] = useState<string | null>(null);
+  const [fetchingVnc, setFetchingVnc] = useState(false);
+  const [forceInProgress, setForceInProgress] = useState(false);
+  const [forceDone, setForceDone] = useState(false);
+  const [waitCountdown, setWaitCountdown] = useState<number | null>(null);
+  const [canRecheck, setCanRecheck] = useState(false);
+
+  const handleLoginToVnc = useCallback(async () => {
+    setFetchingVnc(true);
+    clearError();
     try {
-      setLoading(true);
-      setError(null);
-      
-      const data = await chartinkAuthService.getSessionStatus();
-      setAuthStatus(data);
-      
-      console.log('📈 [ChartinkAuth] Status fetched:', data);
-    } catch (error) {
-      console.error('❌ [ChartinkAuth] Status fetch failed:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch auth status');
-      setAuthStatus({
-        success: false,
-        session_working: false,
-        status: 'error',
-        health_score: 0,
-        message: 'Failed to connect to Chartink service',
-        timestamp: Date.now() / 1000
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Trigger browser login
-  const handleBrowserLogin = async () => {
-    try {
-      setLoginInProgress(true);
-      setError(null);
-
-      console.log('🔐 [ChartinkAuth] Triggering browser login...');
-      
-      const result = await chartinkAuthService.triggerBrowserLogin();
-      
-      console.log('✅ [ChartinkAuth] Login response:', result);
-
-      if (result.success) {
-        // Show success message
-        setError(null);
-        
-        // Refresh status after a delay
-        setTimeout(() => {
-          fetchAuthStatus();
-        }, 3000);
-      } else {
-        setError(result.error || 'Login failed');
+      const url = await getVncUrl();
+      if (url) {
+        setVncUrl(url);
+        window.open(url, '_blank', 'noopener,noreferrer');
       }
-    } catch (error) {
-      console.error('❌ [ChartinkAuth] Browser login failed:', error);
-      setError(error instanceof Error ? error.message : 'Failed to trigger browser login');
     } finally {
-      setLoginInProgress(false);
+      setFetchingVnc(false);
     }
-  };
+  }, [getVncUrl, clearError]);
 
-  // Auto-refresh every 30 seconds
+  const handleForceAuthenticate = useCallback(async () => {
+    setForceInProgress(true);
+    clearError();
+    try {
+      const res = await forceAuthenticate();
+      setForceDone(true);
+      if (res?.success !== false) {
+        setWaitCountdown(WAIT_SECONDS);
+      }
+    } finally {
+      setForceInProgress(false);
+    }
+  }, [forceAuthenticate, clearError]);
+
   useEffect(() => {
-    fetchAuthStatus();
-    
-    const interval = setInterval(() => {
-      fetchAuthStatus();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'healthy': return 'success';
-      case 'degraded': return 'warning';
-      case 'unhealthy': return 'error';
-      default: return 'default';
+    if (waitCountdown === null || waitCountdown <= 0) {
+      if (waitCountdown === 0) setCanRecheck(true);
+      return;
     }
-  };
+    const t = setInterval(() => setWaitCountdown((c) => (c != null && c > 0 ? c - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [waitCountdown]);
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'healthy': return <CheckCircleIcon color="success" />;
-      case 'degraded': return <WarningIcon color="warning" />;
-      case 'unhealthy': return <ErrorIcon color="error" />;
-      default: return <HelpIcon color="disabled" />;
-    }
-  };
+  const statusDetails = checkStatus?.status;
 
   return (
-    <Card sx={{ maxWidth: 500, mx: 'auto', my: 2 }}>
+    <Card>
       <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6" component="h2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            📈 Chartink Authentication
-          </Typography>
-          
-          <Tooltip title="Refresh Status">
-            <IconButton 
-              onClick={fetchAuthStatus} 
-              disabled={loading}
-              size="small"
-            >
-              {loading ? <CircularProgress size={20} /> : <RefreshIcon />}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Security sx={{ mr: 1 }} />
+          <Typography variant="h6">Chartink Authentication</Typography>
+          <Box sx={{ flexGrow: 1 }} />
+          <Tooltip title="Check Status">
+            <IconButton size="small" onClick={refreshStatus} disabled={loading}>
+              <Refresh />
             </IconButton>
           </Tooltip>
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }} onClose={clearError}>
             {error}
           </Alert>
         )}
 
-        {authStatus && (
+        {loading && !checkStatus && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+            <CircularProgress size={24} />
+          </Box>
+        )}
+
+        {checkStatus && (
           <>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-              {getStatusIcon(authStatus.status)}
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  {authStatus.message}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Health Score: {authStatus.health_score}/100
-                </Typography>
-              </Box>
-              <Chip 
-                label={authStatus.status.toUpperCase()}
-                color={getStatusColor(authStatus.status) as any}
+            <Box sx={{ mb: 2 }}>
+              <Chip
+                icon={isAuthenticated ? <CheckCircle /> : <ErrorIcon />}
+                label={isAuthenticated ? 'Authenticated' : 'Not Authenticated'}
+                color={isAuthenticated ? 'success' : 'error'}
                 size="small"
+                sx={{ mr: 1 }}
               />
-            </Box>
-
-            {authStatus.details && (
-              <Box sx={{ mb: 2, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
-                <Typography variant="caption" display="block">
-                  <strong>Endpoint:</strong> {authStatus.details.endpoint_used}
+              {statusDetails?.hints && (
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+                  {statusDetails.hints}
                 </Typography>
-                <Typography variant="caption" display="block">
-                  <strong>Data Count:</strong> {authStatus.details.data_count}
+              )}
+              {statusDetails?.url && (
+                <Typography variant="caption" color="text.secondary" display="block">
+                  URL: {statusDetails.url}
                 </Typography>
-                <Typography variant="caption" display="block">
-                  <strong>Response Time:</strong> {authStatus.details.response_time_ms}ms
-                </Typography>
-                <Typography variant="caption" display="block">
-                  <strong>HTTP Status:</strong> {authStatus.details.http_status}
-                </Typography>
-              </Box>
-            )}
-
-            <Divider sx={{ my: 2 }} />
-
-            <Box sx={{ textAlign: 'center' }}>
-              {!authStatus.session_working ? (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleBrowserLogin}
-                  disabled={loginInProgress}
-                  startIcon={loginInProgress ? <CircularProgress size={20} /> : <LoginIcon />}
-                  fullWidth
-                  sx={{ py: 1.5 }}
-                >
-                  {loginInProgress ? 'Opening Browser...' : '🔐 Login via Browser'}
-                </Button>
-              ) : (
-                <Alert severity="success" sx={{ textAlign: 'center' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    ✅ Authentication Active - Ready for Trading!
-                  </Typography>
-                </Alert>
               )}
             </Box>
 
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
-              Last updated: {new Date(authStatus.timestamp * 1000).toLocaleTimeString()}
-            </Typography>
+            {isAuthenticated && (
+              <Alert severity="success" sx={{ mb: 2 }}>
+                Chartink is authenticated and ready to fetch stock data.
+              </Alert>
+            )}
+
+            {/* Force auth flow – always visible for re-auth */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                Re-authenticate
+              </Typography>
+              <Alert severity="info" variant="outlined" sx={{ py: 0.5 }}>
+                <Typography variant="caption" display="block">
+                  Flow: 1) Login to VNC. 2) Log in to Chartink in the VNC session. 3) Force Authenticate. 4) Wait 1 min, then Check Status.
+                </Typography>
+              </Alert>
+
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={fetchingVnc ? <CircularProgress size={14} /> : <Login />}
+                  onClick={handleLoginToVnc}
+                  disabled={fetchingVnc}
+                  sx={{ textTransform: 'none' }}
+                >
+                  Login to VNC
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={forceInProgress ? <CircularProgress size={14} /> : undefined}
+                  onClick={handleForceAuthenticate}
+                  disabled={forceInProgress}
+                  sx={{ textTransform: 'none' }}
+                >
+                  {forceInProgress ? 'Authenticating...' : 'Force Authenticate'}
+                </Button>
+                {waitCountdown != null && waitCountdown > 0 && (
+                  <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <HourglassEmpty fontSize="small" />
+                    Wait {waitCountdown}s before recheck
+                  </Typography>
+                )}
+                {(canRecheck || isAuthenticated) && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<Refresh />}
+                    onClick={refreshStatus}
+                    disabled={loading}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Check Status
+                  </Button>
+                )}
+              </Box>
+
+              {vncUrl && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    VNC URL:
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="code"
+                    sx={{ wordBreak: 'break-all', bgcolor: 'grey.100', px: 1, py: 0.5, borderRadius: 0.5 }}
+                  >
+                    {vncUrl}
+                  </Typography>
+                  <Tooltip title="Open VNC">
+                    <IconButton
+                      size="small"
+                      onClick={() => window.open(vncUrl!, '_blank')}
+                    >
+                      <OpenInNew fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              )}
+            </Box>
           </>
         )}
 
-        {!authStatus && !loading && (
-          <Box sx={{ textAlign: 'center', py: 2 }}>
-            <Typography color="text.secondary">
-              Click refresh to check authentication status
-            </Typography>
-          </Box>
+        {!checkStatus && !loading && (
+          <Alert severity="info">
+            Click refresh to check Chartink authentication status.
+          </Alert>
         )}
+
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'right', mt: 2 }}>
+          Auto-refresh: 5 min
+        </Typography>
       </CardContent>
     </Card>
   );

@@ -1,352 +1,295 @@
-import React, { useState, useEffect } from 'react';
-import { API_CONFIG } from '../config/api';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
   Typography,
   Grid,
   Chip,
-  Box,
   IconButton,
-  Collapse,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Tooltip,
-  LinearProgress
+  Box,
+  LinearProgress,
+  Alert,
 } from '@mui/material';
 import {
-  ExpandMore,
-  ExpandLess,
-  Refresh,
-  SignalCellular4Bar,
-  SignalCellularConnectedNoInternet0Bar,
-  SignalCellular0Bar,
   CheckCircle,
   Error,
   Warning,
-  Info
+  Refresh,
+  CloudOff,
+  Api,
+  Speed
 } from '@mui/icons-material';
 
 interface ServiceStatus {
   name: string;
-  displayName: string;
-  port: number;
-  status: 'healthy' | 'unhealthy' | 'error' | 'unknown';
-  lastCheck: string;
+  status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
+  healthScore: number;
   responseTime?: number;
-  uptime?: string;
-  error?: string;
+  lastChecked: string;
+  details?: any;
+  endpoint: string;
 }
 
 interface ServiceStatusMonitorProps {
+  refreshInterval?: number;
+  onStatusChange?: (statuses: ServiceStatus[]) => void;
   onServiceClick?: (service: ServiceStatus) => void;
-  refreshInterval?: number; // seconds
 }
 
 const ServiceStatusMonitor: React.FC<ServiceStatusMonitorProps> = ({
-  onServiceClick,
-  refreshInterval = 30
+  refreshInterval = 60000, // 60 seconds
+  onStatusChange,
+  onServiceClick
 }) => {
   const [services, setServices] = useState<ServiceStatus[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
-  // Service configuration
-  const serviceConfig = [
-    { name: 'swing-api', displayName: 'Swing Buy AI', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'longterm-api', displayName: 'Long Term Trading', port: API_CONFIG.PORTS.LONGTERM_API },
-    { name: 'shortterm-api', displayName: 'Short Term Trading', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'intraday-api', displayName: 'Intraday Trading', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'variants-api', displayName: 'Strategy Variants', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'facts-api', displayName: 'Market Facts', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'dashboard-api', displayName: 'Dashboard', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'unified-strategy-api', displayName: 'Unified Strategy', port: API_CONFIG.PORTS.UNIFIED_STRATEGY_API },
-    { name: 'misc-api', displayName: 'Misc Tools', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'zerodha-test-api', displayName: 'Zerodha Test', port: API_CONFIG.PORTS.ZERODHA_API },
-    { name: 'zerodha-api', displayName: 'Zerodha Management', port: API_CONFIG.PORTS.ZERODHA_API },
-    { name: 'validation-api', displayName: 'Validation Tools', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'algorithm-api', displayName: 'Algorithm Analysis', port: API_CONFIG.PORTS.ALGORITHM_API },
-    { name: 'intraday-service-api', displayName: 'Intraday Service', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'stock-mapping-api', displayName: 'Stock Mapping', port: API_CONFIG.PORTS.SWING_API },
-    { name: 'stock-candidate-populator-api', displayName: 'Stock Candidate', port: API_CONFIG.PORTS.STOCK_CANDIDATE_POPULATOR_API }
+  // Kite status/token: Settings page only. Do not add here.
+  const serviceConfigs = [
+    {
+      name: 'Seed Service',
+      endpoint: '/api/seed/health',
+      description: 'Stock recommendations & analysis'
+    },
+    {
+      name: 'Chartink Service',
+      endpoint: '/api/chartink/check',
+      description: 'Technical analysis & screening'
+    }
   ];
 
-  // Check service health
-  const checkServiceHealth = async (service: typeof serviceConfig[0]): Promise<ServiceStatus> => {
+  const checkServiceStatus = async (config: typeof serviceConfigs[0]): Promise<ServiceStatus> => {
     const startTime = Date.now();
+    
     try {
-      const response = await fetch(`http://localhost:${service.port}/health`, {
-        method: 'GET'
+      const response = await fetch(config.endpoint, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
       });
       
       const responseTime = Date.now() - startTime;
+      const data = await response.json();
+      
+      let status: ServiceStatus['status'] = 'unknown';
+      let healthScore = 0;
       
       if (response.ok) {
-        const data = await response.json();
-        return {
-          name: service.name,
-          displayName: service.displayName,
-          port: service.port,
-          status: 'healthy',
-          lastCheck: new Date().toISOString(),
-          responseTime,
-          uptime: data.uptime || 'Unknown'
-        };
+        if (config.name === 'Seed Service') {
+          status = data.status === 'healthy' ? 'healthy' : 'degraded';
+          healthScore = status === 'healthy' ? 100 : 70;
+        } else if (config.name === 'Chartink Service') {
+          const ok = data.success && data.status?.authenticated === true;
+          status = ok ? 'healthy' : 'unhealthy';
+          healthScore = ok ? 100 : 0;
+        }
       } else {
-        return {
-          name: service.name,
-          displayName: service.displayName,
-          port: service.port,
-          status: 'unhealthy',
-          lastCheck: new Date().toISOString(),
-          responseTime,
-          error: `HTTP ${response.status}`
-        };
+        status = 'unhealthy';
+        healthScore = 0;
       }
-    } catch (error: any) {
-      const responseTime = Date.now() - startTime;
+      
       return {
-        name: service.name,
-        displayName: service.displayName,
-        port: service.port,
-        status: 'error',
-        lastCheck: new Date().toISOString(),
+        name: config.name,
+        status,
+        healthScore,
         responseTime,
-        error: error.message || 'Connection failed'
+        lastChecked: new Date().toISOString(),
+        details: data,
+        endpoint: config.endpoint
+      };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? (error as Error).message : String(error);
+      return {
+        name: config.name,
+        status: 'unhealthy',
+        healthScore: 0,
+        responseTime: Date.now() - startTime,
+        lastChecked: new Date().toISOString(),
+        details: { error: errorMessage },
+        endpoint: config.endpoint
       };
     }
   };
 
-  // Refresh all services
-  const refreshServices = async () => {
+  const refreshStatuses = useCallback(async () => {
     setLoading(true);
     try {
-      const healthChecks = serviceConfig.map(checkServiceHealth);
-      const results = await Promise.allSettled(healthChecks);
+      const statusPromises = serviceConfigs.map(config => checkServiceStatus(config));
+      const statuses = await Promise.allSettled(statusPromises);
       
-      const serviceStatuses: ServiceStatus[] = results.map((result, index) => {
+      const results = statuses.map((result, index) => {
         if (result.status === 'fulfilled') {
           return result.value;
         } else {
           return {
-            name: serviceConfig[index].name,
-            displayName: serviceConfig[index].displayName,
-            port: serviceConfig[index].port,
-            status: 'error',
-            lastCheck: new Date().toISOString(),
-            error: 'Check failed'
+            name: serviceConfigs[index].name,
+            status: 'unhealthy' as const,
+            healthScore: 0,
+            responseTime: 0,
+            lastChecked: new Date().toISOString(),
+            details: { error: result.reason?.message || 'Failed to check status' },
+            endpoint: serviceConfigs[index].endpoint
           };
         }
       });
       
-      setServices(serviceStatuses);
+      setServices(results);
       setLastRefresh(new Date());
-    } catch (error) {
-      console.error('Error refreshing services:', error);
+      onStatusChange?.(results);
+    } catch (error: unknown) {
+      console.error('Failed to refresh service statuses:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [onStatusChange]);
 
-  // Auto-refresh
   useEffect(() => {
-    refreshServices();
+    refreshStatuses();
     
-    const interval = setInterval(refreshServices, refreshInterval * 1000);
+    const interval = setInterval(refreshStatuses, refreshInterval);
     return () => clearInterval(interval);
-  }, [refreshInterval]);
+  }, [refreshStatuses, refreshInterval]);
 
-  // Get status color
-  const getStatusColor = (status: string) => {
+  const getStatusIcon = (status: ServiceStatus['status']) => {
     switch (status) {
-      case 'healthy': return 'success';
-      case 'unhealthy': return 'warning';
-      case 'error': return 'error';
-      default: return 'default';
+      case 'healthy':
+        return <CheckCircle color="success" />;
+      case 'degraded':
+        return <Warning color="warning" />;
+      case 'unhealthy':
+        return <Error color="error" />;
+      default:
+        return <CloudOff color="disabled" />;
     }
   };
 
-  // Get status icon
-  const getStatusIcon = (status: string) => {
+  const getStatusColor = (status: ServiceStatus['status']) => {
     switch (status) {
-      case 'healthy': return <CheckCircle />;
-      case 'unhealthy': return <Warning />;
-      case 'error': return <Error />;
-      default: return <Info />;
+      case 'healthy':
+        return 'success';
+      case 'degraded':
+        return 'warning';
+      case 'unhealthy':
+        return 'error';
+      default:
+        return 'default';
     }
   };
 
-  // Calculate summary statistics
-  const healthyCount = services.filter(s => s.status === 'healthy').length;
-  const totalCount = services.length;
-  const healthPercentage = totalCount > 0 ? (healthyCount / totalCount) * 100 : 0;
+  const overallStatus = services.length > 0 
+    ? services.every(s => s.status === 'healthy') 
+      ? 'healthy' 
+      : services.some(s => s.status === 'unhealthy') 
+        ? 'unhealthy' 
+        : 'degraded'
+    : 'unknown';
+
+  const overallHealthScore = services.length > 0 
+    ? Math.round(services.reduce((sum, s) => sum + s.healthScore, 0) / services.length)
+    : 0;
 
   return (
-    <Card>
+    <Card sx={{ mb: 2 }}>
       <CardContent>
-        {/* Header */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6" component="div" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Api />
+            Service Status
+          </Typography>
           <Box display="flex" alignItems="center" gap={1}>
-            <Typography variant="h6" fontWeight="bold">
-              Service Status Monitor
-            </Typography>
-            <Chip 
-              label={`${healthyCount}/${totalCount} Healthy`}
-              color={healthPercentage >= 80 ? 'success' : healthPercentage >= 60 ? 'warning' : 'error'}
-              size="small"
+            <Chip
+              icon={getStatusIcon(overallStatus)}
+              label={`${overallStatus.toUpperCase()} (${overallHealthScore}%)`}
+              color={getStatusColor(overallStatus) as any}
+              variant="outlined"
             />
-          </Box>
-          <Box display="flex" gap={1}>
-            <Tooltip title="Refresh Services">
-              <IconButton 
-                onClick={refreshServices} 
-                disabled={loading}
-                size="small"
-              >
-                <Refresh />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={expanded ? "Collapse Details" : "Expand Details"}>
-              <IconButton 
-                onClick={() => setExpanded(!expanded)}
-                size="small"
-              >
-                {expanded ? <ExpandLess /> : <ExpandMore />}
-              </IconButton>
-            </Tooltip>
+            <IconButton onClick={refreshStatuses} disabled={loading} size="small">
+              <Refresh className={loading ? 'spin' : ''} />
+            </IconButton>
           </Box>
         </Box>
 
-        {/* Health Progress Bar */}
-        <Box mb={2}>
-          <Box display="flex" justifyContent="space-between" mb={1}>
-            <Typography variant="caption" color="text.secondary">
-              Overall Health
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {healthPercentage.toFixed(1)}%
-            </Typography>
-          </Box>
-          <LinearProgress 
-            variant="determinate" 
-            value={healthPercentage}
-            color={healthPercentage >= 80 ? 'success' : healthPercentage >= 60 ? 'warning' : 'error'}
-            sx={{ height: 8, borderRadius: 4 }}
-          />
-        </Box>
-
-        {/* Last Refresh */}
-        <Typography variant="caption" color="text.secondary" display="block" mb={2}>
-          Last refreshed: {lastRefresh.toLocaleTimeString()}
-        </Typography>
-
-        {/* Service Grid */}
-        <Grid container spacing={1}>
-          {services.map((service) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={service.name}>
-              <Card 
-                variant="outlined"
-                sx={{ 
-                  cursor: 'pointer',
-                  '&:hover': { 
-                    backgroundColor: 'action.hover',
-                    transform: 'translateY(-1px)',
-                    transition: 'all 0.2s ease'
-                  }
-                }}
-                onClick={() => onServiceClick?.(service)}
-              >
-                <CardContent sx={{ p: 1.5 }}>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Box>
-                      <Typography variant="body2" fontWeight="bold" noWrap>
-                        {service.displayName}
+        <Grid container spacing={2}>
+          {services.map((service, index) => {
+            const config = serviceConfigs[index];
+            return (
+              <Grid item xs={12} md={4} key={service.name}>
+                <Card 
+                  variant="outlined" 
+                  sx={{ 
+                    height: '100%',
+                    cursor: onServiceClick ? 'pointer' : 'default',
+                    '&:hover': onServiceClick ? {
+                      boxShadow: 2,
+                      transform: 'translateY(-2px)',
+                      transition: 'all 0.2s'
+                    } : {}
+                  }}
+                  onClick={() => onServiceClick?.(service)}
+                >
+                  <CardContent>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {service.name}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Port {service.port}
-                      </Typography>
+                      {getStatusIcon(service.status)}
                     </Box>
-                    <Chip
-                      icon={getStatusIcon(service.status)}
-                      label={service.status}
-                      color={getStatusColor(service.status)}
-                      size="small"
-                    />
-                  </Box>
-                  {service.responseTime && (
-                    <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
-                      {service.responseTime}ms
+                    
+                    <Typography variant="body2" color="text.secondary" mb={1}>
+                      {config.description}
                     </Typography>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                    
+                    <Box display="flex" alignItems="center" gap={1} mb={1}>
+                      <Chip
+                        label={`${service.healthScore}%`}
+                        color={getStatusColor(service.status) as any}
+                        size="small"
+                        variant="outlined"
+                      />
+                      {service.responseTime && (
+                        <Chip
+                          icon={<Speed />}
+                          label={`${service.responseTime}ms`}
+                          size="small"
+                          variant="outlined"
+                        />
+                      )}
+                    </Box>
+                    
+                    <LinearProgress
+                      variant="determinate"
+                      value={service.healthScore}
+                      color={getStatusColor(service.status) as any}
+                      sx={{ mb: 1 }}
+                    />
+                    
+                    <Typography variant="caption" color="text.secondary">
+                      Last checked: {new Date(service.lastChecked).toLocaleTimeString()}
+                    </Typography>
+                    
+                    {service.details?.error && (
+                      <Alert severity="error" sx={{ mt: 1, fontSize: '0.75rem' }}>
+                        {service.details.error}
+                      </Alert>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            );
+          })}
         </Grid>
 
-        {/* Detailed Table */}
-        <Collapse in={expanded}>
-          <Box mt={2}>
-            <TableContainer component={Paper} variant="outlined">
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Service</TableCell>
-                    <TableCell>Port</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Response Time</TableCell>
-                    <TableCell>Last Check</TableCell>
-                    <TableCell>Error</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {services.map((service) => (
-                    <TableRow key={service.name} hover>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight="bold">
-                          {service.displayName}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{service.port}</TableCell>
-                      <TableCell>
-                        <Chip
-                          icon={getStatusIcon(service.status)}
-                          label={service.status}
-                          color={getStatusColor(service.status)}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {service.responseTime ? `${service.responseTime}ms` : 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(service.lastCheck).toLocaleTimeString()}
-                      </TableCell>
-                      <TableCell>
-                        {service.error ? (
-                          <Tooltip title={service.error}>
-                            <Typography variant="caption" color="error" noWrap>
-                              {service.error}
-                            </Typography>
-                          </Tooltip>
-                        ) : '-'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Collapse>
+        <Box mt={2} display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="caption" color="text.secondary">
+            Auto-refresh every {refreshInterval / 1000}s
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Last refresh: {lastRefresh.toLocaleTimeString()}
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   );
 };
 
-export default ServiceStatusMonitor; 
+export default ServiceStatusMonitor;

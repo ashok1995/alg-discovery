@@ -41,11 +41,7 @@ import {
   CheckCircle,
   Error as ErrorIcon,
   Warning,
-  Cloud
 } from '@mui/icons-material';
-import ZerodhaContainerIntegration from '../components/ZerodhaContainerIntegration';
-// import KiteTokenManagement from '../components/KiteTokenManagement';
-// import EnhancedKiteTokenManagement from '../components/EnhancedKiteTokenManagement';
 import SimpleKiteTokenManagement from '../components/SimpleKiteTokenManagement';
 import ChartinkAuthManager from '../components/ChartinkAuthManager';
 import zerodhaAPIService from '../services/ZerodhaAPIService';
@@ -233,7 +229,6 @@ const Settings: React.FC = () => {
           aria-label="settings tabs"
           sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
-          <Tab label="Container" icon={<Cloud />} iconPosition="start" />
           <Tab label="API & Security" icon={<Security />} iconPosition="start" />
           <Tab label="Trading" icon={<Speed />} iconPosition="start" />
           <Tab label="Notifications" icon={<Notifications />} iconPosition="start" />
@@ -241,13 +236,8 @@ const Settings: React.FC = () => {
           <Tab label="System" icon={<SettingsIcon />} iconPosition="start" />
         </Tabs>
 
-        {/* Container Integration Tab */}
-        <TabPanel value={activeTab} index={0}>
-          <ZerodhaContainerIntegration />
-        </TabPanel>
-
         {/* API & Security Tab */}
-        <TabPanel value={activeTab} index={1}>
+        <TabPanel value={activeTab} index={0}>
           <Grid container spacing={3}>
             {/* System Status - Prominent Position */}
             <Grid item xs={12} md={4}>
@@ -316,7 +306,7 @@ const Settings: React.FC = () => {
         </TabPanel>
 
         {/* Trading Tab */}
-        <TabPanel value={activeTab} index={2}>
+        <TabPanel value={activeTab} index={1}>
           <Grid container spacing={3}>
             {/* Trading Preferences */}
             <Grid item xs={12} md={6}>
@@ -412,7 +402,7 @@ const Settings: React.FC = () => {
         </TabPanel>
 
         {/* Notifications Tab */}
-        <TabPanel value={activeTab} index={3}>
+        <TabPanel value={activeTab} index={2}>
           <Grid container spacing={3}>
             {/* Notification Settings */}
             <Grid item xs={12} md={6}>
@@ -511,7 +501,7 @@ const Settings: React.FC = () => {
         </TabPanel>
 
         {/* Performance Tab */}
-        <TabPanel value={activeTab} index={4}>
+        <TabPanel value={activeTab} index={3}>
           <Grid container spacing={3}>
             {/* Cache Settings */}
             <Grid item xs={12} md={6}>
@@ -598,7 +588,7 @@ const Settings: React.FC = () => {
         </TabPanel>
 
         {/* System Tab */}
-        <TabPanel value={activeTab} index={5}>
+        <TabPanel value={activeTab} index={4}>
           <Grid container spacing={3}>
             {/* System Configuration */}
             <Grid item xs={12} md={6}>
