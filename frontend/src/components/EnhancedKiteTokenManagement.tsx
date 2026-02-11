@@ -170,7 +170,7 @@ const EnhancedKiteTokenManagement: React.FC<EnhancedKiteTokenManagementProps> = 
       const result = await kiteTokenService.clearToken();
       
       if (result.success) {
-        setSuccess(result.message);
+        setSuccess(result.message || 'Token cleared successfully');
         loadStatus();
         onTokenUpdate?.();
       }
