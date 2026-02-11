@@ -498,10 +498,17 @@ export enum SeedRiskLevel {
   HIGH = 'high'
 }
 
+/** Minimal request for POST /api/v2/recommendations (Seed service) */
+export interface V2RecommendationRequest {
+  strategy: string;
+  risk_level: string;
+  limit?: number;
+}
+
 export interface SeedRecommendationRequest {
   // Mandatory field
   strategy: SeedStrategyType;
-  
+
   // Optional parameters with defaults
   risk_level?: SeedRiskLevel;
   limit?: number;
