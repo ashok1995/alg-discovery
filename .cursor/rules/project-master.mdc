@@ -58,23 +58,27 @@ alwaysApply: true
 ```
 alg-discovery/
 ├── .cursor/rules/          # Cursor rules (project-master, etc.)
-├── frontend/               # React app
+├── frontend/
+│   ├── docs/               # All frontend docs (no loose .md in root)
+│   │   ├── README.md        # Index
+│   │   ├── environment.md
+│   │   └── deployment.md
+│   ├── envs/               # env.dev, env.stage, env.prod
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
-│   │   ├── config/        # API config, env mappings
-│   │   ├── hooks/         # Custom hooks
-│   │   ├── pages/         # Route pages
-│   │   ├── services/      # API clients, business logic
-│   │   └── types/         # TS types, models
-│   ├── envs/              # env.dev, env.stage, env.prod (never hardcode)
+│   │   ├── config/         # API config (no duplicate config files)
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── services/       # One concern per file, no duplicates
+│   │   └── types/
 │   └── public/
-├── scripts/                # Deploy, CI, maintenance scripts
-└── docs/                   # Deployment, architecture docs
+├── scripts/                # Deploy, CI scripts
+└── docs/                   # Repo-level deployment docs
 ```
 
-- **config over code**: Use env files and config modules; no hardcoded values in scripts.
-- **services/**: API clients, shared logic. One concern per file.
-- **components/**: Presentational + container pattern; extract hooks for stateful logic.
+- **Docs**: All frontend docs in `frontend/docs/`. No loose `.md` files in frontend root.
+- **Config**: Use env files and config modules; no hardcoded values. No duplicate config files.
+- **Services**: One concern per file. Scan for similar logic; consolidate, don't duplicate.
 
 ---
 
@@ -105,3 +109,10 @@ alg-discovery/
 4. Scan for similar logic; refactor instead of rewriting.
 5. Always use data models for structured data.
 6. No hardcoded variables; use config/env.
+
+## 8. Clean Code Rules (STRICT)
+
+- **Docs**: All `.md` in `frontend/docs/`. No loose docs in frontend root.
+- **No irrelevant code**: Remove unused components, duplicate services, one-off scripts. If it's not referenced, delete it.
+- **No duplicate files**: One source of truth per config (e.g. one openai.json, one env pattern).
+- **Before adding**: Scan for existing equivalent; reuse or refactor. Do not add similar new files.
