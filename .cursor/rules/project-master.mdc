@@ -5,24 +5,30 @@ alwaysApply: true
 
 # AlgoDiscovery Project Master Rules
 
-## 1. Deployment Policy (GIT-ONLY, MAIN BRANCH)
+## 1. Branch & Commit Policy
 
-- **Production deployment**: ONLY via Git. NO direct file transfer (no scp, rsync, ftp).
-- **Prod source**: Always fetch and deploy from `main` branch only. No feature branches, no tags, no other branches.
-- **Flow**: Local dev → merge to main → GCP pulls from main → deploy.
+- **main**: NEVER commit directly. main is pull-only for deploy to stage and prod.
+- **All code changes**: Commit only on other branches (e.g. `frontend_streamline_v1.1.1`, `feature/*`). Merge to main via PR.
+- **Issues found in staging**: Create a branch from main → fix → commit → merge. This is the only way to fix staging issues.
+- **Flow**: Branch → develop/fix → commit → PR → merge to main → GCP pull main → deploy.
+
+## 2. Deployment Policy (GIT-ONLY, MAIN BRANCH)
+
+- **Deployment**: ONLY via Git. NO direct file transfer (no scp, rsync, ftp).
+- **Deploy source**: Always fetch and deploy from `main` branch only. No feature branches for stage/prod deploy.
 - **GCP deploy command**: `./scripts/deploy-from-git.sh [stage|prod]` (runs on GCP instance).
 - **Dev**: Local machine, port 3000, `frontend/envs/env.dev`.
 - **Stage**: Port 3001 (dev) / 8080 (served), `frontend/envs/env.stage`.
-- **Prod**: GCP instance, port 80/443, `frontend/envs/env.prod`, main branch only.
+- **Prod**: GCP instance, port 80/443, `frontend/envs/env.prod`.
 
 ### Deployment Checklist
 - Before deploy: Run integration tests locally (`npm run test` in frontend).
-- Never push unmerged feature branches to prod.
+- Never push unmerged branches for prod deploy.
 - Env files: `frontend/envs/env.dev`, `env.stage`, `env.prod` (no envs outside `envs/`).
 
 ---
 
-## 2. Port Reference (Update Master Rule When Changes Occur)
+## 3. Port Reference (Update Master Rule When Changes Occur)
 
 | Port | Service | Environment | Notes |
 |------|---------|-------------|-------|
@@ -47,7 +53,7 @@ alwaysApply: true
 
 ---
 
-## 3. Folder Design & Structure
+## 4. Folder Design & Structure
 
 ```
 alg-discovery/
@@ -72,7 +78,7 @@ alg-discovery/
 
 ---
 
-## 4. Refactoring Rules
+## 5. Refactoring Rules
 
 - Scan for similar logic before writing; refactor instead of duplicating.
 - Prefer small, focused modules with clear exports.
@@ -82,7 +88,7 @@ alg-discovery/
 
 ---
 
-## 5. Integration Test & Verification
+## 6. Integration Test & Verification
 
 - Run `npm run test` before commit when touching frontend.
 - Quick verification: `npm run build:prod` (uses `envs/env.prod`) must succeed.
@@ -91,7 +97,7 @@ alg-discovery/
 
 ---
 
-## 6. Code Standards (from User Rules)
+## 7. Code Standards (from User Rules)
 
 1. Follow state-of-the-art system design principles.
 2. Log to files; avoid console-only logging for production paths.
