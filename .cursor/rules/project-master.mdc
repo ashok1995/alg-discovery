@@ -108,14 +108,48 @@ alg-discovery/
 
 ---
 
-## 7. Code Standards (from User Rules)
+## 7. STATE-OF-THE-ART CODE RULES (STRICT)
 
-1. Follow state-of-the-art system design principles.
-2. Log to files; avoid console-only logging for production paths.
-3. Minimal code, maximum reusability.
-4. Scan for similar logic; refactor instead of rewriting.
-5. Always use data models for structured data.
-6. No hardcoded variables; use config/env.
+### Principles
+- **SOLID**: Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion.
+- **DRY/KISS/YAGNI**: Don't Repeat Yourself. Keep It Simple. You Aren't Gonna Need It.
+- **Explicit over implicit**: Fail fast, explicit errors, clear contracts. No silent failures.
+- **Immutable by default**: Prefer `const`, avoid mutating state. Use pure functions where possible.
+- **Readability over cleverness**: Code is read 10× more than written. No magic, no abbreviations.
+
+### TypeScript / React
+- **Strict types**: No `any`. Use `unknown` or proper types. Explicit return types on public functions.
+- **Data models**: All API payloads, state, props use interfaces/types. One source in `types/` or colocated.
+- **Functional components + hooks**: No class components. Extract logic to custom hooks.
+- **Composition over inheritance**: Prefer composition, small components. No deep hierarchies.
+- **Controlled inputs**: Form state is explicit. No uncontrolled unless justified.
+- **Error boundaries**: Wrap route-level or critical trees. Log to file, not console only.
+- **Keys**: Stable, unique keys on lists. No array index as key when list can change.
+- **Memoization**: `useMemo`/`useCallback` only when profiling shows need. Avoid premature optimization.
+
+### Async & API
+- **Error handling**: Every `async`/`fetch` in try/catch. Surface errors to user or log. Never swallow.
+- **Timeouts**: Set timeout on external calls. Use config, not magic numbers.
+- **Retries**: Use configurable retry for idempotent operations only.
+- **Abort**: Support `AbortSignal` for cancellable requests where applicable.
+
+### Security & Config
+- **No secrets in code**: API keys, tokens only in env. Never commit.
+- **Validate inputs**: Sanitize/validate user input and API responses at boundaries.
+- **Config over code**: All tunables (URLs, timeouts, feature flags) from config/env.
+
+### Logging & Observability
+- **Log to file**: Production paths log to file. Use structured logs (JSON) when possible.
+- **No console in prod**: `console.log` only for dev. Use logger with levels.
+- **Correlation**: Include request/transaction IDs in logs for tracing.
+
+### Code anti-patterns (FORBIDDEN)
+- `any`, untyped catches, silent `catch (e) {}`
+- Hardcoded URLs, ports, magic numbers
+- Copy-paste; extract to shared fn/module
+- Deep prop drilling; use context or state management
+- Mutable shared state; prefer local state or well-defined stores
+- Untested critical paths; add tests for business logic
 
 ## 8. Clean Code Rules (STRICT)
 
