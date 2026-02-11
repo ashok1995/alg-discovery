@@ -12,18 +12,22 @@ alwaysApply: true
 - **Issues found in staging**: Create a branch from main → fix → commit → merge. This is the only way to fix staging issues.
 - **Flow**: Branch → develop/fix → commit → PR → merge to main → GCP pull main → deploy.
 
-## 2. Deployment Policy (GIT-ONLY, MAIN BRANCH)
+## 2. Deployment Policy (GIT-ONLY)
 
 - **Deployment**: ONLY via Git. NO direct file transfer (no scp, rsync, ftp).
-- **Deploy source**: Always fetch and deploy from `main` branch only. No feature branches for stage/prod deploy.
-- **GCP deploy command**: `./scripts/deploy-from-git.sh [stage|prod]` (runs on GCP instance).
-- **Dev**: Local machine, port 3000, `frontend/envs/env.dev`.
-- **Stage**: Port 3001 (dev) / 8080 (served), `frontend/envs/env.stage`.
-- **Prod**: GCP instance, port 80/443, `frontend/envs/env.prod`.
+- **Prod**: `main` branch only. `./scripts/deploy-from-git.sh prod` on GCP instance. Port 80/443.
+- **Stage**: `develop` branch only, local. `./scripts/deploy-stage-local.sh` — fetches and resets to **origin/develop**, then build + Docker on port 8080. For quick test on other branches (no Docker): `./scripts/run-quick-test.sh` (port 3002).
+- **Dev**: Local, port 3000, `frontend/envs/env.dev`.
+
+### STRICT: Push first, then deploy stage
+- **Stage deploy script pulls from origin/develop.** It does not use your local uncommitted or unpushed commits.
+- **Before running `deploy-stage-local.sh`:** commit all changes on `develop`, then **push to origin** (`git push origin develop`). If you do not push first, the script will reset to what is already on origin/develop and your latest local commits will not be deployed.
+- **Order:** 1) Commit on develop. 2) Push to origin (develop). 3) Run `./scripts/deploy-stage-local.sh`. Never run the stage deploy script when you have unpushed commits on develop if you want those changes in the staged build.
 
 ### Deployment Checklist
 - Before deploy: Run integration tests locally (`npm run test` in frontend).
-- Never push unmerged branches for prod deploy.
+- Before **stage** deploy: Push develop to origin first.
+- Before **prod** deploy: Merge to main via PR; never deploy prod from unmerged branches.
 - Env files: `frontend/envs/env.dev`, `env.stage`, `env.prod` (no envs outside `envs/`).
 
 ---
@@ -175,10 +179,14 @@ alg-discovery/
 
 ## 11. DEPLOY SCRIPTS (STRICT – MINIMAL)
 
-- **Canonical**: `scripts/deploy-from-git.sh [stage|prod]` — the ONLY deploy script for GCP. Git-only, main branch.
-- **Frontend**: ONE optional `frontend/deploy.sh` for local Docker run. No `deploy-*.sh`, `docker-deploy*.sh` variants.
-- **FORBIDDEN**: Multiple deploy scripts. Only `frontend/deploy.sh` (local) and `scripts/deploy-from-git.sh` (GCP). No `deploy-*.sh`, `docker-deploy*.sh`, `setup-*.sh`, `manage-*.sh`, `test-*.sh` variants.
-- **Rule**: If a script duplicates `deploy-from-git.sh` or does a subset, DELETE it.
+- **deploy-from-git.sh**: Main branch only. `./scripts/deploy-from-git.sh [stage|prod]`. stage = main local 8080, prod = GCP.
+- **deploy-stage-local.sh**: Stage from **develop** only (local, full Docker, 8080). Fetches and resets to **origin/develop** — **push to origin first** or your latest commits will not be deployed.
+- **run-quick-test.sh**: Quick test on current branch, no Docker, port 3002.
+- **Frontend**: ONE optional `frontend/deploy.sh` for local Docker run.
+
+### STRICT: Stage deploy = push first
+- `deploy-stage-local.sh` runs `git fetch origin` and `git reset --hard origin/develop`. It does **not** deploy local-only commits. **Always push develop to origin before running the script.**
+- **FORBIDDEN**: Running stage deploy with unpushed commits on develop when those commits must be in the staged build.
 
 ## 12. OVERALL PRINCIPLE
 

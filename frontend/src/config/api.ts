@@ -33,9 +33,11 @@ export const API_CONFIG = {
   CHARTINK_AUTH_BASE_URL: process.env.REACT_APP_CHARTINK_AUTH_BASE_URL || 
                           (isProduction() ? 'http://algodiscovery.com:8081' : 'http://localhost:8081'),
 
-  // Seed service API URL (primary recommendations service) 
-  SEED_API_BASE_URL: process.env.REACT_APP_SEED_API_BASE_URL || 
+  // Seed service API URL (primary recommendations service)
+  SEED_API_BASE_URL: process.env.REACT_APP_SEED_API_BASE_URL ||
                      (isProduction() ? 'http://algodiscovery.com:8082' : 'http://localhost:8082'),
+  // Seed v2 recommendations: POST body { strategy, risk_level, limit } (proxied via /api/seed in dev; nginx in prod)
+  SEED_V2_RECOMMENDATIONS_PATH: '/api/seed/recommendations',
 
   // Theme recommendations API URLs (legacy naming, kept for ThemeRecommendationsService)
   THEME_API_BASE_URL: process.env.REACT_APP_THEME_API_BASE_URL || 
