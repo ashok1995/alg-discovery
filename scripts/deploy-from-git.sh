@@ -80,10 +80,11 @@ docker stop "$CONTAINER_NAME" 2>/dev/null || true
 docker rm "$CONTAINER_NAME" 2>/dev/null || true
 
 log "Starting container on port $HOST_PORT..."
+# On Linux Docker, host.docker.internal is not default; add host-gateway so nginx upstreams resolve
 if [ "$DEPLOY_ENV" = "prod" ]; then
-  docker run -d -p 80:80 -p 443:443 --name "$CONTAINER_NAME" --restart unless-stopped "$IMAGE_NAME"
+  docker run -d --add-host=host.docker.internal:host-gateway -p 80:80 -p 443:443 --name "$CONTAINER_NAME" --restart unless-stopped "$IMAGE_NAME"
 else
-  docker run -d -p "${HOST_PORT}:80" --name "$CONTAINER_NAME" --restart unless-stopped "$IMAGE_NAME"
+  docker run -d --add-host=host.docker.internal:host-gateway -p "${HOST_PORT}:80" --name "$CONTAINER_NAME" --restart unless-stopped "$IMAGE_NAME"
 fi
 
 # 4. Health check
