@@ -115,6 +115,29 @@ export enum SortDirection {
   DESC = 'desc'
 }
 
+export enum SortBy {
+  SCORE = 'score',
+  PRICE = 'price',
+  VOLUME = 'volume',
+  MARKET_CAP = 'market_cap',
+  CHANGE_PERCENT = 'change_percent',
+  RSI = 'rsi'
+}
+
+export enum InvestmentHorizon {
+  INTRADAY = 'intraday',
+  SHORT_TERM = 'short_term',
+  MEDIUM_TERM = 'medium_term',
+  LONG_TERM = 'long_term',
+  POSITION = 'position'
+}
+
+export enum LossTighteningMode {
+  CONSERVATIVE = 'conservative',
+  MODERATE = 'moderate',
+  AGGRESSIVE = 'aggressive'
+}
+
 export enum MarketSession {
   // High-level (backward compatible)
   PRE = 'pre',
@@ -191,6 +214,10 @@ export interface ScoreFilters {
 export interface UIQuickRecommendationRequest {
   strategy: StrategyType;
   risk_level: RiskLevel;
+  investment_horizon?: InvestmentHorizon;
+  max_positions?: number;
+  profit_target_value?: number;
+  stop_loss_percentage?: number;
   min_score: number; // 0-100
   limit: number; // 1-100
 }
@@ -198,16 +225,27 @@ export interface UIQuickRecommendationRequest {
 export interface UIRecommendationRequest {
   strategy: StrategyType;
   risk_level: RiskLevel;
+  investment_horizon?: InvestmentHorizon;
+  max_positions?: number;
+  profit_target_value?: number;
+  stop_loss_percentage?: number;
+  min_price?: number;
+  max_price?: number;
+  min_volume?: number;
+  min_liquidity?: number;
+  execution_urgency?: string;
   market_condition?: MarketCondition;
   sectors?: Sector[];
   market_caps?: MarketCap[];
+  preferred_sectors?: Sector[];
+  excluded_sectors?: Sector[];
   rsi_range?: [number, number]; // [min, max]
   min_score: number; // 0-100
   max_score?: number; // 0-100
   limit: number; // 1-100
-  loss_tightening?: 'conservative' | 'moderate' | 'aggressive';
-  sort_by?: 'score' | 'price' | 'volume' | 'market_cap' | 'change_percent' | 'rsi';
-  sort_direction?: 'asc' | 'desc';
+  loss_tightening?: LossTighteningMode;
+  sort_by?: SortBy;
+  sort_direction?: SortDirection;
 }
 
 export interface UIStockRecommendation {
@@ -329,4 +367,257 @@ export interface DynamicRecommendationResponse {
 }
 
 export type UniversalRecommendationResponse = DynamicRecommendationResponse;
+
+// Options response interface
+export interface UIOptionsResponse {
+  strategies: Array<{ value: StrategyType; label: string }>;
+  risk_levels: Array<{ value: RiskLevel; label: string }>;
+  investment_horizons: Array<{ value: InvestmentHorizon; label: string }>;
+  sectors: Array<{ value: Sector; label: string }>;
+  market_caps: Array<{ value: MarketCap; label: string }>;
+  market_conditions: Array<{ value: MarketCondition; label: string }>;
+  sort_options: Array<{ value: SortBy; label: string }>;
+  sort_directions: Array<{ value: SortDirection; label: string }>;
+  loss_tightening_modes?: Array<{ value: LossTighteningMode; label: string }>;
+  presets?: Array<{ value: string; label: string }>;
+}
+
+// Validation error interface
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
+// Validation function
+export function validateUIRequest(request: Partial<UIRecommendationRequest>): ValidationError[] {
+  const errors: ValidationError[] = [];
+  
+  if (!request.strategy) {
+    errors.push({ field: 'strategy', message: 'Strategy is required' });
+  }
+  
+  if (!request.risk_level) {
+    errors.push({ field: 'risk_level', message: 'Risk level is required' });
+  }
+  
+  if (request.min_score !== undefined && (request.min_score < 0 || request.min_score > 100)) {
+    errors.push({ field: 'min_score', message: 'Min score must be between 0 and 100' });
+  }
+  
+  if (request.limit !== undefined && (request.limit < 1 || request.limit > 100)) {
+    errors.push({ field: 'limit', message: 'Limit must be between 1 and 100' });
+  }
+  
+  return errors;
+}
+
+// Default request function
+export function getDefaultUIRequest(): UIRecommendationRequest {
+  return {
+    strategy: StrategyType.SWING,
+    risk_level: RiskLevel.MEDIUM,
+    investment_horizon: InvestmentHorizon.MEDIUM_TERM,
+    max_positions: 10,
+    profit_target_value: 5,
+    stop_loss_percentage: 3,
+    min_price: 10,
+    max_price: 10000,
+    min_volume: 100000,
+    min_score: 60,
+    limit: 20,
+    sort_by: SortBy.SCORE,
+    sort_direction: SortDirection.DESC
+  };
+}
+
+// Dropdown options function
+export function getDropdownOptions() {
+  return {
+    strategies: [
+      { value: StrategyType.SWING, label: 'Swing Trading' },
+      { value: StrategyType.INTRADAY_BUY, label: 'Intraday Buy' },
+      { value: StrategyType.INTRADAY_SELL, label: 'Intraday Sell' },
+      { value: StrategyType.LONG_TERM, label: 'Long Term' }
+    ],
+    riskLevels: [
+      { value: RiskLevel.LOW, label: 'Low Risk' },
+      { value: RiskLevel.MEDIUM, label: 'Medium Risk' },
+      { value: RiskLevel.HIGH, label: 'High Risk' }
+    ],
+    investmentHorizons: [
+      { value: InvestmentHorizon.INTRADAY, label: 'Intraday' },
+      { value: InvestmentHorizon.SHORT_TERM, label: 'Short Term (1-3 days)' },
+      { value: InvestmentHorizon.MEDIUM_TERM, label: 'Medium Term (1-4 weeks)' },
+      { value: InvestmentHorizon.LONG_TERM, label: 'Long Term (1+ months)' },
+      { value: InvestmentHorizon.POSITION, label: 'Position' }
+    ],
+    sectors: [],
+    marketCaps: [],
+    marketConditions: [
+      { value: MarketCondition.BULLISH, label: 'Bullish' },
+      { value: MarketCondition.BEARISH, label: 'Bearish' },
+      { value: MarketCondition.NEUTRAL, label: 'Neutral' },
+      { value: MarketCondition.AUTO_DETECTED, label: 'Auto Detected' }
+    ],
+    lossTighteningModes: [
+      { value: LossTighteningMode.CONSERVATIVE, label: 'Conservative' },
+      { value: LossTighteningMode.MODERATE, label: 'Moderate' },
+      { value: LossTighteningMode.AGGRESSIVE, label: 'Aggressive' }
+    ],
+    sortOptions: [
+      { value: SortBy.SCORE, label: 'Score' },
+      { value: SortBy.PRICE, label: 'Price' },
+      { value: SortBy.VOLUME, label: 'Volume' },
+      { value: SortBy.MARKET_CAP, label: 'Market Cap' },
+      { value: SortBy.CHANGE_PERCENT, label: 'Change %' },
+      { value: SortBy.RSI, label: 'RSI' }
+    ],
+    sortDirections: [
+      { value: SortDirection.ASC, label: 'Ascending' },
+      { value: SortDirection.DESC, label: 'Descending' }
+    ],
+    presets: []
+  };
+}
+
+// ================= Seed Service API Models =================
+// Based on the Seed Service v2 API specification
+
+export enum SeedStrategyType {
+  SWING = 'swing',
+  INTRADAY = 'intraday',
+  LONG_TERM = 'long_term',
+  BALANCED = 'balanced',
+  AGGRESSIVE = 'aggressive',
+  CONSERVATIVE = 'conservative'
+}
+
+export enum SeedRiskLevel {
+  LOW = 'low',
+  MODERATE = 'moderate',
+  HIGH = 'high'
+}
+
+export interface SeedRecommendationRequest {
+  // Mandatory field
+  strategy: SeedStrategyType;
+  
+  // Optional parameters with defaults
+  risk_level?: SeedRiskLevel;
+  limit?: number;
+  min_price?: number;
+  max_price?: number;
+  min_volume?: number;
+  preferred_sectors?: string[];
+  excluded_sectors?: string[];
+  execute_all_arms?: boolean;
+  specific_arms?: string[];
+  include_technical_analysis?: boolean;
+  include_reasoning?: boolean;
+  include_arm_details?: boolean;
+  diversify_sectors?: boolean;
+}
+
+// ARM Strategy Constants for Production
+export const SHORT_SELL_ARMS = [
+  'INTRADAY_SHORT_BREAKDOWN',
+  'INTRADAY_SHORT_REVERSAL', 
+  'INTRADAY_SHORT_MOMENTUM'
+];
+
+export const BUY_ARMS = [
+  'INTRADAY_MOMENTUM_BREAKOUT',
+  'INTRADAY_TECHNICAL_VOLUME',
+  'INTRADAY_QUICK_PROFIT'
+];
+
+export const SWING_ARMS = [
+  'SWING_TECHNICAL_BREAKOUT',
+  'SWING_MOMENTUM_GROWTH',
+  'SWING_TREND_FOLLOWING'
+];
+
+export const LONG_TERM_ARMS = [
+  'LONG_TERM_BLUE_CHIP',
+  'LONG_TERM_FUNDAMENTAL_GROWTH',
+  'LONG_TERM_DIVIDEND_YIELD'
+];
+
+export interface SeedTechnicalAnalysis {
+  rsi: number;
+  sma_20: number;
+  volume_trend: string;
+  momentum: string;
+}
+
+export interface SeedPredictedReturn {
+  target_return: number;
+  time_horizon: string;
+  confidence: number;
+}
+
+export interface SeedStockRecommendation {
+  symbol: string;
+  current_price: number;
+  sector: string;
+  overall_score: number;
+  confidence: number;
+  entry_signal: string;
+  selected_arms: string[];
+  dominant_arm: string;
+  arm_scores: Record<string, number>;
+  technical_analysis: SeedTechnicalAnalysis;
+  market_condition_fit: string;
+  predicted_return: SeedPredictedReturn;
+  risk_assessment: string;
+  reasoning: string[];
+  data_source: string;
+  data_timestamp: string;
+}
+
+export interface SeedMarketContext {
+  regime: string;
+  strength: number;
+  volatility_level: string;
+  leading_sectors: string[];
+  key_observations: string[];
+}
+
+export interface SeedArmExecutionResult {
+  arm_name: string;
+  success: boolean;
+  execution_time_ms: number;
+  stocks_found: number;
+  avg_score: number;
+  data_quality_score: number;
+  query_used: string;
+}
+
+export interface SeedProcessingStats {
+  total_arms_executed: number;
+  successful_arms: number;
+  stocks_analyzed: number;
+  stocks_recommended: number;
+  filter_efficiency: number;
+  avg_arms_per_stock: number;
+}
+
+export interface SeedRecommendationResponse {
+  timestamp: string;
+  request_id: string;
+  processing_time_ms: number;
+  recommendations: SeedStockRecommendation[];
+  market_context: SeedMarketContext;
+  arm_execution_results: SeedArmExecutionResult[];
+  processing_stats: SeedProcessingStats;
+  // Optional fields returned by seed service
+  data_source?: string;
+}
+
+export interface SeedHealthResponse {
+  status: 'healthy' | 'unhealthy';
+  timestamp: string;
+  api_version: string;
+  features: string;
+}
 

@@ -14,8 +14,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application for production
-RUN npm run build:prod:domain
+# Build: BUILD_ENV=stage uses env.stage, default prod uses env.prod
+ARG BUILD_ENV=prod
+RUN if [ "$BUILD_ENV" = "stage" ]; then npm run build:stage; else npm run build:prod; fi
 
 # Stage 2: Production server with Nginx
 FROM nginx:alpine
