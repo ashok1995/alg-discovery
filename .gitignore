@@ -52,7 +52,9 @@ coverage.xml
 cover/
 
 # Translations
+*.csv
 *.mo
+*.jsonss
 *.pot
 
 # Django stuff:
@@ -170,6 +172,8 @@ cython_debug/
 .env.development.local
 .env.test.local
 .env.production.local
+#env.development
+#env.production
 
 # Log files (including project-specific)
 *.log
@@ -255,6 +259,10 @@ venv*/
 .venv*/
 env*/
 .env*/
+
+# Exception: frontend env configs (env.dev, env.stage, env.prod)
+!frontend/envs/
+!frontend/envs/*
 
 # Lock files (uncomment if you want to ignore them)
 # Pipfile.lock

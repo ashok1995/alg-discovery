@@ -1,0 +1,73 @@
+{
+  "name": "swing-trading-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Swing Trading System",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.68",
+    "@types/react": "^18.2.42",
+    "@types/react-dom": "^18.2.17",
+    "axios": "^1.6.0",
+    "date-fns": "^2.30.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-query": "^3.39.3",
+    "react-router-dom": "^6.20.1",
+    "react-scripts": "5.0.1",
+    "recharts": "^2.8.0",
+    "typescript": "^4.9.5",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "PORT=3000 env-cmd -f envs/env.dev react-scripts start",
+    "start:dev": "PORT=3000 env-cmd -f envs/env.dev react-scripts start",
+    "start:stage": "PORT=3001 env-cmd -f envs/env.stage react-scripts start",
+    "start:prod": "PORT=80 env-cmd -f envs/env.prod react-scripts start",
+    "build": "react-scripts build",
+    "build:dev": "env-cmd -f envs/env.dev react-scripts build",
+    "build:stage": "env-cmd -f envs/env.stage react-scripts build",
+    "build:prod": "env-cmd -f envs/env.prod react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "serve:prod": "PORT=80 serve -s build -l 80",
+    "serve:prod:8080": "PORT=8080 serve -s build -l 8080",
+    "serve:stage": "PORT=8080 serve -s build -l 8080",
+    "serve:dev": "PORT=3000 serve -s build -l 3000",
+    "docker:build": "docker build -t algodiscovery-frontend .",
+    "docker:run": "docker run -d -p 80:80 --name algodiscovery-frontend algodiscovery-frontend",
+    "docker:deploy": "./deploy.sh",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f algodiscovery-frontend",
+    "docker:status": "docker-compose ps"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/react-router-dom": "^5.3.3",
+    "env-cmd": "^10.1.0"
+  }
+} 

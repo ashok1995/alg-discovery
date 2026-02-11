@@ -1,0 +1,185 @@
+---
+description: Master project rules - deployment, ports, folder design, refactoring, integration tests
+alwaysApply: true
+---
+
+# AlgoDiscovery Project Master Rules
+
+## 1. Branch & Commit Policy
+
+- **main**: NEVER commit directly. main is pull-only for deploy to stage and prod.
+- **All code changes**: Commit only on other branches (e.g. `frontend_streamline_v1.1.1`, `feature/*`). Merge to main via PR.
+- **Issues found in staging**: Create a branch from main → fix → commit → merge. This is the only way to fix staging issues.
+- **Flow**: Branch → develop/fix → commit → PR → merge to main → GCP pull main → deploy.
+
+## 2. Deployment Policy (GIT-ONLY, MAIN BRANCH)
+
+- **Deployment**: ONLY via Git. NO direct file transfer (no scp, rsync, ftp).
+- **Deploy source**: Always fetch and deploy from `main` branch only. No feature branches for stage/prod deploy.
+- **GCP deploy command**: `./scripts/deploy-from-git.sh [stage|prod]` (runs on GCP instance).
+- **Dev**: Local machine, port 3000, `frontend/envs/env.dev`.
+- **Stage**: Port 3001 (dev) / 8080 (served), `frontend/envs/env.stage`.
+- **Prod**: GCP instance, port 80/443, `frontend/envs/env.prod`.
+
+### Deployment Checklist
+- Before deploy: Run integration tests locally (`npm run test` in frontend).
+- Never push unmerged branches for prod deploy.
+- Env files: `frontend/envs/env.dev`, `env.stage`, `env.prod` (no envs outside `envs/`).
+
+---
+
+## 3. Port Reference (Update Master Rule When Changes Occur)
+
+| Port | Service | Environment | Notes |
+|------|---------|-------------|-------|
+| 3000 | React dev server | Dev | `npm run start:dev` |
+| 3001 | React dev server | Stage | `npm run start:stage` |
+| 8080 | Served build | Stage | `npm run serve:stage` |
+| 80 / 443 | Frontend (Nginx) | Prod | Docker serves here |
+| 8001 | Longterm API, Chartink | Prod | Internal |
+| 8002 | Swing API, Unified Strategy | Dev/Prod | REACT_APP_API_BASE_URL (dev) |
+| 8010 | Recommendation API | Dev | |
+| 8013 | Algorithm API, Zerodha | Dev/Prod | |
+| 8018 | Stock Candidate Populator | Dev/Prod | |
+| 8020 | Theme API | Dev/Prod | |
+| 8030 | Strategies API | Dev/Prod | |
+| 8079 | Kite Services, Kite Token | Dev/Prod | |
+| 8081 | Chartink Auth | Dev | Local proxy target |
+| 8082 | Seed API | Dev/Prod | |
+| 8182 | Seed Service | Prod | External (algodiscovery.com) |
+| 8183 | Recommendation/Proxy target | Dev | setupProxy target |
+
+**Kill process by port**: Use `lsof -ti:<PORT> | xargs kill -9` — never kill by partial command that other processes use.
+
+---
+
+## 4. Folder Design & Structure (SUPER CLEAN – TARGET)
+
+```
+alg-discovery/
+├── .cursor/rules/
+├── docs/                    # Repo-level: deployment only
+│   └── DEPLOYMENT.md
+├── scripts/                 # Deploy only (no scattered .sh in frontend)
+│   └── deploy-from-git.sh   # Canonical deploy for stage/prod
+└── frontend/
+    ├── docs/                # All frontend docs (README at root only)
+    │   ├── README.md
+    │   ├── integration/
+    │   ├── architecture/
+    │   ├── user-experience/
+    │   └── configuration/
+    ├── envs/                # env.dev, env.stage, env.prod, env.example
+    ├── nginx.conf           # Single nginx config
+    ├── Dockerfile           # Single Dockerfile (prod build)
+    ├── docker-compose.yml   # Single compose file
+    ├── src/
+    │   ├── components/
+    │   ├── config/
+    │   ├── hooks/
+    │   ├── pages/
+    │   ├── services/
+    │   └── types/
+    └── public/
+```
+
+- **Docs**: All `.md` in `frontend/docs/`. Only README at docs root; content in subfolders.
+- **Config**: Env, config modules. No hardcoding. No duplicates.
+- **Services**: One concern per file. No duplicate logic.
+
+---
+
+## 5. Refactoring Rules
+
+- Scan for similar logic before writing; refactor instead of duplicating.
+- Prefer small, focused modules with clear exports.
+- Use data models (types/interfaces) for API payloads and state.
+- Use minimal code with maximum reusability.
+- Log to files for debugging and audit; follow project logging patterns.
+
+---
+
+## 6. Integration Test & Verification
+
+- Run `npm run test` before commit when touching frontend.
+- Quick verification: `npm run build:prod` (uses `envs/env.prod`) must succeed.
+- Health checks: `curl -f http://localhost/health` (prod), `curl http://localhost:3000` (dev).
+- After deploy: verify `/health` and main app route load.
+
+---
+
+## 7. STATE-OF-THE-ART CODE RULES (STRICT)
+
+### Principles
+- **SOLID**: Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion.
+- **DRY/KISS/YAGNI**: Don't Repeat Yourself. Keep It Simple. You Aren't Gonna Need It.
+- **Explicit over implicit**: Fail fast, explicit errors, clear contracts. No silent failures.
+- **Immutable by default**: Prefer `const`, avoid mutating state. Use pure functions where possible.
+- **Readability over cleverness**: Code is read 10× more than written. No magic, no abbreviations.
+
+### TypeScript / React
+- **Strict types**: No `any`. Use `unknown` or proper types. Explicit return types on public functions.
+- **Data models**: All API payloads, state, props use interfaces/types. One source in `types/` or colocated.
+- **Functional components + hooks**: No class components. Extract logic to custom hooks.
+- **Composition over inheritance**: Prefer composition, small components. No deep hierarchies.
+- **Controlled inputs**: Form state is explicit. No uncontrolled unless justified.
+- **Error boundaries**: Wrap route-level or critical trees. Log to file, not console only.
+- **Keys**: Stable, unique keys on lists. No array index as key when list can change.
+- **Memoization**: `useMemo`/`useCallback` only when profiling shows need. Avoid premature optimization.
+
+### Async & API
+- **Error handling**: Every `async`/`fetch` in try/catch. Surface errors to user or log. Never swallow.
+- **Timeouts**: Set timeout on external calls. Use config, not magic numbers.
+- **Retries**: Use configurable retry for idempotent operations only.
+- **Abort**: Support `AbortSignal` for cancellable requests where applicable.
+
+### Security & Config
+- **No secrets in code**: API keys, tokens only in env. Never commit.
+- **Validate inputs**: Sanitize/validate user input and API responses at boundaries.
+- **Config over code**: All tunables (URLs, timeouts, feature flags) from config/env.
+
+### Logging & Observability
+- **Log to file**: Production paths log to file. Use structured logs (JSON) when possible.
+- **No console in prod**: `console.log` only for dev. Use logger with levels.
+- **Correlation**: Include request/transaction IDs in logs for tracing.
+
+### Code anti-patterns (FORBIDDEN)
+- `any`, untyped catches, silent `catch (e) {}`
+- Hardcoded URLs, ports, magic numbers
+- Copy-paste; extract to shared fn/module
+- Deep prop drilling; use context or state management
+- Mutable shared state; prefer local state or well-defined stores
+- Untested critical paths; add tests for business logic
+
+## 8. Clean Code Rules (STRICT)
+
+- **Docs**: All `.md` in `frontend/docs/`. No loose docs in frontend root.
+- **No irrelevant code**: Remove unused components, duplicate services, one-off scripts. If it's not referenced, delete it.
+- **No duplicate files**: One source of truth per config (e.g. one openai.json, one env pattern).
+- **Before adding**: Scan for existing equivalent; reuse or refactor. Do not add similar new files.
+
+## 9. FORBIDDEN (STRICTLY enforce)
+
+- **Env**: ONLY `frontend/envs/env.dev`, `env.stage`, `env.prod`, `env.example`. No `env.*` at frontend root.
+- **Nginx**: ONLY `frontend/nginx.conf`. No `nginx-*.conf`.
+- **Config**: No duplicate config files. No hardcoded values.
+- **Redundant logic**: No duplicate services. No copy-paste; refactor.
+- **Scripts**: No redundant npm scripts. One canonical script per action.
+
+## 10. DOCKER (STRICT – ONE of each)
+
+- **Dockerfile**: ONE `frontend/Dockerfile`. No `Dockerfile.*` variants.
+- **docker-compose**: ONE `frontend/docker-compose.yml`. No `docker-compose-*.yml` (port80, 8080, domain, full-stack).
+- **Build arg**: Use `BUILD_ENV=prod|stage` in single Dockerfile. No separate Dockerfiles per port/domain.
+- **FORBIDDEN**: `Dockerfile.*` (except Dockerfile), `docker-compose-*.yml` variants.
+
+## 11. DEPLOY SCRIPTS (STRICT – MINIMAL)
+
+- **Canonical**: `scripts/deploy-from-git.sh [stage|prod]` — the ONLY deploy script for GCP. Git-only, main branch.
+- **Frontend**: ONE optional `frontend/deploy.sh` for local Docker run. No `deploy-*.sh`, `docker-deploy*.sh` variants.
+- **FORBIDDEN**: Multiple deploy scripts. Only `frontend/deploy.sh` (local) and `scripts/deploy-from-git.sh` (GCP). No `deploy-*.sh`, `docker-deploy*.sh`, `setup-*.sh`, `manage-*.sh`, `test-*.sh` variants.
+- **Rule**: If a script duplicates `deploy-from-git.sh` or does a subset, DELETE it.
+
+## 12. OVERALL PRINCIPLE
+
+**Super clean = One source of truth per concern.** No variants, no duplicates, no legacy files. Before adding any file: Does an equivalent exist? If yes, extend it. If no, add minimally. Strictly follow this structure; deviations are FORBIDDEN.
