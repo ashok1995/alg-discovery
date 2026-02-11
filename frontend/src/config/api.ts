@@ -47,7 +47,9 @@ export const API_CONFIG = {
   // Zerodha v1 service (separate container)
   ZERODHA_V1_BASE_URL: (process.env.REACT_APP_ZERODHA_V1_BASE_URL || getCurrentDomain()),
   ZERODHA_V1_PREFIX: (process.env.REACT_APP_ZERODHA_V1_PREFIX || '/api/v1'),
-  
+  // Kite services (proxy path or target URL)
+  KITE_SERVICES_BASE_URL: process.env.REACT_APP_KITE_SERVICES_BASE_URL || process.env.REACT_APP_KITE_SERVICES_TARGET || '',
+
   // Service Ports
   PORTS: {
     ALGORITHM_API: parseInt(process.env.REACT_APP_ALGORITHM_API_PORT || '8013'),
