@@ -10,7 +10,7 @@
 #
 set -e
 
-REPO_DIR="${ALGODISCOVERY_REPO_DIR:-$HOME/alg-discovery}"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/.."
 FRONTEND_DIR="${REPO_DIR}/frontend"
 LOG_DIR="${REPO_DIR}/logs"
 LOG_FILE="${LOG_DIR}/deploy-stage-local-$(date +%Y%m%d-%H%M%S).log"
