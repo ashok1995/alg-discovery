@@ -10,7 +10,7 @@ set -e
 
 # Target environment: stage (port 8080) or prod (port 80/443)
 DEPLOY_ENV="${1:-prod}"
-REPO_DIR="${ALGODISCOVERY_REPO_DIR:-$HOME/alg-discovery}"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/.."
 FRONTEND_DIR="${REPO_DIR}/frontend"
 LOG_DIR="${REPO_DIR}/logs"
 LOG_FILE="${LOG_DIR}/deploy-${DEPLOY_ENV}-$(date +%Y%m%d-%H%M%S).log"

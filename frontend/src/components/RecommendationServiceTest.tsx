@@ -85,7 +85,7 @@ const RecommendationServiceTest: React.FC = () => {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="font-medium">Base URL:</span>
-            <span className="ml-2 text-blue-600">{getServiceInfo().primaryService.baseUrl}</span>
+            <span className="ml-2 text-blue-600">{getServiceInfo().baseUrl}</span>
           </div>
           <div>
             <span className="font-medium">Timeout:</span>
