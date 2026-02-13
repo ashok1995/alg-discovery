@@ -25,7 +25,11 @@ export interface V2RecommendationRequestParams {
 export async function fetchV2Recommendations(
   request: V2RecommendationRequestParams
 ): Promise<V2RecommendationsResponse> {
-  const url = `${API_CONFIG.RECOMMENDATION_V2_API_BASE_URL}/api/v2/recommendations`;
+  // Use nginx proxy path if base URL is empty (production), otherwise use direct URL
+  const baseUrl = API_CONFIG.RECOMMENDATION_V2_API_BASE_URL || '';
+  const url = baseUrl 
+    ? `${baseUrl}/api/v2/recommendations`
+    : '/api/seed/recommendations';
   const body: V2RecommendationRequestParams = {
     strategy: request.strategy,
     risk_level: request.risk_level,
@@ -36,6 +40,9 @@ export async function fetchV2Recommendations(
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
+    console.log('🔍 V2 API Request URL:', url);
+    console.log('🔍 V2 API Request Body:', body);
+    
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -46,15 +53,19 @@ export async function fetchV2Recommendations(
 
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`V2 recommendations failed (${res.status}): ${text || res.statusText}`);
+      const errorMsg = `V2 recommendations failed (${res.status}): ${text || res.statusText}`;
+      console.error('❌ V2 API Error:', errorMsg);
+      throw new Error(errorMsg);
     }
 
     const data = (await res.json()) as V2RecommendationsResponse;
+    console.log('✅ V2 API Success:', data);
     return data;
   } catch (err) {
     clearTimeout(timeoutId);
-    if (err instanceof Error) throw err;
-    throw new Error('V2 recommendations request failed');
+    const errorMsg = err instanceof Error ? err.message : 'V2 recommendations request failed';
+    console.error('❌ V2 API Fetch Error:', errorMsg, err);
+    throw new Error(errorMsg);
   }
 }
 
@@ -62,7 +73,8 @@ export async function fetchV2Recommendations(
  * Health check for V2 recommendation service
  */
 export async function checkV2RecommendationHealth(): Promise<boolean> {
-  const url = `${API_CONFIG.RECOMMENDATION_V2_API_BASE_URL}/health`;
+  const baseUrl = API_CONFIG.RECOMMENDATION_V2_API_BASE_URL || '';
+  const url = baseUrl ? `${baseUrl}/health` : '/api/seed/health';
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
