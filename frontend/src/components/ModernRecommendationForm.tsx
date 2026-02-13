@@ -88,35 +88,25 @@ const ModernRecommendationForm: React.FC<ModernRecommendationFormProps> = ({
 
   // Load options on component mount
   useEffect(() => {
-    loadOptions();
+    // Load options from static dropdown options
+    setOptions({
+      strategies: getDropdownOptions().strategies,
+      risk_levels: getDropdownOptions().riskLevels,
+      investment_horizons: getDropdownOptions().investmentHorizons,
+      market_conditions: [
+        { value: MarketCondition.BULLISH, label: 'Bullish' },
+        { value: MarketCondition.BEARISH, label: 'Bearish' },
+        { value: MarketCondition.NEUTRAL, label: 'Neutral' },
+        { value: MarketCondition.AUTO_DETECTED, label: 'Auto Detected' }
+      ],
+      sectors: getDropdownOptions().sectors,
+      market_caps: getDropdownOptions().marketCaps,
+      loss_tightening_modes: getDropdownOptions().lossTighteningModes,
+      sort_options: getDropdownOptions().sortOptions,
+      sort_directions: getDropdownOptions().sortDirections,
+      presets: []
+    });
   }, []);
-
-  const loadOptions = async () => {
-    try {
-      const optionsData = await recommendationAPIService.getOptions();
-      setOptions(optionsData);
-    } catch (error) {
-      console.error('Failed to load options:', error);
-      // Fallback to static options
-      setOptions({
-        strategies: getDropdownOptions().strategies,
-        risk_levels: getDropdownOptions().riskLevels,
-        investment_horizons: getDropdownOptions().investmentHorizons,
-        market_conditions: [
-          { value: MarketCondition.BULLISH, label: 'Bullish' },
-          { value: MarketCondition.BEARISH, label: 'Bearish' },
-          { value: MarketCondition.NEUTRAL, label: 'Neutral' },
-          { value: MarketCondition.AUTO_DETECTED, label: 'Auto Detected' }
-        ],
-        sectors: getDropdownOptions().sectors,
-        market_caps: getDropdownOptions().marketCaps,
-        loss_tightening_modes: getDropdownOptions().lossTighteningModes,
-        sort_options: getDropdownOptions().sortOptions,
-        sort_directions: getDropdownOptions().sortDirections,
-        presets: []
-      });
-    }
-  };
 
   const validateForm = (): boolean => {
     const request: Partial<UIRecommendationRequest> = {
@@ -191,7 +181,7 @@ const ModernRecommendationForm: React.FC<ModernRecommendationFormProps> = ({
           sort_by: sortBy,
           sort_direction: sortDirection
         };
-        response = await recommendationAPIService.getFullRecommendations(fullRequest);
+        response = await recommendationAPIService.getAllRecommendations(fullRequest);
       }
 
       onRecommendationsReceived(response);
@@ -243,14 +233,6 @@ const ModernRecommendationForm: React.FC<ModernRecommendationFormProps> = ({
             🎯 Modern Recommendation Engine
           </Typography>
           <Box>
-            <Button
-              variant="outlined"
-              startIcon={<RefreshIcon />}
-              onClick={loadOptions}
-              sx={{ mr: 1 }}
-            >
-              Refresh Options
-            </Button>
             <Button
               variant="outlined"
               onClick={handleReset}

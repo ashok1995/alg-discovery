@@ -28,6 +28,11 @@ export const API_CONFIG = {
   RECOMMENDATION_API_BASE_URL:
     process.env.REACT_APP_RECOMMENDATION_API_BASE_URL ||
     (isProduction() ? 'http://recommendations.algodiscovery.prod:8183' : 'http://localhost:8183'),
+  
+  // Recommendation V2 API URL (port 8282 for staging, will be updated for production)
+  RECOMMENDATION_V2_API_BASE_URL:
+    process.env.REACT_APP_RECOMMENDATION_V2_API_BASE_URL ||
+    (isProduction() ? 'http://algodiscovery.com:8282' : 'http://localhost:8282'),
 
   // Chartink Authentication Service URL (port 8081)
   CHARTINK_AUTH_BASE_URL: process.env.REACT_APP_CHARTINK_AUTH_BASE_URL || 

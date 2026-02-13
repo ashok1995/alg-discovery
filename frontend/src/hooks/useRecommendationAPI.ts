@@ -163,7 +163,7 @@ export function useRecommendationAPI(
       console.error('❌ Error checking service status:', error);
       setServiceStatus({
         connected: false,
-        url: recommendationAPIService.getServiceInfo().primaryService.baseUrl,
+        url: recommendationAPIService.getServiceInfo().baseUrl,
         status: 'error',
         lastCheck: new Date().toISOString()
       });
@@ -303,7 +303,7 @@ export function useRecommendationServiceStatus() {
       console.error('❌ Error checking service status:', error);
       setStatus({
         connected: false,
-        url: recommendationAPIService.getServiceInfo().primaryService.baseUrl,
+        url: recommendationAPIService.getServiceInfo().baseUrl,
         status: 'error',
         lastCheck: new Date().toISOString()
       });

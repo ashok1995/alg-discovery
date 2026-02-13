@@ -31,7 +31,8 @@ import {
   Slider,
   CircularProgress,
   Fade,
-  Zoom
+  Zoom,
+  TableSortLabel
 } from '@mui/material';
 import {
   Refresh,
@@ -46,18 +47,14 @@ import {
   Timeline as TimelineIcon,
   ExpandMore,
   Star,
-  StarBorder,
-  Share
 } from '@mui/icons-material';
 import { useBackgroundRefresh } from '../hooks/useBackgroundRefresh';
-import { recommendationAPIService } from '../services/RecommendationAPIService';
+import { fetchV2Recommendations, type V2RecommendationRequestParams } from '../services/RecommendationV2Service';
 import { 
-  UniversalRecommendationRequest, 
   StrategyType,
   DynamicRecommendationItem,
-  SortDirection,
-  MarketCondition,
-  MarketSession
+  V2Recommendation,
+  V2RecommendationsResponse,
 } from '../types/apiModels';
 
 interface RecommendationMetrics {
@@ -70,7 +67,7 @@ interface RecommendationMetrics {
   averagePrice: number;
   priceRange: { min: number; max: number };
   riskDistribution: { low: number; medium: number; high: number };
-  technicalSignals: string[];
+  // technicalSignals: string[]; // Removed unused
   marketCondition: string;
   lastUpdated: string;
 }
@@ -90,7 +87,7 @@ const UnifiedRecommendations: React.FC = () => {
   const [expandedFilters, setExpandedFilters] = useState(false);
   const [minScore, setMinScore] = useState(60);
   const [maxResults, setMaxResults] = useState(20);
-  const [sortBy, setSortBy] = useState<'score' | 'price' | 'volume' | 'change'>('score');
+  const [sortBy, setSortBy] = useState<'score' | 'price' | 'volume' | 'change' | 'change_5m' | 'change_30m' | 'change_1d' | 'value_traded'>('score');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   // Strategy Configuration
@@ -192,106 +189,198 @@ const UnifiedRecommendations: React.FC = () => {
     return filteredItems;
   };
 
+  // Helper function to convert V2 recommendations to legacy format
+  const convertV2ToLegacyFormat = (v2Rec: V2Recommendation): DynamicRecommendationItem => {
+    return {
+      symbol: v2Rec.symbol,
+      nsecode: v2Rec.symbol,
+      company_name: v2Rec.symbol,
+      last_price: v2Rec.current_price,
+      current_price: v2Rec.current_price,
+      change_percent: v2Rec.change_percent,
+      score: v2Rec.overall_score,
+      combined_score: v2Rec.overall_score,
+      technical_score: v2Rec.overall_score * 0.7, // Approximate
+      fundamental_score: v2Rec.overall_score * 0.3, // Approximate
+      rank: 0, // Will be set after sorting
+      volume: v2Rec.volume,
+      market_cap: 0, // Not available in V2
+      sector: v2Rec.sector || 'Unknown',
+      industry: null,
+      rsi: v2Rec.technical_indicators?.['dailyrsi(14)'] || 0,
+      sma_20: v2Rec.technical_indicators?.ma_20 || 0,
+      sma_50: v2Rec.technical_indicators?.ma_50 || 0,
+      macd: null,
+      bollinger_bands: null,
+      pe_ratio: 0,
+      pb_ratio: 0,
+      debt_to_equity: 0,
+      roe: 0,
+      roa: null,
+      indicators: {
+        rsi: v2Rec.technical_indicators?.['dailyrsi(14)'] || 0,
+        sma_20: v2Rec.technical_indicators?.ma_20 || 0,
+        sma_50: v2Rec.technical_indicators?.ma_50 || 0,
+      },
+      metadata: {
+        arm_name: v2Rec.arm_name,
+        risk_tag: v2Rec.risk_tag,
+        target_price: v2Rec.target_price,
+        stop_loss: v2Rec.stop_loss,
+        risk_reward_ratio: v2Rec.risk_reward_ratio,
+        expected_return_pct: v2Rec.expected_return_pct,
+        change_5m: v2Rec.change_5m,
+        change_30m: v2Rec.change_30m,
+        change_1d: v2Rec.change_1d,
+        momentum_score: v2Rec.momentum_score,
+        chart_url: v2Rec.chart_url,
+      },
+      confidence: v2Rec.confidence.toString(),
+      source: v2Rec.data_source,
+      fetched_at: null,
+      strategy_type: v2Rec.strategy_type,
+      risk_level: v2Rec.risk_tag.includes('high') ? 'high' : v2Rec.risk_tag.includes('moderate') ? 'moderate' : 'low',
+    };
+  };
+
   const fetchRecommendations = useCallback(async (forceRefresh: boolean = false) => {
     try {
       setLoading(true);
       setError(null);
       
       const config = strategyConfig[selectedStrategy];
-      const request: UniversalRecommendationRequest = {
-        strategy: selectedStrategy,
-        include: {
-          real_time_prices: true,
-          technical_indicators: true,
-          fundamentals: true,
-          sentiment: false
-        },
-        filters: {
-          min_score: minScore,
-          risk_levels: [selectedRisk],
-          time_frame: selectedStrategy === StrategyType.LONG_TERM ? 'long_term' : 'intraday',
-          technical: {},
-          fundamental: {},
-          sentiment: {}
-        },
-        sort: {
-          by: sortBy,
-          direction: sortDirection as SortDirection
-        },
-        context: {
-          condition: MarketCondition.NEUTRAL,
-          session: MarketSession.REGULAR_0915_1445
-        },
-        pagination: {
-          limit: maxResults,
-          offset: 0
-        }
+      
+      console.log(`🎯 [${new Date().toISOString()}] Fetching ${config.label} recommendations using V2 API`);
+      
+      // Map StrategyType to V2 API format
+      const strategyMap: Record<StrategyType, 'swing' | 'intraday' | 'long_term' | 'short'> = {
+        [StrategyType.SWING]: 'swing',
+        [StrategyType.INTRADAY_BUY]: 'intraday',
+        [StrategyType.INTRADAY_SELL]: 'intraday',
+        [StrategyType.LONG_TERM]: 'long_term',
+        [StrategyType.SHORT_TERM]: 'swing'
       };
 
-      console.log(`🎯 [${new Date().toISOString()}] Fetching ${config.label} recommendations`);
-      console.log('📤 Request payload:', JSON.stringify(request, null, 2));
+      const riskMap: Record<string, 'low' | 'moderate' | 'high'> = {
+        'low': 'low',
+        'medium': 'moderate',
+        'high': 'high'
+      };
+
+      const v2Request: V2RecommendationRequestParams = {
+        strategy: strategyMap[selectedStrategy],
+        risk_level: riskMap[selectedRisk],
+        limit: maxResults
+      };
+
+      console.log('📤 V2 API Request:', JSON.stringify(v2Request, null, 2));
       
-      // Map StrategyType to the legacy type format expected by getRecommendationsByType
-      const strategyTypeMap = {
-        [StrategyType.SWING]: 'swing',
-        [StrategyType.INTRADAY_BUY]: 'intraday-buy',
-        [StrategyType.INTRADAY_SELL]: 'intraday-sell',
-        [StrategyType.LONG_TERM]: 'long-buy',
-        [StrategyType.SHORT_TERM]: 'swing' // Map short term to swing for now
+      // Call V2 API
+      const v2Response: V2RecommendationsResponse = await fetchV2Recommendations(v2Request);
+      
+      console.log('📥 V2 Response received:', v2Response);
+      
+      // Convert V2 recommendations to legacy format
+      let items: DynamicRecommendationItem[] = v2Response.recommendations.map(convertV2ToLegacyFormat);
+      
+      // Apply rank
+      items = items.map((item, index) => ({ ...item, rank: index + 1 }));
+      
+      // Apply client-side risk-based filtering
+      items = applyRiskBasedFiltering(items, selectedRisk);
+      
+      // Apply client-side sorting
+      const sortedItems = items.sort((a, b) => {
+        let valA: number | null;
+        let valB: number | null;
+
+        switch (sortBy) {
+          case 'change_5m':
+            valA = a.metadata?.change_5m ?? null;
+            valB = b.metadata?.change_5m ?? null;
+            break;
+          case 'change_30m':
+            valA = a.metadata?.change_30m ?? null;
+            valB = b.metadata?.change_30m ?? null;
+            break;
+          case 'change_1d':
+            valA = a.metadata?.change_1d ?? null;
+            valB = b.metadata?.change_1d ?? null;
+            break;
+          case 'value_traded':
+            valA = (a.volume || 0) * (a.current_price || a.last_price || 0);
+            valB = (b.volume || 0) * (b.current_price || b.last_price || 0);
+            break;
+          case 'score':
+            valA = a.score;
+            valB = b.score;
+            break;
+          case 'price':
+            valA = a.current_price || a.last_price;
+            valB = b.current_price || b.last_price;
+            break;
+          case 'volume':
+            valA = a.volume;
+            valB = b.volume;
+            break;
+          case 'change':
+            valA = a.change_percent;
+            valB = b.change_percent;
+            break;
+          default:
+            valA = null;
+            valB = null;
+            break;
+        }
+
+        // Handle null values for sorting (nulls typically go to the end for numerical sorts)
+        if (valA === null && valB === null) return 0;
+        if (valA === null) return sortDirection === 'asc' ? 1 : -1;
+        if (valB === null) return sortDirection === 'asc' ? -1 : 1;
+
+        if (sortDirection === 'asc') {
+          return valA - valB;
+        } else {
+          return valB - valA;
+        }
+      });
+
+      setRecommendations(sortedItems);
+      setLastRefreshTime(new Date());
+      setRefreshCount(prev => prev + 1);
+      
+      // Calculate metrics from V2 response
+      const calculatedMetrics: RecommendationMetrics = {
+        totalRecommendations: items.length,
+        averageScore: v2Response.avg_overall_score,
+        highConfidenceCount: items.filter(item => parseFloat(item.confidence) >= 0.8).length,
+        mediumConfidenceCount: items.filter(item => parseFloat(item.confidence) >= 0.6 && parseFloat(item.confidence) < 0.8).length,
+        lowConfidenceCount: items.filter(item => parseFloat(item.confidence) < 0.6).length,
+        topSector: getTopSector(items),
+        averagePrice: items.length > 0 ? items.reduce((sum, item) => sum + (item.current_price || item.last_price || 0), 0) / items.length : 0,
+        priceRange: items.length > 0 ? {
+          min: Math.min(...items.map(item => item.current_price || item.last_price || 0)),
+          max: Math.max(...items.map(item => item.current_price || item.last_price || 0))
+        } : { min: 0, max: 0 },
+        riskDistribution: {
+          low: items.filter(item => item.risk_level === 'low').length,
+          medium: items.filter(item => item.risk_level === 'moderate' || item.risk_level === 'medium').length,
+          high: items.filter(item => item.risk_level === 'high').length
+        },
+        marketCondition: v2Response.direction_used || 'LONG',
+        lastUpdated: v2Response.timestamp
       };
       
-      const legacyType = strategyTypeMap[selectedStrategy];
-      const legacyRequest = {
-        risk_profile: (selectedRisk === 'low' ? 'conservative' : selectedRisk === 'high' ? 'aggressive' : 'moderate') as 'conservative' | 'moderate' | 'aggressive',
-        min_score: minScore,
-        max_recommendations: maxResults
-      };
+      setMetrics(calculatedMetrics);
       
-      console.log('🔄 Using legacy type:', legacyType, 'with request:', legacyRequest);
-      const response = await recommendationAPIService.getRecommendationsByType(legacyType as any, legacyRequest);
-      console.log('📥 Response received:', response);
-      
-      if (response.success && (response.items || response.recommendations)) {
-        let items = response.items || response.recommendations || [];
-        
-        // Apply client-side risk-based filtering since backend doesn't differentiate by risk
-        items = applyRiskBasedFiltering(items, selectedRisk);
-        
-        setRecommendations(items);
-        setLastRefreshTime(new Date());
-        setRefreshCount(prev => prev + 1);
-        
-        // Calculate metrics
-        const calculatedMetrics: RecommendationMetrics = {
-          totalRecommendations: items.length,
-          averageScore: items.length > 0 ? items.reduce((sum, item) => sum + (item.score || 0), 0) / items.length : 0,
-          highConfidenceCount: items.filter(item => item.confidence === 'high').length,
-          mediumConfidenceCount: items.filter(item => item.confidence === 'medium').length,
-          lowConfidenceCount: items.filter(item => item.confidence === 'low').length,
-          topSector: getTopSector(items),
-          averagePrice: items.length > 0 ? items.reduce((sum, item) => sum + (item.current_price || item.last_price || 0), 0) / items.length : 0,
-          priceRange: items.length > 0 ? {
-            min: Math.min(...items.map(item => item.current_price || item.last_price || 0)),
-            max: Math.max(...items.map(item => item.current_price || item.last_price || 0))
-          } : { min: 0, max: 0 },
-          riskDistribution: {
-            low: items.filter(item => item.risk_level === 'low').length,
-            medium: items.filter(item => item.risk_level === 'medium').length,
-            high: items.filter(item => item.risk_level === 'high').length
-          },
-          technicalSignals: getTechnicalSignals(items),
-          marketCondition: response.strategy || 'Unknown',
-          lastUpdated: new Date().toISOString()
-        };
-        
-        setMetrics(calculatedMetrics);
-        console.log(`✅ [${new Date().toISOString()}] Received ${items.length} recommendations`);
-      } else {
-        setError('No recommendations available');
-        setRecommendations([]);
-      }
+      console.log('✅ V2 Recommendations loaded successfully:', {
+        count: items.length,
+        avgScore: v2Response.avg_overall_score,
+        processingTime: v2Response.processing_time_ms,
+        arms: v2Response.arms_executed
+      });
     } catch (err: unknown) {
-      console.error('❌ Error fetching recommendations:', err);
+      console.error('❌ Error fetching V2 recommendations:', err);
       const errorMessage = err && typeof err === 'object' && 'message' in err 
         ? String(err.message) 
         : 'Unknown error';
@@ -358,6 +447,12 @@ const UnifiedRecommendations: React.FC = () => {
 
   const handleAutoRefreshToggle = () => {
     setAutoRefresh(!autoRefresh);
+  };
+
+  const handleSortRequest = (property: 'score' | 'price' | 'volume' | 'change' | 'change_5m' | 'change_30m' | 'change_1d' | 'value_traded') => {
+    const isAsc = sortBy === property && sortDirection === 'asc';
+    setSortDirection(isAsc ? 'desc' : 'asc');
+    setSortBy(property);
   };
 
   return (
@@ -657,7 +752,11 @@ const UnifiedRecommendations: React.FC = () => {
                       <MenuItem value="score">Score</MenuItem>
                       <MenuItem value="price">Price</MenuItem>
                       <MenuItem value="volume">Volume</MenuItem>
+                      <MenuItem value="value_traded">Value Traded</MenuItem>
                       <MenuItem value="change">Change %</MenuItem>
+                      <MenuItem value="change_5m">5m % Change</MenuItem>
+                      <MenuItem value="change_30m">30m % Change</MenuItem>
+                      <MenuItem value="change_1d">Day % Change</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
@@ -736,15 +835,40 @@ const UnifiedRecommendations: React.FC = () => {
                 <TableHead>
                   <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
                     <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Symbol</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Company</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Score</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Price</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Change %</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Value Traded</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                      <TableSortLabel
+                        active={sortBy === 'change_5m'}
+                        direction={sortDirection}
+                        onClick={() => handleSortRequest('change_5m')}
+                      >
+                        5m %
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                      <TableSortLabel
+                        active={sortBy === 'change_30m'}
+                        direction={sortDirection}
+                        onClick={() => handleSortRequest('change_30m')}
+                      >
+                        30m %
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                      <TableSortLabel
+                        active={sortBy === 'change_1d'}
+                        direction={sortDirection}
+                        onClick={() => handleSortRequest('change_1d')}
+                      >
+                        Day %
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Target</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Stop Loss</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Sector</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Risk</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Confidence</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Technical</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -753,23 +877,23 @@ const UnifiedRecommendations: React.FC = () => {
                       <TableRow hover sx={{ '&:hover': { backgroundColor: '#f8f9fa' } }}>
                         <TableCell>
                           <Box display="flex" alignItems="center">
-                            <Avatar sx={{ width: 36, height: 36, mr: 1.5, bgcolor: strategyConfig[selectedStrategy].color, fontSize: '0.9rem', fontWeight: 'bold' }}>
-                              {item.symbol.charAt(0)}
-                            </Avatar>
-                            <Box>
-                              <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: '0.9rem' }}>
+                            <Tooltip title={item.metadata?.chart_url ? "View Chart" : "View on Chartink"}>
+                              <Button 
+                                variant="contained"
+                                size="small"
+                                onClick={() => window.open(item.metadata?.chart_url || `https://chartink.com/stocks-new?symbol=${item.symbol}`, '_blank')}
+                                sx={{ 
+                                  bgcolor: strategyConfig[selectedStrategy].color,
+                                  '&:hover': { bgcolor: strategyConfig[selectedStrategy].color },
+                                  minWidth: 80,
+                                  fontWeight: 'bold',
+                                  fontSize: '0.8rem'
+                                }}
+                              >
                                 {item.symbol}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
-                                NSE
-                              </Typography>
-                            </Box>
+                              </Button>
+                            </Tooltip>
                           </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontSize: '0.85rem', fontWeight: 'medium' }}>
-                            {item.company_name || 'N/A'}
-                          </Typography>
                         </TableCell>
                         <TableCell align="right">
                           <Chip
@@ -789,16 +913,96 @@ const UnifiedRecommendations: React.FC = () => {
                           </Typography>
                         </TableCell>
                         <TableCell align="right">
-                          <Typography 
-                            variant="body2" 
-                            sx={{ 
-                              fontWeight: 'bold',
-                              fontSize: '0.85rem',
-                              color: (item.change_percent || 0) >= 0 ? '#2e7d32' : '#d32f2f'
-                            }}
-                          >
-                            {(item.change_percent || 0) >= 0 ? '+' : ''}{(item.change_percent || 0).toFixed(2)}%
+                          <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '0.85rem' }}>
+                            {( (item.volume || 0) * (item.current_price || item.last_price || 0)).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                           </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Box display="flex" alignItems="center" justifyContent="flex-end" gap={0.5}>
+                            {(item.metadata?.change_5m ?? null) !== null ? (
+                              <>
+                                {item.metadata.change_5m >= 0 ? <TrendingUp fontSize="small" sx={{ color: '#2e7d32' }} /> : <TrendingDown fontSize="small" sx={{ color: '#d32f2f' }} />}
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    fontWeight: 'bold',
+                                    fontSize: '0.75rem',
+                                    color: item.metadata.change_5m >= 0 ? '#2e7d32' : '#d32f2f'
+                                  }}
+                                >
+                                  {item.metadata.change_5m >= 0 ? '+' : ''}{item.metadata.change_5m.toFixed(2)}%
+                                </Typography>
+                              </>
+                            ) : (
+                              <Typography variant="caption" color="text.secondary">N/A</Typography>
+                            )}
+                          </Box>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Box display="flex" alignItems="center" justifyContent="flex-end" gap={0.5}>
+                            {(item.metadata?.change_30m ?? null) !== null ? (
+                              <>
+                                {item.metadata.change_30m >= 0 ? <TrendingUp fontSize="small" sx={{ color: '#2e7d32' }} /> : <TrendingDown fontSize="small" sx={{ color: '#d32f2f' }} />}
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    fontWeight: 'bold',
+                                    fontSize: '0.75rem',
+                                    color: item.metadata.change_30m >= 0 ? '#2e7d32' : '#d32f2f'
+                                  }}
+                                >
+                                  {item.metadata.change_30m >= 0 ? '+' : ''}{item.metadata.change_30m.toFixed(2)}%
+                                </Typography>
+                              </>
+                            ) : (
+                              <Typography variant="caption" color="text.secondary">N/A</Typography>
+                            )}
+                          </Box>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Box display="flex" alignItems="center" justifyContent="flex-end" gap={0.5}>
+                            {(item.metadata?.change_1d ?? item.change_percent ?? null) !== null ? (
+                              <>
+                                {(item.metadata?.change_1d ?? item.change_percent ?? 0) >= 0 ? <TrendingUp fontSize="small" sx={{ color: '#2e7d32' }} /> : <TrendingDown fontSize="small" sx={{ color: '#d32f2f' }} />}
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    fontWeight: 'bold',
+                                    fontSize: '0.75rem',
+                                    color: (item.metadata?.change_1d ?? item.change_percent ?? 0) >= 0 ? '#2e7d32' : '#d32f2f'
+                                  }}
+                                >
+                                  {(item.metadata?.change_1d ?? item.change_percent ?? 0) >= 0 ? '+' : ''}{(item.metadata?.change_1d ?? item.change_percent ?? 0).toFixed(2)}%
+                                </Typography>
+                              </>
+                            ) : (
+                              <Typography variant="caption" color="text.secondary">N/A</Typography>
+                            )}
+                          </Box>
+                        </TableCell>
+                        <TableCell align="right">
+                          {item.metadata?.target_price ? (
+                            <Box>
+                              <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '0.75rem', color: '#2e7d32' }}>
+                                ₹{item.metadata.target_price.toFixed(2)}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                +{item.metadata.expected_return_pct?.toFixed(1)}%
+                              </Typography>
+                            </Box>
+                          ) : <Typography variant="caption" color="text.secondary">N/A</Typography>}
+                        </TableCell>
+                        <TableCell align="right">
+                          {item.metadata?.stop_loss ? (
+                            <Box>
+                              <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '0.75rem', color: '#d32f2f' }}>
+                                ₹{item.metadata.stop_loss.toFixed(2)}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                R:R {item.metadata.risk_reward_ratio?.toFixed(1)}
+                              </Typography>
+                            </Box>
+                          ) : <Typography variant="caption" color="text.secondary">N/A</Typography>}
                         </TableCell>
                         <TableCell>
                           <Chip 
@@ -810,70 +1014,16 @@ const UnifiedRecommendations: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Chip
-                            label={item.risk_level || 'medium'}
+                            label={item.metadata?.risk_tag || item.risk_level || 'moderate'}
                             size="small"
                             sx={{
-                              backgroundColor: item.risk_level === 'low' ? '#4caf50' : 
-                                             item.risk_level === 'medium' ? '#ff9800' : '#f44336',
+                              backgroundColor: (item.metadata?.risk_tag || '').includes('high') ? '#4caf50' : 
+                                             (item.metadata?.risk_tag || '').includes('moderate') ? '#ff9800' : '#9e9e9e',
                               color: 'white',
                               fontSize: '0.7rem',
                               fontWeight: 'bold'
                             }}
                           />
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={item.confidence || 'medium'}
-                            size="small"
-                            sx={{
-                              backgroundColor: item.confidence === 'high' ? '#4caf50' : 
-                                             item.confidence === 'medium' ? '#ff9800' : '#f44336',
-                              color: 'white',
-                              fontSize: '0.7rem',
-                              fontWeight: 'bold'
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Box display="flex" gap={0.5} flexWrap="wrap">
-                            <Chip 
-                              label="RSI" 
-                              size="small" 
-                              variant="outlined"
-                              sx={{ fontSize: '0.6rem', height: '20px' }}
-                            />
-                            <Chip 
-                              label="SMA" 
-                              size="small" 
-                              variant="outlined"
-                              sx={{ fontSize: '0.6rem', height: '20px' }}
-                            />
-                            <Chip 
-                              label="MACD" 
-                              size="small" 
-                              variant="outlined"
-                              sx={{ fontSize: '0.6rem', height: '20px' }}
-                            />
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Box display="flex" gap={0.5}>
-                            <Tooltip title="Add to Watchlist">
-                              <IconButton size="small" sx={{ color: '#ff9800' }}>
-                                <StarBorder sx={{ fontSize: '1rem' }} />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="View Details">
-                              <IconButton size="small" sx={{ color: '#1976d2' }}>
-                                <Info sx={{ fontSize: '1rem' }} />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Share">
-                              <IconButton size="small" sx={{ color: '#4caf50' }}>
-                                <Share sx={{ fontSize: '1rem' }} />
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
                         </TableCell>
                       </TableRow>
                     </Zoom>
@@ -905,7 +1055,7 @@ const UnifiedRecommendations: React.FC = () => {
                 borderColor: selectedRisk === 'low' ? '#4caf50' : 
                            selectedRisk === 'medium' ? '#ff9800' : '#f44336',
                 color: selectedRisk === 'low' ? '#4caf50' : 
-                       selectedRisk === 'medium' ? '#ff9800' : '#f44336'
+                           selectedRisk === 'medium' ? '#ff9800' : '#f44336'
               }}
             />
             <Chip 
@@ -927,4 +1077,3 @@ const UnifiedRecommendations: React.FC = () => {
 };
 
 export default UnifiedRecommendations;
-

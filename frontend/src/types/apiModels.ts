@@ -628,3 +628,154 @@ export interface SeedHealthResponse {
   features: string;
 }
 
+// ================= V2 Recommendation API Models =================
+// Based on actual API response from http://localhost:8282/api/v2/recommendations
+
+export interface V2IntervalPrice {
+  change_1m: number | null;
+  change_5m: number | null;
+  change_15m: number | null;
+  change_30m: number | null;
+  change_1h: number | null;
+  change_2h: number | null;
+  change_3h: number | null;
+  change_4h: number | null;
+  change_6h: number | null;
+  change_1d: number | null;
+  change_percent: number;
+  change_1w: number | null;
+  high_5m: number | null;
+  low_5m: number | null;
+  high_30m: number | null;
+  low_30m: number | null;
+  high_1h: number | null;
+  low_1h: number | null;
+  high_1d: number | null;
+  low_1d: number | null;
+  ma_5: number | null;
+  ma_10: number | null;
+  ma_20: number | null;
+  ma_50: number | null;
+  ma_200: number | null;
+  atr_14: number | null;
+  volatility_5m: number | null;
+  volatility_30m: number | null;
+  volatility_1d: number | null;
+  is_bullish_5m: boolean | null;
+  is_bullish_30m: boolean | null;
+  is_bullish_1d: boolean | null;
+  strongest_interval: string;
+}
+
+export interface V2IntervalVolume {
+  current_volume: number;
+  volume_avg_5d: number | null;
+  volume_change_5m: number | null;
+  volume_change_30m: number | null;
+  volume_change_1h: number | null;
+  volume_change_1d: number | null;
+  volume_ratio_5m: number | null;
+  volume_ratio_30m: number | null;
+  volume_ratio_1d: number | null;
+  is_volume_spike_5m: boolean | null;
+  is_volume_spike_30m: boolean | null;
+}
+
+export interface V2IntervalPerformance {
+  price: V2IntervalPrice;
+  volume: V2IntervalVolume;
+  timestamp: string;
+  overall_trend_strength: string;
+  has_positive_momentum: boolean;
+}
+
+export interface V2TradeTargets {
+  target_price: number;
+  stop_loss: number;
+  risk_reward_ratio: number;
+  expected_return_pct: number;
+  risk_pct: number;
+  reward_to_risk: number;
+  is_favorable: boolean;
+}
+
+export interface V2TradeSetup {
+  entry_price: number;
+  entry_timestamp: string;
+}
+
+export interface V2TechnicalIndicators {
+  symbol: string;
+  original_symbol: string;
+  chart_url: string;
+  dailyclose: number;
+  dailyvolume: number;
+  change_5m: number | null;
+  change_30m: number | null;
+  change_3h: number | null;
+  change_1d: number | null;
+  value_traded: number;
+  risk_tag: string;
+  [key: string]: any; // Additional dynamic technical indicators
+}
+
+export interface V2Recommendation {
+  symbol: string;
+  current_price: number;
+  confidence: number;
+  overall_score: number;
+  arm_name: string;
+  strategy_type: string;
+  direction: string;
+  interval_performance: V2IntervalPerformance;
+  trade_targets: V2TradeTargets;
+  trade_setup: V2TradeSetup;
+  volume: number;
+  sector: string | null;
+  technical_indicators: V2TechnicalIndicators;
+  data_source: string;
+  execution_time_ms: number;
+  chart_url: string;
+  risk_tag: string;
+  change_percent: number;
+  change_5m: number | null;
+  change_30m: number | null;
+  change_3h: number | null;
+  change_1d: number | null;
+  target_price: number;
+  stop_loss: number;
+  risk_reward_ratio: number;
+  expected_return_pct: number;
+  risk_pct: number;
+  is_high_conviction: boolean;
+  has_volume_confirmation: boolean | null;
+  momentum_score: number;
+}
+
+export interface V2ExecutionSummary {
+  arms_selected: number;
+  arms_successful: number;
+  total_stocks_retrieved: number;
+  stocks_after_filtering: number;
+  stocks_after_deduplication: number;
+  final_count: number;
+  success_rate: number;
+  filtering_efficiency: number;
+}
+
+export interface V2RecommendationsResponse {
+  recommendations: V2Recommendation[];
+  total_count: number;
+  strategy_used: string;
+  risk_level: string;
+  direction_used: string;
+  arms_executed: string[];
+  execution_summary: V2ExecutionSummary;
+  timestamp: string;
+  processing_time_ms: number;
+  avg_confidence: number;
+  avg_overall_score: number;
+  high_conviction_count: number;
+  sector_distribution: Record<string, number>;
+}
+
