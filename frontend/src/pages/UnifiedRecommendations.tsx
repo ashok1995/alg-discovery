@@ -22,9 +22,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton,
   Tooltip,
-  Avatar,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -38,13 +36,11 @@ import {
   Refresh,
   TrendingUp,
   TrendingDown,
-  Info,
   FilterList,
   Analytics,
   Timeline,
   AccountBalance,
   Assessment,
-  Timeline as TimelineIcon,
   ExpandMore,
   Star,
 } from '@mui/icons-material';
@@ -95,7 +91,7 @@ const UnifiedRecommendations: React.FC = () => {
     [StrategyType.SWING]: {
       label: 'Swing Trading',
       description: '3-10 day positions',
-      icon: <TimelineIcon />,
+      icon: <Timeline />,
       color: '#1976d2',
       riskLevel: 'medium',
       minScore: 65,
@@ -131,7 +127,7 @@ const UnifiedRecommendations: React.FC = () => {
     [StrategyType.SHORT_TERM]: {
       label: 'Short Term',
       description: '1-3 day positions',
-      icon: <TimelineIcon />,
+      icon: <Timeline />,
       color: '#f57c00',
       riskLevel: 'medium',
       minScore: 70,
@@ -243,7 +239,7 @@ const UnifiedRecommendations: React.FC = () => {
     };
   };
 
-  const fetchRecommendations = useCallback(async (forceRefresh: boolean = false) => {
+  const fetchRecommendations = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -394,23 +390,13 @@ const UnifiedRecommendations: React.FC = () => {
 
   // Helper functions
   const getTopSector = (items: DynamicRecommendationItem[]): string => {
-    const sectors = items.map(item => item.sector || 'Unknown');
-    const sectorCounts = sectors.reduce((acc, sector) => {
+    const sectors = items.map((item: DynamicRecommendationItem) => item.sector || 'Unknown');
+    const sectorCounts = sectors.reduce((acc: Record<string, number>, sector: string) => {
       acc[sector] = (acc[sector] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     
     return Object.entries(sectorCounts).reduce((a, b) => sectorCounts[a[0]] > sectorCounts[b[0]] ? a : b)[0];
-  };
-
-  const getTechnicalSignals = (items: DynamicRecommendationItem[]): string[] => {
-    const signals = new Set<string>();
-    items.forEach(item => {
-      if (item.indicators) {
-        Object.keys(item.indicators).forEach(key => signals.add(key));
-      }
-    });
-    return Array.from(signals);
   };
 
   const getScoreColor = (score: number): string => {
@@ -430,9 +416,8 @@ const UnifiedRecommendations: React.FC = () => {
 
   // Effects
   useEffect(() => {
-    fetchRecommendations(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchRecommendations is stable, filters drive effect
-  }, [selectedStrategy, selectedRisk, minScore, maxResults, sortBy, sortDirection]);
+    fetchRecommendations();
+  }, [fetchRecommendations]);
 
   // Event handlers
   const handleStrategyChange = (strategy: StrategyType) => {
@@ -442,7 +427,7 @@ const UnifiedRecommendations: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    fetchRecommendations(true);
+    fetchRecommendations();
   };
 
   const handleAutoRefreshToggle = () => {
@@ -636,7 +621,7 @@ const UnifiedRecommendations: React.FC = () => {
                   {metrics.averageScore.toFixed(1)}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
-                  Range: {Math.min(...recommendations.map(r => r.score || 0)).toFixed(0)} - {Math.max(...recommendations.map(r => r.score || 0)).toFixed(0)}
+                  Range: {Math.min(...recommendations.map((r: DynamicRecommendationItem) => r.score || 0)).toFixed(0)} - {Math.max(...recommendations.map((r: DynamicRecommendationItem) => r.score || 0)).toFixed(0)}
                 </Typography>
               </CardContent>
             </Card>
@@ -669,9 +654,9 @@ const UnifiedRecommendations: React.FC = () => {
                   <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}>Risk</Typography>
                 </Box>
                 <Box display="flex" gap={0.5} mb={0.5}>
-                  <Chip label={`L:${recommendations.filter(r => r.risk_level === 'low').length}`} size="small" sx={{ backgroundColor: '#2e7d32', color: 'white', fontSize: '0.6rem', height: '18px' }} />
-                  <Chip label={`M:${recommendations.filter(r => r.risk_level === 'medium').length}`} size="small" sx={{ backgroundColor: '#f57c00', color: 'white', fontSize: '0.6rem', height: '18px' }} />
-                  <Chip label={`H:${recommendations.filter(r => r.risk_level === 'high').length}`} size="small" sx={{ backgroundColor: '#d32f2f', color: 'white', fontSize: '0.6rem', height: '18px' }} />
+                  <Chip label={`L:${recommendations.filter((r: DynamicRecommendationItem) => r.risk_level === 'low').length}`} size="small" sx={{ backgroundColor: '#2e7d32', color: 'white', fontSize: '0.6rem', height: '18px' }} />
+                  <Chip label={`M:${recommendations.filter((r: DynamicRecommendationItem) => r.risk_level === 'medium').length}`} size="small" sx={{ backgroundColor: '#f57c00', color: 'white', fontSize: '0.6rem', height: '18px' }} />
+                  <Chip label={`H:${recommendations.filter((r: DynamicRecommendationItem) => r.risk_level === 'high').length}`} size="small" sx={{ backgroundColor: '#d32f2f', color: 'white', fontSize: '0.6rem', height: '18px' }} />
                 </Box>
                 <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
                   Updated: {lastRefreshTime?.toLocaleTimeString()}
@@ -710,7 +695,7 @@ const UnifiedRecommendations: React.FC = () => {
                   <Typography gutterBottom sx={{ fontSize: '0.8rem', mb: 1 }}>Min Score: {minScore}</Typography>
                   <Slider
                     value={minScore}
-                    onChange={(_, value) => setMinScore(value as number)}
+                    onChange={(_event: Event, value: number | number[]) => setMinScore(value as number)}
                     min={0}
                     max={100}
                     step={5}
@@ -746,7 +731,7 @@ const UnifiedRecommendations: React.FC = () => {
                     <InputLabel sx={{ fontSize: '0.8rem' }}>Sort By</InputLabel>
                     <Select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as 'score' | 'price' | 'volume' | 'change')}
+                      onChange={(e) => setSortBy(e.target.value as 'score' | 'price' | 'volume' | 'change' | 'change_5m' | 'change_30m' | 'change_1d' | 'value_traded')}
                       label="Sort By"
                     >
                       <MenuItem value="score">Score</MenuItem>
@@ -872,7 +857,7 @@ const UnifiedRecommendations: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {recommendations.map((item, index) => (
+                  {recommendations.map((item: DynamicRecommendationItem, index: number) => (
                     <Zoom in={!loading} timeout={300 + index * 100} key={item.symbol}>
                       <TableRow hover sx={{ '&:hover': { backgroundColor: '#f8f9fa' } }}>
                         <TableCell>
