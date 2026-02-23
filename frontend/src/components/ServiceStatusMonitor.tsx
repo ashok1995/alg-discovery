@@ -54,8 +54,13 @@ const ServiceStatusMonitor: React.FC<ServiceStatusMonitorProps> = ({
     },
     {
       name: 'Chartink Service',
-      endpoint: '/api/chartink/check',
+      endpoint: '/api/chartink/session-status',
       description: 'Technical analysis & screening'
+    },
+    {
+      name: 'Yahoo Service',
+      endpoint: '/api/yahoo-health',
+      description: 'Yahoo Finance & market data'
     }
   ];
 
@@ -79,9 +84,12 @@ const ServiceStatusMonitor: React.FC<ServiceStatusMonitorProps> = ({
           status = data.status === 'healthy' ? 'healthy' : 'degraded';
           healthScore = status === 'healthy' ? 100 : 70;
         } else if (config.name === 'Chartink Service') {
-          const ok = data.success && data.status?.authenticated === true;
+          const ok = data.authenticated === true || data.session_working === true;
           status = ok ? 'healthy' : 'unhealthy';
           healthScore = ok ? 100 : 0;
+        } else if (config.name === 'Yahoo Service') {
+          status = data.status === 'healthy' ? 'healthy' : 'unhealthy';
+          healthScore = status === 'healthy' ? 100 : 0;
         }
       } else {
         status = 'unhealthy';

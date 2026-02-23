@@ -1,45 +1,129 @@
 /**
  * Recommendation V2 Service
- * Integrates with new Recommendation service at http://localhost:8282/api/v2/recommendations
- * Contract: { strategy, risk_level, limit }
- * Returns comprehensive recommendation data with interval performance, trade targets, and technical indicators
+ * Integrates with Seed/Recommendation V2 API (openai.json: recommendationsV2).
+ * Prod: http://203.57.85.201:8182
+ * Endpoints: GET /v2/recommendations, /v2/observability/db, /v2/health/pipeline, /v2/learning/score-bin-performance
  */
 
-import { API_CONFIG } from '../config/api';
-import type { V2RecommendationsResponse } from '../types/apiModels';
+import { getRecommendationsV2Url } from '../config/openaiConfig';
+import type { SeedV2RecommendationsResponse } from '../types/apiModels';
+import type { ObservabilityDbResponse } from '../types/apiModels';
+import type { PipelineHealthResponse } from '../types/apiModels';
+import type { ScoreBinPerformanceItem } from '../types/apiModels';
 
 const TIMEOUT_MS = 30000;
 
-export interface V2RecommendationRequestParams {
-  strategy: 'swing' | 'intraday' | 'long_term' | 'short';
-  risk_level: 'low' | 'moderate' | 'high';
+/** Prod API trade types */
+export type SeedTradeType = 'intraday_buy' | 'intraday_sell' | 'swing_buy' | 'short' | 'positional';
+
+/** Prod API risk_level: low | med | high (min_score overridden when set) */
+export type SeedRiskLevel = 'low' | 'med' | 'high';
+
+/** Query params for GET /v2/recommendations */
+export interface V2RecommendationQueryParams {
+  trade_type: SeedTradeType;
   limit?: number;
+  min_score?: number;
+  risk_level?: SeedRiskLevel;
+}
+
+/** Legacy request: map strategy/risk for callers using StrategyType. */
+export interface V2RecommendationRequestParams {
+  strategy: 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term';
+  risk_level: 'low' | 'medium' | 'high';
+  limit?: number;
+  min_score?: number;
+}
+
+function buildRecommendationsQuery(params: V2RecommendationQueryParams): string {
+  const q = new URLSearchParams();
+  q.set('trade_type', params.trade_type);
+  q.set('limit', String(params.limit ?? 10));
+  q.set('min_score', String(params.min_score ?? 60));
+  if (params.risk_level) {
+    q.set('risk_level', params.risk_level);
+  }
+  return q.toString();
+}
+
+/** Map UI strategy to prod trade_type */
+export function mapStrategyToSeedTradeType(
+  strategy: 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'
+): SeedTradeType {
+  const map: Record<string, SeedTradeType> = {
+    swing: 'swing_buy',
+    intraday_buy: 'intraday_buy',
+    intraday_sell: 'intraday_sell',
+    long_term: 'positional',
+    short_term: 'short',
+  };
+  return map[strategy] ?? 'swing_buy';
+}
+
+/** Map UI risk (low|medium|high) to prod risk_level (low|med|high) */
+export function mapRiskToSeedRiskLevel(risk: 'low' | 'medium' | 'high'): SeedRiskLevel {
+  return risk === 'medium' ? 'med' : risk;
 }
 
 /**
- * Call V2 recommendations endpoint at port 8282
- * URL: http://localhost:8282/api/v2/recommendations (staging)
- * Method: POST
- * Body: { strategy, risk_level, limit }
+ * Build the full request URL for debugging (same params as fetchV2Recommendations).
+ */
+export function buildV2RecommendationsUrl(
+  request: V2RecommendationQueryParams | V2RecommendationRequestParams
+): string {
+  const queryParams: V2RecommendationQueryParams =
+    'trade_type' in request
+      ? {
+          trade_type: request.trade_type,
+          limit: request.limit ?? 10,
+          min_score: request.min_score ?? 60,
+          risk_level: request.risk_level as SeedRiskLevel | undefined,
+        }
+      : {
+          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
+          limit: request.limit ?? 10,
+          min_score: request.min_score ?? 60,
+          risk_level: mapRiskToSeedRiskLevel(request.risk_level),
+        };
+  const query = buildRecommendationsQuery(queryParams);
+  return getRecommendationsV2Url('recommendations', query);
+}
+
+/**
+ * Call V2 recommendations endpoint (GET with query params).
+ * Prod API supports risk_level (low|med|high) - overrides min_score when set.
  */
 export async function fetchV2Recommendations(
-  request: V2RecommendationRequestParams
-): Promise<V2RecommendationsResponse> {
-  const url = `${API_CONFIG.RECOMMENDATION_V2_API_BASE_URL}/api/v2/recommendations`;
-  const body: V2RecommendationRequestParams = {
-    strategy: request.strategy,
-    risk_level: request.risk_level,
-    limit: request.limit ?? 10,
-  };
+  request: V2RecommendationQueryParams | V2RecommendationRequestParams
+): Promise<SeedV2RecommendationsResponse> {
+  const queryParams: V2RecommendationQueryParams =
+    'trade_type' in request
+      ? {
+          trade_type: request.trade_type,
+          limit: request.limit ?? 10,
+          min_score: request.min_score ?? 60,
+          risk_level: request.risk_level as SeedRiskLevel | undefined,
+        }
+      : {
+          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
+          limit: request.limit ?? 10,
+          min_score: request.min_score ?? 60,
+          risk_level: mapRiskToSeedRiskLevel(request.risk_level),
+        };
+  const query = buildRecommendationsQuery(queryParams);
+  const url = getRecommendationsV2Url('recommendations', query);
+
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    console.log('📡 V2 Recommendations request:', url);
+  }
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
     const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      method: 'GET',
+      headers: { Accept: 'application/json' },
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -49,32 +133,114 @@ export async function fetchV2Recommendations(
       throw new Error(`V2 recommendations failed (${res.status}): ${text || res.statusText}`);
     }
 
-    const data = (await res.json()) as V2RecommendationsResponse;
-    return data;
+    return (await res.json()) as SeedV2RecommendationsResponse;
   } catch (err) {
     clearTimeout(timeoutId);
-    if (err instanceof Error) throw err;
-    throw new Error('V2 recommendations request failed');
+    const errorMsg = err instanceof Error ? err.message : 'V2 recommendations request failed';
+    throw new Error(errorMsg);
   }
 }
 
 /**
- * Health check for V2 recommendation service
+ * Health check for V2 recommendation service.
  */
 export async function checkV2RecommendationHealth(): Promise<boolean> {
-  const url = `${API_CONFIG.RECOMMENDATION_V2_API_BASE_URL}/health`;
+  const url = getRecommendationsV2Url('health');
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
   try {
+    const res = await fetch(url, { method: 'GET', signal: controller.signal });
+    clearTimeout(timeoutId);
+    return res.ok;
+  } catch {
+    clearTimeout(timeoutId);
+    return false;
+  }
+}
+
+/**
+ * Fetch DB observability data (GET /v2/observability/db).
+ * Prod returns stock_universe, stock_indicators, ranked_stocks, by_scenario, pipeline_operations.
+ */
+export async function fetchObservabilityDb(): Promise<ObservabilityDbResponse> {
+  const url = getRecommendationsV2Url('observabilityDb');
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  try {
     const res = await fetch(url, {
       method: 'GET',
+      headers: { Accept: 'application/json' },
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
-    return res.ok;
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Observability DB failed (${res.status}): ${text || res.statusText}`);
+    }
+    return (await res.json()) as ObservabilityDbResponse;
   } catch (err) {
     clearTimeout(timeoutId);
-    return false;
+    throw err instanceof Error ? err : new Error('Observability DB request failed');
+  }
+}
+
+/**
+ * Fetch pipeline health (GET /v2/health/pipeline).
+ */
+export async function fetchPipelineHealth(): Promise<PipelineHealthResponse> {
+  const url = getRecommendationsV2Url('pipelineHealth');
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Pipeline health failed (${res.status}): ${text || res.statusText}`);
+    }
+    return (await res.json()) as PipelineHealthResponse;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err instanceof Error ? err : new Error('Pipeline health request failed');
+  }
+}
+
+/**
+ * Fetch score bin performance (GET /v2/learning/score-bin-performance).
+ */
+export async function fetchScoreBinPerformance(params?: {
+  trade_type?: string;
+  days?: number;
+}): Promise<ScoreBinPerformanceItem[]> {
+  const q = new URLSearchParams();
+  if (params?.trade_type) q.set('trade_type', params.trade_type);
+  if (params?.days != null) q.set('days', String(params.days));
+  const query = q.toString();
+  const url = getRecommendationsV2Url('scoreBinPerformance', query);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Score bin performance failed (${res.status}): ${text || res.statusText}`);
+    }
+    return (await res.json()) as ScoreBinPerformanceItem[];
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err instanceof Error ? err : new Error('Score bin performance request failed');
   }
 }

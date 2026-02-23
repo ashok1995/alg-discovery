@@ -65,26 +65,40 @@ export ALGODISCOVERY_REPO_DIR=~/alg-discovery
 
 ## Deploy (Git-Only)
 
-**From your local machine** (merge to main first for prod):
+**Stage (experiments on develop)** — push develop first:
+```bash
+git push origin develop
+./scripts/deploy-stage-remote.sh   # or deploy-stage-local.sh
+```
 
+**Prod** — merge to main first:
 ```bash
 git checkout main
 git pull origin main
-git merge feature/next-improvement
+git merge develop
 git push origin main
 ```
 
-**On GCP instance**:
+**From local via SSH** (recommended for prod — pull from GHCR, no build on VM):
+
+```bash
+# Prod: CI pushes image to GHCR on push to main; VM pulls and runs
+./scripts/deploy-prod-remote-ghcr.sh   # Pulls ghcr.io/OWNER/algodiscovery-frontend:main
+
+# Stage: from develop branch (build on VM)
+./scripts/deploy-stage-remote.sh
+```
+
+**On GCP instance directly** (build on VM):
 
 ```bash
 cd ~/alg-discovery
-
-# Deploy prod (port 80/443)
-./scripts/deploy-from-git.sh prod
-
-# Deploy stage (port 8080)
-./scripts/deploy-from-git.sh stage
+./scripts/deploy-from-ghcr.sh prod    # Pull from GHCR (no build)
+./scripts/deploy-from-git.sh prod     # Build on VM
+./scripts/deploy-from-git.sh stage    # Stage from develop
 ```
+
+**GHCR**: Set `GITHUB_OWNER` (e.g. your org) and `GHCR_TOKEN` (GitHub PAT with `read:packages`) for private images.
 
 Custom repo path:
 ```bash
@@ -114,7 +128,7 @@ npm run build:prod   # Prod build only
 | 8002 | Swing/Unified API |
 | 8013 | Algorithm/Zerodha |
 | 8079 | Kite Services |
-| 8081 | Chartink Auth |
+| 8081 | Chartink Auth/Query (35.232.205.155) |
 | 8082 | Seed API |
 | 8182 | Seed (prod) |
 | 8183 | Recommendation proxy |

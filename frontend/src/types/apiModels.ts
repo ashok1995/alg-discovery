@@ -779,3 +779,127 @@ export interface V2RecommendationsResponse {
   sector_distribution: Record<string, number>;
 }
 
+/** Response from GET /v2/observability/db - DB health and table stats (prod shape) */
+export interface ObservabilityDbResponse {
+  ok?: boolean;
+  status?: string;
+  database?: string;
+  tables?: Array<{ name: string; count?: number; rows?: number; size_kb?: number }>;
+  connection?: { connected: boolean; latency_ms?: number };
+  stock_universe?: { total: number; active: number; inactive: number; recently_added_24h?: number; recently_evicted_24h?: number; by_scenario?: Record<string, { total: number; active: number }> };
+  stock_indicators?: { total: number; by_trade_type?: Record<string, number> };
+  ranked_stocks?: { total: number; by_trade_type?: Record<string, number> };
+  by_scenario?: Record<string, { stock_universe: { total: number; active: number }; stock_indicators_count: number; ranked_stocks_count: number }>;
+  pipeline_operations?: { market_hours?: boolean; current_time?: string; components?: Record<string, { status?: string; last_run?: string | null; error?: string | null }> };
+  timestamp?: string;
+  [key: string]: unknown;
+}
+
+/** Prod API: single ranked stock from GET /v2/recommendations */
+export interface RankedStockResponse {
+  symbol: string;
+  exchange: string;
+  trade_type: string;
+  score: number;
+  rank: number;
+  ranked_at: string;
+  last_price: number;
+  change_pct: number | null;
+  entry_price: number;
+  stop_loss: number;
+  target_1: number;
+  target_2?: number | null;
+  target_3?: number | null;
+  risk_reward_ratio: number;
+  max_risk_pct: number;
+  generated_at: string;
+  valid_until: string;
+  entry_window_start?: string | null;
+  entry_window_end?: string | null;
+  max_hold_days?: number | null;
+  reason: string;
+  signals?: Record<string, boolean>;
+  market_regime?: string | null;
+  relative_volume?: number | null;
+  volume_trend?: string | null;
+  distance_to_support_pct?: number | null;
+  distance_to_resistance_pct?: number | null;
+  trend?: string | null;
+  rsi_14?: number | null;
+  macd_state?: string | null;
+}
+
+/** Prod API: response from GET /v2/recommendations (Seed Service v2) */
+export interface SeedV2RecommendationsResponse {
+  trade_type: string;
+  count: number;
+  recommendations: RankedStockResponse[];
+  generated_at: string;
+  recommendation_source?: string | null;
+  risk_level?: string | null;
+  min_score_applied?: number | null;
+}
+
+/** Response from GET /v2/health/pipeline */
+export interface PipelineHealthResponse {
+  status?: string;
+  pipeline?: {
+    stock_universe?: { total: number; active: number; inactive?: number };
+    stock_universe_by_scenario?: Record<string, { active: number; total: number }>;
+    candles?: string;
+    ranked_stocks?: Record<string, number>;
+    orchestrator?: {
+      orchestrator?: { status?: string; market_hours?: boolean; current_time?: string };
+      components?: Record<string, { status?: string; last_run?: string | null; error?: string | null }>;
+    };
+  };
+  errors?: string[] | null;
+  timestamp?: string;
+}
+
+/** Item from GET /v2/learning/score-bin-performance */
+export interface ScoreBinPerformanceItem {
+  score_bin: string;
+  trade_type: string;
+  horizon: string;
+  avg_return_pct: number;
+  count: number;
+  success_rate_pct: number;
+}
+
+// ================= Internal & Global Market Context =================
+
+/** Response from GET /api/internal-market-context (Kite host 8179) */
+export interface InternalMarketContextResponse {
+  market_regime?: string;
+  volatility_regime?: string;
+  india_vix?: number;
+  vix_level?: string;
+  market_breadth?: {
+    advances: number;
+    declines: number;
+    unchanged?: number;
+    advance_decline_ratio?: number;
+    total_stocks?: number;
+    data_source?: string;
+    timestamp?: string;
+  };
+  nifty_50?: { price: number; change_percent: number };
+  sectors?: Record<string, { change_percent: number; leader?: boolean }>;
+  institutional_sentiment?: string;
+  confidence_score?: number;
+  timestamp?: string;
+  processing_time_ms?: number;
+}
+
+/** Response from GET /api/v1/global-context (Yahoo host 8185) */
+export interface GlobalContextResponse {
+  sp500?: { price: number; change_percent: number };
+  nasdaq?: { price: number; change_percent: number };
+  dow_jones?: { price: number; change_percent: number };
+  vix?: { value: number };
+  gold?: { price: number; change_percent: number };
+  usd_inr?: { rate: number; change_percent: number };
+  crude_oil?: { price: number; change_percent: number };
+  timestamp?: string;
+}

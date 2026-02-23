@@ -45,13 +45,12 @@ import {
   Star,
 } from '@mui/icons-material';
 import { useBackgroundRefresh } from '../hooks/useBackgroundRefresh';
-import { fetchV2Recommendations, type V2RecommendationRequestParams } from '../services/RecommendationV2Service';
-import { 
+import { fetchV2Recommendations, buildV2RecommendationsUrl } from '../services/RecommendationV2Service';
+import {
   StrategyType,
   DynamicRecommendationItem,
-  V2Recommendation,
-  V2RecommendationsResponse,
 } from '../types/apiModels';
+import type { RankedStockResponse } from '../types/apiModels';
 
 interface RecommendationMetrics {
   totalRecommendations: number;
@@ -112,7 +111,7 @@ const UnifiedRecommendations: React.FC = () => {
       icon: <TrendingDown />,
       color: '#d32f2f',
       riskLevel: 'high',
-      minScore: 70,
+      minScore: 0, // Lower default: intraday_sell often has fewer high-scoring stocks; use slider to filter
       timeFrame: 'Same day'
     },
     [StrategyType.LONG_TERM]: {
@@ -135,107 +134,53 @@ const UnifiedRecommendations: React.FC = () => {
     }
   };
 
-  // Fetch Recommendations
-  // Helper function to apply risk-based filtering
-  const applyRiskBasedFiltering = (items: DynamicRecommendationItem[], riskLevel: 'low' | 'medium' | 'high'): DynamicRecommendationItem[] => {
-    if (!items || items.length === 0) return items;
-    
-    // Create a copy to avoid mutating the original array
-    let filteredItems = [...items];
-    
-    // Apply different filtering logic based on risk level
-    switch (riskLevel) {
-      case 'low':
-        // Low risk: prefer higher scores, more stable stocks
-        filteredItems = filteredItems
-          .filter(item => (item.score || 0) >= 70) // Higher minimum score
-          .sort((a, b) => (b.score || 0) - (a.score || 0)) // Sort by score descending
-          .slice(0, Math.min(maxResults, filteredItems.length));
-        break;
-        
-      case 'high':
-        // High risk: include lower scores, more volatile stocks, different order
-        filteredItems = filteredItems
-          .filter(item => (item.score || 0) >= 50) // Lower minimum score
-          .sort((a, b) => {
-            // Mix of score and volatility for high risk
-            const scoreDiff = (b.score || 0) - (a.score || 0);
-            const volatilityDiff = Math.abs((b.change_percent || 0)) - Math.abs((a.change_percent || 0));
-            return scoreDiff + volatilityDiff * 0.1; // Weight volatility slightly
-          })
-          .slice(0, Math.min(maxResults, filteredItems.length));
-        break;
-        
-      case 'medium':
-      default:
-        // Medium risk: balanced approach, shuffle the order slightly
-        filteredItems = filteredItems
-          .filter(item => (item.score || 0) >= 60) // Medium minimum score
-          .sort((a, b) => {
-            // Add some randomness to the sorting for medium risk
-            const scoreDiff = (b.score || 0) - (a.score || 0);
-            const randomFactor = Math.random() - 0.5; // -0.5 to 0.5
-            return scoreDiff + randomFactor * 10; // Add some randomness
-          })
-          .slice(0, Math.min(maxResults, filteredItems.length));
-        break;
-    }
-    
-    console.log(`🎯 Applied ${riskLevel} risk filtering: ${filteredItems.length} items`);
-    return filteredItems;
-  };
-
-  // Helper function to convert V2 recommendations to legacy format
-  const convertV2ToLegacyFormat = (v2Rec: V2Recommendation): DynamicRecommendationItem => {
+  /** Convert prod RankedStockResponse to DynamicRecommendationItem */
+  const convertRankedStockToDynamic = (r: RankedStockResponse): DynamicRecommendationItem => {
+    const target1 = r.target_1 ?? 0;
+    const entry = r.entry_price;
+    const expectedReturn = entry > 0 ? ((target1 - entry) / entry) * 100 : 0;
     return {
-      symbol: v2Rec.symbol,
-      nsecode: v2Rec.symbol,
-      company_name: v2Rec.symbol,
-      last_price: v2Rec.current_price,
-      current_price: v2Rec.current_price,
-      change_percent: v2Rec.change_percent,
-      score: v2Rec.overall_score,
-      combined_score: v2Rec.overall_score,
-      technical_score: v2Rec.overall_score * 0.7, // Approximate
-      fundamental_score: v2Rec.overall_score * 0.3, // Approximate
-      rank: 0, // Will be set after sorting
-      volume: v2Rec.volume,
-      market_cap: 0, // Not available in V2
-      sector: v2Rec.sector || 'Unknown',
+      symbol: r.symbol,
+      nsecode: r.symbol,
+      company_name: r.symbol,
+      last_price: r.last_price,
+      current_price: r.last_price,
+      change_percent: r.change_pct ?? 0,
+      score: r.score,
+      combined_score: r.score,
+      technical_score: r.score * 0.7,
+      fundamental_score: r.score * 0.3,
+      rank: r.rank,
+      volume: 0,
+      market_cap: 0,
+      sector: 'Unknown',
       industry: null,
-      rsi: v2Rec.technical_indicators?.['dailyrsi(14)'] || 0,
-      sma_20: v2Rec.technical_indicators?.ma_20 || 0,
-      sma_50: v2Rec.technical_indicators?.ma_50 || 0,
-      macd: null,
+      rsi: r.rsi_14 ?? 0,
+      sma_20: 0,
+      sma_50: 0,
+      macd: r.macd_state ?? null,
       bollinger_bands: null,
       pe_ratio: 0,
       pb_ratio: 0,
       debt_to_equity: 0,
       roe: 0,
       roa: null,
-      indicators: {
-        rsi: v2Rec.technical_indicators?.['dailyrsi(14)'] || 0,
-        sma_20: v2Rec.technical_indicators?.ma_20 || 0,
-        sma_50: v2Rec.technical_indicators?.ma_50 || 0,
-      },
+      indicators: { rsi: r.rsi_14 ?? 0, sma_20: 0, sma_50: 0 },
       metadata: {
-        arm_name: v2Rec.arm_name,
-        risk_tag: v2Rec.risk_tag,
-        target_price: v2Rec.target_price,
-        stop_loss: v2Rec.stop_loss,
-        risk_reward_ratio: v2Rec.risk_reward_ratio,
-        expected_return_pct: v2Rec.expected_return_pct,
-        change_5m: v2Rec.change_5m,
-        change_30m: v2Rec.change_30m,
-        change_1d: v2Rec.change_1d,
-        momentum_score: v2Rec.momentum_score,
-        chart_url: v2Rec.chart_url,
+        target_price: target1,
+        stop_loss: r.stop_loss,
+        risk_reward_ratio: r.risk_reward_ratio,
+        expected_return_pct: expectedReturn,
+        change_5m: null,
+        change_30m: null,
+        change_1d: r.change_pct ?? null,
+        chart_url: `https://chartink.com/stocks-new?symbol=${r.symbol}`,
       },
-      confidence: v2Rec.confidence.toString(),
-      source: v2Rec.data_source,
-      fetched_at: null,
-      strategy_type: v2Rec.strategy_type,
-      risk_level: v2Rec.risk_tag.includes('high') ? 'high' : v2Rec.risk_tag.includes('moderate') ? 'moderate' : 'low',
+      confidence: (r.score / 100).toString(),
+      source: 'indicators',
+      fetched_at: r.ranked_at,
+      strategy_type: r.trade_type,
+      risk_level: r.max_risk_pct >= 4 ? 'high' : r.max_risk_pct >= 3 ? 'medium' : 'low',
     };
   };
 
@@ -246,44 +191,20 @@ const UnifiedRecommendations: React.FC = () => {
       
       const config = strategyConfig[selectedStrategy];
       
-      console.log(`🎯 [${new Date().toISOString()}] Fetching ${config.label} recommendations using V2 API`);
-      
-      // Map StrategyType to V2 API format
-      const strategyMap: Record<StrategyType, 'swing' | 'intraday' | 'long_term' | 'short'> = {
-        [StrategyType.SWING]: 'swing',
-        [StrategyType.INTRADAY_BUY]: 'intraday',
-        [StrategyType.INTRADAY_SELL]: 'intraday',
-        [StrategyType.LONG_TERM]: 'long_term',
-        [StrategyType.SHORT_TERM]: 'swing'
+      console.log(`🎯 [${new Date().toISOString()}] Fetching ${config.label} recommendations using V2 API (risk: ${selectedRisk})`);
+
+      // Prod API: strategy + risk_level (API applies risk-based min_score)
+      const v2Request = {
+        strategy: selectedStrategy as 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term',
+        risk_level: selectedRisk,
+        limit: Math.min(maxResults, 20),
+        min_score: minScore,
       };
 
-      const riskMap: Record<string, 'low' | 'moderate' | 'high'> = {
-        'low': 'low',
-        'medium': 'moderate',
-        'high': 'high'
-      };
+      const v2Response = await fetchV2Recommendations(v2Request);
 
-      const v2Request: V2RecommendationRequestParams = {
-        strategy: strategyMap[selectedStrategy],
-        risk_level: riskMap[selectedRisk],
-        limit: maxResults
-      };
-
-      console.log('📤 V2 API Request:', JSON.stringify(v2Request, null, 2));
-      
-      // Call V2 API
-      const v2Response: V2RecommendationsResponse = await fetchV2Recommendations(v2Request);
-      
-      console.log('📥 V2 Response received:', v2Response);
-      
-      // Convert V2 recommendations to legacy format
-      let items: DynamicRecommendationItem[] = v2Response.recommendations.map(convertV2ToLegacyFormat);
-      
-      // Apply rank
-      items = items.map((item, index) => ({ ...item, rank: index + 1 }));
-      
-      // Apply client-side risk-based filtering
-      items = applyRiskBasedFiltering(items, selectedRisk);
+      // Convert prod RankedStockResponse to DynamicRecommendationItem
+      const items: DynamicRecommendationItem[] = v2Response.recommendations.map(convertRankedStockToDynamic);
       
       // Apply client-side sorting
       const sortedItems = items.sort((a, b) => {
@@ -346,9 +267,10 @@ const UnifiedRecommendations: React.FC = () => {
       setRefreshCount(prev => prev + 1);
       
       // Calculate metrics from V2 response
+      const avgScore = items.length > 0 ? items.reduce((s, i) => s + (i.score ?? 0), 0) / items.length : 0;
       const calculatedMetrics: RecommendationMetrics = {
         totalRecommendations: items.length,
-        averageScore: v2Response.avg_overall_score,
+        averageScore: avgScore,
         highConfidenceCount: items.filter(item => parseFloat(item.confidence) >= 0.8).length,
         mediumConfidenceCount: items.filter(item => parseFloat(item.confidence) >= 0.6 && parseFloat(item.confidence) < 0.8).length,
         lowConfidenceCount: items.filter(item => parseFloat(item.confidence) < 0.6).length,
@@ -363,17 +285,18 @@ const UnifiedRecommendations: React.FC = () => {
           medium: items.filter(item => item.risk_level === 'moderate' || item.risk_level === 'medium').length,
           high: items.filter(item => item.risk_level === 'high').length
         },
-        marketCondition: v2Response.direction_used || 'LONG',
-        lastUpdated: v2Response.timestamp
+        marketCondition: v2Response.trade_type ?? 'LONG',
+        lastUpdated: v2Response.generated_at
       };
       
       setMetrics(calculatedMetrics);
       
       console.log('✅ V2 Recommendations loaded successfully:', {
         count: items.length,
-        avgScore: v2Response.avg_overall_score,
-        processingTime: v2Response.processing_time_ms,
-        arms: v2Response.arms_executed
+        avgScore,
+        tradeType: v2Response.trade_type,
+        riskLevel: v2Response.risk_level,
+        minScoreApplied: v2Response.min_score_applied
       });
     } catch (err: unknown) {
       console.error('❌ Error fetching V2 recommendations:', err);
@@ -390,13 +313,15 @@ const UnifiedRecommendations: React.FC = () => {
 
   // Helper functions
   const getTopSector = (items: DynamicRecommendationItem[]): string => {
+    if (items.length === 0) return 'Unknown';
     const sectors = items.map((item: DynamicRecommendationItem) => item.sector || 'Unknown');
     const sectorCounts = sectors.reduce((acc: Record<string, number>, sector: string) => {
       acc[sector] = (acc[sector] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    
-    return Object.entries(sectorCounts).reduce((a, b) => sectorCounts[a[0]] > sectorCounts[b[0]] ? a : b)[0];
+    const entries = Object.entries(sectorCounts);
+    if (entries.length === 0) return 'Unknown';
+    return entries.reduce((a, b) => sectorCounts[a[0]] > sectorCounts[b[0]] ? a : b, entries[0])[0];
   };
 
   const getScoreColor = (score: number): string => {
@@ -424,6 +349,8 @@ const UnifiedRecommendations: React.FC = () => {
     setSelectedStrategy(strategy);
     const config = strategyConfig[strategy];
     setMinScore(config.minScore);
+    // Sync risk to strategy default (e.g. intraday_sell uses high; API overrides min_score by risk_level)
+    setSelectedRisk((config.riskLevel as 'low' | 'medium' | 'high') ?? 'medium');
   };
 
   const handleRefresh = () => {
@@ -1033,7 +960,7 @@ const UnifiedRecommendations: React.FC = () => {
               sx={{ backgroundColor: strategyConfig[selectedStrategy].color, color: 'white' }}
             />
             <Chip 
-              label={`Risk: ${selectedRisk.toUpperCase()}`} 
+              label={`Risk: ${selectedRisk}`} 
               size="small" 
               variant="outlined"
               sx={{ 
@@ -1052,8 +979,41 @@ const UnifiedRecommendations: React.FC = () => {
           <Typography variant="body2" color="text.secondary">
             Try adjusting your filters or refresh the data
           </Typography>
+          <Tooltip title="Copy as curl">
+            <Typography
+              variant="caption"
+              component="code"
+              sx={{
+                mt: 1,
+                display: 'block',
+                fontFamily: 'monospace',
+                fontSize: '0.7rem',
+                wordBreak: 'break-all',
+                cursor: 'pointer',
+                color: 'text.secondary',
+                '&:hover': { color: 'primary.main' }
+              }}
+              onClick={() => {
+                const url = buildV2RecommendationsUrl({
+                  strategy: selectedStrategy as 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term',
+                  risk_level: selectedRisk,
+                  limit: Math.min(maxResults, 20),
+                  min_score: minScore
+                });
+                const curl = `curl -X 'GET' '${url.startsWith('/') ? window.location.origin + url : url}' -H 'accept: application/json'`;
+                void navigator.clipboard.writeText(curl);
+              }}
+            >
+              API request: {buildV2RecommendationsUrl({
+                strategy: selectedStrategy as 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term',
+                risk_level: selectedRisk,
+                limit: Math.min(maxResults, 20),
+                min_score: minScore
+              })}
+            </Typography>
+          </Tooltip>
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            Last updated: {lastRefreshTime?.toLocaleTimeString()}
+            Last updated: {lastRefreshTime?.toLocaleTimeString() ?? '—'} · Click API request to copy as curl
           </Typography>
         </Paper>
       )}

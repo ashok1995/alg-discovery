@@ -1,9 +1,9 @@
 /**
- * Modern Kite Token Management Component
- * ====================================
+ * Kite Token Management Component (VNC-style flow)
+ * ================================================
  *
- * Flow: Check API key → Get callback URL → Paste URL or access token → Save for other services.
- * No Kite login flow here (user logs in to Kite daily; 2-step external).
+ * Flow: 1) Get Login URL → 2) Open Kite Login → 3) Paste callback URL or token → 4) Store.
+ * No API key required if backend has credentials (env). Status includes auth time.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -19,6 +19,7 @@ import {
   TextField,
   IconButton,
   Tooltip,
+  Collapse,
 } from '@mui/material';
 import {
   Security as SecurityIcon,
@@ -27,6 +28,8 @@ import {
   Warning as WarningIcon,
   Error as ErrorIcon,
   ContentCopy as CopyIcon,
+  Login as LoginIcon,
+  ExpandMore,
 } from '@mui/icons-material';
 
 import {
@@ -66,7 +69,7 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
   const [tokenStatus, setTokenStatus] = useState<TokenStatus | null>(null);
   const [credentialsStatus, setCredentialsStatus] =
     useState<CredentialsStatusResponse | null>(null);
-  const [refreshInfo, setRefreshInfo] = useState<TokenRefreshInfo | null>(null);
+  const [, setRefreshInfo] = useState<TokenRefreshInfo | null>(null);
   const [callbackUrl, setCallbackUrl] = useState<CallbackUrlResponse | null>(
     null
   );
@@ -77,11 +80,14 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
 
   const [pasteInput, setPasteInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [openingLogin, setOpeningLogin] = useState(false);
+  const [, setLoginUrl] = useState<string | null>(null);
+
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
   const [savingCreds, setSavingCreds] = useState(false);
   const [showApiKeyForm, setShowApiKeyForm] = useState(false);
-  const [showCallbackDetails, setShowCallbackDetails] = useState(false);
+  const [showApiKeySection, setShowApiKeySection] = useState(false);
 
   const loadStatus = async () => {
     try {
@@ -106,13 +112,15 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
       try {
         const refreshData = await kiteTokenService.getRefreshInfo();
         setRefreshInfo(refreshData);
+        if (refreshData?.login_url) setLoginUrl(refreshData.login_url);
       } catch {
         setRefreshInfo({
           login_url: '',
           message: credStatus?.api_key_configured
             ? 'Use callback URL for login'
-            : 'Configure API key first',
+            : 'Backend needs API key (env or configure below)',
         });
+        setLoginUrl(null);
       }
     } catch (err) {
       const msg =
@@ -220,6 +228,29 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
   /** Use backend callback URL from GET /api/token/callback-url (source of truth) */
   const effectiveCallbackUrl = callbackUrl?.callback_url ?? '';
 
+  /** Fetch login URL from API and open it in new tab (single action) */
+  const handleOpenKiteLogin = async () => {
+    setOpeningLogin(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const data = await kiteTokenService.getRefreshInfo();
+      const url = data?.login_url?.trim();
+      if (url) {
+        setLoginUrl(url);
+        setRefreshInfo(data);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setSuccess('Opened Kite login. After login, paste the callback URL below.');
+      } else {
+        setError('Login URL not available from API.');
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to get login URL');
+    } finally {
+      setOpeningLogin(false);
+    }
+  };
+
   const copyCallbackUrl = () => {
     if (effectiveCallbackUrl) {
       navigator.clipboard.writeText(effectiveCallbackUrl);
@@ -262,19 +293,13 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
 
   const statusInfo = getStatusInfo();
   const apiKeyPresent = credentialsStatus?.api_key_configured ?? false;
+  const authTime = tokenStatus?.token_refreshed_at ?? tokenStatus?.last_authenticated_at ?? tokenStatus?.authenticated_at ?? tokenStatus?.token_created_at;
 
   return (
     <Card>
       <CardContent sx={{ py: 2 }}>
-        {/* Header */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            mb: 2,
-          }}
-        >
+        {/* Header with status and auth time */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
             <SecurityIcon sx={{ fontSize: 20 }} />
             <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>
@@ -287,16 +312,14 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
               size="small"
               sx={{ height: 24, fontSize: '0.75rem' }}
             />
-            <Chip
-              label={apiKeyPresent ? 'API key set' : 'No API key'}
-              color={apiKeyPresent ? 'success' : 'default'}
-              size="small"
-              variant="outlined"
-              sx={{ height: 24, fontSize: '0.7rem' }}
-            />
+            {authTime && (
+              <Typography variant="caption" color="text.secondary">
+                Auth: {new Date(authTime).toLocaleString()}
+              </Typography>
+            )}
             {serviceHealthy !== null && (
               <Chip
-                label={serviceHealthy ? 'Service connected' : 'Service offline'}
+                label={serviceHealthy ? 'Connected' : 'Offline'}
                 color={serviceHealthy ? 'success' : 'error'}
                 size="small"
                 variant="outlined"
@@ -305,230 +328,134 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
             )}
           </Box>
           <IconButton size="small" onClick={loadStatus} disabled={loading} sx={{ p: 0.5 }}>
-            {loading ? (
-              <CircularProgress size={16} />
-            ) : (
-              <RefreshIcon sx={{ fontSize: 16 }} />
-            )}
+            {loading ? <CircularProgress size={16} /> : <RefreshIcon sx={{ fontSize: 16 }} />}
           </IconButton>
         </Box>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2, py: 0.5 }}>
-            {error}
-          </Alert>
-        )}
-        {success && (
-          <Alert severity="success" sx={{ mb: 2, py: 0.5 }}>
-            {success}
-          </Alert>
-        )}
+        {error && <Alert severity="error" sx={{ mb: 2, py: 0.5 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mb: 2, py: 0.5 }}>{success}</Alert>}
 
-        {/* API Key – 2-step: button to reveal form */}
-        <Box sx={{ mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="body2" sx={{ fontWeight: 600, mb: 1.5 }}>
-            API Key & Secret
-          </Typography>
-          {!showApiKeyForm ? (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => setShowApiKeyForm(true)}
-              sx={{ textTransform: 'none' }}
-            >
-              {apiKeyPresent ? 'Update API Key & Secret' : 'Configure API Key & Secret'}
-            </Button>
-          ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 480 }}>
-              <Typography variant="caption" display="block" color="text.secondary">
-                From <a href="https://developers.kite.trade/apps" target="_blank" rel="noopener noreferrer">developers.kite.trade/apps</a>. Carefully check similar characters (0 vs o, 1 vs l) against what Kite shows.
-              </Typography>
-              <TextField
-                size="small"
-                label="API Key"
-                placeholder="Your Kite API key"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                fullWidth
-              />
-              <TextField
-                size="small"
-                label="API Secret"
-                placeholder="API secret for token generation"
-                type="password"
-                value={apiSecret}
-                onChange={(e) => setApiSecret(e.target.value)}
-                fullWidth
-              />
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={handleSaveCredentials}
-                  disabled={!apiKey.trim() || savingCreds}
-                  startIcon={savingCreds ? <CircularProgress size={14} /> : undefined}
-                  sx={{ textTransform: 'none' }}
-                >
-                  {savingCreds ? 'Saving...' : apiKeyPresent ? 'Update credentials' : 'Save credentials'}
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => {
-                    setShowApiKeyForm(false);
-                    setApiKey('');
-                    setApiSecret('');
-                  }}
-                  sx={{ textTransform: 'none' }}
-                >
-                  Cancel
-                </Button>
-              </Box>
-            </Box>
-          )}
-        </Box>
-
-        {/* Valid token display */}
+        {/* Valid token display with auth time */}
         {tokenStatus?.kite_token_valid && (
           <Alert severity="success" sx={{ mb: 2, py: 1 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  Token valid • Expires in ~24 hrs
-                </Typography>
-                {tokenStatus.user_name && (
-                  <Typography variant="caption" color="text.secondary">
-                    {tokenStatus.user_name} • {tokenStatus.kite_token_masked}
-                  </Typography>
-                )}
-              </Box>
-            </Box>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>Token valid • Expires in ~24 hrs</Typography>
+            {tokenStatus.user_name && (
+              <Typography variant="caption" color="text.secondary" display="block">
+                {tokenStatus.user_name} • {tokenStatus.kite_token_masked}
+              </Typography>
+            )}
+            {authTime && (
+              <Typography variant="caption" color="text.secondary" display="block">
+                Authenticated at: {new Date(authTime).toLocaleString()}
+              </Typography>
+            )}
           </Alert>
         )}
 
-        {/* Token flow: always show when API key is set – get callback URL, open login, paste result */}
-        {apiKeyPresent && (
-            <Box>
-              <Alert severity="info" sx={{ mb: 2, py: 0.5 }} variant="outlined">
-                <Typography variant="caption" display="block">
-                  Daily flow: 1) Click &quot;Get Redirect URL&quot; to fetch callback URL from backend. 2) Set that as Redirect URL in{' '}
-                  <a href="https://developers.kite.trade/apps" target="_blank" rel="noopener noreferrer">developers.kite.trade</a>. 3) Then click &quot;Open Kite Login&quot; to start Kite login. 4) After redirect, paste the callback URL or token below.
-                </Typography>
-              </Alert>
+        {/* Flow: Open Kite Login (fetch URL + open) → Paste callback → Save */}
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+            Token flow
+          </Typography>
+          <Alert severity="info" variant="outlined" sx={{ py: 0.5, mb: 2 }}>
+            <Typography variant="caption" display="block">
+              Flow: 1) Click &quot;Open Kite Login&quot; (fetches URL from API and opens it). 2) Log in on Kite. 3) Copy the redirect URL (with request_token) and paste below. 4) Click Save.
+            </Typography>
+          </Alert>
 
-              {effectiveCallbackUrl && (
-                <Box sx={{ mb: 2 }}>
-                  {!showCallbackDetails ? (
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => setShowCallbackDetails(true)}
-                      sx={{ textTransform: 'none' }}
-                    >
-                      Get Redirect URL
-                    </Button>
-                  ) : (
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
-                        Redirect URL – copy to developers.kite.trade (must match)
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1,
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <Typography
-                          variant="caption"
-                          component="code"
-                          sx={{
-                            wordBreak: 'break-all',
-                            bgcolor: 'grey.100',
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 0.5,
-                            flex: 1,
-                            minWidth: 0,
-                          }}
-                        >
-                          {effectiveCallbackUrl}
-                        </Typography>
-                        <Tooltip title="Copy redirect URL">
-                          <IconButton size="small" onClick={copyCallbackUrl}>
-                            <CopyIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </Box>
-                  )}
-                </Box>
-              )}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center', mb: 2 }}>
+            <Button
+              variant="contained"
+              size="medium"
+              startIcon={openingLogin ? <CircularProgress size={16} color="inherit" /> : <LoginIcon />}
+              onClick={handleOpenKiteLogin}
+              disabled={openingLogin}
+              sx={{ textTransform: 'none' }}
+            >
+              {openingLogin ? 'Opening...' : 'Open Kite Login'}
+            </Button>
+          </Box>
 
-              {showCallbackDetails && refreshInfo?.login_url && (
-                <Box sx={{ mb: 2 }}>
-                  <Button
-                    size="medium"
-                    variant="contained"
-                    href={refreshInfo.login_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{ textTransform: 'none', flexShrink: 0 }}
-                  >
-                    Open Kite Login
-                  </Button>
-                </Box>
-              )}
-
-              <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1, mb: 2 }}>
-                <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 500 }}>
-                  Paste callback URL or access token
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder={PLACEHOLDER}
-                  value={pasteInput}
-                  onChange={(e) => handlePasteChange(e.target.value)}
-                  multiline
-                  minRows={2}
-                  sx={{ mb: 1.5 }}
-                />
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={submitTokenOrUrl}
-                    disabled={!pasteInput.trim() || submitting}
-                    startIcon={
-                      submitting ? <CircularProgress size={14} /> : undefined
-                    }
-                    sx={{ textTransform: 'none' }}
-                  >
-                    {submitting
-                      ? 'Saving...'
-                      : isCallbackUrl(pasteInput)
-                        ? 'Generate & Save'
-                        : looksLikeAccessToken(pasteInput)
-                          ? 'Validate & Save'
-                          : 'Save Token'}
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => {
-                      setPasteInput('');
-                      setError(null);
-                    }}
-                    disabled={submitting}
-                    sx={{ textTransform: 'none' }}
-                  >
-                    Clear
-                  </Button>
-                </Box>
-              </Box>
+          <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1, mb: 2 }}>
+            <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 500 }}>Paste callback URL or access token</Typography>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder={PLACEHOLDER}
+              value={pasteInput}
+              onChange={(e) => handlePasteChange(e.target.value)}
+              multiline
+              minRows={2}
+              sx={{ mb: 1.5 }}
+            />
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={submitTokenOrUrl}
+                disabled={!pasteInput.trim() || submitting}
+                startIcon={submitting ? <CircularProgress size={14} /> : undefined}
+                sx={{ textTransform: 'none' }}
+              >
+                {submitting ? 'Saving...' : isCallbackUrl(pasteInput) ? 'Generate & Save' : looksLikeAccessToken(pasteInput) ? 'Validate & Save' : 'Save Token'}
+              </Button>
+              <Button variant="outlined" size="small" onClick={() => { setPasteInput(''); setError(null); }} disabled={submitting} sx={{ textTransform: 'none' }}>
+                Clear
+              </Button>
             </Box>
+          </Box>
+        </Box>
+
+        {/* Optional: API key (collapsed by default) */}
+        <Box sx={{ mb: 2 }}>
+          <Button
+            size="small"
+            onClick={() => setShowApiKeySection(!showApiKeySection)}
+            endIcon={<ExpandMore sx={{ transform: showApiKeySection ? 'rotate(180deg)' : 'none' }} />}
+            sx={{ textTransform: 'none', color: 'text.secondary' }}
+          >
+            {apiKeyPresent ? 'API key configured' : 'Configure API key (if login URL not available)'}
+          </Button>
+          <Collapse in={showApiKeySection}>
+            <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1, mt: 1, border: '1px solid', borderColor: 'divider' }}>
+              {!showApiKeyForm ? (
+                <Button variant="outlined" size="small" onClick={() => setShowApiKeyForm(true)} sx={{ textTransform: 'none' }}>
+                  {apiKeyPresent ? 'Update API Key & Secret' : 'Set API Key & Secret'}
+                </Button>
+              ) : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 480 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    From <a href="https://developers.kite.trade/apps" target="_blank" rel="noopener noreferrer">developers.kite.trade</a>
+                  </Typography>
+                  <TextField size="small" label="API Key" placeholder="API key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} fullWidth />
+                  <TextField size="small" label="API Secret" type="password" placeholder="API secret" value={apiSecret} onChange={(e) => setApiSecret(e.target.value)} fullWidth />
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button variant="contained" size="small" onClick={handleSaveCredentials} disabled={!apiKey.trim() || savingCreds} startIcon={savingCreds ? <CircularProgress size={14} /> : undefined} sx={{ textTransform: 'none' }}>
+                      {savingCreds ? 'Saving...' : 'Save'}
+                    </Button>
+                    <Button variant="outlined" size="small" onClick={() => { setShowApiKeyForm(false); setApiKey(''); setApiSecret(''); }} sx={{ textTransform: 'none' }}>Cancel</Button>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </Collapse>
+        </Box>
+
+        {/* Redirect URL (for developers.kite.trade setup when API key present) */}
+        {apiKeyPresent && effectiveCallbackUrl && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="caption" color="text.secondary">
+              Redirect URL for Kite app:{' '}
+              <Typography component="span" variant="caption" sx={{ fontFamily: 'monospace', bgcolor: 'grey.100', px: 0.5 }}>
+                {effectiveCallbackUrl}
+              </Typography>
+              <Tooltip title="Copy">
+                <IconButton size="small" onClick={copyCallbackUrl} sx={{ ml: 0.5 }}>
+                  <CopyIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Typography>
+          </Box>
         )}
 
         <Typography

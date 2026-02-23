@@ -2,18 +2,18 @@
  * useChartinkAuth Hook
  * ====================
  *
- * React hook for Chartink auth (prod 8181: check, vnc-url, force-update)
+ * React hook for Chartink auth (35.232.205.155:8181: session-status, vnc-url, force-update)
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import {
   chartinkAuthService,
-  type ChartinkCheckStatus,
+  type ChartinkSessionStatus,
   type ChartinkForceUpdateResponse,
 } from '../services/ChartinkAuthService';
 
 interface UseChartinkAuthReturn {
-  checkStatus: ChartinkCheckStatus | null;
+  sessionStatus: ChartinkSessionStatus | null;
   loading: boolean;
   error: string | null;
   refreshStatus: () => Promise<void>;
@@ -21,10 +21,11 @@ interface UseChartinkAuthReturn {
   isAuthenticated: boolean;
   getVncUrl: () => Promise<string | null>;
   forceAuthenticate: () => Promise<ChartinkForceUpdateResponse | null>;
+  clearSession: () => Promise<boolean>;
 }
 
 export function useChartinkAuth(autoRefreshInterval = 60000): UseChartinkAuthReturn {
-  const [checkStatus, setCheckStatus] = useState<ChartinkCheckStatus | null>(null);
+  const [sessionStatus, setSessionStatus] = useState<ChartinkSessionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,10 +33,10 @@ export function useChartinkAuth(autoRefreshInterval = 60000): UseChartinkAuthRet
     try {
       setLoading(true);
       setError(null);
-      const res = await chartinkAuthService.getAuthStatus();
-      setCheckStatus(res);
+      const res = await chartinkAuthService.getSessionStatus();
+      setSessionStatus(res);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Check failed');
+      setError(e instanceof Error ? e.message : 'Session status failed');
     } finally {
       setLoading(false);
     }
@@ -62,6 +63,18 @@ export function useChartinkAuth(autoRefreshInterval = 60000): UseChartinkAuthRet
     }
   }, []);
 
+  const clearSession = useCallback(async (): Promise<boolean> => {
+    try {
+      setError(null);
+      await chartinkAuthService.clearSession();
+      await refreshStatus();
+      return true;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Clear session failed');
+      return false;
+    }
+  }, [refreshStatus]);
+
   useEffect(() => {
     refreshStatus();
     if (autoRefreshInterval > 0) {
@@ -71,11 +84,11 @@ export function useChartinkAuth(autoRefreshInterval = 60000): UseChartinkAuthRet
   }, [refreshStatus, autoRefreshInterval]);
 
   const isAuthenticated = Boolean(
-    checkStatus?.success && checkStatus?.status?.authenticated === true
+    sessionStatus?.authenticated === true || sessionStatus?.session_working === true
   );
 
   return {
-    checkStatus,
+    sessionStatus,
     loading,
     error,
     refreshStatus,
@@ -83,6 +96,7 @@ export function useChartinkAuth(autoRefreshInterval = 60000): UseChartinkAuthRet
     isAuthenticated,
     getVncUrl,
     forceAuthenticate,
+    clearSession,
   };
 }
 
@@ -93,8 +107,8 @@ export function useChartinkAuthStatus(): { isAuthenticated: boolean; loading: bo
 
   useEffect(() => {
     chartinkAuthService
-      .getAuthStatus()
-      .then((res) => setIsAuthenticated(res?.success && res?.status?.authenticated === true))
+      .getSessionStatus()
+      .then((res) => setIsAuthenticated(res?.authenticated === true || res?.session_working === true))
       .catch(() => setIsAuthenticated(false))
       .finally(() => setLoading(false));
   }, []);
