@@ -36,6 +36,7 @@ import {
 } from '@mui/icons-material';
 import SimpleKiteTokenManagement from '../components/SimpleKiteTokenManagement';
 import ChartinkAuthManager from '../components/ChartinkAuthManager';
+import YahooStatusCard from '../components/YahooStatusCard';
 import zerodhaAPIService from '../services/ZerodhaAPIService';
 
 interface SystemSettings {
@@ -294,6 +295,11 @@ const Settings: React.FC = () => {
             {/* Chartink Authentication Management */}
             <Grid item xs={12} md={6}>
               <ChartinkAuthManager />
+            </Grid>
+
+            {/* Yahoo Service Status (health only, no auth) */}
+            <Grid item xs={12} md={6}>
+              <YahooStatusCard />
             </Grid>
           </Grid>
         </TabPanel>

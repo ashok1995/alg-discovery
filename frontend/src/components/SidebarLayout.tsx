@@ -118,6 +118,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
       category: 'management'
     },
     {
+      text: 'Recommendation Observability',
+      icon: <Storage />,
+      path: '/recommendation-observability',
+      description: 'Pipeline health, DB observability, and score bin performance',
+      category: 'management'
+    },
+    {
       text: 'Stock Mapping Manager',
       icon: <Storage />,
       path: '/stock-mapping',

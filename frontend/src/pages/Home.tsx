@@ -27,11 +27,10 @@ import {
   Wifi,
   Timeline as TimelineIcon,
   AccessTime,
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
   Memory
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import InternalMarketContextCard from '../components/InternalMarketContextCard';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -51,7 +50,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 4 }}>
           {children}
         </Box>
       )}
@@ -70,41 +69,6 @@ const Home: React.FC = () => {
     dailyPnL: 12500,
     weeklyPnL: 45000
   });
-
-  const [marketIndices] = useState([
-    {
-      name: 'NIFTY 50',
-      value: '19,234.56',
-      change: '+234.56',
-      changePercent: '+1.23%',
-      trend: 'up',
-      volume: '2.3B'
-    },
-    {
-      name: 'SENSEX',
-      value: '63,456.78',
-      change: '+456.78',
-      changePercent: '+0.72%',
-      trend: 'up',
-      volume: '1.8B'
-    },
-    {
-      name: 'BANK NIFTY',
-      value: '43,567.89',
-      change: '-123.45',
-      changePercent: '-0.28%',
-      trend: 'down',
-      volume: '1.2B'
-    },
-    {
-      name: 'NIFTY IT',
-      value: '32,123.45',
-      change: '+567.89',
-      changePercent: '+1.78%',
-      trend: 'up',
-      volume: '890M'
-    }
-  ]);
 
   const [tradingStrategies] = useState([
     {
@@ -151,7 +115,15 @@ const Home: React.FC = () => {
   };
 
   const handleStrategyClick = (path: string) => {
-    navigate(path);
+    const routeMap: Record<string, string> = {
+      '/swing-buy-ai': '/unified-recommendations',
+      '/swing-recommendations': '/unified-recommendations',
+      '/intraday-buy': '/unified-recommendations',
+      '/intraday-sell': '/unified-recommendations',
+      '/long-buy': '/investing',
+      '/long-term-trading': '/investing',
+    };
+    navigate(routeMap[path] ?? path);
   };
 
   const getStatusColor = (type: string) => {
@@ -163,87 +135,54 @@ const Home: React.FC = () => {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
-    return trend === 'up' ? <TrendingUpIcon /> : <TrendingDownIcon />;
-  };
-
-  const getTrendColor = (trend: string) => {
-    return trend === 'up' ? 'success' : 'error';
-  };
-
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', maxWidth: 1200, mx: 'auto' }}>
       {/* Header Section */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1a1a1a' }}>
+      <Box
+        sx={{
+          mb: 4,
+          p: 3.5,
+          borderRadius: 2,
+          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+          border: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: 'grey.900', mb: 0.5 }}>
           Financial Markets Overview
         </Typography>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
+        <Typography variant="body1" color="text.secondary" gutterBottom>
           Real-time market data, indices, and trading opportunities
         </Typography>
-        
-        {/* System Status Bar */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
           <Chip
             label={systemStatus.marketOpen ? 'Market Open' : 'Market Closed'}
             color={systemStatus.marketOpen ? 'success' : 'error'}
             size="small"
             icon={<AccessTime />}
+            sx={{ fontWeight: 600 }}
           />
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="caption" color="text.secondary">
             Last Update: {systemStatus.lastUpdate}
           </Typography>
         </Box>
       </Box>
 
-      {/* Market Indices Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {marketIndices.map((index, indexKey) => (
-          <Grid item xs={12} sm={6} md={3} key={indexKey}>
-            <Card sx={{ 
-              height: '100%',
-              transition: 'transform 0.2s',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-              }
-            }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                    {index.name}
-                  </Typography>
-                  <Chip
-                    icon={getTrendIcon(index.trend)}
-                    label={index.changePercent}
-                    color={getTrendColor(index.trend) as any}
-                    size="small"
-                    variant="outlined"
-                  />
-                </Box>
-                
-                <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {index.value}
-                </Typography>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {index.change}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Vol: {index.volume}
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {/* Internal & Global Market Context (live from APIs) */}
+      <InternalMarketContextCard />
 
       {/* Main Content Tabs */}
       <Box sx={{ flexGrow: 1 }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-          <Tabs value={tabValue} onChange={handleTabChange} aria-label="dashboard tabs">
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            aria-label="dashboard tabs"
+            sx={{
+              '& .MuiTab-root': { fontWeight: 600, textTransform: 'none' },
+              '& .Mui-selected': { color: 'primary.main' },
+            }}
+          >
             <Tab label="Trading Overview" />
             <Tab label="Recent Activities" />
             <Tab label="System Health" />
@@ -254,8 +193,8 @@ const Home: React.FC = () => {
           <Grid container spacing={3}>
             {/* Trading Strategies */}
             <Grid item xs={12} md={8}>
-              <Card>
-                <CardContent>
+              <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                <CardContent sx={{ p: 2.5 }}>
                   <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
                     Active Trading Strategies
                   </Typography>
@@ -272,11 +211,14 @@ const Home: React.FC = () => {
                                 variant="outlined"
                                 sx={{
                                   cursor: 'pointer',
+                                  borderRadius: 1.5,
                                   transition: 'all 0.2s',
                                   '&:hover': {
                                     backgroundColor: 'action.hover',
-                                    transform: 'translateY(-1px)'
-                                  }
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                                    borderColor: 'primary.light',
+                                  },
                                 }}
                                 onClick={() => handleStrategyClick(strategy.path)}
                               >
@@ -313,8 +255,8 @@ const Home: React.FC = () => {
 
             {/* Quick Stats */}
             <Grid item xs={12} md={4}>
-              <Card>
-                <CardContent>
+              <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', height: '100%' }}>
+                <CardContent sx={{ p: 2.5 }}>
                   <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
                     Quick Stats
                   </Typography>
@@ -351,8 +293,8 @@ const Home: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
-          <Card>
-            <CardContent>
+          <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <CardContent sx={{ p: 2.5 }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
                 Recent Trading Activities
               </Typography>
@@ -394,8 +336,8 @@ const Home: React.FC = () => {
           <Grid container spacing={3}>
             {systemMetrics.map((metric, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
-                <Card>
-                  <CardContent>
+                <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.08)' } }}>
+                  <CardContent sx={{ p: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Box sx={{ 
                         p: 1, 

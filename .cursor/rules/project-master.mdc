@@ -15,8 +15,10 @@ alwaysApply: true
 ## 2. Deployment Policy (GIT-ONLY)
 
 - **Deployment**: ONLY via Git. NO direct file transfer (no scp, rsync, ftp).
-- **Prod**: `main` branch only. `./scripts/deploy-from-git.sh prod` on GCP instance. Port 80/443.
-- **Stage**: `develop` branch only, local. `./scripts/deploy-stage-local.sh` — fetches and resets to **origin/develop**, then build + Docker on port 8080. For quick test on other branches (no Docker): `./scripts/run-quick-test.sh` (port 3002).
+- **Prod**: `main` branch only. `./scripts/deploy-from-git.sh prod` or `./scripts/deploy-prod-remote.sh` (SSH to GCP). Port 80/443.
+- **Stage**: `develop` branch only. Local: `./scripts/deploy-stage-local.sh`. Remote GCP: `./scripts/deploy-stage-remote.sh` — pulls origin/develop, build + Docker on port 8080. Quick test (no Docker): `./scripts/run-quick-test.sh` (port 3002, uses build:stage).
+- **Branch mapping**: `deploy-from-git.sh stage` → develop; `deploy-from-git.sh prod` → main. Do experiments on develop; merge to main only when prod-ready.
+- **CI**: `.github/workflows/build.yml` builds frontend + Docker image, pushes to GHCR (ghcr.io) on push to develop/main.
 - **Dev**: Local, port 3000, `frontend/envs/env.dev`.
 
 ### STRICT: Push first, then deploy stage
@@ -48,7 +50,7 @@ alwaysApply: true
 | 8020 | Theme API | Dev/Prod | |
 | 8030 | Strategies API | Dev/Prod | |
 | 8079 | Kite Services, Kite Token | Dev/Prod | |
-| 8081 | Chartink Auth | Dev | Local proxy target |
+| 8081 | Chartink Auth / Query | Dev/Prod | 35.232.205.155:8181 (proxy target) |
 | 8082 | Seed API | Dev/Prod | |
 | 8182 | Seed Service | Prod | External (algodiscovery.com) |
 | 8183 | Recommendation/Proxy target | Dev | setupProxy target |
@@ -65,7 +67,10 @@ alg-discovery/
 ├── docs/                    # Repo-level: deployment only
 │   └── DEPLOYMENT.md
 ├── scripts/                 # Deploy only (no scattered .sh in frontend)
-│   └── deploy-from-git.sh   # Canonical deploy for stage/prod
+│   ├── deploy-from-git.sh   # Canonical deploy: stage=develop/8080, prod=main/80
+│   ├── deploy-stage-local.sh
+│   ├── deploy-stage-remote.sh  # GCP stage from develop
+│   └── deploy-prod-remote.sh   # GCP prod from main
 └── frontend/
     ├── docs/                # All frontend docs (README at root only)
     │   ├── README.md
@@ -179,13 +184,17 @@ alg-discovery/
 
 ## 11. DEPLOY SCRIPTS (STRICT – MINIMAL)
 
-- **deploy-from-git.sh**: Main branch only. `./scripts/deploy-from-git.sh [stage|prod]`. stage = main local 8080, prod = GCP.
-- **deploy-stage-local.sh**: Stage from **develop** only (local, full Docker, 8080). Fetches and resets to **origin/develop** — **push to origin first** or your latest commits will not be deployed.
-- **run-quick-test.sh**: Quick test on current branch, no Docker, port 3002.
+- **deploy-from-git.sh**: `./scripts/deploy-from-git.sh [stage|prod]`. stage → **develop** branch, port 8080. prod → **main** branch, port 80. Run on GCP or local.
+- **deploy-stage-local.sh**: Stage from **develop** (local, full Docker, 8080). Fetches **origin/develop** — **push first**.
+- **deploy-stage-remote.sh**: Stage on GCP via SSH; pulls **develop**, runs deploy-from-git.sh stage.
+- **deploy-prod-remote.sh**: Prod on GCP via SSH; pulls **main**, builds locally, runs.
+- **deploy-from-ghcr.sh**: Pull pre-built image from GHCR and run (no local build).
+- **deploy-prod-remote-ghcr.sh**: Prod on GCP via SSH; pulls image from GHCR (CI-built).
+- **run-quick-test.sh**: Quick test, build:stage, no Docker, port 3002.
 - **Frontend**: ONE optional `frontend/deploy.sh` for local Docker run.
 
 ### STRICT: Stage deploy = push first
-- `deploy-stage-local.sh` runs `git fetch origin` and `git reset --hard origin/develop`. It does **not** deploy local-only commits. **Always push develop to origin before running the script.**
+- Stage scripts deploy from **origin/develop**. **Always push develop to origin before deploying stage.**
 - **FORBIDDEN**: Running stage deploy with unpushed commits on develop when those commits must be in the staged build.
 
 ## 12. OVERALL PRINCIPLE

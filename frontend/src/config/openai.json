@@ -1,0 +1,84 @@
+{
+  "environments": {
+    "development": {
+      "kite": {
+        "baseUrl": "http://localhost:8079",
+        "proxyPrefix": "/api/kite",
+        "endpoints": {
+          "health": "/health",
+          "tokenStatus": "/api/token/status",
+          "v3MarketIntelligence": "/api/v3/market-intelligence",
+          "v3FeaturesOnly": "/api/v3/market-intelligence/features-only",
+          "stockDataRealTime": "/api/stock-data/real-time",
+          "swingAnalysis": "/api/swing-trading/analysis",
+          "unifiedAnalyze": "/api/trading/analyze",
+          "dataQualitySystem": "/api/data-quality/system-health",
+          "dataQualityTechnical": "/api/data-quality/technical-analysis",
+          "dataQualityML": "/api/data-quality/ml-readiness",
+          "intradaySignals": "/api/intraday-trading/signals",
+          "momentumScanner": "/api/intraday-trading/momentum-scanner",
+          "quickScalp": "/api/intraday-trading/quick-scalp"
+        }
+      },
+      "unified": {
+        "baseUrl": "http://localhost:8082",
+        "proxyPrefix": "/api/seed",
+        "endpoints": {
+          "recommendations": "/api/stocks/unified-recommendations",
+          "health": "/api/stocks/unified-health"
+        }
+      },
+      "recommendationsV2": {
+        "baseUrl": "http://localhost:8282",
+        "proxyPrefix": "",
+        "endpoints": {
+          "recommendations": "/v2/recommendations",
+          "health": "/health",
+          "observabilityDb": "/v2/observability/db",
+          "pipelineHealth": "/v2/health/pipeline",
+          "scoreBinPerformance": "/v2/learning/score-bin-performance"
+        }
+      }
+    },
+    "production": {
+      "kite": {
+        "baseUrl": "http://algodiscovery.com:8079",
+        "proxyPrefix": "/api/kite",
+        "endpoints": {
+          "health": "/health",
+          "tokenStatus": "/api/token/status",
+          "v3MarketIntelligence": "/api/v3/market-intelligence",
+          "v3FeaturesOnly": "/api/v3/market-intelligence/features-only",
+          "stockDataRealTime": "/api/stock-data/real-time",
+          "swingAnalysis": "/api/swing-trading/analysis",
+          "unifiedAnalyze": "/api/trading/analyze",
+          "dataQualitySystem": "/api/data-quality/system-health",
+          "dataQualityTechnical": "/api/data-quality/technical-analysis",
+          "dataQualityML": "/api/data-quality/ml-readiness",
+          "intradaySignals": "/api/intraday-trading/signals",
+          "momentumScanner": "/api/intraday-trading/momentum-scanner",
+          "quickScalp": "/api/intraday-trading/quick-scalp"
+        }
+      },
+      "unified": {
+        "baseUrl": "http://algodiscovery.com:8082",
+        "proxyPrefix": "/api/seed",
+        "endpoints": {
+          "recommendations": "/api/stocks/unified-recommendations",
+          "health": "/api/stocks/unified-health"
+        }
+      },
+      "recommendationsV2": {
+        "baseUrl": "http://203.57.85.201:8182",
+        "proxyPrefix": "/api/seed",
+        "endpoints": {
+          "recommendations": "/v2/recommendations",
+          "health": "/health",
+          "observabilityDb": "/v2/observability/db",
+          "pipelineHealth": "/v2/health/pipeline",
+          "scoreBinPerformance": "/v2/learning/score-bin-performance"
+        }
+      }
+    }
+  }
+}

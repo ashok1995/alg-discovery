@@ -1,0 +1,62 @@
+{
+  "environments": {
+    "development": {
+      "kite": {
+        "baseUrl": "http://localhost:8079",
+        "proxyPrefix": "/api/kite",
+        "endpoints": {
+          "health": "/health",
+          "tokenStatus": "/api/token/status",
+          "v3MarketIntelligence": "/api/v3/market-intelligence",
+          "v3FeaturesOnly": "/api/v3/market-intelligence/features-only",
+          "stockDataRealTime": "/api/stock-data/real-time",
+          "swingAnalysis": "/api/swing-trading/analysis",
+          "unifiedAnalyze": "/api/trading/analyze",
+          "dataQualitySystem": "/api/data-quality/system-health",
+          "dataQualityTechnical": "/api/data-quality/technical-analysis",
+          "dataQualityML": "/api/data-quality/ml-readiness",
+          "intradaySignals": "/api/intraday-trading/signals",
+          "momentumScanner": "/api/intraday-trading/momentum-scanner",
+          "quickScalp": "/api/intraday-trading/quick-scalp"
+        }
+      },
+      "unified": {
+        "baseUrl": "http://localhost:8082",
+        "proxyPrefix": "/api/unified",
+        "endpoints": {
+          "recommendations": "/api/stocks/unified-recommendations",
+          "health": "/api/stocks/unified-health"
+        }
+      }
+    },
+    "production": {
+      "kite": {
+        "baseUrl": "http://algodiscovery.com:8079",
+        "proxyPrefix": "/api/kite",
+        "endpoints": {
+          "health": "/health",
+          "tokenStatus": "/api/token/status",
+          "v3MarketIntelligence": "/api/v3/market-intelligence",
+          "v3FeaturesOnly": "/api/v3/market-intelligence/features-only",
+          "stockDataRealTime": "/api/stock-data/real-time",
+          "swingAnalysis": "/api/swing-trading/analysis",
+          "unifiedAnalyze": "/api/trading/analyze",
+          "dataQualitySystem": "/api/data-quality/system-health",
+          "dataQualityTechnical": "/api/data-quality/technical-analysis",
+          "dataQualityML": "/api/data-quality/ml-readiness",
+          "intradaySignals": "/api/intraday-trading/signals",
+          "momentumScanner": "/api/intraday-trading/momentum-scanner",
+          "quickScalp": "/api/intraday-trading/quick-scalp"
+        }
+      },
+      "unified": {
+        "baseUrl": "http://algodiscovery.com:8082",
+        "proxyPrefix": "/api/unified",
+        "endpoints": {
+          "recommendations": "/api/stocks/unified-recommendations",
+          "health": "/api/stocks/unified-health"
+        }
+      }
+    }
+  }
+}

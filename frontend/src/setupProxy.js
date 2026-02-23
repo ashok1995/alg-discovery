@@ -36,17 +36,18 @@ module.exports = function(app) {
     })
   );
 
-  // Proxy for Chartink Query Service (Production - websyssoft:8081)
+  // Proxy for Chartink Query Service (same host as auth - 8181: execute, session-status)
+  const chartinkQueryTarget = process.env.REACT_APP_CHARTINK_AUTH_TARGET || 'http://35.232.205.155:8181';
   app.use(
     '/api/chartink-query',
     createProxyMiddleware({
-      target: 'http://203.57.85.72:8081',  // Production Chartink Service
+      target: chartinkQueryTarget,
       changeOrigin: true,
       pathRewrite: {
         '^/api/chartink-query': '/api/v1',
       },
       onProxyReq: (proxyReq, req, res) => {
-        console.log('Proxying Chartink Query request:', req.method, req.url, 'to', 'http://203.57.85.72:8081' + req.url.replace('/api/chartink-query', '/api/v1'));
+        console.log('Proxying Chartink Query request:', req.method, req.url, 'to', chartinkQueryTarget + req.url.replace('/api/chartink-query', '/api/v1'));
       },
       onError: (err, req, res) => {
         console.error('Chartink Query proxy error:', err.message);
@@ -58,9 +59,67 @@ module.exports = function(app) {
     })
   );
 
-  // Proxy for Chartink Authentication Service – always prod 8181 (vnc-url, check, force-update)
-  const chartinkAuthTarget = 'http://203.57.85.72:8181';
+  // Internal market context (Kite host 8179)
+  app.use(
+    '/api/internal-market-context',
+    createProxyMiddleware({
+      target: kiteTarget,
+      changeOrigin: true,
+      pathRewrite: { '^/api/internal-market-context': '/api/internal-market-context' },
+      onError: (err, req, res) => {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Internal market context unavailable', message: err.message }));
+      },
+    })
+  );
+
+  // Global context (Yahoo host 8185)
+  const yahooTarget = process.env.REACT_APP_YAHOO_SERVICE_TARGET || 'http://203.57.85.201:8185';
+  app.use(
+    '/api/global-context',
+    createProxyMiddleware({
+      target: yahooTarget,
+      changeOrigin: true,
+      pathRewrite: { '^/api/global-context': '/api/v1/global-context' },
+      onError: (err, req, res) => {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Global context unavailable', message: err.message }));
+      },
+    })
+  );
+
+  // Yahoo Service health (203.57.85.201:8185) - no auth, status only
+  app.use(
+    '/api/yahoo-health',
+    createProxyMiddleware({
+      target: yahooTarget,
+      changeOrigin: true,
+      pathRewrite: { '^/api/yahoo-health': '/health' },
+      onError: (err, req, res) => {
+        console.error('Yahoo health proxy error:', err.message);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Yahoo health check failed', message: err.message }));
+      },
+    })
+  );
+
+  // Proxy for Chartink Authentication Service – always prod 8181 (session-status, vnc-url, force-update, cookie/status, clear)
+  const chartinkAuthTarget = process.env.REACT_APP_CHARTINK_AUTH_TARGET || 'http://35.232.205.155:8181';
   console.log('[setupProxy] Chartink Auth target:', chartinkAuthTarget);
+  // Chartink health: GET /health at service root
+  app.use(
+    '/api/chartink-health',
+    createProxyMiddleware({
+      target: chartinkAuthTarget,
+      changeOrigin: true,
+      pathRewrite: { '^/api/chartink-health': '/health' },
+      onError: (err, req, res) => {
+        console.error('Chartink health proxy error:', err.message);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Chartink health check failed', message: err.message }));
+      },
+    })
+  );
   app.use(
     '/api/chartink',
     createProxyMiddleware({
@@ -78,6 +137,25 @@ module.exports = function(app) {
           'Content-Type': 'application/json',
         });
         res.end(JSON.stringify({ error: 'Chartink proxy error', message: err.message }));
+      },
+    })
+  );
+
+  // Proxy for Seed V2 Recommendations - 203.57.85.201:8182 (has intraday_sell data)
+  const seedV2Target = process.env.REACT_APP_SEED_V2_TARGET || 'http://203.57.85.201:8182';
+  app.use(
+    '/api/seed-v2',
+    createProxyMiddleware({
+      target: seedV2Target,
+      changeOrigin: true,
+      pathRewrite: { '^/api/seed-v2': '' },
+      onProxyReq: (proxyReq, req) => {
+        console.log('Proxying Seed V2 request:', req.method, req.url, '->', seedV2Target + req.url.replace('/api/seed-v2', ''));
+      },
+      onError: (err, req, res) => {
+        console.error('Seed V2 proxy error:', err.message);
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Seed V2 proxy error', message: err.message }));
       },
     })
   );

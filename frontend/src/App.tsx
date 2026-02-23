@@ -25,6 +25,7 @@ import StockMappingManager from './pages/StockMappingManager';
 import StockCandidatePopulatorPage from './pages/StockCandidatePopulatorPage';
 import KiteWebSocketTest from './components/KiteWebSocketTest';
 import UnifiedRecommendations from './pages/UnifiedRecommendations';
+import RecommendationObservabilityPage from './pages/RecommendationObservabilityPage';
 
 // Create React Query client
 const queryClient = new QueryClient({
@@ -170,6 +171,7 @@ function App() {
               {/* Legacy routes */}
               <Route path="/backtesting" element={<Backtesting />} />
               <Route path="/system-control" element={<SystemControl />} />
+              <Route path="/recommendation-observability" element={<RecommendationObservabilityPage />} />
               <Route path="/chartink-query-tester" element={<QueryManager />} />
               <Route path="/candidate-query-registry" element={<QueryManager />} />
               <Route path="/swing-recommendations" element={<UnifiedRecommendations />} />

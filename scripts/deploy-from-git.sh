@@ -36,19 +36,25 @@ fi
 
 cd "$REPO_DIR"
 
-# 1. Fetch and switch to main only
+# 1. Fetch and switch branch: stage=develop, prod=main
 log "Fetching origin..."
 git fetch origin
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 log "Current branch: $CURRENT_BRANCH"
 
-log "Checking out main and resetting to origin/main..."
-git checkout main
-git reset --hard origin/main
-git pull origin main 2>/dev/null || true
+if [ "$DEPLOY_ENV" = "stage" ]; then
+  DEPLOY_BRANCH="develop"
+else
+  DEPLOY_BRANCH="main"
+fi
 
-log "Deployed commit: $(git rev-parse --short HEAD)"
+log "Checking out $DEPLOY_BRANCH and resetting to origin/$DEPLOY_BRANCH..."
+git checkout "$DEPLOY_BRANCH"
+git reset --hard "origin/$DEPLOY_BRANCH"
+git pull "origin" "$DEPLOY_BRANCH" 2>/dev/null || true
+
+log "Deployed commit ($DEPLOY_BRANCH): $(git rev-parse --short HEAD)"
 
 # 2. Build frontend
 cd "$FRONTEND_DIR"

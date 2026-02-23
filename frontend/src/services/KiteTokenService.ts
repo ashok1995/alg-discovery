@@ -17,6 +17,10 @@ export interface TokenStatus {
   user_name?: string;
   kite_token_masked?: string;
   kite_token_expires_at?: string | null;
+  last_authenticated_at?: string | null;
+  authenticated_at?: string | null;
+  token_created_at?: string | null;
+  token_refreshed_at?: string | null;
   message?: string;
   is_valid: boolean;
 }
@@ -104,11 +108,13 @@ class KiteTokenService {
     const res = await this.api.get(`${KITE_API_PREFIX}/auth/status`);
     const d = res.data;
     const valid = d.token_valid ?? d.authenticated ?? false;
+    const authTime = d.token_refreshed_at ?? d.last_authenticated_at ?? d.authenticated_at ?? d.token_created_at;
     return {
       ...d,
       kite_token_valid: valid,
       is_valid: valid,
       kite_token_expires_at: d.token_expiry ?? d.kite_token_expires_at,
+      last_authenticated_at: authTime,
     };
   }
 
