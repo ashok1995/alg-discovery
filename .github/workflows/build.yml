@@ -1,0 +1,80 @@
+# CI: Build frontend and Docker image on push to develop/main.
+# Push images to GHCR (ghcr.io). Prod VM pulls from GHCR for deploy.
+# develop → stage build, ghcr.io/OWNER/algodiscovery-frontend:develop
+# main    → prod build,  ghcr.io/OWNER/algodiscovery-frontend:main
+name: Build and Push
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (develop=stage, main=prod)
+        env:
+          DISABLE_ESLINT_PLUGIN: 'true'
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            npm run build:prod
+          else
+            npm run build:stage
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set build env
+        id: buildenv
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+          else
+            echo "env=stage" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          push: ${{ github.event_name == 'push' }}
+          load: ${{ github.event_name != 'push' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/algodiscovery-frontend:${{ github.ref_name }}
+          build-args: BUILD_ENV=${{ steps.buildenv.outputs.env }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -18,7 +18,7 @@ alwaysApply: true
 - **Prod**: `main` branch only. `./scripts/deploy-from-git.sh prod` or `./scripts/deploy-prod-remote.sh` (SSH to GCP). Port 80/443.
 - **Stage**: `develop` branch only. Local: `./scripts/deploy-stage-local.sh`. Remote GCP: `./scripts/deploy-stage-remote.sh` — pulls origin/develop, build + Docker on port 8080. Quick test (no Docker): `./scripts/run-quick-test.sh` (port 3002, uses build:stage).
 - **Branch mapping**: `deploy-from-git.sh stage` → develop; `deploy-from-git.sh prod` → main. Do experiments on develop; merge to main only when prod-ready.
-- **CI**: `.github/workflows/build.yml` builds frontend + Docker image on push to develop/main.
+- **CI**: `.github/workflows/build.yml` builds frontend + Docker image, pushes to GHCR (ghcr.io) on push to develop/main.
 - **Dev**: Local, port 3000, `frontend/envs/env.dev`.
 
 ### STRICT: Push first, then deploy stage
@@ -50,7 +50,7 @@ alwaysApply: true
 | 8020 | Theme API | Dev/Prod | |
 | 8030 | Strategies API | Dev/Prod | |
 | 8079 | Kite Services, Kite Token | Dev/Prod | |
-| 8081 | Chartink Auth | Dev | Local proxy target |
+| 8081 | Chartink Auth / Query | Dev/Prod | 35.232.205.155:8181 (proxy target) |
 | 8082 | Seed API | Dev/Prod | |
 | 8182 | Seed Service | Prod | External (algodiscovery.com) |
 | 8183 | Recommendation/Proxy target | Dev | setupProxy target |
@@ -187,7 +187,9 @@ alg-discovery/
 - **deploy-from-git.sh**: `./scripts/deploy-from-git.sh [stage|prod]`. stage → **develop** branch, port 8080. prod → **main** branch, port 80. Run on GCP or local.
 - **deploy-stage-local.sh**: Stage from **develop** (local, full Docker, 8080). Fetches **origin/develop** — **push first**.
 - **deploy-stage-remote.sh**: Stage on GCP via SSH; pulls **develop**, runs deploy-from-git.sh stage.
-- **deploy-prod-remote.sh**: Prod on GCP via SSH; pulls **main**, runs deploy-from-git.sh prod.
+- **deploy-prod-remote.sh**: Prod on GCP via SSH; pulls **main**, builds locally, runs.
+- **deploy-from-ghcr.sh**: Pull pre-built image from GHCR and run (no local build).
+- **deploy-prod-remote-ghcr.sh**: Prod on GCP via SSH; pulls image from GHCR (CI-built).
 - **run-quick-test.sh**: Quick test, build:stage, no Docker, port 3002.
 - **Frontend**: ONE optional `frontend/deploy.sh` for local Docker run.
 
