@@ -4,16 +4,12 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
-// Import cache managers
 import AppLevelCacheManager from './services/AppLevelCacheManager';
 import SharedPriceManager from './services/SharedPriceManager';
-
-// Import components
 import SidebarLayout from './components/SidebarLayout';
 import UnifiedDashboard from './components/UnifiedDashboard';
 import RecommendationServiceTest from './components/RecommendationServiceTest';
-
-// Import pages
+import KiteWebSocketTest from './components/KiteWebSocketTest';
 import Dashboard from './pages/Dashboard';
 import Backtesting from './pages/Backtesting';
 import SystemControl from './pages/SystemControl';
@@ -23,11 +19,9 @@ import Investing from './pages/Investing';
 import Settings from './pages/Settings';
 import StockMappingManager from './pages/StockMappingManager';
 import StockCandidatePopulatorPage from './pages/StockCandidatePopulatorPage';
-import KiteWebSocketTest from './components/KiteWebSocketTest';
 import UnifiedRecommendations from './pages/UnifiedRecommendations';
 import RecommendationObservabilityPage from './pages/RecommendationObservabilityPage';
 
-// Create React Query client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -39,7 +33,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Create theme
 const theme = createTheme({
   palette: {
     mode: 'light',
@@ -84,78 +77,47 @@ const theme = createTheme({
 
 function App() {
   const [activeService, setActiveService] = useState<string>('dashboard');
-  const [cacheInitialized, setCacheInitialized] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
-
-  // Initialize cache managers on app startup
   useEffect(() => {
-    const initializeCacheManagers = () => {
-      try {
-        // Initialize app-level cache manager
-        const appCache = AppLevelCacheManager.getInstance();
-        
-        // Initialize shared price manager
-        const priceManager = SharedPriceManager.getInstance();
-        
-        // Set up periodic cache cleanup
-        const cleanupInterval = setInterval(() => {
-          appCache.cleanExpiredEntries();
-        }, 5 * 60 * 1000); // Every 5 minutes
-        
-        setCacheInitialized(true);
-        console.log('🚀 App cache managers initialized successfully');
-        
-        // Cleanup on unmount
-        return () => {
-          clearInterval(cleanupInterval);
-          priceManager.stop();
-        };
-      } catch (error) {
-        console.error('❌ Failed to initialize cache managers:', error);
-      }
-    };
+    try {
+      const appCache = AppLevelCacheManager.getInstance();
+      const priceManager = SharedPriceManager.getInstance();
 
-    initializeCacheManagers();
+      const cleanupInterval = setInterval(() => {
+        appCache.cleanExpiredEntries();
+      }, 5 * 60 * 1000);
+
+      return () => {
+        clearInterval(cleanupInterval);
+        priceManager.stop();
+      };
+    } catch (error) {
+      console.error('Failed to initialize cache managers:', error);
+    }
   }, []);
 
   const handleServiceSelect = (serviceName: string) => {
     setActiveService(serviceName);
   };
 
-  // Service routing mapping
-  const getServiceComponent = (serviceName: string) => {
-    switch (serviceName) {
-      case 'swing-api':
-        return <UnifiedRecommendations />;
-      case 'longterm-api':
-        return <UnifiedRecommendations />;
-      case 'shortterm-api':
-        return <UnifiedRecommendations />;
-      case 'intraday-api':
-        return <UnifiedRecommendations />;
-      case 'intraday-service-api':
-        return <UnifiedRecommendations />;
-      case 'dashboard-api':
-        return <Dashboard />;
-      case 'stock-mapping-api':
-        return <StockMappingManager />;
-      case 'stock-candidate-populator-api':
-        return <StockCandidatePopulatorPage />;
-      case 'chartink-query-tester':
-        return <QueryManager />;
-      case 'candidate-query-registry':
-        return <QueryManager />;
-      case 'swing-recommendations':
-        return <UnifiedRecommendations />;
-      case 'backtesting':
-        return <Backtesting />;
-      case 'system-control':
-        return <SystemControl />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <UnifiedDashboard onServiceSelect={handleServiceSelect} activeService={activeService} />;
-    }
+  const SERVICE_ROUTES: Record<string, React.ReactElement> = {
+    'swing-api': <UnifiedRecommendations />,
+    'shortterm-api': <UnifiedRecommendations />,
+    'intraday-api': <UnifiedRecommendations />,
+    'intraday-service-api': <UnifiedRecommendations />,
+    'swing-recommendations': <UnifiedRecommendations />,
+    'longterm-api': <Investing />,
+    'dashboard-api': <Dashboard />,
+    'stock-mapping-api': <StockMappingManager />,
+    'stock-candidate-populator-api': <StockCandidatePopulatorPage />,
+    'chartink-query-tester': <QueryManager />,
+    'candidate-query-registry': <QueryManager />,
+    'backtesting': <Backtesting />,
+    'system-control': <SystemControl />,
+    'settings': <Settings />,
   };
+
+  const getServiceComponent = (serviceName: string) =>
+    SERVICE_ROUTES[serviceName] ?? <UnifiedDashboard onServiceSelect={handleServiceSelect} activeService={activeService} />;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -167,48 +129,22 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/dashboard" element={<UnifiedDashboard onServiceSelect={handleServiceSelect} activeService={activeService} />} />
               <Route path="/service/:serviceName" element={getServiceComponent(activeService)} />
-              
-              {/* Legacy routes */}
+              <Route path="/seed-dashboard" element={<Dashboard />} />
+              <Route path="/recommendations" element={<UnifiedRecommendations />} />
+              <Route path="/investing" element={<Investing />} />
               <Route path="/backtesting" element={<Backtesting />} />
               <Route path="/system-control" element={<SystemControl />} />
+              <Route path="/query-manager" element={<QueryManager />} />
               <Route path="/recommendation-observability" element={<RecommendationObservabilityPage />} />
               <Route path="/chartink-query-tester" element={<QueryManager />} />
               <Route path="/candidate-query-registry" element={<QueryManager />} />
               <Route path="/swing-recommendations" element={<UnifiedRecommendations />} />
               <Route path="/unified-recommendations" element={<UnifiedRecommendations />} />
-              <Route path="/investing" element={<Investing />} />
-              
-              {/* Redirect old long-term-trading route */}
               <Route path="/long-term-trading" element={<Investing />} />
-              
               <Route path="/settings" element={<Settings />} />
               <Route path="/stock-mapping" element={<StockMappingManager />} />
               <Route path="/stock-candidate-populator" element={<StockCandidatePopulatorPage />} />
-              
-              {/* Service-specific routes */}
-              <Route path="/swing-api" element={<UnifiedRecommendations />} />
-              <Route path="/longterm-api" element={<Investing />} />
-              <Route path="/shortterm-api" element={<UnifiedRecommendations />} />
-              <Route path="/intraday-service-api" element={<div>Intraday Service - Use Unified Recommendations</div>} />
-              <Route path="/variants-api" element={<div>Strategy Variants - Coming Soon</div>} />
-              <Route path="/facts-api" element={<div>Market Facts - Coming Soon</div>} />
-              <Route path="/dashboard-api" element={<Dashboard />} />
-              <Route path="/unified-strategy-api" element={<div>Unified Strategy - Coming Soon</div>} />
-              <Route path="/misc-api" element={<div>Misc Tools - Coming Soon</div>} />
               <Route path="/kite-websocket-test" element={<KiteWebSocketTest />} />
-              <Route path="/zerodha-test-api" element={<div>Zerodha Test - Coming Soon</div>} />
-              <Route path="/zerodha-api" element={<div>Zerodha Management - Coming Soon</div>} />
-              <Route path="/validation-api" element={<div>Validation Tools - Coming Soon</div>} />
-              <Route path="/algorithm-api" element={<div>Algorithm Analysis - Coming Soon</div>} />
-              <Route path="/stock-mapping-api" element={<StockMappingManager />} />
-              <Route path="/stock-candidate-populator-api" element={<StockCandidatePopulatorPage />} />
-              <Route path="/candidate-query-registry" element={<QueryManager />} />
-              
-              {/* New Recommendations Dashboard */}
-              <Route path="/recommendations" element={<div>Recommendations Dashboard - Coming Soon</div>} />
-              <Route path="/recommendations/:type" element={<div>Recommendations Dashboard - Coming Soon</div>} />
-              
-              {/* Test Routes */}
               <Route path="/test/recommendation-service" element={<RecommendationServiceTest />} />
             </Routes>
           </SidebarLayout>
