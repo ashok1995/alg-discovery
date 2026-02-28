@@ -6,10 +6,10 @@
  */
 
 import { getRecommendationsV2Url } from '../config/openaiConfig';
-import type { SeedV2RecommendationsResponse } from '../types/apiModels';
-import type { ObservabilityDbResponse } from '../types/apiModels';
-import type { PipelineHealthResponse } from '../types/apiModels';
-import type { ScoreBinPerformanceItem } from '../types/apiModels';
+import type { SeedRecommendationResponse, ObservabilityDbResponse, PipelineHealthResponse, ScoreBinPerformanceItem } from '../types/apiModels';
+
+/** V2 recommendations response - same shape as SeedRecommendationResponse */
+export type SeedV2RecommendationsResponse = SeedRecommendationResponse;
 
 const TIMEOUT_MS = 30000;
 
@@ -29,7 +29,7 @@ export interface V2RecommendationQueryParams {
 
 /** Legacy request: map strategy/risk for callers using StrategyType. */
 export interface V2RecommendationRequestParams {
-  strategy: 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term';
+  strategy: 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term';
   risk_level: 'low' | 'medium' | 'high';
   limit?: number;
   min_score?: number;
@@ -48,10 +48,11 @@ function buildRecommendationsQuery(params: V2RecommendationQueryParams): string 
 
 /** Map UI strategy to prod trade_type */
 export function mapStrategyToSeedTradeType(
-  strategy: 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'
+  strategy: 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'
 ): SeedTradeType {
   const map: Record<string, SeedTradeType> = {
     swing: 'swing_buy',
+    intraday: 'intraday_buy',
     intraday_buy: 'intraday_buy',
     intraday_sell: 'intraday_sell',
     long_term: 'positional',
@@ -80,7 +81,7 @@ export function buildV2RecommendationsUrl(
           risk_level: request.risk_level as SeedRiskLevel | undefined,
         }
       : {
-          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
+          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
           limit: request.limit ?? 10,
           min_score: request.min_score ?? 60,
           risk_level: mapRiskToSeedRiskLevel(request.risk_level),
@@ -105,7 +106,7 @@ export async function fetchV2Recommendations(
           risk_level: request.risk_level as SeedRiskLevel | undefined,
         }
       : {
-          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
+          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
           limit: request.limit ?? 10,
           min_score: request.min_score ?? 60,
           risk_level: mapRiskToSeedRiskLevel(request.risk_level),

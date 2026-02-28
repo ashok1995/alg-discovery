@@ -24,7 +24,7 @@ const RISK_LEVEL_MAP: Record<string, string> = {
 export async function handleGetRecommendationsByType(
   getSeed: GetSeedRecommendationsFn,
   getProduction: GetProductionRecommendationsFn,
-  type: 'swing' | 'long-buy' | 'intraday-buy' | 'intraday-sell',
+  type: 'swing' | 'long-buy' | 'intraday-buy' | 'intraday-sell' | 'short',
   request: RecommendationRequest
 ): Promise<DynamicRecommendationResponse> {
   const strategy = getStrategyForType(type);
@@ -124,7 +124,7 @@ export function createRecommendationApiInstance(baseUrl: string, timeout: number
   attachAxiosLogging(api, 'RecommendationAPI');
   api.interceptors.request.use(
     (config) => {
-      (config as Record<string, unknown>).headers = { ...((config.headers || {}) as object), ...getMetaHeaders('/recommendations') };
+      config.headers = Object.assign({}, config.headers || {}, getMetaHeaders('/recommendations'));
       console.log(`🚀 [RecommendationAPI] ${config.method?.toUpperCase()} ${config.url}`, config.data);
       return config;
     },

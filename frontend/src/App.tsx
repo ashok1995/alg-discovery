@@ -36,41 +36,38 @@ const queryClient = new QueryClient({
 const theme = createTheme({
   palette: {
     mode: 'light',
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-    background: {
-      default: '#f5f5f5',
-    },
+    primary: { main: '#1976d2', light: '#e3f2fd' },
+    secondary: { main: '#7c4dff' },
+    success: { main: '#4caf50', dark: '#2e7d32' },
+    error: { main: '#f44336', dark: '#c62828' },
+    warning: { main: '#ff9800', dark: '#e65100' },
+    background: { default: '#f8f9fc', paper: '#ffffff' },
+    divider: 'rgba(0,0,0,0.08)',
   },
+  shape: { borderRadius: 10 },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h4: {
-      fontWeight: 600,
-    },
-    h6: {
-      fontWeight: 600,
-    },
+    fontFamily: '"Inter", "Roboto", "Helvetica", sans-serif',
+    h4: { fontWeight: 700, letterSpacing: '-0.02em' },
+    h6: { fontWeight: 600 },
+    body2: { fontSize: '0.85rem' },
+    caption: { fontSize: '0.75rem' },
   },
   components: {
     MuiCard: {
-      styleOverrides: {
-        root: {
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          borderRadius: 8,
-        },
-      },
+      defaultProps: { elevation: 0 },
+      styleOverrides: { root: { borderRadius: 12, border: '1px solid rgba(0,0,0,0.08)' } },
     },
     MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          borderRadius: 6,
-        },
-      },
+      styleOverrides: { root: { textTransform: 'none', borderRadius: 8, fontWeight: 600 } },
+    },
+    MuiChip: {
+      styleOverrides: { root: { fontWeight: 500 }, sizeSmall: { height: 24 } },
+    },
+    MuiTableCell: {
+      styleOverrides: { root: { borderColor: 'rgba(0,0,0,0.06)' } },
+    },
+    MuiTab: {
+      styleOverrides: { root: { textTransform: 'none', fontWeight: 600 } },
     },
   },
 });

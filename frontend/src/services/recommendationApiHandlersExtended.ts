@@ -73,7 +73,7 @@ export async function handleGetUIOrQuickRecommendations(
     stocks: stocks as UIRecommendationResponse['stocks'],
     total_count: stocks.length,
     avg_score: stocks.length > 0 ? stocks.reduce((sum, s) => sum + s.score, 0) / stocks.length : 0,
-    strategy_used: seedStrategy as UIRecommendationResponse['strategy_used'],
+    strategy_used: seedStrategy as unknown as UIRecommendationResponse['strategy_used'],
     execution_time: seedResponse.processing_time_ms || 0,
   };
 }
@@ -124,7 +124,7 @@ export async function handleGetFullRecommendations(
     total_count: stocks.length,
     avg_score: stocks.length > 0 ? stocks.reduce((sum, s) => sum + s.score, 0) / stocks.length : 0,
     score_range: stocks.length > 0 ? [Math.min(...stocks.map((s) => s.score)), Math.max(...stocks.map((s) => s.score))] : [0, 0],
-    strategy_used: seedStrategy as UIRecommendationResponse['strategy_used'],
+    strategy_used: seedStrategy as unknown as UIRecommendationResponse['strategy_used'],
     execution_time: seedResponse.processing_time_ms || 0,
   };
 }

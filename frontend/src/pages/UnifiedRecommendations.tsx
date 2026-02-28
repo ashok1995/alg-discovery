@@ -31,8 +31,7 @@ const UnifiedRecommendations: React.FC = () => {
   const config = useMemo(() => strategyConfig[selectedStrategy], [selectedStrategy]);
 
   const fetchRecommendations = useCallback(
-    async (forceRefresh: boolean = false) => {
-      forceRefresh; // may be used for cache bypass in future
+    async (_forceRefresh: boolean = false) => {
       try {
         setLoading(true);
         setError(null);
@@ -48,7 +47,7 @@ const UnifiedRecommendations: React.FC = () => {
         };
 
         const response = await recommendationAPIService.getRecommendationsByType(
-          legacyType as 'swing' | 'intraday-buy' | 'intraday-sell' | 'long-buy',
+          legacyType as 'swing' | 'intraday-buy' | 'intraday-sell' | 'long-buy' | 'short',
           legacyRequest
         );
 
@@ -72,7 +71,7 @@ const UnifiedRecommendations: React.FC = () => {
         setLoading(false);
       }
     },
-    [selectedStrategy, selectedRisk, minScore, maxResults, sortBy, sortDirection]
+    [selectedStrategy, selectedRisk, minScore, maxResults]
   );
 
   useBackgroundRefresh(fetchRecommendations, {
@@ -84,7 +83,7 @@ const UnifiedRecommendations: React.FC = () => {
 
   useEffect(() => {
     fetchRecommendations(true);
-  }, [selectedStrategy, selectedRisk, minScore, maxResults, sortBy, sortDirection]);
+  }, [fetchRecommendations]);
 
   const handleStrategyChange = (strategy: StrategyType) => {
     setSelectedStrategy(strategy);

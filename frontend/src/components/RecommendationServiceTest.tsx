@@ -69,7 +69,12 @@ const RecommendationServiceTest: React.FC = () => {
   };
 
   const getServiceInfo = () => {
-    const info = recommendationAPIService.getServiceInfo();
+    const info = recommendationAPIService.getServiceInfo() as {
+      baseUrl: string;
+      timeout: number;
+      retryAttempts: number;
+      retryDelay: number;
+    };
     return info;
   };
 
