@@ -23,13 +23,16 @@ export const STRATEGY_TO_SEED: Record<string, SeedStrategyType> = {
   swing: SeedStrategyType.SWING,
   'swing-buy': SeedStrategyType.SWING,
   swing_buy: SeedStrategyType.SWING,
-  intraday: SeedStrategyType.INTRADAY,
-  'intraday-buy': SeedStrategyType.INTRADAY,
-  intraday_buy: SeedStrategyType.INTRADAY,
-  'intraday-sell': SeedStrategyType.INTRADAY,
-  intraday_sell: SeedStrategyType.INTRADAY,
+  intraday: SeedStrategyType.INTRADAY_BUY,
+  'intraday-buy': SeedStrategyType.INTRADAY_BUY,
+  intraday_buy: SeedStrategyType.INTRADAY_BUY,
+  'intraday-sell': SeedStrategyType.INTRADAY_SELL,
+  intraday_sell: SeedStrategyType.INTRADAY_SELL,
   long_term: SeedStrategyType.LONG_TERM,
   'long-term': SeedStrategyType.LONG_TERM,
+  short: SeedStrategyType.SHORT_TERM,
+  short_term: SeedStrategyType.SHORT_TERM,
+  'short-term': SeedStrategyType.SHORT_TERM,
   'long-buy': SeedStrategyType.LONG_TERM,
   balanced: SeedStrategyType.BALANCED,
   aggressive: SeedStrategyType.AGGRESSIVE,
@@ -61,6 +64,9 @@ export function getArmStrategiesForType(type: string): string[] {
     case 'long-term':
     case 'long-buy':
       return LONG_TERM_ARMS;
+    case 'short':
+    case 'short-term':
+      return SWING_ARMS;
     default:
       return [];
   }
@@ -74,12 +80,14 @@ export function mapToSeedRiskLevel(riskLevel: string): SeedRiskLevel {
   return RISK_TO_SEED[riskLevel.toLowerCase()] ?? SeedRiskLevel.MODERATE;
 }
 
-/** Map recommendation type to strategy string */
+/** Map recommendation type to V2 strategy key (must match mapStrategyToSeedTradeType keys) */
 export const TYPE_TO_STRATEGY: Record<string, string> = {
   swing: 'swing',
   'long-buy': 'long_term',
-  'intraday-buy': 'intraday',
-  'intraday-sell': 'intraday',
+  'intraday-buy': 'intraday_buy',
+  'intraday-sell': 'intraday_sell',
+  short: 'short_term',
+  'short-term': 'short_term',
 };
 
 export function getStrategyForType(type: string): string | undefined {

@@ -5,7 +5,10 @@
 export enum SeedStrategyType {
   SWING = 'swing',
   INTRADAY = 'intraday',
+  INTRADAY_BUY = 'intraday_buy',
+  INTRADAY_SELL = 'intraday_sell',
   LONG_TERM = 'long_term',
+  SHORT_TERM = 'short_term',
   BALANCED = 'balanced',
   AGGRESSIVE = 'aggressive',
   CONSERVATIVE = 'conservative',

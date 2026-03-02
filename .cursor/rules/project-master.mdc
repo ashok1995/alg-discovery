@@ -153,6 +153,7 @@ alg-discovery/
 - **Correlation**: Include request/transaction IDs in logs for tracing.
 
 ### Code anti-patterns (FORBIDDEN)
+- **Mock or invented data** in a trading/live-data context (see §9).
 - `any`, untyped catches, silent `catch (e) {}`
 - Hardcoded URLs, ports, magic numbers
 - Copy-paste; extract to shared fn/module
@@ -169,6 +170,7 @@ alg-discovery/
 
 ## 9. FORBIDDEN (STRICTLY enforce)
 
+- **Mock data**: STRICTLY FORBIDDEN. This is a trading system with live data. Never use mock, placeholder, or invented data for trading, positions, recommendations, or market data. When an API is unavailable, surface the error to the user; do not fall back to fake or hardcoded data.
 - **Env**: ONLY `frontend/envs/env.dev`, `env.stage`, `env.prod`, `env.example`. No `env.*` at frontend root.
 - **Nginx**: ONLY `frontend/nginx.conf`. No `nginx-*.conf`.
 - **Config**: No duplicate config files. No hardcoded values.

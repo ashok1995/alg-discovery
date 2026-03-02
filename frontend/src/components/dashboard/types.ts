@@ -3,7 +3,7 @@ export const TRADE_TYPE_LABELS: Record<string, string> = {
   intraday_sell: 'Intraday Sell',
   swing_buy: 'Swing Buy',
   swing_sell: 'Swing Sell',
-  short: 'Short',
+  short: 'Short-Term Buy',
   positional: 'Positional',
 };
 

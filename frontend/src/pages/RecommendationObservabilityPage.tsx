@@ -129,9 +129,10 @@ const RecommendationObservabilityPage: React.FC = () => {
                   ) : (
                     <Chip icon={<ErrorIcon />} label={pipelineData?.status ?? 'Unknown'} color="error" size="small" />
                   )}
-                  {pipelineData?.pipeline?.orchestrator?.orchestrator?.market_hours != null && (
+                  {(pipelineData?.pipeline?.orchestrator as Record<string, unknown> | undefined)?.orchestrator != null &&
+                    (((pipelineData?.pipeline?.orchestrator as Record<string, unknown>)?.orchestrator as Record<string, unknown>)?.market_hours != null) && (
                     <Chip
-                      label={pipelineData.pipeline.orchestrator.orchestrator.market_hours ? 'Market open' : 'Market closed'}
+                      label={((pipelineData?.pipeline?.orchestrator as Record<string, unknown>)?.orchestrator as Record<string, unknown>)?.market_hours ? 'Market open' : 'Market closed'}
                       size="small"
                       variant="outlined"
                     />

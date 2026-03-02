@@ -45,7 +45,7 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
               select
               label="Log Level"
               value={settings.logLevel}
-              onChange={(e) => onSettingChange('logLevel', e.target.value)}
+              onChange={(e) => onSettingChange('logLevel', e.target.value as SystemSettings['logLevel'])}
               margin="normal"
               SelectProps={{ native: true }}
             >

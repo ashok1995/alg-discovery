@@ -50,13 +50,13 @@ export const strategyConfig: Record<string, StrategyConfigItem> = {
     timeFrame: 'Weeks-Months'
   },
   [StrategyType.SHORT_TERM]: {
-    label: 'Short Term',
-    description: '1-3 day positions',
+    label: 'Short-Term Buy',
+    description: 'Quick buy & sell within 1-5 days',
     icon: <TimelineIcon />,
     color: '#f57c00',
     riskLevel: 'medium',
     minScore: 70,
-    timeFrame: '1-3 days'
+    timeFrame: '1-5 days'
   }
 };
 
@@ -65,7 +65,7 @@ export const strategyTypeMap: Record<string, string> = {
   [StrategyType.INTRADAY_BUY]: 'intraday-buy',
   [StrategyType.INTRADAY_SELL]: 'intraday-sell',
   [StrategyType.LONG_TERM]: 'long-buy',
-  [StrategyType.SHORT_TERM]: 'swing'
+  [StrategyType.SHORT_TERM]: 'short'
 };
 
 export const riskColorMap: Record<string, string> = {

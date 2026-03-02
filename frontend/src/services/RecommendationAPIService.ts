@@ -39,6 +39,7 @@ import {
   BUY_ARMS,
 } from '../types/apiModels';
 import type { RecommendationRequest, HealthResponse, ServiceStatus } from '../types/recommendations';
+import type { SeedHealthResponse, SeedRecommendationResponse } from '../types/stock';
 
 export type { RiskProfile, RecommendationRequest, Recommendation, RecommendationResponse, HealthResponse, ServiceStatus } from '../types/recommendations';
 
@@ -75,7 +76,11 @@ class RecommendationAPIService {
       const risk_level = request.risk_level != null ? String(request.risk_level) : 'moderate';
       const limit = request.limit ?? 20;
 
-      const v2Request = { strategy, risk_level, limit };
+      const v2Request: import('./RecommendationV2Service').V2RecommendationRequestParams = {
+        strategy: strategy as 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term',
+        risk_level: risk_level as 'low' | 'medium' | 'high',
+        limit,
+      };
       console.log(`🌱 [SeedService] POST ${API_CONFIG.SEED_V2_RECOMMENDATIONS_PATH}`, v2Request);
 
       const data = await fetchV2Recommendations(v2Request);
@@ -154,12 +159,19 @@ class RecommendationAPIService {
   }
 
   async getRecommendationsByType(
-    type: 'swing' | 'long-buy' | 'intraday-buy' | 'intraday-sell',
+    type: 'swing' | 'long-buy' | 'intraday-buy' | 'intraday-sell' | 'short',
     request: RecommendationRequest = {}
   ): Promise<DynamicRecommendationResponse> {
     return handleGetRecommendationsByType(
       (r) => this.getSeedServiceRecommendations(r),
-      (r) => this.getProductionRecommendations(r),
+      (r) => this.getProductionRecommendations({
+        strategy: r.strategy as string,
+        risk_level: r.risk_level as string,
+        min_price: r.min_price as number | undefined,
+        max_price: r.max_price as number | undefined,
+        min_volume: r.min_volume as number | undefined,
+        limit: r.limit as number | undefined,
+      }),
       type,
       request
     );

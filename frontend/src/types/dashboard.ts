@@ -58,12 +58,48 @@ export interface DashboardPositionSummary {
   avg_return_pct: number;
 }
 
+export interface MarketBreadth {
+  advance_count: number;
+  decline_count: number;
+  unchanged_count: number;
+  advance_decline_ratio: number;
+}
+
+export interface NiftyData {
+  price: number;
+  change_percent: number;
+}
+
+export interface SectorPerformanceEntry {
+  change_percent: number;
+  leader: boolean;
+}
+
+export interface MarketContext {
+  id?: number;
+  timestamp?: string;
+  market_regime?: string;
+  vix_india?: number;
+  vix_level?: string;
+  market_breadth?: MarketBreadth;
+  nifty_50?: NiftyData;
+  sector_performance?: Record<string, SectorPerformanceEntry>;
+  market_sentiment?: string;
+}
+
 export interface DashboardDailySummary {
   period_days: number;
   positions: DashboardPositionSummary;
   universe: Record<string, number>;
-  market_context: Record<string, unknown> | null;
+  market_context: MarketContext | null;
   generated_at: string;
+}
+
+export interface SystemStatusState {
+  apiConnected: boolean;
+  marketOpen: boolean;
+  cacheActive: boolean;
+  securityAuthenticated: boolean;
 }
 
 export interface TrackedPositionItem {
@@ -168,14 +204,17 @@ export interface PerformanceTimelineResponse {
 
 export interface TopMoverItem {
   symbol: string;
-  trade_type: string;
-  score: number;
+  exchange?: string;
   last_price: number;
   change_pct: number;
   volume: number | null;
-  relative_volume: number | null;
-  sector: string | null;
-  ranked_at: string;
+  value_traded_cr?: number;
+  generated_at?: string;
+  trade_type?: string;
+  score?: number;
+  relative_volume?: number | null;
+  sector?: string | null;
+  ranked_at?: string;
 }
 
 export interface TopGainersResponse {
@@ -293,5 +332,20 @@ export interface RegistryStatsResponse {
   total_queries: number;
   active_queries: number;
   arm_queries: number;
+  [key: string]: unknown;
+}
+
+// --- Internal / Global Market Context (Kite, Yahoo) ---
+
+export interface InternalMarketContextResponse {
+  market_regime?: string;
+  vix?: number;
+  nifty_50?: number;
+  [key: string]: unknown;
+}
+
+export interface GlobalContextResponse {
+  market_regime?: string;
+  vix?: number;
   [key: string]: unknown;
 }
