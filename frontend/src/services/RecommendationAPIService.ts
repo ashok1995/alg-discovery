@@ -28,6 +28,7 @@ import {
   handleGetUIOrQuickRecommendations,
   handleGetProductionRecommendations,
 } from './recommendationApiHandlersExtended';
+import { mapRecommendationsResponseToSeedRecommendation } from './recommendationTransformers';
 import {
   UniversalRecommendationRequest,
   DynamicRecommendationResponse,
@@ -84,8 +85,8 @@ class RecommendationAPIService {
       console.log(`🌱 [SeedService] POST ${API_CONFIG.SEED_V2_RECOMMENDATIONS_PATH}`, v2Request);
 
       const data = await fetchV2Recommendations(v2Request);
-      console.log(`✅ [SeedService] Response: ${data.recommendations?.length ?? 0} recommendations`);
-      return data;
+      console.log(`✅ [SeedService] Response: ${data.count} recommendations`);
+      return mapRecommendationsResponseToSeedRecommendation(data);
     } catch (error) {
       console.error(`❌ [SeedService] Error:`, error);
       throw this.handleError(error, 'Seed Service recommendations');
@@ -94,13 +95,7 @@ class RecommendationAPIService {
 
   async getSeedServiceHealth(): Promise<SeedHealthResponse> {
     try {
-      // Use different health endpoints for dev vs prod
-      const isProduction = process.env.NODE_ENV === 'production' || 
-                          process.env.REACT_APP_NODE_ENV === 'production' ||
-                          (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
-      
-      const healthPath = isProduction ? '/api/v2/stocks/health' : '/health';
-      const seedHealthUrl = `${API_CONFIG.SEED_API_BASE_URL}${healthPath}`;
+      const seedHealthUrl = `${API_CONFIG.SEED_API_BASE_URL}/health`;
       
       const response = await axios.get(seedHealthUrl, { timeout: 10000 });
       return response.data;

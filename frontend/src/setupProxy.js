@@ -1,9 +1,9 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function(app) {
-  // Proxy for Kite Services (Production - API ref: 203.57.85.72:8179)
-  // Use prod by default for CI/CD; override with REACT_APP_KITE_SERVICES_TARGET for dev/stage
-  const kiteTarget = process.env.REACT_APP_KITE_SERVICES_TARGET || 'http://203.57.85.72:8179';
+  // Proxy for Kite Services (Swagger: http://35.232.205.155:8179/docs)
+  // Override with REACT_APP_KITE_SERVICES_TARGET for dev/stage
+  const kiteTarget = process.env.REACT_APP_KITE_SERVICES_TARGET || 'http://35.232.205.155:8179';
   // Proxy /api/redirect for Kite OAuth callback (so callback lands in app when using localhost)
   app.use(
     '/api/redirect',

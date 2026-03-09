@@ -23,13 +23,14 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import type { ArmPerformanceItem, PerformanceTimelineDay } from '../../types/apiModels';
+import type { ArmPerformanceItem, PerformanceTimelineDay, AnalysisPerformanceResponse } from '../../types/apiModels';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 
 interface PerformanceTabProps {
   perfTimeline: PerformanceTimelineDay[];
   armPerformance: ArmPerformanceItem[];
+  analysisPerformance?: AnalysisPerformanceResponse | null;
 }
 
 type ArmKey = 'arm' | 'total' | 'wins' | 'win_rate' | 'avg_return_pct';
@@ -42,7 +43,8 @@ const ARM_COLUMNS: ColumnDef<ArmKey>[] = [
   { key: 'avg_return_pct', label: 'Avg Return %', align: 'right', sortable: true },
 ];
 
-const PerformanceTab: React.FC<PerformanceTabProps> = ({ perfTimeline, armPerformance }) => {
+const PerformanceTab: React.FC<PerformanceTabProps> = ({ perfTimeline, armPerformance, analysisPerformance }) => {
+  const dataVolume = analysisPerformance?.analysis?.data_volume as Array<{ trade_type: string; total_recs: number; unique_symbols: number }> | undefined;
   const { sortedData, requestSort, getSortDirection } = useSortableData<ArmPerformanceItem, ArmKey>(
     armPerformance,
     { key: 'avg_return_pct', direction: 'desc' },
@@ -50,6 +52,26 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ perfTimeline, armPerfor
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
+      {Array.isArray(dataVolume) && dataVolume.length > 0 && (
+        <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight={600} gutterBottom>Analysis data volume</Typography>
+            <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 220, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+              <Table size="small">
+                <TableBody>
+                  {dataVolume.map((row) => (
+                    <TableRow key={row.trade_type}>
+                      <TableCell sx={{ fontWeight: 500 }}>{row.trade_type.replace(/_/g, ' ')}</TableCell>
+                      <TableCell align="right">{row.total_recs?.toLocaleString() ?? 0} recs</TableCell>
+                      <TableCell align="right">{row.unique_symbols ?? 0} symbols</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+      )}
       <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
         <CardContent>
           <Typography variant="h6" fontWeight={600} gutterBottom>Daily P&L Timeline</Typography>

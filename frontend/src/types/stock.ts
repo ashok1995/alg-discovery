@@ -137,6 +137,47 @@ export interface SeedRecommendationResponse {
   data_source?: string;
 }
 
+/**
+ * Prod Seed Stocks Service (GET /v2/recommendations) - OpenAPI wire format.
+ * @see http://203.57.85.201:8182/docs
+ */
+export interface RankedStockResponse {
+  symbol: string;
+  exchange: string;
+  trade_type: string;
+  score: number;
+  rank: number;
+  ranked_at: string;
+  last_price: number;
+  change_pct: number | null;
+  entry_price: number;
+  stop_loss: number;
+  target_1: number;
+  target_2: number | null;
+  target_3: number | null;
+  risk_reward_ratio: number;
+  max_risk_pct: number;
+  generated_at: string;
+  valid_until: string;
+  reason: string;
+  signals: Record<string, unknown>;
+  market_regime?: string | null;
+  sector?: string | null;
+  volume?: number | null;
+  [key: string]: unknown;
+}
+
+export interface RecommendationsResponse {
+  trade_type: string;
+  count: number;
+  recommendations: RankedStockResponse[];
+  generated_at: string;
+  recommendation_source?: string | null;
+  risk_level?: string | null;
+  min_score_applied?: number | null;
+  market_regime?: string | null;
+}
+
 export interface SeedHealthResponse {
   status: 'healthy' | 'unhealthy';
   timestamp: string;

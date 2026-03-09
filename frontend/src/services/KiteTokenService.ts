@@ -1,6 +1,6 @@
 /**
  * Kite Auth Service
- * Integrates with Kite Services API (prod: 203.57.85.72:8179)
+ * Integrates with Kite Services API (http://35.232.205.155:8179/docs)
  * API: GET /api/auth/login-url, POST /api/auth/login, GET /api/auth/status, PUT /api/auth/token
  */
 

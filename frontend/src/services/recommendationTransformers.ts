@@ -4,8 +4,91 @@
  */
 
 import type { DynamicRecommendationResponse, DynamicRecommendationItem } from '../types/trading';
-import type { SeedRecommendationResponse } from '../types/stock';
+import type {
+  SeedRecommendationResponse,
+  SeedStockRecommendation,
+  SeedMarketContext,
+  SeedArmExecutionResult,
+  SeedProcessingStats,
+  RecommendationsResponse,
+  RankedStockResponse,
+} from '../types/stock';
 import type { RecommendationRequest, RecommendationResponse, Recommendation } from '../types/recommendations';
+
+/**
+ * Map prod Seed Stocks Service response (GET /v2/recommendations) to legacy SeedRecommendationResponse.
+ * @see http://203.57.85.201:8182/docs
+ */
+export function mapRecommendationsResponseToSeedRecommendation(
+  api: RecommendationsResponse
+): SeedRecommendationResponse {
+  const recommendations: SeedStockRecommendation[] = (api.recommendations || []).map((r: RankedStockResponse) => {
+    const base: SeedStockRecommendation = {
+      symbol: r.symbol,
+      current_price: r.last_price ?? r.entry_price,
+      sector: r.sector ?? 'Unknown',
+      overall_score: typeof r.score === 'number' ? r.score / 100 : 0.5,
+      confidence: typeof r.score === 'number' && r.score >= 80 ? 0.9 : r.score >= 60 ? 0.7 : 0.5,
+      entry_signal: r.reason ?? 'Ranked',
+      selected_arms: [r.trade_type],
+      dominant_arm: r.trade_type,
+      arm_scores: {},
+      technical_analysis: {
+        rsi: typeof (r as Record<string, unknown>).rsi_14 === 'number' ? (r as Record<string, unknown>).rsi_14 as number : 50,
+        sma_20: r.last_price ?? 0,
+        volume_trend: (r as Record<string, unknown>).volume_trend as string ?? 'flat',
+        momentum: (r as Record<string, unknown>).trend as string ?? 'neutral',
+      },
+      market_condition_fit: (r as Record<string, unknown>).market_regime as string ?? 'neutral',
+      predicted_return: {
+        target_return: (r.target_1 ?? 0) - (r.entry_price ?? 0),
+        time_horizon: `${(r as Record<string, unknown>).max_hold_days ?? 5} days`,
+        confidence: 0.7,
+      },
+      risk_assessment: `Max risk ${r.max_risk_pct ?? 3}%`,
+      reasoning: [r.reason ?? ''],
+      data_source: 'seed-v2',
+      data_timestamp: r.generated_at ?? api.generated_at,
+    };
+    return { ...r, ...base } as unknown as SeedStockRecommendation;
+  });
+
+  const market_context: SeedMarketContext = {
+    regime: api.market_regime ?? 'neutral',
+    strength: 0.5,
+    volatility_level: 'normal',
+    leading_sectors: [],
+    key_observations: [],
+  };
+
+  const arm_execution_results: SeedArmExecutionResult[] = [];
+  const processing_stats: SeedProcessingStats = {
+    total_arms_executed: 1,
+    successful_arms: 1,
+    stocks_analyzed: api.count,
+    stocks_recommended: api.count,
+    filter_efficiency: 1,
+    avg_arms_per_stock: 1,
+  };
+
+  return {
+    timestamp: api.generated_at,
+    request_id: '',
+    processing_time_ms: 0,
+    recommendations,
+    market_context,
+    arm_execution_results,
+    processing_stats,
+    data_source: 'seed-v2',
+  };
+}
+
+/** Type guard: true if response is prod API RecommendationsResponse (has count + recommendations array) */
+export function isRecommendationsResponse(
+  data: SeedRecommendationResponse | RecommendationsResponse
+): data is RecommendationsResponse {
+  return typeof (data as RecommendationsResponse).count === 'number' && Array.isArray((data as RecommendationsResponse).recommendations);
+}
 
 /** Transform Seed Service response to DynamicRecommendationResponse format */
 export function transformSeedResponse(

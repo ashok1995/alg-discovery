@@ -42,9 +42,9 @@ const strategyToTradeType: Record<string, string> = {
   intraday_sell: 'intraday_sell',
   long_term: 'positional',
   positional: 'positional',
-  short_term: 'short',
-  short: 'short',
-  short_term_buy: 'short',
+  short_term: 'short_buy',
+  short: 'short_buy',
+  short_term_buy: 'short_buy',
 };
 
 type ColKey = 'symbol' | 'score' | 'current_price' | 'change_percent' | 'entry_price' | 'stop_loss' | 'target_1' | 'sector' | 'risk_level' | 'reason' | 'position';

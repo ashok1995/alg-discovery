@@ -35,6 +35,7 @@ import type {
   PerformanceTimelineDay,
   TopMoverItem,
   ScoreBinPerformanceItem,
+  AnalysisPerformanceResponse,
 } from '../types/apiModels';
 
 const Dashboard: React.FC = () => {
@@ -54,12 +55,26 @@ const Dashboard: React.FC = () => {
   const [topLosers, setTopLosers] = useState<TopMoverItem[]>([]);
   const [topTraded, setTopTraded] = useState<TopMoverItem[]>([]);
   const [scoreBins, setScoreBins] = useState<ScoreBinPerformanceItem[]>([]);
+  const [analysisPerformance, setAnalysisPerformance] = useState<AnalysisPerformanceResponse | null>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [sumRes, posRes, univRes, mktRes, armRes, learnRes, perfRes, gainRes, loseRes, tradedRes, binRes] = await Promise.allSettled([
+      const [
+        sumRes,
+        posRes,
+        univRes,
+        mktRes,
+        armRes,
+        learnRes,
+        perfRes,
+        gainRes,
+        loseRes,
+        tradedRes,
+        binRes,
+        analysisRes,
+      ] = await Promise.allSettled([
         seedDashboardService.getDailySummary(days),
         seedDashboardService.getPositions({ days, limit: 50 }),
         seedDashboardService.getUniverseHealth(),
@@ -71,6 +86,7 @@ const Dashboard: React.FC = () => {
         seedDashboardService.getTopLosers(20, 24),
         seedDashboardService.getTopTraded(20, 24),
         seedDashboardService.getScoreBinPerformance(undefined, days),
+        seedDashboardService.getAnalysisPerformance(days),
       ]);
 
       if (sumRes.status === 'fulfilled') setSummary(sumRes.value);
@@ -84,6 +100,7 @@ const Dashboard: React.FC = () => {
       if (loseRes.status === 'fulfilled') setTopLosers(loseRes.value.losers);
       if (tradedRes.status === 'fulfilled') setTopTraded(tradedRes.value.top_traded);
       if (binRes.status === 'fulfilled') setScoreBins(binRes.value);
+      if (analysisRes.status === 'fulfilled') setAnalysisPerformance(analysisRes.value);
 
       const failed = [sumRes, posRes, univRes, mktRes].filter((r) => r.status === 'rejected');
       if (failed.length === 4) setError('All dashboard API calls failed. Is seed-stocks-service running?');
@@ -162,7 +179,11 @@ const Dashboard: React.FC = () => {
       </Tabs>
 
       <TabPanel value={tab} index={0}>
-        <PerformanceTab perfTimeline={perfTimeline} armPerformance={armPerformance} />
+        <PerformanceTab
+          perfTimeline={perfTimeline}
+          armPerformance={armPerformance}
+          analysisPerformance={analysisPerformance}
+        />
       </TabPanel>
       <TabPanel value={tab} index={1}>
         <MarketMoversTab topGainers={topGainers} topLosers={topLosers} topTraded={topTraded} />
