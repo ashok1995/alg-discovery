@@ -74,8 +74,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
           borderColor: 'divider'
         }}
       >
-        <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-          Trading System
+        <Typography variant="h6" sx={{ fontWeight: 800, background: 'linear-gradient(135deg, #1976d2, #42a5f5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          AlgoDiscovery
         </Typography>
         {isMobile && (
           <IconButton onClick={() => setDrawerOpen(false)}>
@@ -122,12 +122,17 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
                       sx={{
                         pl: 4,
                         minHeight: 40,
+                        borderRadius: 1.5,
+                        mx: 1,
+                        mb: 0.25,
+                        transition: 'all 0.15s ease',
                         '&.Mui-selected': {
-                          backgroundColor: 'primary.light',
-                          '&:hover': {
-                            backgroundColor: 'primary.light'
-                          }
-                        }
+                          backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                          borderLeft: '3px solid',
+                          borderColor: 'primary.main',
+                          '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.12)' },
+                        },
+                        '&:hover': { backgroundColor: 'action.hover' },
                       }}
                     >
                       <ListItemIcon

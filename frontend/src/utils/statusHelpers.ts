@@ -42,17 +42,17 @@ export function getStatusIcon(status: string): React.ReactElement {
     case 'completed':
     case 'healthy':
     case 'good':
-      return <CheckCircle color="success" />;
+      return React.createElement(CheckCircle, { color: 'success' });
     case 'stopped':
-      return <Stop color="action" />;
+      return React.createElement(Stop, { color: 'action' });
     case 'error':
     case 'failed':
     case 'unhealthy':
-      return <Error color="error" />;
+      return React.createElement(Error, { color: 'error' });
     case 'warning':
     case 'degraded':
-      return <Warning color="warning" />;
+      return React.createElement(Warning, { color: 'warning' });
     default:
-      return <Info color="info" />;
+      return React.createElement(Info, { color: 'info' });
   }
 }

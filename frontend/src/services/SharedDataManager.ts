@@ -147,170 +147,48 @@ class SharedDataManager {
   }
 
   /**
-   * Initialize shared data with default values
+   * Initialize shared data with empty/unknown state only.
+   * Live data must come from APIs; no mock or placeholder data (trading system rule).
    */
   private initializeSharedData(): void {
-    // Initialize with mock data for demonstration
     this.serviceStatus = {
-      overall: 'healthy',
+      overall: 'unhealthy',
       services: [
-        {
-          name: 'Seed Stocks Service',
-          status: 'healthy',
-          url: '/api/seed/health',
-          lastCheck: new Date().toISOString(),
-          responseTime: 5
-        },
-        {
-          name: 'Chartink Service',
-          status: 'healthy',
-          url: '/api/chartink-health',
-          lastCheck: new Date().toISOString(),
-          responseTime: 3
-        },
-        {
-          name: 'Kite Services',
-          status: 'healthy',
-          url: '/api/kite/health',
-          lastCheck: new Date().toISOString(),
-          responseTime: 8
-        }
+        { name: 'Seed Stocks Service', status: 'unhealthy', url: '/api/seed/health', lastCheck: '', responseTime: 0 },
+        { name: 'Chartink Service', status: 'unhealthy', url: '/api/chartink-health', lastCheck: '', responseTime: 0 },
+        { name: 'Kite Services', status: 'unhealthy', url: '/api/kite/health', lastCheck: '', responseTime: 0 },
       ],
       lastUpdate: new Date().toISOString(),
-      uptime: Date.now()
+      uptime: Date.now(),
     };
 
     this.marketData = {
-      indices: [
-        {
-          symbol: 'NIFTY',
-          name: 'NIFTY 50',
-          price: 19500.50,
-          change: 240.75,
-          changePercent: 1.25,
-          volume: 1250000
-        },
-        {
-          symbol: 'BANKNIFTY',
-          name: 'BANK NIFTY',
-          price: 44500.75,
-          change: 375.25,
-          changePercent: 0.85,
-          volume: 850000
-        }
-      ],
-      topGainers: [
-        {
-          symbol: 'RELIANCE',
-          name: 'Reliance Industries',
-          price: 2450.50,
-          change: 45.75,
-          changePercent: 1.90,
-          volume: 2500000
-        },
-        {
-          symbol: 'TCS',
-          name: 'Tata Consultancy Services',
-          price: 3450.75,
-          change: 85.25,
-          changePercent: 2.53,
-          volume: 1800000
-        }
-      ],
-      topLosers: [
-        {
-          symbol: 'INFY',
-          name: 'Infosys',
-          price: 1420.25,
-          change: -25.50,
-          changePercent: -1.76,
-          volume: 950000
-        }
-      ],
+      indices: [],
+      topGainers: [],
+      topLosers: [],
       marketStats: {
-        totalVolume: 8500000,
-        totalValue: 2500000000,
-        advanceDeclineRatio: 0.65,
-        marketBreadth: 65,
-        advanceDecline: {
-          advances: 1250,
-          declines: 680,
-          unchanged: 120
-        },
-        mostActive: [
-          { symbol: 'RELIANCE', name: 'Reliance Industries', volume: 2500000, value: 6125000000 },
-          { symbol: 'TCS', name: 'Tata Consultancy Services', volume: 1800000, value: 6210000000 },
-          { symbol: 'HDFC', name: 'HDFC Bank', volume: 1200000, value: 1980000000 },
-          { symbol: 'INFY', name: 'Infosys', volume: 950000, value: 1349500000 }
-        ]
+        totalVolume: 0,
+        totalValue: 0,
+        advanceDeclineRatio: 0,
+        marketBreadth: 0,
+        advanceDecline: { advances: 0, declines: 0, unchanged: 0 },
+        mostActive: [],
       },
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
 
     this.opportunities = {
-      swingTrading: [
-        {
-          symbol: 'RELIANCE',
-          name: 'Reliance Industries',
-          price: 2450.50,
-          score: 85.5,
-          signal: 'BUY',
-          confidence: 'high'
-        },
-        {
-          symbol: 'TCS',
-          name: 'Tata Consultancy Services',
-          price: 3450.75,
-          score: 78.2,
-          signal: 'BUY',
-          confidence: 'medium'
-        }
-      ],
-      intradayTrading: [
-        {
-          symbol: 'INFY',
-          name: 'Infosys',
-          price: 1420.25,
-          score: 72.1,
-          signal: 'BUY',
-          confidence: 'medium'
-        }
-      ],
-      longTermInvesting: [
-        {
-          symbol: 'HDFC',
-          name: 'HDFC Bank',
-          price: 1650.00,
-          score: 88.5,
-          signal: 'BUY',
-          confidence: 'high'
-        }
-      ],
-      moneyMakingOpportunities: [
-        {
-          symbol: 'RELIANCE',
-          name: 'Reliance Industries',
-          price: 2450.50,
-          opportunityScore: 85.5,
-          opportunityType: 'momentum',
-          riskLevel: 'medium'
-        },
-        {
-          symbol: 'TCS',
-          name: 'Tata Consultancy Services',
-          price: 3450.75,
-          opportunityScore: 78.2,
-          opportunityType: 'value',
-          riskLevel: 'low'
-        }
-      ],
-      lastUpdated: new Date().toISOString()
+      swingTrading: [],
+      intradayTrading: [],
+      longTermInvesting: [],
+      moneyMakingOpportunities: [],
+      lastUpdated: new Date().toISOString(),
     };
 
     this.lastUpdate = {
       serviceStatus: Date.now(),
       marketData: Date.now(),
-      opportunities: Date.now()
+      opportunities: Date.now(),
     };
   }
 

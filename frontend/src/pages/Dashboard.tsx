@@ -13,6 +13,7 @@ import {
   Tooltip,
   Tabs,
   Tab,
+  Chip,
 } from '@mui/material';
 import { Refresh, Timeline, ShowChart, Storage, Security, Psychology, TrendingUp } from '@mui/icons-material';
 import TabPanel from '../components/ui/TabPanel';
@@ -34,6 +35,7 @@ import type {
   PerformanceTimelineDay,
   TopMoverItem,
   ScoreBinPerformanceItem,
+  AnalysisPerformanceResponse,
 } from '../types/apiModels';
 
 const Dashboard: React.FC = () => {
@@ -53,12 +55,26 @@ const Dashboard: React.FC = () => {
   const [topLosers, setTopLosers] = useState<TopMoverItem[]>([]);
   const [topTraded, setTopTraded] = useState<TopMoverItem[]>([]);
   const [scoreBins, setScoreBins] = useState<ScoreBinPerformanceItem[]>([]);
+  const [analysisPerformance, setAnalysisPerformance] = useState<AnalysisPerformanceResponse | null>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [sumRes, posRes, univRes, mktRes, armRes, learnRes, perfRes, gainRes, loseRes, tradedRes, binRes] = await Promise.allSettled([
+      const [
+        sumRes,
+        posRes,
+        univRes,
+        mktRes,
+        armRes,
+        learnRes,
+        perfRes,
+        gainRes,
+        loseRes,
+        tradedRes,
+        binRes,
+        analysisRes,
+      ] = await Promise.allSettled([
         seedDashboardService.getDailySummary(days),
         seedDashboardService.getPositions({ days, limit: 50 }),
         seedDashboardService.getUniverseHealth(),
@@ -70,6 +86,7 @@ const Dashboard: React.FC = () => {
         seedDashboardService.getTopLosers(20, 24),
         seedDashboardService.getTopTraded(20, 24),
         seedDashboardService.getScoreBinPerformance(undefined, days),
+        seedDashboardService.getAnalysisPerformance(days),
       ]);
 
       if (sumRes.status === 'fulfilled') setSummary(sumRes.value);
@@ -83,6 +100,7 @@ const Dashboard: React.FC = () => {
       if (loseRes.status === 'fulfilled') setTopLosers(loseRes.value.losers);
       if (tradedRes.status === 'fulfilled') setTopTraded(tradedRes.value.top_traded);
       if (binRes.status === 'fulfilled') setScoreBins(binRes.value);
+      if (analysisRes.status === 'fulfilled') setAnalysisPerformance(analysisRes.value);
 
       const failed = [sumRes, posRes, univRes, mktRes].filter((r) => r.status === 'rejected');
       if (failed.length === 4) setError('All dashboard API calls failed. Is seed-stocks-service running?');
@@ -109,10 +127,17 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4">Seed Stocks Dashboard</Typography>
-        <Box display="flex" gap={2} alignItems="center">
-          <FormControl size="small" sx={{ minWidth: 100 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
+            Seed Stocks Dashboard
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mt={0.5}>
+            Continuous analysis pipeline — all endpoints integrated
+          </Typography>
+        </Box>
+        <Box display="flex" gap={1.5} alignItems="center">
+          <FormControl size="small" sx={{ minWidth: 110 }}>
             <InputLabel>Period</InputLabel>
             <Select value={days} label="Period" onChange={(e) => setDays(Number(e.target.value))}>
               <MenuItem value={1}>1 day</MenuItem>
@@ -122,20 +147,31 @@ const Dashboard: React.FC = () => {
               <MenuItem value={30}>30 days</MenuItem>
             </Select>
           </FormControl>
-          <Tooltip title="Refresh">
-            <IconButton onClick={fetchAll} color="primary"><Refresh /></IconButton>
+          <Tooltip title="Refresh all data">
+            <IconButton onClick={fetchAll} color="primary" sx={{ bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } }}>
+              <Refresh />
+            </IconButton>
           </Tooltip>
         </Box>
       </Box>
 
-      {loading && <LinearProgress sx={{ mb: 1 }} />}
-      {error && <Alert severity="warning" sx={{ mb: 2 }}>{error}</Alert>}
+      {loading && <LinearProgress sx={{ mb: 1, borderRadius: 1 }} />}
+      {error && <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
       {summary && <DashboardKpiCards summary={summary} />}
 
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 1 }} variant="scrollable" scrollButtons="auto">
+      <Tabs
+        value={tab}
+        onChange={(_, v) => setTab(v)}
+        variant="scrollable"
+        scrollButtons="auto"
+        sx={{
+          mb: 2,
+          '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, minHeight: 48 },
+        }}
+      >
         <Tab icon={<Timeline />} label="Performance" iconPosition="start" />
-        <Tab icon={<TrendingUp />} label="Market Movers" iconPosition="start" />
+        <Tab icon={<TrendingUp />} label={<Box display="flex" alignItems="center" gap={0.5}>Market Movers <Chip label="Live" size="small" color="success" sx={{ height: 18, fontSize: '0.65rem' }} /></Box>} iconPosition="start" />
         <Tab icon={<ShowChart />} label="Market Trends" iconPosition="start" />
         <Tab icon={<Storage />} label="Universe" iconPosition="start" />
         <Tab icon={<Security />} label="Positions" iconPosition="start" />
@@ -143,7 +179,11 @@ const Dashboard: React.FC = () => {
       </Tabs>
 
       <TabPanel value={tab} index={0}>
-        <PerformanceTab perfTimeline={perfTimeline} armPerformance={armPerformance} />
+        <PerformanceTab
+          perfTimeline={perfTimeline}
+          armPerformance={armPerformance}
+          analysisPerformance={analysisPerformance}
+        />
       </TabPanel>
       <TabPanel value={tab} index={1}>
         <MarketMoversTab topGainers={topGainers} topLosers={topLosers} topTraded={topTraded} />

@@ -8,17 +8,18 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Paper,
   Chip,
   ToggleButton,
   ToggleButtonGroup,
   Box,
+  alpha,
 } from '@mui/material';
 import { TrendingUp, TrendingDown, SwapVert } from '@mui/icons-material';
 import type { TopMoverItem } from '../../types/apiModels';
-import { returnColor } from './types';
+import { useSortableData } from '../../hooks/useSortableData';
+import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 
 interface MarketMoversTabProps {
   topGainers: TopMoverItem[];
@@ -26,106 +27,136 @@ interface MarketMoversTabProps {
   topTraded: TopMoverItem[];
 }
 
-const StockTable: React.FC<{ items: TopMoverItem[]; showVolume?: boolean }> = ({ items, showVolume }) => (
-  <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 500 }}>
-    <Table size="small" stickyHeader>
-      <TableHead>
-        <TableRow>
-          <TableCell>#</TableCell>
-          <TableCell>Symbol</TableCell>
-          <TableCell>Type</TableCell>
-          <TableCell align="right">Price</TableCell>
-          <TableCell align="right">Change %</TableCell>
-          <TableCell align="right">Score</TableCell>
-          {showVolume && <TableCell align="right">Rel. Volume</TableCell>}
-          <TableCell>Sector</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {items.map((s, idx) => (
-          <TableRow key={`${s.symbol}-${s.trade_type}-${idx}`} hover>
-            <TableCell>{idx + 1}</TableCell>
-            <TableCell sx={{ fontWeight: 'bold' }}>{s.symbol}</TableCell>
-            <TableCell>
-              <Chip label={s.trade_type.replace(/_/g, ' ')} size="small" variant="outlined" />
-            </TableCell>
-            <TableCell align="right">
-              {s.last_price > 0 ? `₹${s.last_price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : '—'}
-            </TableCell>
-            <TableCell align="right">
-              <Typography variant="body2" color={returnColor(s.change_pct)} fontWeight="bold">
-                {s.change_pct > 0 ? '+' : ''}{s.change_pct?.toFixed(2) ?? '—'}%
-              </Typography>
-            </TableCell>
-            <TableCell align="right">
-              <Chip label={s.score?.toFixed(0)} size="small" color="primary" variant="outlined" />
-            </TableCell>
-            {showVolume && (
-              <TableCell align="right">
-                {s.relative_volume ? `${s.relative_volume.toFixed(1)}x` : '—'}
+type MoverKey = 'symbol' | 'exchange' | 'last_price' | 'change_pct' | 'volume' | 'value_traded_cr';
+
+const COLUMNS: ColumnDef<MoverKey>[] = [
+  { key: 'symbol', label: 'Symbol', sortable: true, minWidth: 100 },
+  { key: 'exchange', label: 'Exch', sortable: true, minWidth: 50 },
+  { key: 'last_price', label: 'Price (₹)', align: 'right', sortable: true },
+  { key: 'change_pct', label: 'Change %', align: 'right', sortable: true },
+  { key: 'volume', label: 'Volume', align: 'right', sortable: true },
+  { key: 'value_traded_cr', label: 'Value (Cr)', align: 'right', sortable: true },
+];
+
+const formatVolume = (v: number | null): string => {
+  if (v == null) return '—';
+  if (v >= 1e7) return `${(v / 1e7).toFixed(1)}Cr`;
+  if (v >= 1e5) return `${(v / 1e5).toFixed(1)}L`;
+  if (v >= 1e3) return `${(v / 1e3).toFixed(1)}K`;
+  return v.toLocaleString('en-IN');
+};
+
+const SortableMoverTable: React.FC<{ items: TopMoverItem[] }> = ({ items }) => {
+  const { sortedData, requestSort, getSortDirection } = useSortableData<TopMoverItem, MoverKey>(
+    items,
+    { key: 'change_pct', direction: 'desc' },
+  );
+
+  return (
+    <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 520, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+      <Table size="small" stickyHeader>
+        <SortableTableHead columns={COLUMNS} onSort={requestSort} getSortDirection={getSortDirection} />
+        <TableBody>
+          {sortedData.map((s, idx) => (
+            <TableRow
+              key={`${s.symbol}-${idx}`}
+              hover
+              sx={{ '&:last-child td': { borderBottom: 0 } }}
+            >
+              <TableCell>
+                <Typography variant="body2" fontWeight={600}>{s.symbol}</Typography>
               </TableCell>
-            )}
-            <TableCell>
-              <Typography variant="caption" color="text.secondary">{s.sector ?? '—'}</Typography>
-            </TableCell>
-          </TableRow>
-        ))}
-        {items.length === 0 && (
-          <TableRow>
-            <TableCell colSpan={showVolume ? 8 : 7} align="center">
-              No data available yet.
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
-  </TableContainer>
+              <TableCell>
+                <Chip label={s.exchange ?? 'NSE'} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
+              </TableCell>
+              <TableCell align="right">
+                <Typography variant="body2" fontWeight={500}>
+                  ₹{s.last_price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                </Typography>
+              </TableCell>
+              <TableCell align="right">
+                <Chip
+                  label={`${s.change_pct > 0 ? '+' : ''}${s.change_pct?.toFixed(2) ?? '0'}%`}
+                  size="small"
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: '0.75rem',
+                    bgcolor: s.change_pct > 0 ? alpha('#4caf50', 0.12) : s.change_pct < 0 ? alpha('#f44336', 0.12) : 'grey.100',
+                    color: s.change_pct > 0 ? 'success.dark' : s.change_pct < 0 ? 'error.dark' : 'text.secondary',
+                  }}
+                />
+              </TableCell>
+              <TableCell align="right">
+                <Typography variant="body2" color="text.secondary">{formatVolume(s.volume)}</Typography>
+              </TableCell>
+              <TableCell align="right">
+                <Typography variant="body2" color="text.secondary">
+                  {s.value_traded_cr != null ? `₹${s.value_traded_cr.toFixed(1)}` : '—'}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ))}
+          {sortedData.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={COLUMNS.length} align="center" sx={{ py: 4 }}>
+                <Typography color="text.secondary">No data available</Typography>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+
+interface SummaryCardProps {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  count: number;
+  label: string;
+  color: string;
+}
+
+const SummaryCard: React.FC<SummaryCardProps> = ({ active, onClick, icon, count, label, color }) => (
+  <Card
+    onClick={onClick}
+    sx={{
+      cursor: 'pointer',
+      border: 2,
+      borderColor: active ? `${color}.main` : 'transparent',
+      bgcolor: active ? alpha(color === 'success' ? '#4caf50' : color === 'error' ? '#f44336' : '#2196f3', 0.04) : 'background.paper',
+      transition: 'all 0.2s ease',
+      '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 },
+    }}
+  >
+    <CardContent sx={{ textAlign: 'center', py: 2.5, '&:last-child': { pb: 2.5 } }}>
+      {icon}
+      <Typography variant="h4" fontWeight={700} color={`${color}.main`} sx={{ mt: 0.5 }}>
+        {count}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" fontWeight={500}>{label}</Typography>
+    </CardContent>
+  </Card>
 );
 
 const MarketMoversTab: React.FC<MarketMoversTabProps> = ({ topGainers, topLosers, topTraded }) => {
   const [section, setSection] = useState<'gainers' | 'losers' | 'traded'>('gainers');
 
+  const items = section === 'gainers' ? topGainers : section === 'losers' ? topLosers : topTraded;
+  const title = section === 'gainers' ? 'Top Gainers' : section === 'losers' ? 'Top Losers' : 'Most Traded';
+
   return (
     <>
-      <Grid container spacing={2} sx={{ mb: 2 }}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={4}>
-          <Card
-            variant="outlined"
-            sx={{ cursor: 'pointer', borderColor: section === 'gainers' ? 'success.main' : undefined, borderWidth: section === 'gainers' ? 2 : 1 }}
-            onClick={() => setSection('gainers')}
-          >
-            <CardContent sx={{ textAlign: 'center', py: 1.5 }}>
-              <TrendingUp color="success" fontSize="small" />
-              <Typography variant="h5" color="success.main" fontWeight="bold">{topGainers.length}</Typography>
-              <Typography variant="caption">Top Gainers</Typography>
-            </CardContent>
-          </Card>
+          <SummaryCard active={section === 'gainers'} onClick={() => setSection('gainers')} icon={<TrendingUp sx={{ fontSize: 28, color: 'success.main' }} />} count={topGainers.length} label="Top Gainers" color="success" />
         </Grid>
         <Grid item xs={4}>
-          <Card
-            variant="outlined"
-            sx={{ cursor: 'pointer', borderColor: section === 'losers' ? 'error.main' : undefined, borderWidth: section === 'losers' ? 2 : 1 }}
-            onClick={() => setSection('losers')}
-          >
-            <CardContent sx={{ textAlign: 'center', py: 1.5 }}>
-              <TrendingDown color="error" fontSize="small" />
-              <Typography variant="h5" color="error.main" fontWeight="bold">{topLosers.length}</Typography>
-              <Typography variant="caption">Top Losers</Typography>
-            </CardContent>
-          </Card>
+          <SummaryCard active={section === 'losers'} onClick={() => setSection('losers')} icon={<TrendingDown sx={{ fontSize: 28, color: 'error.main' }} />} count={topLosers.length} label="Top Losers" color="error" />
         </Grid>
         <Grid item xs={4}>
-          <Card
-            variant="outlined"
-            sx={{ cursor: 'pointer', borderColor: section === 'traded' ? 'info.main' : undefined, borderWidth: section === 'traded' ? 2 : 1 }}
-            onClick={() => setSection('traded')}
-          >
-            <CardContent sx={{ textAlign: 'center', py: 1.5 }}>
-              <SwapVert color="info" fontSize="small" />
-              <Typography variant="h5" color="info.main" fontWeight="bold">{topTraded.length}</Typography>
-              <Typography variant="caption">Most Traded</Typography>
-            </CardContent>
-          </Card>
+          <SummaryCard active={section === 'traded'} onClick={() => setSection('traded')} icon={<SwapVert sx={{ fontSize: 28, color: 'info.main' }} />} count={topTraded.length} label="Most Traded" color="info" />
         </Grid>
       </Grid>
 
@@ -137,15 +168,10 @@ const MarketMoversTab: React.FC<MarketMoversTabProps> = ({ topGainers, topLosers
         </ToggleButtonGroup>
       </Box>
 
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            {section === 'gainers' ? 'Top Gainers' : section === 'losers' ? 'Top Losers' : 'Most Traded'} (Last 24h)
-          </Typography>
-          <StockTable
-            items={section === 'gainers' ? topGainers : section === 'losers' ? topLosers : topTraded}
-            showVolume={section === 'traded'}
-          />
+      <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+        <CardContent sx={{ p: 2 }}>
+          <Typography variant="h6" fontWeight={600} gutterBottom>{title} (Last 24h)</Typography>
+          <SortableMoverTable items={items} />
         </CardContent>
       </Card>
     </>

@@ -29,18 +29,18 @@ export const API_CONFIG = {
     process.env.REACT_APP_RECOMMENDATION_API_BASE_URL ||
     (isProduction() ? 'http://recommendations.algodiscovery.prod:8183' : 'http://localhost:8183'),
   
-  // Recommendation V2 API URL (port 8182 for production, 8282 for staging)
+  // Recommendation V2 API URL (Seed Stocks Service - same as SEED_API_BASE_URL in prod)
   RECOMMENDATION_V2_API_BASE_URL:
     process.env.REACT_APP_RECOMMENDATION_V2_API_BASE_URL ||
-    (isProduction() ? 'http://203.57.85.72:8182' : 'http://localhost:8282'),
+    (isProduction() ? 'http://203.57.85.201:8182' : 'http://localhost:8282'),
 
   // Chartink Authentication Service URL (port 8081)
   CHARTINK_AUTH_BASE_URL: process.env.REACT_APP_CHARTINK_AUTH_BASE_URL || 
                           (isProduction() ? 'http://algodiscovery.com:8081' : 'http://localhost:8081'),
 
-  // Seed service API URL (primary recommendations service)
+  // Seed service API URL (Seed Stocks Service - http://203.57.85.201:8182/docs)
   SEED_API_BASE_URL: process.env.REACT_APP_SEED_API_BASE_URL ||
-                     (isProduction() ? 'http://algodiscovery.com:8082' : 'http://localhost:8082'),
+                     (isProduction() ? 'http://203.57.85.201:8182' : 'http://localhost:8282'),
   // Seed v2 recommendations: POST body { strategy, risk_level, limit } (proxied via /api/seed in dev; nginx in prod)
   SEED_V2_RECOMMENDATIONS_PATH: '/api/seed/recommendations',
 

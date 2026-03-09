@@ -62,8 +62,9 @@ export const seedDashboardService = {
   getUniverseHealth: () =>
     fetchJSON<UniverseHealthResponse>('/api/v2/dashboard/universe-health'),
 
+  /** API requires points >= 5 */
   getMarketTrends: (points = 20) =>
-    fetchJSON<MarketTrendsResponse>('/api/v2/dashboard/market-trends', { points }),
+    fetchJSON<MarketTrendsResponse>('/api/v2/dashboard/market-trends', { points: Math.max(5, points) }),
 
   getArmPerformance: (days = 7) =>
     fetchJSON<ArmPerformanceResponse>('/api/v2/dashboard/arm-performance', { days }),

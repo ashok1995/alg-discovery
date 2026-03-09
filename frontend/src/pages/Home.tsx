@@ -8,15 +8,30 @@ import {
   Chip,
   Tabs,
   Tab,
+  alpha,
 } from '@mui/material';
-import { AccessTime, TrendingUp as TrendingUpIcon, TrendingDown as TrendingDownIcon } from '@mui/icons-material';
+import {
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  Insights,
+  ShowChart,
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { seedDashboardService } from '../services/SeedDashboardService';
 import type { DashboardDailySummary, TrackedPositionItem, TopMoverItem } from '../types/apiModels';
+import { InternalMarketContextCard } from '../components/InternalMarketContextCard';
 import HomeOverviewTab from '../components/home/HomeOverviewTab';
 import HomeDetailsTab from '../components/home/HomeDetailsTab';
 import HomeMarketMoversTab from '../components/home/HomeMarketMoversTab';
 import TabPanel from '../components/ui/TabPanel';
+
+interface MarketCard {
+  name: string;
+  value: string;
+  change: string;
+  trend: 'up' | 'down' | 'neutral';
+  icon: React.ReactNode;
+}
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -52,48 +67,42 @@ const Home: React.FC = () => {
   }, [fetchLiveData]);
 
   const mktCtx = liveSummary?.market_context;
-  const niftyPrice = mktCtx?.nifty_50?.price;
-  const niftyChg = mktCtx?.nifty_50?.change_percent;
-  const vix = mktCtx?.vix_india;
+  const nifty = mktCtx?.nifty_50;
+  const breadth = mktCtx?.market_breadth;
   const regime = mktCtx?.market_regime;
-  const adRatio = mktCtx?.market_breadth?.advance_decline_ratio;
 
-  const marketIndices = [
+  const marketCards: MarketCard[] = [
     {
       name: 'NIFTY 50',
-      value: niftyPrice ? niftyPrice.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—',
-      change: niftyChg ? (niftyChg >= 0 ? '+' : '') + niftyChg.toFixed(2) + '%' : '—',
-      changePercent: niftyChg ? (niftyChg >= 0 ? '+' : '') + niftyChg.toFixed(2) + '%' : '—',
-      trend: (niftyChg ?? 0) >= 0 ? 'up' : 'down',
-      volume: '',
+      value: nifty?.price ? nifty.price.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—',
+      change: nifty?.change_percent != null ? `${nifty.change_percent >= 0 ? '+' : ''}${nifty.change_percent.toFixed(2)}%` : '—',
+      trend: (nifty?.change_percent ?? 0) >= 0 ? 'up' : 'down',
+      icon: <ShowChart />,
     },
     {
       name: 'VIX India',
-      value: vix ? vix.toFixed(2) : '—',
-      change: mktCtx?.vix_level || '—',
-      changePercent: mktCtx?.vix_level || '—',
-      trend: vix && vix > 18 ? 'down' : 'up',
-      volume: '',
+      value: mktCtx?.vix_india != null ? mktCtx.vix_india.toFixed(2) : '—',
+      change: mktCtx?.vix_level ?? '—',
+      trend: (mktCtx?.vix_india ?? 0) > 18 ? 'down' : 'up',
+      icon: <Insights />,
     },
     {
       name: 'Market Regime',
       value: regime ? regime.charAt(0).toUpperCase() + regime.slice(1) : '—',
-      change: mktCtx?.market_sentiment || '—',
-      changePercent: '',
-      trend: regime === 'bullish' ? 'up' : regime === 'bearish' ? 'down' : 'up',
-      volume: '',
+      change: mktCtx?.market_sentiment ?? '—',
+      trend: regime === 'bullish' ? 'up' : regime === 'bearish' ? 'down' : 'neutral',
+      icon: regime === 'bullish' ? <TrendingUpIcon /> : <TrendingDownIcon />,
     },
     {
-      name: 'A/D Ratio',
-      value: adRatio ? adRatio.toFixed(2) : '—',
-      change: mktCtx?.market_breadth?.advance_count
-        ? `${mktCtx.market_breadth.advance_count}A / ${mktCtx.market_breadth.decline_count}D`
-        : '—',
-      changePercent: '',
-      trend: (adRatio ?? 0) >= 1 ? 'up' : 'down',
-      volume: '',
+      name: 'Advance / Decline',
+      value: breadth?.advance_decline_ratio != null ? breadth.advance_decline_ratio.toFixed(2) : '—',
+      change: breadth?.advance_count != null ? `${breadth.advance_count}A / ${breadth.decline_count}D` : '—',
+      trend: (breadth?.advance_decline_ratio ?? 0) >= 1 ? 'up' : 'down',
+      icon: <ShowChart />,
     },
   ];
+
+  const trendColor = (t: string) => (t === 'up' ? '#4caf50' : t === 'down' ? '#f44336' : '#ff9800');
 
   const recentActivities = recentPositions.map((p) => ({
     time: p.opened_at ? new Date(p.opened_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—',
@@ -103,109 +112,97 @@ const Home: React.FC = () => {
     status: p.status,
   }));
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-
-  const handleStrategyClick = (path: string) => {
-    navigate(path);
-  };
-
-  const getTrendIcon = (trend: string) =>
-    trend === 'up' ? <TrendingUpIcon /> : <TrendingDownIcon />;
-  const getTrendColor = (trend: string) => (trend === 'up' ? 'success' : 'error');
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1a1a1a' }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
           Financial Markets Overview
         </Typography>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
+        <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
           Real-time market data, indices, and trading opportunities
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 1.5 }}>
           <Chip
             label={regime ? `Market: ${regime}` : 'Loading...'}
             color={regime === 'bullish' ? 'success' : regime === 'bearish' ? 'error' : 'warning'}
             size="small"
-            icon={<AccessTime />}
+            sx={{ fontWeight: 600 }}
           />
-          <Typography variant="body2" color="text.secondary">
-            Last Update: {liveSummary?.generated_at ? new Date(liveSummary.generated_at).toLocaleTimeString('en-IN') : '—'}
+          <Typography variant="caption" color="text.secondary">
+            {liveSummary?.generated_at ? `Updated ${new Date(liveSummary.generated_at).toLocaleTimeString('en-IN')}` : ''}
           </Typography>
         </Box>
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {marketIndices.map((index, indexKey) => (
-          <Grid item xs={12} sm={6} md={3} key={indexKey}>
-            <Card
-              sx={{
-                height: '100%',
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                },
-              }}
-            >
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                    {index.name}
+      <InternalMarketContextCard />
+
+      <Grid container spacing={2.5} sx={{ mb: 4 }}>
+        {marketCards.map((card) => {
+          const color = trendColor(card.trend);
+          return (
+            <Grid item xs={12} sm={6} md={3} key={card.name}>
+              <Card
+                elevation={0}
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 2.5,
+                  transition: 'all 0.25s ease',
+                  '&:hover': {
+                    transform: 'translateY(-3px)',
+                    boxShadow: `0 12px 32px ${alpha(color, 0.15)}`,
+                  },
+                }}
+              >
+                <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+                  <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                    <Typography variant="body2" fontWeight={600} color="text.secondary" textTransform="uppercase" letterSpacing={0.5} fontSize="0.72rem">
+                      {card.name}
+                    </Typography>
+                    <Box sx={{ bgcolor: alpha(color, 0.1), borderRadius: 1.5, p: 0.6, display: 'flex', color }}>
+                      {card.icon}
+                    </Box>
+                  </Box>
+                  <Typography variant="h4" fontWeight={800} sx={{ mt: 1.5, mb: 0.5, color }}>
+                    {card.value}
                   </Typography>
                   <Chip
-                    icon={getTrendIcon(index.trend)}
-                    label={index.changePercent}
-                    color={getTrendColor(index.trend) as 'success' | 'error'}
+                    label={card.change}
                     size="small"
-                    variant="outlined"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.72rem',
+                      bgcolor: alpha(color, 0.08),
+                      color,
+                    }}
                   />
-                </Box>
-                <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {index.value}
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {index.change}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Vol: {index.volume}
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
       </Grid>
 
       <Box sx={{ flexGrow: 1 }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-          <Tabs value={tabValue} onChange={handleTabChange} aria-label="dashboard tabs">
-            <Tab label="Trading Overview" />
-            <Tab label="Market Movers" />
-            <Tab label="Recent Activities" />
-          </Tabs>
-        </Box>
+        <Tabs
+          value={tabValue}
+          onChange={(_, v) => setTabValue(v)}
+          sx={{
+            mb: 2,
+            '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: '0.9rem' },
+          }}
+        >
+          <Tab label="Trading Overview" />
+          <Tab label="Market Movers" />
+          <Tab label="Recent Activities" />
+        </Tabs>
 
         <TabPanel value={tabValue} index={0}>
-          <HomeOverviewTab
-            liveSummary={liveSummary}
-            loadingSeed={loadingSeed}
-            onStrategyClick={handleStrategyClick}
-          />
+          <HomeOverviewTab liveSummary={liveSummary} loadingSeed={loadingSeed} onStrategyClick={(p) => navigate(p)} />
         </TabPanel>
-
         <TabPanel value={tabValue} index={1}>
-          <HomeMarketMoversTab
-            topGainers={topGainers}
-            topLosers={topLosers}
-            topTraded={topTraded}
-            loading={loadingSeed}
-          />
+          <HomeMarketMoversTab topGainers={topGainers} topLosers={topLosers} topTraded={topTraded} loading={loadingSeed} />
         </TabPanel>
-
         <TabPanel value={tabValue} index={2}>
           <HomeDetailsTab recentActivities={recentActivities} />
         </TabPanel>

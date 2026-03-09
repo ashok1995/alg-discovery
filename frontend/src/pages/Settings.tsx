@@ -24,7 +24,6 @@ import NotificationsTab from '../components/settings/NotificationsTab';
 import PerformanceTab from '../components/settings/PerformanceTab';
 import SystemTab from '../components/settings/SystemTab';
 import type { SystemSettings } from '../components/settings/types';
-import zerodhaAPIService from '../services/ZerodhaAPIService';
 
 const DEFAULT_SETTINGS: SystemSettings = {
   autoRefresh: true,
@@ -77,24 +76,12 @@ const Settings: React.FC = () => {
   };
 
   useEffect(() => {
-    const loadStatus = async () => {
-      try {
-        const [settingsStatus, connection, comprehensive] = await Promise.all([
-          zerodhaAPIService.getSettingsStatus(),
-          zerodhaAPIService.getConnectionStatus(),
-          zerodhaAPIService.getComprehensiveStatus(),
-        ]);
-        setSystemStatus({
-          apiConnected: connection?.connected ?? true,
-          marketOpen: comprehensive?.market_open ?? false,
-          cacheActive: comprehensive?.cache_active ?? false,
-          securityAuthenticated: settingsStatus?.credentials_configured ?? false,
-        });
-      } catch (e) {
-        console.error('Settings: v1 status fetch failed', e);
-      }
-    };
-    loadStatus();
+    setSystemStatus({
+      apiConnected: false,
+      marketOpen: false,
+      cacheActive: true,
+      securityAuthenticated: false,
+    });
   }, []);
 
   return (

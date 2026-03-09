@@ -14,3 +14,10 @@ export interface SystemSettings {
   debugMode: boolean;
   logLevel: 'error' | 'warn' | 'info' | 'debug';
 }
+
+export interface SystemStatusState {
+  apiConnected: boolean;
+  marketOpen: boolean;
+  cacheActive: boolean;
+  securityAuthenticated: boolean;
+}

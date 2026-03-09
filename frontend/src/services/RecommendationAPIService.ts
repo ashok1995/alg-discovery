@@ -28,6 +28,7 @@ import {
   handleGetUIOrQuickRecommendations,
   handleGetProductionRecommendations,
 } from './recommendationApiHandlersExtended';
+import { mapRecommendationsResponseToSeedRecommendation } from './recommendationTransformers';
 import {
   UniversalRecommendationRequest,
   DynamicRecommendationResponse,
@@ -39,6 +40,7 @@ import {
   BUY_ARMS,
 } from '../types/apiModels';
 import type { RecommendationRequest, HealthResponse, ServiceStatus } from '../types/recommendations';
+import type { SeedHealthResponse, SeedRecommendationResponse } from '../types/stock';
 
 export type { RiskProfile, RecommendationRequest, Recommendation, RecommendationResponse, HealthResponse, ServiceStatus } from '../types/recommendations';
 
@@ -75,12 +77,16 @@ class RecommendationAPIService {
       const risk_level = request.risk_level != null ? String(request.risk_level) : 'moderate';
       const limit = request.limit ?? 20;
 
-      const v2Request = { strategy, risk_level, limit };
+      const v2Request: import('./RecommendationV2Service').V2RecommendationRequestParams = {
+        strategy: strategy as 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term',
+        risk_level: risk_level as 'low' | 'medium' | 'high',
+        limit,
+      };
       console.log(`🌱 [SeedService] POST ${API_CONFIG.SEED_V2_RECOMMENDATIONS_PATH}`, v2Request);
 
       const data = await fetchV2Recommendations(v2Request);
-      console.log(`✅ [SeedService] Response: ${data.recommendations?.length ?? 0} recommendations`);
-      return data;
+      console.log(`✅ [SeedService] Response: ${data.count} recommendations`);
+      return mapRecommendationsResponseToSeedRecommendation(data);
     } catch (error) {
       console.error(`❌ [SeedService] Error:`, error);
       throw this.handleError(error, 'Seed Service recommendations');
@@ -89,13 +95,7 @@ class RecommendationAPIService {
 
   async getSeedServiceHealth(): Promise<SeedHealthResponse> {
     try {
-      // Use different health endpoints for dev vs prod
-      const isProduction = process.env.NODE_ENV === 'production' || 
-                          process.env.REACT_APP_NODE_ENV === 'production' ||
-                          (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
-      
-      const healthPath = isProduction ? '/api/v2/stocks/health' : '/health';
-      const seedHealthUrl = `${API_CONFIG.SEED_API_BASE_URL}${healthPath}`;
+      const seedHealthUrl = `${API_CONFIG.SEED_API_BASE_URL}/health`;
       
       const response = await axios.get(seedHealthUrl, { timeout: 10000 });
       return response.data;
@@ -154,12 +154,19 @@ class RecommendationAPIService {
   }
 
   async getRecommendationsByType(
-    type: 'swing' | 'long-buy' | 'intraday-buy' | 'intraday-sell',
+    type: 'swing' | 'long-buy' | 'intraday-buy' | 'intraday-sell' | 'short',
     request: RecommendationRequest = {}
   ): Promise<DynamicRecommendationResponse> {
     return handleGetRecommendationsByType(
       (r) => this.getSeedServiceRecommendations(r),
-      (r) => this.getProductionRecommendations(r),
+      (r) => this.getProductionRecommendations({
+        strategy: r.strategy as string,
+        risk_level: r.risk_level as string,
+        min_price: r.min_price as number | undefined,
+        max_price: r.max_price as number | undefined,
+        min_volume: r.min_volume as number | undefined,
+        limit: r.limit as number | undefined,
+      }),
       type,
       request
     );

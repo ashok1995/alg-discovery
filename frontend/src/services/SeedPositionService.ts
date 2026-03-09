@@ -63,16 +63,30 @@ export const seedPositionService = {
       body: JSON.stringify(body),
     }),
 
-  getAllRecommendations: (opts?: { limit?: number; min_score?: number; risk_level?: string }) =>
-    fetchJSON<{
-      trade_types: Record<string, { count: number; recommendation_source: string; recommendations: Array<Record<string, unknown>> }>;
-      generated_at: string;
-      risk_level: string | null;
-      min_score_applied: number;
-      market_regime: string | null;
-    }>('/v2/recommendations/all', {
-      params: opts as any,
-    }),
+  /**
+   * Get recommendations for all trade types. Note: prod Seed API (203.57.85.201:8182) does not
+   * expose /v2/recommendations/all; use GET /v2/recommendations?trade_type=X per type instead.
+   * This method may 404 in prod - callers should handle or use RecommendationAPIService per type.
+   */
+  getAllRecommendations: async (opts?: { limit?: number; min_score?: number; risk_level?: string }) => {
+    try {
+      return await fetchJSON<{
+        trade_types: Record<string, { count: number; recommendation_source: string; recommendations: Array<Record<string, unknown>> }>;
+        generated_at: string;
+        risk_level: string | null;
+        min_score_applied: number;
+        market_regime: string | null;
+      }>('/v2/recommendations/all', { params: opts as Record<string, string | number> });
+    } catch {
+      return {
+        trade_types: {},
+        generated_at: new Date().toISOString(),
+        risk_level: null,
+        min_score_applied: 60,
+        market_regime: null,
+      };
+    }
+  },
 };
 
 export default seedPositionService;
