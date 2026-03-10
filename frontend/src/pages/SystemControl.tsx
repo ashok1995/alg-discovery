@@ -1,209 +1,70 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
   CardContent,
   Typography,
-  Button,
   Grid,
-  Switch,
-  FormControlLabel,
-  TextField,
   Alert,
   CircularProgress,
   Chip,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Slider,
+  LinearProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
   IconButton,
-  Tooltip
+  Tooltip,
+  Tabs,
+  Tab,
 } from '@mui/material';
-import {
-  PlayArrow,
-  Stop,
-  Refresh,
-  ExpandMore,
-  Warning,
-  CheckCircle,
-  Error,
-  Edit,
-  Save
-} from '@mui/icons-material';
+import { Refresh, CheckCircle, Error as ErrorIcon, Storage, Speed, Memory } from '@mui/icons-material';
+import TabPanel from '../components/ui/TabPanel';
+import { seedDashboardService } from '../services/SeedDashboardService';
+import type { PipelineHealthResponse, ObservabilityDbResponse, RegistryStatsResponse } from '../types/apiModels';
 
-interface SystemComponent {
-  name: string;
-  status: 'running' | 'stopped' | 'error';
-  last_start: string;
-  uptime: string;
-  performance: {
-    cpu_usage: number;
-    memory_usage: number;
-    error_count: number;
-  };
-  config: Record<string, any>;
-}
-
-interface DataCollectionSchedule {
-  component: string;
-  enabled: boolean;
-  interval_minutes: number;
-  last_run: string;
-  next_run: string;
-  success_rate: number;
-}
-
-interface SystemConfig {
-  redis: {
-    host: string;
-    port: number;
-    db: number;
-  };
-  database: {
-    type: string;
-    host: string;
-    port: number;
-    name: string;
-  };
-  zerodha: {
-    api_key: string;
-    access_token: string;
-    rate_limit_per_minute: number;
-  };
-  chartink: {
-    enabled: boolean;
-    api_key: string;
-    rate_limit_per_minute: number;
-  };
-  trading: {
-    max_positions: number;
-    risk_per_trade: number;
-    max_capital_per_trade: number;
-  };
-}
+const TRADE_TYPES = ['intraday_buy', 'intraday_sell', 'swing_buy', 'short', 'positional'];
 
 const SystemControl: React.FC = () => {
-  const [components, setComponents] = useState<SystemComponent[]>([]);
-  const [schedules, setSchedules] = useState<DataCollectionSchedule[]>([]);
-  const [config, setConfig] = useState<SystemConfig | null>(null);
+  const [pipelineHealth, setPipelineHealth] = useState<PipelineHealthResponse | null>(null);
+  const [observability, setObservability] = useState<ObservabilityDbResponse | null>(null);
+  const [registryStats, setRegistryStats] = useState<RegistryStatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editingConfig, setEditingConfig] = useState(false);
+  const [tab, setTab] = useState(0);
 
-  const fetchSystemData = async () => {
+  const fetchSystemData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      
-      // Fetch system components
-      const componentsResponse = await fetch('/api/system/components');
-      const componentsData = await componentsResponse.json();
-      setComponents(componentsData);
+      const [healthRes, obsRes, regRes] = await Promise.allSettled([
+        seedDashboardService.getPipelineHealth(),
+        seedDashboardService.getObservabilityDb(),
+        seedDashboardService.getRegistryStats(),
+      ]);
+      if (healthRes.status === 'fulfilled') setPipelineHealth(healthRes.value);
+      if (obsRes.status === 'fulfilled') setObservability(obsRes.value);
+      if (regRes.status === 'fulfilled') setRegistryStats(regRes.value);
 
-      // Fetch data collection schedules
-      const schedulesResponse = await fetch('/api/system/schedules');
-      const schedulesData = await schedulesResponse.json();
-      setSchedules(schedulesData);
-
-      // Fetch system configuration
-      const configResponse = await fetch('/api/system/config');
-      const configData = await configResponse.json();
-      setConfig(configData);
-
+      const allFailed = [healthRes, obsRes].every((r) => r.status === 'rejected');
+      if (allFailed) setError('Failed to connect to seed-stocks-service. Is it running?');
     } catch (err) {
       setError('Failed to fetch system data');
-      console.error('System data fetch error:', err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const toggleComponent = async (componentName: string, action: 'start' | 'stop') => {
-    try {
-      const response = await fetch(`/api/system/components/${componentName}/${action}`, {
-        method: 'POST'
-      });
-      
-      if (response.ok) {
-        fetchSystemData(); // Refresh data
-      } else {
-        setError(`Failed to ${action} ${componentName}`);
-      }
-    } catch (err) {
-      setError(`Failed to ${action} ${componentName}`);
-    }
-  };
-
-  const updateSchedule = async (component: string, enabled: boolean, interval: number) => {
-    try {
-      const response = await fetch(`/api/system/schedules/${component}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          enabled,
-          interval_minutes: interval
-        })
-      });
-      
-      if (response.ok) {
-        fetchSystemData();
-      } else {
-        setError(`Failed to update schedule for ${component}`);
-      }
-    } catch (err) {
-      setError(`Failed to update schedule for ${component}`);
-    }
-  };
-
-  const saveConfig = async () => {
-    if (!config) return;
-    
-    try {
-      const response = await fetch('/api/system/config', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(config)
-      });
-      
-      if (response.ok) {
-        setEditingConfig(false);
-        fetchSystemData();
-      } else {
-        setError('Failed to save configuration');
-      }
-    } catch (err) {
-      setError('Failed to save configuration');
-    }
-  };
+  }, []);
 
   useEffect(() => {
     fetchSystemData();
-    const interval = setInterval(fetchSystemData, 10000); // Refresh every 10 seconds
+    const interval = setInterval(fetchSystemData, 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchSystemData]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'running': return 'success';
-      case 'stopped': return 'default';
-      case 'error': return 'error';
-      default: return 'default';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'running': return <CheckCircle color="success" />;
-      case 'stopped': return <Stop color="action" />;
-      case 'error': return <Error color="error" />;
-      default: return <Warning color="warning" />;
-    }
-  };
-
-  if (loading) {
+  if (loading && !pipelineHealth) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
@@ -211,348 +72,284 @@ const SystemControl: React.FC = () => {
     );
   }
 
+  const pipeline = pipelineHealth?.pipeline;
+  const rankedStocks = (pipeline?.ranked_stocks ?? {}) as Record<string, number>;
+  const universeByScenario = (pipeline?.stock_universe_by_scenario ?? {}) as Record<string, { active: number; total: number }>;
+
   return (
     <Box p={3}>
-      <Typography variant="h4" gutterBottom>
-        System Control
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h4">System Control</Typography>
+        <Tooltip title="Refresh">
+          <IconButton onClick={fetchSystemData} color="primary"><Refresh /></IconButton>
+        </Tooltip>
+      </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+      {loading && <LinearProgress sx={{ mb: 1 }} />}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      <Grid container spacing={3}>
-        {/* System Components */}
-        <Grid item xs={12} md={6}>
+      {/* Status Cards */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={6} sm={3}>
           <Card>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">
-                  System Components
-                </Typography>
-                <Button
-                  variant="outlined"
-                  startIcon={<Refresh />}
-                  onClick={fetchSystemData}
-                >
-                  Refresh
-                </Button>
-              </Box>
-
-              {components.map((component) => (
-                <Accordion key={component.name} sx={{ mb: 1 }}>
-                  <AccordionSummary expandIcon={<ExpandMore />}>
-                    <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
-                      <Box display="flex" alignItems="center">
-                        {getStatusIcon(component.status)}
-                        <Typography variant="subtitle1" sx={{ ml: 1 }}>
-                          {component.name.replace(/_/g, ' ').toUpperCase()}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" alignItems="center">
-                        <Chip
-                          label={component.status.toUpperCase()}
-                          color={getStatusColor(component.status)}
-                          size="small"
-                          sx={{ mr: 1 }}
-                        />
-                        <Tooltip title={`${component.status === 'running' ? 'Stop' : 'Start'} ${component.name}`}>
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleComponent(component.name, component.status === 'running' ? 'stop' : 'start');
-                            }}
-                            color={component.status === 'running' ? 'error' : 'success'}
-                          >
-                            {component.status === 'running' ? <Stop /> : <PlayArrow />}
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </Box>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Grid container spacing={2}>
-                      <Grid item xs={6}>
-                        <Typography variant="body2" color="textSecondary">
-                          Last Start
-                        </Typography>
-                        <Typography variant="body2">
-                          {new Date(component.last_start).toLocaleString()}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="body2" color="textSecondary">
-                          Uptime
-                        </Typography>
-                        <Typography variant="body2">
-                          {component.uptime}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Typography variant="body2" color="textSecondary" gutterBottom>
-                          Performance
-                        </Typography>
-                        <Grid container spacing={1}>
-                          <Grid item xs={4}>
-                            <Typography variant="caption">
-                              CPU: {component.performance.cpu_usage}%
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={4}>
-                            <Typography variant="caption">
-                              Memory: {component.performance.memory_usage}%
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={4}>
-                            <Typography variant="caption" color="error">
-                              Errors: {component.performance.error_count}
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </AccordionDetails>
-                </Accordion>
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Data Collection Schedules */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Data Collection Schedules
-              </Typography>
-
-              {schedules.map((schedule) => (
-                <Card key={schedule.component} variant="outlined" sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                      <Typography variant="subtitle2">
-                        {schedule.component.replace(/_/g, ' ').toUpperCase()}
-                      </Typography>
-                      <Chip
-                        label={`${schedule.success_rate.toFixed(1)}% Success`}
-                        color={schedule.success_rate > 90 ? 'success' : schedule.success_rate > 70 ? 'warning' : 'error'}
-                        size="small"
-                      />
-                    </Box>
-
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={schedule.enabled}
-                          onChange={(e) => updateSchedule(schedule.component, e.target.checked, schedule.interval_minutes)}
-                          size="small"
-                        />
-                      }
-                      label="Enabled"
-                    />
-
-                    <Box mt={1}>
-                      <Typography variant="body2" color="textSecondary">
-                        Interval: {schedule.interval_minutes} minutes
-                      </Typography>
-                      <Slider
-                        value={schedule.interval_minutes}
-                        onChange={(_, value) => updateSchedule(schedule.component, schedule.enabled, value as number)}
-                        min={1}
-                        max={60}
-                        step={1}
-                        marks
-                        size="small"
-                        disabled={!schedule.enabled}
-                      />
-                    </Box>
-
-                    <Box mt={1}>
-                      <Typography variant="caption" color="textSecondary">
-                        Last Run: {new Date(schedule.last_run).toLocaleString()}
-                      </Typography>
-                      <br />
-                      <Typography variant="caption" color="textSecondary">
-                        Next Run: {new Date(schedule.next_run).toLocaleString()}
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* System Configuration */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">
-                  System Configuration
-                </Typography>
-                <Box>
-                  {editingConfig ? (
-                    <>
-                      <Button
-                        variant="outlined"
-                        startIcon={<Save />}
-                        onClick={saveConfig}
-                        sx={{ mr: 1 }}
-                      >
-                        Save
-                      </Button>
-                      <Button
-                        variant="text"
-                        onClick={() => {
-                          setEditingConfig(false);
-                          fetchSystemData(); // Reset to original values
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      variant="outlined"
-                      startIcon={<Edit />}
-                      onClick={() => setEditingConfig(true)}
-                    >
-                      Edit
-                    </Button>
-                  )}
-                </Box>
-              </Box>
-
-              {config && (
-                <Grid container spacing={3}>
-                  {/* Redis Configuration */}
-                  <Grid item xs={12} md={4}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      Redis Configuration
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      label="Host"
-                      value={config.redis.host}
-                      onChange={(e) => setConfig({...config, redis: {...config.redis, host: e.target.value}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Port"
-                      type="number"
-                      value={config.redis.port}
-                      onChange={(e) => setConfig({...config, redis: {...config.redis, port: Number(e.target.value)}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Database"
-                      type="number"
-                      value={config.redis.db}
-                      onChange={(e) => setConfig({...config, redis: {...config.redis, db: Number(e.target.value)}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                  </Grid>
-
-                  {/* Database Configuration */}
-                  <Grid item xs={12} md={4}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      Database Configuration
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      label="Type"
-                      value={config.database.type}
-                      onChange={(e) => setConfig({...config, database: {...config.database, type: e.target.value}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Host"
-                      value={config.database.host}
-                      onChange={(e) => setConfig({...config, database: {...config.database, host: e.target.value}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Port"
-                      type="number"
-                      value={config.database.port}
-                      onChange={(e) => setConfig({...config, database: {...config.database, port: Number(e.target.value)}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Database Name"
-                      value={config.database.name}
-                      onChange={(e) => setConfig({...config, database: {...config.database, name: e.target.value}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                  </Grid>
-
-                  {/* Trading Configuration */}
-                  <Grid item xs={12} md={4}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      Trading Configuration
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      label="Max Positions"
-                      type="number"
-                      value={config.trading.max_positions}
-                      onChange={(e) => setConfig({...config, trading: {...config.trading, max_positions: Number(e.target.value)}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Risk Per Trade (%)"
-                      type="number"
-                      value={config.trading.risk_per_trade}
-                      onChange={(e) => setConfig({...config, trading: {...config.trading, risk_per_trade: Number(e.target.value)}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Max Capital Per Trade"
-                      type="number"
-                      value={config.trading.max_capital_per_trade}
-                      onChange={(e) => setConfig({...config, trading: {...config.trading, max_capital_per_trade: Number(e.target.value)}})}
-                      disabled={!editingConfig}
-                      margin="normal"
-                      size="small"
-                    />
-                  </Grid>
-                </Grid>
+            <CardContent sx={{ textAlign: 'center' }}>
+              {pipelineHealth?.status === 'healthy' ? (
+                <CheckCircle color="success" fontSize="large" />
+              ) : (
+                <ErrorIcon color="error" fontSize="large" />
               )}
+              <Typography variant="h6">{pipelineHealth?.status?.toUpperCase() ?? 'UNKNOWN'}</Typography>
+              <Typography variant="caption" color="text.secondary">Pipeline Status</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <Card>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <Storage color="primary" fontSize="large" />
+              <Typography variant="h6">
+                {Object.values(rankedStocks).reduce((a, b) => a + b, 0)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">Total Ranked Stocks</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <Card>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <Speed color="info" fontSize="large" />
+              <Typography variant="h6">{registryStats?.total_queries ?? '—'}</Typography>
+              <Typography variant="caption" color="text.secondary">Total Queries</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={6} sm={3}>
+          <Card>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <Memory color="warning" fontSize="large" />
+              <Typography variant="h6">{registryStats?.arm_queries ?? '—'}</Typography>
+              <Typography variant="caption" color="text.secondary">ARM Queries</Typography>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
+
+      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
+        <Tab label="Pipeline Health" />
+        <Tab label="DB Observability" />
+        <Tab label="Registry Stats" />
+      </Tabs>
+
+      {/* Pipeline Health Tab */}
+      <TabPanel value={tab} index={0}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>Ranked Stocks by Trade Type</Typography>
+                <TableContainer component={Paper} variant="outlined">
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Trade Type</TableCell>
+                        <TableCell align="right">Ranked</TableCell>
+                        <TableCell align="right">Universe (Active / Total)</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {TRADE_TYPES.map((tt) => (
+                        <TableRow key={tt}>
+                          <TableCell>{tt.replace(/_/g, ' ')}</TableCell>
+                          <TableCell align="right">
+                            <Chip label={rankedStocks[tt] ?? 0} size="small" color="primary" variant="outlined" />
+                          </TableCell>
+                          <TableCell align="right">
+                            {universeByScenario[tt]
+                              ? `${universeByScenario[tt].active} / ${universeByScenario[tt].total}`
+                              : '—'}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>Orchestrator Status</Typography>
+                {pipeline?.orchestrator ? (
+                  <Box component="pre" sx={{ fontSize: 12, overflow: 'auto', maxHeight: 400, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
+                    {JSON.stringify(pipeline.orchestrator, null, 2)}
+                  </Box>
+                ) : (
+                  <Typography color="text.secondary">No orchestrator data available.</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+          {pipelineHealth?.errors && pipelineHealth.errors.length > 0 && (
+            <Grid item xs={12}>
+              <Alert severity="warning">
+                Pipeline errors: {pipelineHealth.errors.join(', ')}
+              </Alert>
+            </Grid>
+          )}
+        </Grid>
+      </TabPanel>
+
+      {/* DB Observability Tab */}
+      <TabPanel value={tab} index={1}>
+        {observability ? (
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>Stock Universe</Typography>
+                  <Typography variant="body2">Total: {(observability.stock_universe as any)?.total ?? '—'}</Typography>
+                  <Typography variant="body2">Active: {(observability.stock_universe as any)?.active ?? '—'}</Typography>
+                  <Typography variant="body2">Inactive: {(observability.stock_universe as any)?.inactive ?? '—'}</Typography>
+                  <Typography variant="body2">Added (24h): {(observability.stock_universe as any)?.recently_added_24h ?? '—'}</Typography>
+                  <Typography variant="body2">Evicted (24h): {(observability.stock_universe as any)?.recently_evicted_24h ?? '—'}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>Stock Indicators</Typography>
+                  <Typography variant="body2">Total: {(observability.stock_indicators as any)?.total ?? '—'}</Typography>
+                  {(observability.stock_indicators as any)?.by_trade_type && (
+                    <Box mt={1}>
+                      {Object.entries((observability.stock_indicators as any).by_trade_type).map(([tt, cnt]) => (
+                        <Typography key={tt} variant="body2">{tt.replace(/_/g, ' ')}: {String(cnt)}</Typography>
+                      ))}
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>Ranked Stocks</Typography>
+                  <Typography variant="body2">Total: {(observability.ranked_stocks as any)?.total ?? '—'}</Typography>
+                  {(observability.ranked_stocks as any)?.by_trade_type && (
+                    <Box mt={1}>
+                      {Object.entries((observability.ranked_stocks as any).by_trade_type).map(([tt, cnt]) => (
+                        <Typography key={tt} variant="body2">{tt.replace(/_/g, ' ')}: {String(cnt)}</Typography>
+                      ))}
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>By Scenario</Typography>
+                  <TableContainer component={Paper} variant="outlined">
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Scenario</TableCell>
+                          <TableCell align="right">Universe (Active)</TableCell>
+                          <TableCell align="right">Indicators</TableCell>
+                          <TableCell align="right">Ranked</TableCell>
+                          <TableCell>Pipeline Last Run</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {Object.entries(observability.by_scenario).map(([sc, data]) => (
+                          <TableRow key={sc}>
+                            <TableCell>{sc.replace(/_/g, ' ')}</TableCell>
+                            <TableCell align="right">{(data.stock_universe as any)?.active ?? '—'}</TableCell>
+                            <TableCell align="right">{data.stock_indicators_count}</TableCell>
+                            <TableCell align="right">{data.ranked_stocks_count}</TableCell>
+                            <TableCell>
+                              {data.pipeline_last_run ? (
+                                <Box>
+                                  {Object.entries(data.pipeline_last_run).map(([comp, time]) => (
+                                    <Typography key={comp} variant="caption" display="block">
+                                      {comp}: {time}
+                                    </Typography>
+                                  ))}
+                                </Box>
+                              ) : '—'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </CardContent>
+              </Card>
+            </Grid>
+            {observability.pipeline_operations && Object.keys(observability.pipeline_operations).length > 0 && (
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>Pipeline Operations</Typography>
+                    <Box component="pre" sx={{ fontSize: 12, overflow: 'auto', maxHeight: 400, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
+                      {JSON.stringify(observability.pipeline_operations, null, 2)}
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            )}
+          </Grid>
+        ) : (
+          <Typography color="text.secondary">No observability data available.</Typography>
+        )}
+      </TabPanel>
+
+      {/* Registry Stats Tab */}
+      <TabPanel value={tab} index={2}>
+        {registryStats ? (
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <Card>
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <Typography variant="h3" color="primary">{registryStats.total_queries}</Typography>
+                  <Typography variant="subtitle1">Total Queries</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Card>
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <Typography variant="h3" color="success.main">{registryStats.active_queries}</Typography>
+                  <Typography variant="subtitle1">Active Queries</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Card>
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <Typography variant="h3" color="info.main">{registryStats.arm_queries}</Typography>
+                  <Typography variant="subtitle1">ARM Queries</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>Full Registry Stats</Typography>
+                  <Box component="pre" sx={{ fontSize: 12, overflow: 'auto', maxHeight: 400, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
+                    {JSON.stringify(registryStats, null, 2)}
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        ) : (
+          <Typography color="text.secondary">No registry stats available.</Typography>
+        )}
+      </TabPanel>
     </Box>
   );
 };
 
-export default SystemControl; 
+export default SystemControl;

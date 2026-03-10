@@ -1,9 +1,9 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function(app) {
-  // Proxy for Kite Services (Production - API ref: 203.57.85.72:8179)
-  // Use prod by default for CI/CD; override with REACT_APP_KITE_SERVICES_TARGET for dev/stage
-  const kiteTarget = process.env.REACT_APP_KITE_SERVICES_TARGET || 'http://203.57.85.72:8179';
+  // Proxy for Kite Services (Swagger: http://35.232.205.155:8179/docs)
+  // Override with REACT_APP_KITE_SERVICES_TARGET for dev/stage
+  const kiteTarget = process.env.REACT_APP_KITE_SERVICES_TARGET || 'http://35.232.205.155:8179';
   // Proxy /api/redirect for Kite OAuth callback (so callback lands in app when using localhost)
   app.use(
     '/api/redirect',
@@ -160,11 +160,12 @@ module.exports = function(app) {
     })
   );
 
-  // Proxy for Seed Service - Production (websyssoft:8182)
+  // Proxy for Seed Service - 203.57.85.201:8182 (Seed Stocks Service - /docs)
+  const seedTarget = process.env.REACT_APP_SEED_TARGET || 'http://203.57.85.201:8182';
   app.use(
     '/api/seed',
     createProxyMiddleware({
-      target: 'http://203.57.85.72:8182',  // Production Seed Stocks Service
+      target: seedTarget,
       changeOrigin: true,
       pathRewrite: {
         '^/api/seed/market/registry/top_gainers': '/api/market/registry/top_gainers',
@@ -179,7 +180,7 @@ module.exports = function(app) {
         '^/api/seed': '/api',
       },
       onProxyReq: (proxyReq, req, res) => {
-        console.log('Proxying Seed request:', req.method, req.url, 'to', 'http://203.57.85.72:8182' + req.url.replace('/api/seed', '/api'));
+        console.log('Proxying Seed request:', req.method, req.url, '->', seedTarget);
       },
       onError: (err, req, res) => {
         console.error('Seed proxy error:', err.message);

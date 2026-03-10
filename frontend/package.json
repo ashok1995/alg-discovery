@@ -16,31 +16,26 @@
     "@types/react": "^18.2.42",
     "@types/react-dom": "^18.2.17",
     "axios": "^1.6.0",
-    "date-fns": "^2.30.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.20.1",
     "react-scripts": "5.0.1",
     "recharts": "^2.8.0",
-    "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "typescript": "^4.9.5"
   },
   "scripts": {
-    "start": "PORT=3000 env-cmd -f envs/env.dev react-scripts start",
     "start:dev": "PORT=3000 env-cmd -f envs/env.dev react-scripts start",
     "start:stage": "PORT=3001 env-cmd -f envs/env.stage react-scripts start",
     "start:prod": "PORT=80 env-cmd -f envs/env.prod react-scripts start",
-    "build": "react-scripts build",
     "build:dev": "env-cmd -f envs/env.dev react-scripts build",
     "build:stage": "env-cmd -f envs/env.stage react-scripts build",
     "build:prod": "env-cmd -f envs/env.prod react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "serve:prod": "PORT=80 serve -s build -l 80",
-    "serve:prod:8080": "PORT=8080 serve -s build -l 8080",
-    "serve:stage": "PORT=8080 serve -s build -l 8080",
-    "serve:dev": "PORT=3000 serve -s build -l 3000",
+    "serve:prod": "PORT=80 npx serve -s build -l 80",
+    "serve:stage": "PORT=8080 npx serve -s build -l 8080",
+    "serve:dev": "PORT=3000 npx serve -s build -l 3000",
     "docker:build": "docker build -t algodiscovery-frontend .",
     "docker:run": "docker run -d -p 80:80 --name algodiscovery-frontend algodiscovery-frontend",
     "docker:deploy": "./deploy.sh",
@@ -67,7 +62,6 @@
     ]
   },
   "devDependencies": {
-    "@types/react-router-dom": "^5.3.3",
     "env-cmd": "^10.1.0"
   }
 } 

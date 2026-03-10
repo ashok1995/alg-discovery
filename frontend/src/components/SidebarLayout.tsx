@@ -14,36 +14,12 @@ import {
   useMediaQuery,
   Collapse
 } from '@mui/material';
-import {
-  Dashboard,
-  TrendingUp,
-  Assessment,
-  Settings,
-  Analytics,
-  Storage,
-  FilterList,
-  Menu as MenuIcon,
-  Close as CloseIcon,
-  AutoAwesome,
-  ExpandLess,
-  ExpandMore,
-  Business,
-  Build,
-  Home,
-  Code
-} from '@mui/icons-material';
+import { Menu as MenuIcon, Close as CloseIcon, ExpandLess, ExpandMore } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { menuItems, categories } from '../config/sidebarConfig';
 
 interface SidebarLayoutProps {
   children: React.ReactNode;
-}
-
-interface MenuItem {
-  text: string;
-  icon: React.ReactNode;
-  path: string;
-  description: string;
-  category: 'main' | 'trading' | 'analysis' | 'management' | 'tools';
 }
 
 const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
@@ -59,110 +35,6 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
     management: true,
     tools: true
   });
-
-  const menuItems: MenuItem[] = [
-    // Main
-    {
-      text: 'Home',
-      icon: <Home />,
-      path: '/',
-      description: 'System overview and key metrics',
-      category: 'main'
-    },
-    {
-      text: 'Dashboard',
-      icon: <Dashboard />,
-      path: '/dashboard',
-      description: 'Unified dashboard with all services',
-      category: 'main'
-    },
-    
-    // Trading Services
-    {
-      text: 'Stock Recommendations',
-      icon: <AutoAwesome />,
-      path: '/unified-recommendations',
-      description: 'AI-powered stock recommendations with comprehensive metrics',
-      category: 'trading'
-    },
-    {
-      text: 'Investing',
-      icon: <Business />,
-      path: '/investing',
-      description: 'Comprehensive investment opportunities & portfolio building',
-      category: 'trading'
-    },
-    
-    // Analysis Services
-    {
-      text: 'Backtesting',
-      icon: <Assessment />,
-      path: '/backtesting',
-      description: 'Strategy backtesting and analysis',
-      category: 'analysis'
-    },
-    {
-      text: 'Query Manager',
-      icon: <Analytics />,
-      path: '/candidate-query-registry',
-      description: 'Register, test, and manage queries',
-      category: 'analysis'
-    },
-    
-    // Management Services
-    {
-      text: 'System Control',
-      icon: <Settings />,
-      path: '/system-control',
-      description: 'Manage system components and configuration',
-      category: 'management'
-    },
-    {
-      text: 'Recommendation Observability',
-      icon: <Storage />,
-      path: '/recommendation-observability',
-      description: 'Pipeline health, DB observability, and score bin performance',
-      category: 'management'
-    },
-    {
-      text: 'Stock Mapping Manager',
-      icon: <Storage />,
-      path: '/stock-mapping',
-      description: 'Manage stock mappings and database',
-      category: 'management'
-    },
-    {
-      text: 'Stock Candidate Populator',
-      icon: <FilterList />,
-      path: '/stock-candidate-populator',
-      description: 'Populate and manage stock candidates',
-      category: 'management'
-    },
-    
-    // Tools
-    {
-      text: 'Settings',
-      icon: <Build />,
-      path: '/settings',
-      description: 'Application settings and configuration',
-      category: 'tools'
-    },
-    {
-      text: 'Recommendation Service Test',
-      icon: <Code />,
-      path: '/test/recommendation-service',
-      description: 'Test and debug recommendation service connection',
-      category: 'tools'
-    }
-  ];
-
-  const categories = {
-    main: { title: 'Main', icon: <Dashboard /> },
-    trading: { title: 'Trading', icon: <TrendingUp /> },
-    analysis: { title: 'Analysis', icon: <Assessment /> },
-    management: { title: 'Management', icon: <Settings /> },
-    tools: { title: 'Tools', icon: <Build /> }
-  };
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -185,25 +57,25 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
     }));
   };
 
-  const getItemsByCategory = (category: string) => {
-    return menuItems.filter(item => item.category === category);
-  };
+  const getItemsByCategory = (category: string) =>
+    menuItems.filter(item => item.category === category);
 
   const drawerWidth = 280;
 
   const renderSidebarContent = () => (
     <Box sx={{ width: drawerWidth }}>
-      {/* Header */}
-      <Box sx={{ 
-        p: 2, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        borderBottom: 1,
-        borderColor: 'divider'
-      }}>
-        <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-          Trading System
+      <Box
+        sx={{
+          p: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: 1,
+          borderColor: 'divider'
+        }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: 800, background: 'linear-gradient(135deg, #1976d2, #42a5f5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          AlgoDiscovery
         </Typography>
         {isMobile && (
           <IconButton onClick={() => setDrawerOpen(false)}>
@@ -212,7 +84,6 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
         )}
       </Box>
 
-      {/* Navigation List */}
       <List sx={{ pt: 1 }}>
         {Object.entries(categories).map(([categoryKey, categoryInfo]) => {
           const categoryItems = getItemsByCategory(categoryKey);
@@ -231,7 +102,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
                 <ListItemIcon sx={{ minWidth: 40 }}>
                   {categoryInfo.icon}
                 </ListItemIcon>
-                <ListItemText 
+                <ListItemText
                   primary={categoryInfo.title}
                   primaryTypographyProps={{
                     fontSize: 14,
@@ -240,7 +111,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
                 />
                 {expandedCategories[categoryKey] ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
-              
+
               <Collapse in={expandedCategories[categoryKey]} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {categoryItems.map((item) => (
@@ -251,18 +122,25 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
                       sx={{
                         pl: 4,
                         minHeight: 40,
+                        borderRadius: 1.5,
+                        mx: 1,
+                        mb: 0.25,
+                        transition: 'all 0.15s ease',
                         '&.Mui-selected': {
-                          backgroundColor: 'primary.light',
-                          '&:hover': {
-                            backgroundColor: 'primary.light',
-                          },
+                          backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                          borderLeft: '3px solid',
+                          borderColor: 'primary.main',
+                          '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.12)' },
                         },
+                        '&:hover': { backgroundColor: 'action.hover' },
                       }}
                     >
-                      <ListItemIcon sx={{ 
-                        minWidth: 36,
-                        color: isActive(item.path) ? 'primary.main' : 'inherit'
-                      }}>
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 36,
+                          color: isActive(item.path) ? 'primary.main' : 'inherit'
+                        }}
+                      >
                         {item.icon}
                       </ListItemIcon>
                       <ListItemText
@@ -270,7 +148,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
                         primaryTypographyProps={{
                           fontSize: 13,
                           color: isActive(item.path) ? 'primary.main' : 'inherit',
-                          fontWeight: isActive(item.path) ? 'bold' : 'normal',
+                          fontWeight: isActive(item.path) ? 'bold' : 'normal'
                         }}
                       />
                     </ListItemButton>
@@ -286,7 +164,6 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Mobile App Bar */}
       {isMobile && (
         <AppBar
           position="fixed"
@@ -311,9 +188,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
         </AppBar>
       )}
 
-      {/* Sidebar Drawer */}
       <Drawer
-        variant={isMobile ? "temporary" : "permanent"}
+        variant={isMobile ? 'temporary' : 'permanent'}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         sx={{
@@ -325,16 +201,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
             borderRight: 1,
             borderColor: 'divider',
             backgroundColor: 'background.paper'
-          },
+          }
         }}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
-        }}
+        ModalProps={{ keepMounted: true }}
       >
         {renderSidebarContent()}
       </Drawer>
 
-      {/* Main Content */}
       <Box
         component="main"
         sx={{
@@ -350,4 +223,4 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
   );
 };
 
-export default SidebarLayout; 
+export default SidebarLayout;

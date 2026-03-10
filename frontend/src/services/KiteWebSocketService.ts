@@ -1,76 +1,37 @@
 /**
- * Direct Kite WebSocket Service for Frontend
- * ==========================================
- * 
- * Provides direct WebSocket connection to Kite Connect for real-time price updates.
- * Uses the same API key and access token as the backend but connects directly from frontend.
- * 
- * Features:
- * - Direct WebSocket connection to Kite Connect
- * - Real-time price streaming for up to ${API_CONFIG.WEBSOCKET.MAX_SUBSCRIPTIONS} instruments per connection
- * - Automatic reconnection and error handling
- * - Symbol subscription management
- * - Event-driven price updates
+ * Direct Kite WebSocket Service for Frontend.
+ * WebSocket connection to Kite Connect for real-time price updates.
  */
 
 import { EventEmitter } from 'events';
 import { API_CONFIG } from '../config/api';
+import type { KitePriceData, KiteWebSocketConfig, WebSocketStats } from '../types/kiteWebSocket';
 
-export interface KitePriceData {
-  instrument_token: number;
-  last_price: number;
-  change: number;
-  change_percent: number;
-  volume: number;
-  timestamp: number;
-  symbol?: string; // Mapped from instrument_token
-}
-
-export interface KiteWebSocketConfig {
-  apiKey: string;
-  accessToken: string;
-  maxReconnectAttempts?: number;
-  reconnectDelay?: number;
-  heartbeatInterval?: number;
-}
-
-export interface WebSocketStats {
-  isConnected: boolean;
-  lastConnected: number;
-  reconnectAttempts: number;
-  subscribedSymbols: number;
-  lastMessageTime: number;
-  connectionId: string;
-}
+export type { KitePriceData, KiteWebSocketConfig, WebSocketStats };
 
 class KiteWebSocketService extends EventEmitter {
   private static instance: KiteWebSocketService;
-  
-  // Configuration
+
   private config: KiteWebSocketConfig;
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts: number;
   private reconnectDelay: number;
   private heartbeatInterval: number;
-  
-  // State management
+
   private isConnecting = false;
   private isConnected = false;
   private lastConnected = 0;
   private lastMessageTime = 0;
   private connectionId = '';
-  
-  // Symbol management
+
   private subscribedSymbols = new Set<number>();
-  private symbolMapping = new Map<number, string>(); // instrument_token -> symbol
-  private reverseSymbolMapping = new Map<string, number>(); // symbol -> instrument_token
-  
-  // Timers
+  private symbolMapping = new Map<number, string>();
+  private reverseSymbolMapping = new Map<string, number>();
+
   private heartbeatTimer: NodeJS.Timeout | null = null;
   private reconnectTimer: NodeJS.Timeout | null = null;
-  
-  // Statistics
+
   private messageCount = 0;
   private errorCount = 0;
 
@@ -78,9 +39,9 @@ class KiteWebSocketService extends EventEmitter {
     super();
     this.config = config;
     this.maxReconnectAttempts = config.maxReconnectAttempts || 5;
-    this.reconnectDelay = config.reconnectDelay || API_CONFIG.REFRESH.PRICES;
-    this.heartbeatInterval = config.heartbeatInterval || API_CONFIG.WEBSOCKET.HEARTBEAT_INTERVAL;
-    
+    this.reconnectDelay = config.reconnectDelay ?? API_CONFIG.REFRESH.PRICES;
+    this.heartbeatInterval = config.heartbeatInterval ?? API_CONFIG.WEBSOCKET.HEARTBEAT_INTERVAL;
+
     console.log('🚀 KiteWebSocketService initialized');
   }
 
@@ -94,9 +55,6 @@ class KiteWebSocketService extends EventEmitter {
     return KiteWebSocketService.instance;
   }
 
-  /**
-   * Initialize WebSocket connection
-   */
   public async connect(): Promise<void> {
     if (this.isConnecting || this.isConnected) {
       console.log('⚠️ WebSocket already connecting or connected');
@@ -112,7 +70,6 @@ class KiteWebSocketService extends EventEmitter {
 
       this.ws = new WebSocket(wsUrl);
       this.setupWebSocketHandlers();
-      
     } catch (error) {
       console.error('❌ Failed to create WebSocket connection:', error);
       this.isConnecting = false;
@@ -120,9 +77,6 @@ class KiteWebSocketService extends EventEmitter {
     }
   }
 
-  /**
-   * Setup WebSocket event handlers
-   */
   private setupWebSocketHandlers(): void {
     if (!this.ws) return;
 
@@ -133,14 +87,11 @@ class KiteWebSocketService extends EventEmitter {
       this.lastConnected = Date.now();
       this.reconnectAttempts = 0;
       this.lastMessageTime = Date.now();
-      
-      // Start heartbeat
+
       this.startHeartbeat();
-      
-      // Emit connection event
+
       this.emit('connected', { connectionId: this.connectionId, timestamp: Date.now() });
-      
-      // Resubscribe to symbols if any
+
       if (this.subscribedSymbols.size > 0) {
         this.resubscribeToSymbols();
       }
@@ -150,10 +101,9 @@ class KiteWebSocketService extends EventEmitter {
       try {
         this.lastMessageTime = Date.now();
         this.messageCount++;
-        
+
         const data = JSON.parse(event.data);
         this.handleWebSocketMessage(data);
-        
       } catch (error) {
         console.error('❌ Error parsing WebSocket message:', error);
         this.errorCount++;
@@ -171,175 +121,89 @@ class KiteWebSocketService extends EventEmitter {
       this.isConnected = false;
       this.isConnecting = false;
       this.stopHeartbeat();
-      
-      this.emit('disconnected', { 
-        code: event.code, 
-        reason: event.reason, 
-        timestamp: Date.now() 
+
+      this.emit('disconnected', {
+        code: event.code,
+        reason: event.reason,
+        timestamp: Date.now(),
       });
-      
-      // Attempt reconnection if not manually closed
+
       if (event.code !== 1000) {
         this.attemptReconnection();
       }
     };
   }
 
-  /**
-   * Handle incoming WebSocket messages
-   */
-  private handleWebSocketMessage(data: any): void {
+  private handleWebSocketMessage(data: { type: string; [key: string]: unknown }): void {
     if (data.type === 'ltp') {
-      // Last traded price update
-      const priceData: KitePriceData = {
-        instrument_token: data.instrument_token,
-        last_price: data.last_price,
-        change: data.change,
-        change_percent: data.change_percent,
-        volume: data.volume,
+      this.emit('priceUpdate', {
+        instrument_token: data.instrument_token as number,
+        last_price: data.last_price as number,
+        change: data.change as number,
+        change_percent: data.change_percent as number,
+        volume: data.volume as number,
         timestamp: Date.now(),
-        symbol: this.symbolMapping.get(data.instrument_token)
-      };
-      
-      // Emit price update
-      this.emit('priceUpdate', priceData);
-      
-    } else if (data.type === 'order') {
-      // Order update
-      this.emit('orderUpdate', data);
-      
-    } else if (data.type === 'position') {
-      // Position update
-      this.emit('positionUpdate', data);
-      
-    } else if (data.type === 'pong') {
-      // Heartbeat response
-      console.log('💓 Heartbeat received');
-      
-    } else {
-      // Unknown message type
-      console.log('📨 Unknown message type:', data.type, data);
-    }
+        symbol: this.symbolMapping.get(data.instrument_token as number),
+      } as KitePriceData);
+    } else if (data.type === 'order') this.emit('orderUpdate', data);
+    else if (data.type === 'position') this.emit('positionUpdate', data);
+    else if (data.type === 'pong') console.log('💓 Heartbeat received');
+    else console.log('📨 Unknown message type:', data.type, data);
   }
 
-  /**
-   * Subscribe to instruments for real-time updates
-   */
   public subscribeToInstruments(instruments: Array<{ instrument_token: number; symbol?: string }>): void {
-    if (!this.isConnected || !this.ws) {
-      console.warn('⚠️ WebSocket not connected, cannot subscribe to instruments');
-      return;
-    }
-
-    const subscribeMessage = {
-      a: 'subscribe',
-      v: instruments.map(instrument => ({
-        instrument_token: instrument.instrument_token,
-        exchange_token: instrument.symbol || instrument.instrument_token.toString()
-      }))
-    };
-
+    if (!this.isConnected || !this.ws) return;
     try {
-      this.ws.send(JSON.stringify(subscribeMessage));
-      
-      // Track subscribed instruments
-      instruments.forEach(instrument => {
-        this.subscribedSymbols.add(instrument.instrument_token);
-        if (instrument.symbol) {
-          this.symbolMapping.set(instrument.instrument_token, instrument.symbol);
-          this.reverseSymbolMapping.set(instrument.symbol, instrument.instrument_token);
+      this.ws.send(JSON.stringify({
+        a: 'subscribe',
+        v: instruments.map((i) => ({ instrument_token: i.instrument_token, exchange_token: i.symbol || String(i.instrument_token) })),
+      }));
+      instruments.forEach((i) => {
+        this.subscribedSymbols.add(i.instrument_token);
+        if (i.symbol) {
+          this.symbolMapping.set(i.instrument_token, i.symbol);
+          this.reverseSymbolMapping.set(i.symbol, i.instrument_token);
         }
       });
-      
-      console.log(`📡 Subscribed to ${instruments.length} instruments`);
       this.emit('subscribed', { instruments, timestamp: Date.now() });
-      
     } catch (error) {
-      console.error('❌ Error subscribing to instruments:', error);
       this.emit('subscriptionError', { error, instruments });
     }
   }
 
-  /**
-   * Subscribe to symbols (will need to map to instrument tokens)
-   */
-  public subscribeToSymbols(symbols: string[]): void {
-    // For now, we'll need instrument tokens
-    // In a real implementation, you'd have a mapping service
-    console.warn('⚠️ subscribeToSymbols requires instrument token mapping. Use subscribeToInstruments instead.');
+  public subscribeToSymbols(_symbols: string[]): void {
+    console.warn('⚠️ Use subscribeToInstruments with token mapping');
   }
 
-  /**
-   * Unsubscribe from instruments
-   */
   public unsubscribeFromInstruments(instruments: Array<{ instrument_token: number }>): void {
-    if (!this.isConnected || !this.ws) {
-      console.warn('⚠️ WebSocket not connected, cannot unsubscribe from instruments');
-      return;
-    }
-
-    const unsubscribeMessage = {
-      a: 'unsubscribe',
-      v: instruments.map(instrument => ({
-        instrument_token: instrument.instrument_token
-      }))
-    };
-
+    if (!this.isConnected || !this.ws) return;
     try {
-      this.ws.send(JSON.stringify(unsubscribeMessage));
-      
-      // Remove from tracking
-      instruments.forEach(instrument => {
-        this.subscribedSymbols.delete(instrument.instrument_token);
-        const symbol = this.symbolMapping.get(instrument.instrument_token);
-        if (symbol) {
-          this.reverseSymbolMapping.delete(symbol);
-          this.symbolMapping.delete(instrument.instrument_token);
+      this.ws.send(JSON.stringify({ a: 'unsubscribe', v: instruments.map((i) => ({ instrument_token: i.instrument_token })) }));
+      instruments.forEach((i) => {
+        this.subscribedSymbols.delete(i.instrument_token);
+        const sym = this.symbolMapping.get(i.instrument_token);
+        if (sym) {
+          this.reverseSymbolMapping.delete(sym);
+          this.symbolMapping.delete(i.instrument_token);
         }
       });
-      
-      console.log(`📡 Unsubscribed from ${instruments.length} instruments`);
       this.emit('unsubscribed', { instruments, timestamp: Date.now() });
-      
     } catch (error) {
-      console.error('❌ Error unsubscribing from instruments:', error);
       this.emit('unsubscriptionError', { error, instruments });
     }
   }
 
-  /**
-   * Resubscribe to all previously subscribed symbols
-   */
   private resubscribeToSymbols(): void {
-    const instruments = Array.from(this.subscribedSymbols).map(token => ({
-      instrument_token: token,
-      symbol: this.symbolMapping.get(token)
-    }));
-    
-    if (instruments.length > 0) {
-      this.subscribeToInstruments(instruments);
-    }
+    const instruments = Array.from(this.subscribedSymbols).map((t) => ({ instrument_token: t, symbol: this.symbolMapping.get(t) }));
+    if (instruments.length > 0) this.subscribeToInstruments(instruments);
   }
 
-  /**
-   * Start heartbeat to keep connection alive
-   */
   private startHeartbeat(): void {
     this.heartbeatTimer = setInterval(() => {
-      if (this.isConnected && this.ws) {
-        try {
-          this.ws.send(JSON.stringify({ a: 'ping' }));
-          console.log('💓 Heartbeat sent');
-        } catch (error) {
-          console.error('❌ Error sending heartbeat:', error);
-        }
-      }
+      if (this.isConnected && this.ws) this.ws.send(JSON.stringify({ a: 'ping' }));
     }, this.heartbeatInterval);
   }
 
-  /**
-   * Stop heartbeat
-   */
   private stopHeartbeat(): void {
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
@@ -347,62 +211,35 @@ class KiteWebSocketService extends EventEmitter {
     }
   }
 
-  /**
-   * Attempt reconnection
-   */
   private attemptReconnection(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('❌ Max reconnection attempts reached');
       this.emit('maxReconnectAttemptsReached');
       return;
     }
-
     this.reconnectAttempts++;
-    console.log(`🔄 Attempting reconnection ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
-    
-    this.reconnectTimer = setTimeout(() => {
-      this.connect();
-    }, this.reconnectDelay * this.reconnectAttempts);
+    this.reconnectTimer = setTimeout(() => this.connect(), this.reconnectDelay * this.reconnectAttempts);
   }
 
-  /**
-   * Handle connection errors
-   */
-  private handleConnectionError(error: any): void {
-    console.error('❌ Connection error:', error);
+  private handleConnectionError(error: unknown): void {
     this.emit('connectionError', error);
-    
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.attemptReconnection();
-    }
+    if (this.reconnectAttempts < this.maxReconnectAttempts) this.attemptReconnection();
   }
 
-  /**
-   * Disconnect WebSocket
-   */
   public disconnect(): void {
-    console.log('🔌 Disconnecting WebSocket');
-    
     this.stopHeartbeat();
-    
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
-    
     if (this.ws) {
       this.ws.close(1000, 'Manual disconnect');
       this.ws = null;
     }
-    
     this.isConnected = false;
     this.isConnecting = false;
     this.reconnectAttempts = 0;
   }
 
-  /**
-   * Get WebSocket statistics
-   */
   public getStats(): WebSocketStats {
     return {
       isConnected: this.isConnected,
@@ -410,53 +247,18 @@ class KiteWebSocketService extends EventEmitter {
       reconnectAttempts: this.reconnectAttempts,
       subscribedSymbols: this.subscribedSymbols.size,
       lastMessageTime: this.lastMessageTime,
-      connectionId: this.connectionId
+      connectionId: this.connectionId,
     };
   }
 
-  /**
-   * Get detailed statistics
-   */
-  public getDetailedStats(): WebSocketStats & {
-    messageCount: number;
-    errorCount: number;
-    subscribedSymbolsList: string[];
-  } {
-    return {
-      ...this.getStats(),
-      messageCount: this.messageCount,
-      errorCount: this.errorCount,
-      subscribedSymbolsList: Array.from(this.symbolMapping.values())
-    };
+  public getDetailedStats(): WebSocketStats & { messageCount: number; errorCount: number; subscribedSymbolsList: string[] } {
+    return { ...this.getStats(), messageCount: this.messageCount, errorCount: this.errorCount, subscribedSymbolsList: Array.from(this.symbolMapping.values()) };
   }
 
-  /**
-   * Check if connected
-   */
-  public isWebSocketConnected(): boolean {
-    return this.isConnected;
-  }
-
-  /**
-   * Get subscribed symbols
-   */
-  public getSubscribedSymbols(): string[] {
-    return Array.from(this.symbolMapping.values());
-  }
-
-  /**
-   * Get instrument token for symbol
-   */
-  public getInstrumentToken(symbol: string): number | undefined {
-    return this.reverseSymbolMapping.get(symbol);
-  }
-
-  /**
-   * Get symbol for instrument token
-   */
-  public getSymbol(instrumentToken: number): string | undefined {
-    return this.symbolMapping.get(instrumentToken);
-  }
+  public isWebSocketConnected(): boolean { return this.isConnected; }
+  public getSubscribedSymbols(): string[] { return Array.from(this.symbolMapping.values()); }
+  public getInstrumentToken(symbol: string): number | undefined { return this.reverseSymbolMapping.get(symbol); }
+  public getSymbol(instrumentToken: number): string | undefined { return this.symbolMapping.get(instrumentToken); }
 }
 
-export default KiteWebSocketService; 
+export default KiteWebSocketService;

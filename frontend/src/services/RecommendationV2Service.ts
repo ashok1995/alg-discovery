@@ -6,15 +6,13 @@
  */
 
 import { getRecommendationsV2Url } from '../config/openaiConfig';
-import type { SeedV2RecommendationsResponse } from '../types/apiModels';
-import type { ObservabilityDbResponse } from '../types/apiModels';
-import type { PipelineHealthResponse } from '../types/apiModels';
-import type { ScoreBinPerformanceItem } from '../types/apiModels';
+import type { RecommendationsResponse } from '../types/stock';
+import type { ObservabilityDbResponse, PipelineHealthResponse, ScoreBinPerformanceItem } from '../types/apiModels';
 
 const TIMEOUT_MS = 30000;
 
-/** Prod API trade types */
-export type SeedTradeType = 'intraday_buy' | 'intraday_sell' | 'swing_buy' | 'short' | 'positional';
+/** Prod API trade types (OpenAPI: short_buy = short-term buy 1-5 days) */
+export type SeedTradeType = 'intraday_buy' | 'intraday_sell' | 'swing_buy' | 'short_buy' | 'short' | 'positional';
 
 /** Prod API risk_level: low | med | high (min_score overridden when set) */
 export type SeedRiskLevel = 'low' | 'med' | 'high';
@@ -29,7 +27,7 @@ export interface V2RecommendationQueryParams {
 
 /** Legacy request: map strategy/risk for callers using StrategyType. */
 export interface V2RecommendationRequestParams {
-  strategy: 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term';
+  strategy: 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term';
   risk_level: 'low' | 'medium' | 'high';
   limit?: number;
   min_score?: number;
@@ -46,16 +44,17 @@ function buildRecommendationsQuery(params: V2RecommendationQueryParams): string 
   return q.toString();
 }
 
-/** Map UI strategy to prod trade_type */
+/** Map UI strategy to prod trade_type (API expects short_buy not short) */
 export function mapStrategyToSeedTradeType(
-  strategy: 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'
+  strategy: 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'
 ): SeedTradeType {
   const map: Record<string, SeedTradeType> = {
     swing: 'swing_buy',
+    intraday: 'intraday_buy',
     intraday_buy: 'intraday_buy',
     intraday_sell: 'intraday_sell',
     long_term: 'positional',
-    short_term: 'short',
+    short_term: 'short_buy',
   };
   return map[strategy] ?? 'swing_buy';
 }
@@ -80,7 +79,7 @@ export function buildV2RecommendationsUrl(
           risk_level: request.risk_level as SeedRiskLevel | undefined,
         }
       : {
-          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
+          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
           limit: request.limit ?? 10,
           min_score: request.min_score ?? 60,
           risk_level: mapRiskToSeedRiskLevel(request.risk_level),
@@ -95,7 +94,7 @@ export function buildV2RecommendationsUrl(
  */
 export async function fetchV2Recommendations(
   request: V2RecommendationQueryParams | V2RecommendationRequestParams
-): Promise<SeedV2RecommendationsResponse> {
+): Promise<RecommendationsResponse> {
   const queryParams: V2RecommendationQueryParams =
     'trade_type' in request
       ? {
@@ -105,7 +104,7 @@ export async function fetchV2Recommendations(
           risk_level: request.risk_level as SeedRiskLevel | undefined,
         }
       : {
-          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
+          trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
           limit: request.limit ?? 10,
           min_score: request.min_score ?? 60,
           risk_level: mapRiskToSeedRiskLevel(request.risk_level),
@@ -135,7 +134,7 @@ export async function fetchV2Recommendations(
       throw new Error(errorMsg);
     }
 
-    return (await res.json()) as SeedV2RecommendationsResponse;
+    return (await res.json()) as RecommendationsResponse;
   } catch (err) {
     clearTimeout(timeoutId);
     const errorMsg = err instanceof Error ? err.message : 'V2 recommendations request failed';

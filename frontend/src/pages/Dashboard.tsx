@@ -1,158 +1,123 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
-  Grid,
-  Card,
-  CardContent,
   Typography,
-  Chip,
-  Button,
   Alert,
   CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  LinearProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   IconButton,
-  Tooltip
+  Tooltip,
+  Tabs,
+  Tab,
+  Chip,
 } from '@mui/material';
-import {
-  PlayArrow,
-  Stop,
-  Visibility,
-  CheckCircle,
-  Error
-} from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import MarketDataDisplay from '../components/MarketDataDisplay';
-
-interface SystemStatus {
-  entry_engine: boolean;
-  exit_monitor: boolean;
-  market_data_collector: boolean;
-  ltr_training: boolean;
-  chartink_filter: boolean;
-}
-
-interface DashboardMetrics {
-  active_positions: number;
-  total_pnl: number;
-  win_rate: number;
-  total_trades: number;
-  recent_signals: number;
-  market_sentiment: string;
-}
-
-interface Position {
-  symbol: string;
-  entry_price: number;
-  quantity: number;
-  stop_loss: number;
-  target_price: number;
-  current_pnl: number;
-  signal_type: string;
-  entry_time: string;
-}
-
-interface EntrySignal {
-  symbol: string;
-  entry_price: number;
-  signal_type: string;
-  atr: number;
-  timestamp: string;
-}
+import { Refresh, Timeline, ShowChart, Storage, Security, Psychology, TrendingUp } from '@mui/icons-material';
+import TabPanel from '../components/ui/TabPanel';
+import DashboardKpiCards from '../components/dashboard/DashboardKpiCards';
+import PerformanceTab from '../components/dashboard/PerformanceTab';
+import MarketTrendsTab from '../components/dashboard/MarketTrendsTab';
+import UniverseTab from '../components/dashboard/UniverseTab';
+import PositionsTab from '../components/dashboard/PositionsTab';
+import MLLearningTab from '../components/dashboard/MLLearningTab';
+import MarketMoversTab from '../components/dashboard/MarketMoversTab';
+import { seedDashboardService } from '../services/SeedDashboardService';
+import type {
+  DashboardDailySummary,
+  TrackedPositionItem,
+  UniverseHealthResponse,
+  MarketTrendPoint,
+  ArmPerformanceItem,
+  LearningStatusResponse,
+  PerformanceTimelineDay,
+  TopMoverItem,
+  ScoreBinPerformanceItem,
+  AnalysisPerformanceResponse,
+} from '../types/apiModels';
 
 const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [signals, setSignals] = useState<EntrySignal[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState(0);
+  const [days, setDays] = useState(7);
 
-  const fetchDashboardData = async () => {
+  const [summary, setSummary] = useState<DashboardDailySummary | null>(null);
+  const [positions, setPositions] = useState<TrackedPositionItem[]>([]);
+  const [universeHealth, setUniverseHealth] = useState<UniverseHealthResponse | null>(null);
+  const [marketTimeline, setMarketTimeline] = useState<MarketTrendPoint[]>([]);
+  const [armPerformance, setArmPerformance] = useState<ArmPerformanceItem[]>([]);
+  const [learningStatus, setLearningStatus] = useState<LearningStatusResponse | null>(null);
+  const [perfTimeline, setPerfTimeline] = useState<PerformanceTimelineDay[]>([]);
+  const [topGainers, setTopGainers] = useState<TopMoverItem[]>([]);
+  const [topLosers, setTopLosers] = useState<TopMoverItem[]>([]);
+  const [topTraded, setTopTraded] = useState<TopMoverItem[]>([]);
+  const [scoreBins, setScoreBins] = useState<ScoreBinPerformanceItem[]>([]);
+  const [analysisPerformance, setAnalysisPerformance] = useState<AnalysisPerformanceResponse | null>(null);
+
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      
-      // Fetch system status
-      const statusResponse = await fetch('/api/system/status');
-      const statusData = await statusResponse.json();
-      setSystemStatus(statusData);
+      const [
+        sumRes,
+        posRes,
+        univRes,
+        mktRes,
+        armRes,
+        learnRes,
+        perfRes,
+        gainRes,
+        loseRes,
+        tradedRes,
+        binRes,
+        analysisRes,
+      ] = await Promise.allSettled([
+        seedDashboardService.getDailySummary(days),
+        seedDashboardService.getPositions({ days, limit: 50 }),
+        seedDashboardService.getUniverseHealth(),
+        seedDashboardService.getMarketTrends(30),
+        seedDashboardService.getArmPerformance(days),
+        seedDashboardService.getLearningStatus(),
+        seedDashboardService.getPerformanceTimeline(days),
+        seedDashboardService.getTopGainers(20, 24),
+        seedDashboardService.getTopLosers(20, 24),
+        seedDashboardService.getTopTraded(20, 24),
+        seedDashboardService.getScoreBinPerformance(undefined, days),
+        seedDashboardService.getAnalysisPerformance(days),
+      ]);
 
-      // Fetch trading metrics
-      const metricsResponse = await fetch('/api/trading/performance');
-      const metricsData = await metricsResponse.json();
-      setMetrics({
-        active_positions: metricsData.active_positions || 0,
-        total_pnl: metricsData.total_pnl || 0,
-        win_rate: metricsData.win_rate || 0,
-        total_trades: metricsData.total_trades || 0,
-        recent_signals: metricsData.recent_signals || 0,
-        market_sentiment: metricsData.market_sentiment || 'neutral'
-      });
+      if (sumRes.status === 'fulfilled') setSummary(sumRes.value);
+      if (posRes.status === 'fulfilled') setPositions(posRes.value.positions);
+      if (univRes.status === 'fulfilled') setUniverseHealth(univRes.value);
+      if (mktRes.status === 'fulfilled') setMarketTimeline(mktRes.value.timeline);
+      if (armRes.status === 'fulfilled') setArmPerformance(armRes.value.arms);
+      if (learnRes.status === 'fulfilled') setLearningStatus(learnRes.value);
+      if (perfRes.status === 'fulfilled') setPerfTimeline(perfRes.value.timeline);
+      if (gainRes.status === 'fulfilled') setTopGainers(gainRes.value.gainers);
+      if (loseRes.status === 'fulfilled') setTopLosers(loseRes.value.losers);
+      if (tradedRes.status === 'fulfilled') setTopTraded(tradedRes.value.top_traded);
+      if (binRes.status === 'fulfilled') setScoreBins(binRes.value);
+      if (analysisRes.status === 'fulfilled') setAnalysisPerformance(analysisRes.value);
 
-      // Fetch active positions
-      const positionsResponse = await fetch('/api/trading/positions');
-      const positionsData = await positionsResponse.json();
-      setPositions(positionsData);
-
-      // Fetch recent entry signals
-      const signalsResponse = await fetch('/api/trading/entries?limit=5');
-      const signalsData = await signalsResponse.json();
-      setSignals(signalsData);
-
-    } catch (err) {
-      setError('Failed to fetch dashboard data');
-      console.error('Dashboard fetch error:', err);
+      const failed = [sumRes, posRes, univRes, mktRes].filter((r) => r.status === 'rejected');
+      if (failed.length === 4) setError('All dashboard API calls failed. Is seed-stocks-service running?');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
     } finally {
       setLoading(false);
     }
-  };
-
-  const toggleSystemComponent = async (component: string, action: 'start' | 'stop') => {
-    try {
-      const response = await fetch(`/api/system/${component}/${action}`, {
-        method: 'POST'
-      });
-      
-      if (response.ok) {
-        fetchDashboardData(); // Refresh data
-      } else {
-        setError(`Failed to ${action} ${component}`);
-      }
-    } catch (err) {
-      setError(`Failed to ${action} ${component}`);
-    }
-  };
+  }, [days]);
 
   useEffect(() => {
-    fetchDashboardData();
-    const interval = setInterval(fetchDashboardData, 30000); // Refresh every 30 seconds
+    fetchAll();
+    const interval = setInterval(fetchAll, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchAll]);
 
-  const getStatusIcon = (status: boolean) => {
-    return status ? <CheckCircle color="success" /> : <Error color="error" />;
-  };
-
-  const getStatusColor = (status: boolean) => {
-    return status ? 'success' : 'error';
-  };
-
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment.toLowerCase()) {
-      case 'bullish': return 'success';
-      case 'bearish': return 'error';
-      case 'neutral': return 'warning';
-      default: return 'default';
-    }
-  };
-
-  if (loading) {
+  if (loading && !summary) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
@@ -162,249 +127,81 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box p={3}>
-      <Typography variant="h4" gutterBottom>
-        Trading System Dashboard
-      </Typography>
-
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      {/* System Status */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            System Status
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
+            Seed Stocks Dashboard
           </Typography>
-          <Grid container spacing={2}>
-            {systemStatus && Object.entries(systemStatus).map(([component, status]) => (
-              <Grid item xs={12} sm={6} md={4} key={component}>
-                <Box display="flex" alignItems="center" justifyContent="space-between">
-                  <Box display="flex" alignItems="center">
-                    {getStatusIcon(status)}
-                    <Typography variant="body2" sx={{ ml: 1 }}>
-                      {component.replace(/_/g, ' ').toUpperCase()}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Tooltip title={`${status ? 'Stop' : 'Start'} ${component}`}>
-                      <IconButton
-                        size="small"
-                        onClick={() => toggleSystemComponent(component, status ? 'stop' : 'start')}
-                        color={getStatusColor(status)}
-                      >
-                        {status ? <Stop /> : <PlayArrow />}
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </CardContent>
-      </Card>
-
-      {/* Key Metrics */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Active Positions
-              </Typography>
-              <Typography variant="h4">
-                {metrics?.active_positions || 0}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Total P&L
-              </Typography>
-              <Typography variant="h4" color={metrics?.total_pnl && metrics.total_pnl > 0 ? 'success.main' : 'error.main'}>
-                ₹{metrics?.total_pnl?.toFixed(2) || '0.00'}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Win Rate
-              </Typography>
-              <Typography variant="h4">
-                {metrics?.win_rate?.toFixed(1) || '0.0'}%
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Market Sentiment
-              </Typography>
-              <Chip
-                label={metrics?.market_sentiment?.toUpperCase() || 'NEUTRAL'}
-                color={getSentimentColor(metrics?.market_sentiment || 'neutral')}
-                size="small"
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      {/* Active Positions */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">
-              Active Positions
-            </Typography>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => navigate('/positions')}
-              startIcon={<Visibility />}
-            >
-              View All
-            </Button>
-          </Box>
-          
-          <TableContainer component={Paper}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Symbol</TableCell>
-                  <TableCell>Entry Price</TableCell>
-                  <TableCell>Quantity</TableCell>
-                  <TableCell>Stop Loss</TableCell>
-                  <TableCell>Target</TableCell>
-                  <TableCell>P&L</TableCell>
-                  <TableCell>Signal Type</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {positions.slice(0, 5).map((position) => (
-                  <TableRow key={position.symbol}>
-                    <TableCell>{position.symbol}</TableCell>
-                    <TableCell>₹{position.entry_price}</TableCell>
-                    <TableCell>{position.quantity}</TableCell>
-                    <TableCell>₹{position.stop_loss}</TableCell>
-                    <TableCell>₹{position.target_price}</TableCell>
-                    <TableCell>
-                      <Typography
-                        color={position.current_pnl > 0 ? 'success.main' : 'error.main'}
-                        variant="body2"
-                      >
-                        ₹{position.current_pnl.toFixed(2)}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip label={position.signal_type} size="small" />
-                    </TableCell>
-                    <TableCell>
-                      <Tooltip title="View Details">
-                        <IconButton
-                          size="small"
-                          onClick={() => navigate(`/positions/${position.symbol}`)}
-                        >
-                          <Visibility />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {positions.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={8} align="center">
-                      No active positions
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-
-      {/* Recent Entry Signals */}
-      <Card>
-        <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">
-              Recent Entry Signals
-            </Typography>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => navigate('/signals')}
-              startIcon={<Visibility />}
-            >
-              View All
-            </Button>
-          </Box>
-          
-          <TableContainer component={Paper}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Symbol</TableCell>
-                  <TableCell>Entry Price</TableCell>
-                  <TableCell>ATR</TableCell>
-                  <TableCell>Signal Type</TableCell>
-                  <TableCell>Time</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {signals.map((signal) => (
-                  <TableRow key={`${signal.symbol}-${signal.timestamp}`}>
-                    <TableCell>{signal.symbol}</TableCell>
-                    <TableCell>₹{signal.entry_price}</TableCell>
-                    <TableCell>{signal.atr.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Chip label={signal.signal_type} size="small" />
-                    </TableCell>
-                    <TableCell>
-                      {new Date(signal.timestamp).toLocaleString()}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {signals.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center">
-                      No recent signals
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-
-      {/* Market Data Display */}
-      <Box sx={{ mt: 3 }}>
-        <MarketDataDisplay
-          symbols={['RELIANCE', 'TCS', 'INFY', 'HDFC', 'ICICIBANK']}
-          showTopGainersLosers={true}
-          showMarketBreadth={true}
-          autoRefresh={true}
-          refreshInterval={60000}
-        />
+          <Typography variant="body2" color="text.secondary" mt={0.5}>
+            Continuous analysis pipeline — all endpoints integrated
+          </Typography>
+        </Box>
+        <Box display="flex" gap={1.5} alignItems="center">
+          <FormControl size="small" sx={{ minWidth: 110 }}>
+            <InputLabel>Period</InputLabel>
+            <Select value={days} label="Period" onChange={(e) => setDays(Number(e.target.value))}>
+              <MenuItem value={1}>1 day</MenuItem>
+              <MenuItem value={3}>3 days</MenuItem>
+              <MenuItem value={7}>7 days</MenuItem>
+              <MenuItem value={14}>14 days</MenuItem>
+              <MenuItem value={30}>30 days</MenuItem>
+            </Select>
+          </FormControl>
+          <Tooltip title="Refresh all data">
+            <IconButton onClick={fetchAll} color="primary" sx={{ bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } }}>
+              <Refresh />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
+
+      {loading && <LinearProgress sx={{ mb: 1, borderRadius: 1 }} />}
+      {error && <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
+
+      {summary && <DashboardKpiCards summary={summary} />}
+
+      <Tabs
+        value={tab}
+        onChange={(_, v) => setTab(v)}
+        variant="scrollable"
+        scrollButtons="auto"
+        sx={{
+          mb: 2,
+          '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, minHeight: 48 },
+        }}
+      >
+        <Tab icon={<Timeline />} label="Performance" iconPosition="start" />
+        <Tab icon={<TrendingUp />} label={<Box display="flex" alignItems="center" gap={0.5}>Market Movers <Chip label="Live" size="small" color="success" sx={{ height: 18, fontSize: '0.65rem' }} /></Box>} iconPosition="start" />
+        <Tab icon={<ShowChart />} label="Market Trends" iconPosition="start" />
+        <Tab icon={<Storage />} label="Universe" iconPosition="start" />
+        <Tab icon={<Security />} label="Positions" iconPosition="start" />
+        <Tab icon={<Psychology />} label="ML / Learning" iconPosition="start" />
+      </Tabs>
+
+      <TabPanel value={tab} index={0}>
+        <PerformanceTab
+          perfTimeline={perfTimeline}
+          armPerformance={armPerformance}
+          analysisPerformance={analysisPerformance}
+        />
+      </TabPanel>
+      <TabPanel value={tab} index={1}>
+        <MarketMoversTab topGainers={topGainers} topLosers={topLosers} topTraded={topTraded} />
+      </TabPanel>
+      <TabPanel value={tab} index={2}>
+        <MarketTrendsTab marketTimeline={marketTimeline} />
+      </TabPanel>
+      <TabPanel value={tab} index={3}>
+        <UniverseTab universeHealth={universeHealth} />
+      </TabPanel>
+      <TabPanel value={tab} index={4}>
+        <PositionsTab positions={positions} />
+      </TabPanel>
+      <TabPanel value={tab} index={5}>
+        <MLLearningTab learningStatus={learningStatus} scoreBins={scoreBins} />
+      </TabPanel>
     </Box>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

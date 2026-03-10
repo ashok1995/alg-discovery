@@ -1,9 +1,11 @@
 /**
  * Candidate Query Registry Service
- * 
+ *
  * Service for managing candidate queries, strategies, and sub-algorithms
  * through the Candidate Query Registry API.
  */
+
+import { candidateQueryFetch, buildQueryUrl } from './candidateQueryHelpers';
 
 // ==================== TYPES ====================
 
@@ -87,16 +89,10 @@ export interface QuerySearchResponse {
 export interface QueryStatsResponse {
   total_queries: number;
   active_queries: number;
-  type_distribution: {
-    sql: number;
-    custom: number;
-  };
+  type_distribution: { sql: number; custom: number };
   redis_stats: {
     total_queries: number;
-    type_distribution: {
-      custom: number;
-      sql: number;
-    };
+    type_distribution: { custom: number; sql: number };
     total_usage_count: number;
     average_usage: number;
   };
@@ -122,309 +118,98 @@ export class CandidateQueryRegistryService {
     this.baseUrl = baseUrl;
   }
 
+  private fetch<T>(path: string, context: string, options?: { method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: string }): Promise<T> {
+    const url = path.startsWith('http') ? path : `${this.baseUrl}${path}`;
+    return candidateQueryFetch<T>(url, context, {
+      method: options?.method ?? 'GET',
+      body: options?.body,
+    });
+  }
+
   // ==================== QUERY MANAGEMENT ====================
 
   async getQueryIds(): Promise<QueryIdsResponse> {
-    const url = `${this.baseUrl}/api/query/ids`;
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to get query IDs');
-      }
-      
-      return data.data;
-    } catch (error) {
-      console.error('Error fetching query IDs:', error);
-      throw new Error(`Failed to fetch query IDs: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.fetch(`${this.baseUrl}/api/query/ids`, 'get query IDs');
   }
 
-  // Batch store
-  async storeBatch(payload: { queries: Array<{
-    query_name: string;
-    query_string: string;
-    query_type: string;
-    description?: string;
-    tags?: string[] | string;
-    parameters?: Record<string, any> | string;
-    version?: string;
-    is_active?: boolean;
-  }> }): Promise<{ stored: number; message: string }> {
-    const url = `${this.baseUrl}/api/query/store-batch`;
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to store batch');
-      }
-      return data.data;
-    } catch (error) {
-      console.error('Error storing batch:', error);
-      throw new Error(`Failed to store batch: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+  async storeBatch(payload: {
+    queries: Array<{
+      query_name: string;
+      query_string: string;
+      query_type: string;
+      description?: string;
+      tags?: string[] | string;
+      parameters?: Record<string, unknown> | string;
+      version?: string;
+      is_active?: boolean;
+    }>;
+  }): Promise<{ stored: number; message: string }> {
+    return this.fetch(
+      `${this.baseUrl}/api/query/store-batch`,
+      'store batch',
+      { method: 'POST', body: JSON.stringify(payload) }
+    );
   }
 
-  // Candidates
   async getCandidates(): Promise<{ queries: QueryListItem[]; total_results: number }> {
-    const url = `${this.baseUrl}/api/query/candidates`;
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to fetch candidates');
-      }
-      return data.data;
-    } catch (error) {
-      console.error('Error fetching candidates:', error);
-      throw new Error(`Failed to fetch candidates: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.fetch(`${this.baseUrl}/api/query/candidates`, 'fetch candidates');
   }
 
-  // Get batch
   async getBatch(query_ids: string[]): Promise<QueryDetail[]> {
-    const url = `${this.baseUrl}/api/query/get-batch`;
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ query_ids }),
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to get batch');
-      }
-      return data.data.queries || data.data;
-    } catch (error) {
-      console.error('Error getting batch:', error);
-      throw new Error(`Failed to get batch: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    const result = await this.fetch<{ queries?: QueryDetail[] } | QueryDetail[]>(
+      `${this.baseUrl}/api/query/get-batch`,
+      'get batch',
+      { method: 'POST', body: JSON.stringify({ query_ids }) }
+    );
+    return Array.isArray(result) ? result : (result?.queries ?? []);
   }
 
-  // Update batch
-  async updateBatch(updates: Array<{ query_id: string } & Partial<{
-    query_name: string;
-    query_string: string;
-    query_type: string;
-    description: string;
-    tags: string;
-    parameters: string;
-    version: string;
-    is_active: boolean;
-  }>>): Promise<{ updated: number; message: string }> {
-    const url = `${this.baseUrl}/api/query/update-batch`;
-    try {
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ updates }),
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to update batch');
-      }
-      return data.data;
-    } catch (error) {
-      console.error('Error updating batch:', error);
-      throw new Error(`Failed to update batch: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+  async updateBatch(updates: Array<
+    { query_id: string } & Partial<{
+      query_name: string;
+      query_string: string;
+      query_type: string;
+      description: string;
+      tags: string;
+      parameters: string;
+      version: string;
+      is_active: boolean;
+    }>
+  >): Promise<{ updated: number; message: string }> {
+    return this.fetch(
+      `${this.baseUrl}/api/query/update-batch`,
+      'update batch',
+      { method: 'PUT', body: JSON.stringify({ updates }) }
+    );
   }
 
-  // Delete batch
   async deleteBatch(query_ids: string[]): Promise<{ deleted: number; message: string }> {
-    const url = `${this.baseUrl}/api/query/delete-batch`;
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ query_ids }),
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to delete batch');
-      }
-      return data.data;
-    } catch (error) {
-      console.error('Error deleting batch:', error);
-      throw new Error(`Failed to delete batch: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.fetch(
+      `${this.baseUrl}/api/query/delete-batch`,
+      'delete batch',
+      { method: 'POST', body: JSON.stringify({ query_ids }) }
+    );
   }
 
-  async getQueries(params?: {
-    limit?: number;
-    offset?: number;
-  }): Promise<QueryListResponse> {
-    const searchParams = new URLSearchParams();
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
-    if (params?.offset) searchParams.append('offset', params.offset.toString());
-
-    const url = `${this.baseUrl}/api/query/list?${searchParams.toString()}`;
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to get queries');
-      }
-      
-      return data.data;
-    } catch (error) {
-      console.error('Error fetching queries:', error);
-      throw new Error(`Failed to fetch queries: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+  async getQueries(params?: { limit?: number; offset?: number }): Promise<QueryListResponse> {
+    const q: Record<string, number> = {};
+    if (params?.limit != null) q.limit = params.limit;
+    if (params?.offset != null) q.offset = params.offset;
+    const url = buildQueryUrl(this.baseUrl, '/api/query/list', q);
+    return this.fetch(url, 'get queries');
   }
 
   async searchQueries(searchTerm: string, limit: number = 10): Promise<QuerySearchResponse> {
-    const params = new URLSearchParams();
-    params.append('search_term', searchTerm);
-    params.append('limit', limit.toString());
-
-    const url = `${this.baseUrl}/api/query/search?${params.toString()}`;
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to search queries');
-      }
-      
-      return data.data;
-    } catch (error) {
-      console.error('Error searching queries:', error);
-      throw new Error(`Failed to search queries: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    const url = buildQueryUrl(this.baseUrl, '/api/query/search', { search_term: searchTerm, limit });
+    return this.fetch(url, 'search queries');
   }
 
   async getQuery(queryId: string): Promise<QueryDetail> {
-    const url = `${this.baseUrl}/api/query/${queryId}`;
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to get query');
-      }
-      
-      return data.data;
-    } catch (error) {
-      console.error('Error fetching query:', error);
-      throw new Error(`Failed to fetch query: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.fetch(`${this.baseUrl}/api/query/${queryId}`, 'get query');
   }
 
   async getQueryStats(): Promise<QueryStatsResponse> {
-    const url = `${this.baseUrl}/api/query/stats`;
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to get query stats');
-      }
-      
-      return data.data;
-    } catch (error) {
-      console.error('Error fetching query stats:', error);
-      throw new Error(`Failed to fetch query stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.fetch(`${this.baseUrl}/api/query/stats`, 'get query stats');
   }
 
   async storeQuery(queryData: {
@@ -436,98 +221,39 @@ export class CandidateQueryRegistryService {
     parameters?: string;
     version?: string;
   }): Promise<{ query_id: string; message: string }> {
-    const url = `${this.baseUrl}/api/query/store`;
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(queryData),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to store query');
-      }
-      
-      return data.data;
-    } catch (error) {
-      console.error('Error storing query:', error);
-      throw new Error(`Failed to store query: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.fetch(
+      `${this.baseUrl}/api/query/store`,
+      'store query',
+      { method: 'POST', body: JSON.stringify(queryData) }
+    );
   }
 
-  async updateQuery(queryId: string, updates: Partial<{
-    query_name: string;
-    query_string: string;
-    query_type: string;
-    description: string;
-    tags: string;
-    parameters: string;
-    version: string;
-    is_active: boolean;
-  }>): Promise<{ query_id: string; message: string }> {
-    const url = `${this.baseUrl}/api/query/${queryId}`;
-    try {
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(updates),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to update query');
-      }
-      
-      return data.data;
-    } catch (error) {
-      console.error('Error updating query:', error);
-      throw new Error(`Failed to update query: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+  async updateQuery(
+    queryId: string,
+    updates: Partial<{
+      query_name: string;
+      query_string: string;
+      query_type: string;
+      description: string;
+      tags: string;
+      parameters: string;
+      version: string;
+      is_active: boolean;
+    }>
+  ): Promise<{ query_id: string; message: string }> {
+    return this.fetch(
+      `${this.baseUrl}/api/query/${queryId}`,
+      'update query',
+      { method: 'PUT', body: JSON.stringify(updates) }
+    );
   }
 
   async deleteQuery(queryId: string): Promise<{ query_id: string; message: string }> {
-    const url = `${this.baseUrl}/api/query/${queryId}`;
-    try {
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to delete query');
-      }
-      
-      return data.data;
-    } catch (error) {
-      console.error('Error deleting query:', error);
-      throw new Error(`Failed to delete query: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.fetch(
+      `${this.baseUrl}/api/query/${queryId}`,
+      'delete query',
+      { method: 'DELETE' }
+    );
   }
 
   // ==================== UTILITY METHODS ====================
@@ -540,7 +266,7 @@ export class CandidateQueryRegistryService {
     }
   }
 
-  parseParameters(parametersString: string): Record<string, any> {
+  parseParameters(parametersString: string): Record<string, unknown> {
     try {
       return JSON.parse(parametersString);
     } catch {
@@ -549,22 +275,14 @@ export class CandidateQueryRegistryService {
   }
 
   formatQueryString(queryString: string): string {
-    // Format the query string for better readability
     return queryString
       .replace(/\s+/g, ' ')
       .replace(/\s*\(\s*/g, '(')
       .replace(/\s*\)\s*/g, ')')
       .trim();
   }
-
-  // ==================== ERROR HANDLING ====================
-
-  private handleError(error: any): never {
-    console.error('Candidate Query Registry Service Error:', error);
-    throw new Error(error.message || 'An error occurred while communicating with the Candidate Query Registry');
-  }
 }
 
 // ==================== DEFAULT INSTANCE ====================
 
-export const candidateQueryRegistryService = new CandidateQueryRegistryService(); 
+export const candidateQueryRegistryService = new CandidateQueryRegistryService();

@@ -59,6 +59,13 @@ jobs:
             echo "env=stage" >> $GITHUB_OUTPUT
           fi
 
+      - name: Set image tag
+        id: imagetag
+        run: |
+          # Docker tags may not contain /; use [a-zA-Z0-9_.-] only
+          SAFE_TAG=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+          echo "tag=${SAFE_TAG}" >> $GITHUB_OUTPUT
+
       - name: Log in to GHCR
         if: github.event_name == 'push'
         uses: docker/login-action@v3
@@ -74,7 +81,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           load: ${{ github.event_name != 'push' }}
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/algodiscovery-frontend:${{ github.ref_name }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/algodiscovery-frontend:${{ steps.imagetag.outputs.tag }}
           build-args: BUILD_ENV=${{ steps.buildenv.outputs.env }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
