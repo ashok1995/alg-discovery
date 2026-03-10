@@ -83,8 +83,14 @@ const AuthenticationPanel: React.FC<AuthenticationPanelProps> = ({
 
     <Alert severity="info" sx={{ mb: 2, py: 0.5 }} variant="outlined">
       <Typography variant="caption" display="block">
+        {!tokenValid && (
+          <>
+            <strong>Token invalid or expired?</strong> Use the same flow below to get a new token.
+            <br />
+          </>
+        )}
         Daily flow: 1) Click &quot;Get Redirect URL&quot; to fetch callback URL
-        from backend. 2) Set that as Redirect URL in{' '}
+        from the Kite service. 2) Set that as Redirect URL in{' '}
         <a
           href="https://developers.kite.trade/apps"
           target="_blank"
@@ -92,8 +98,8 @@ const AuthenticationPanel: React.FC<AuthenticationPanelProps> = ({
         >
           developers.kite.trade
         </a>
-        . 3) Then click &quot;Open Kite Login&quot; to start Kite login. 4)
-        After redirect, paste the callback URL or token below.
+        . 3) Click &quot;Open Kite Login&quot; to start Kite login. 4)
+        After redirect, paste the callback URL or access token below and save.
       </Typography>
     </Alert>
 

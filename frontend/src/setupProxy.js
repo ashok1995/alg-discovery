@@ -19,11 +19,11 @@ module.exports = function(app) {
       target: kiteTarget,
       changeOrigin: true,
       pathRewrite: {
-        '^/api/kite/health': '/health',
+        '^/api/kite/health': '/api/health',
         '^/api/kite': '/api',
       },
       onProxyReq: (proxyReq, req, res) => {
-        const dest = req.url.startsWith('/api/kite/health') ? req.url.replace('/api/kite/health', '/health') : req.url.replace('/api/kite', '/api');
+        const dest = req.url.startsWith('/api/kite/health') ? req.url.replace('/api/kite/health', '/api/health') : req.url.replace('/api/kite', '/api');
         console.log('Proxying Kite request:', req.method, req.url, '->', dest);
       },
       onError: (err, req, res) => {

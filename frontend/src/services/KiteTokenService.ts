@@ -219,7 +219,7 @@ class KiteTokenService {
     return m ? m[1] : null;
   }
 
-  /** GET /health - Service health (proxy maps to root /health) */
+  /** GET /api/health - Service health (proxy maps /api/kite/health → upstream /api/health) */
   async getHealth(): Promise<{ status: string; service?: string; services?: Record<string, unknown> }> {
     const res = await this.api.get(`${KITE_API_PREFIX}/health`);
     return res.data;
