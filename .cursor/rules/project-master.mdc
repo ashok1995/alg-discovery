@@ -12,19 +12,19 @@ alwaysApply: true
 - **Issues found in staging**: Create a branch from main → fix → commit → merge. This is the only way to fix staging issues.
 - **Flow**: Branch → develop/fix → commit → PR → merge to main → GCP pull main → deploy.
 
-## 2. Deployment Policy (GIT-ONLY)
+## 2. Deployment Policy (GHCR on VM – single source)
 
-- **Deployment**: ONLY via Git. NO direct file transfer (no scp, rsync, ftp).
-- **Prod**: `main` branch only. `./scripts/deploy-from-git.sh prod` or `./scripts/deploy-prod-remote.sh` (SSH to GCP). Port 80/443.
-- **Stage**: `develop` branch only. Local: `./scripts/deploy-stage-local.sh`. Remote GCP: `./scripts/deploy-stage-remote.sh` — pulls origin/develop, build + Docker on port 8080. Quick test (no Docker): `./scripts/run-quick-test.sh` (port 3002, uses build:stage).
-- **Branch mapping**: `deploy-from-git.sh stage` → develop; `deploy-from-git.sh prod` → main. Do experiments on develop; merge to main only when prod-ready.
-- **CI**: `.github/workflows/build.yml` builds frontend + Docker image, pushes to GHCR (ghcr.io) on push to develop/main.
+- **Deployment**: No direct file transfer (no scp, rsync, ftp). VM deploys use **GHCR only** (pull pre-built image).
+- **Prod**: `main` branch only. `./scripts/deploy.sh prod` → SSH to GCP, GHCR. Port 80/443.
+- **Stage**: `develop` branch only. `./scripts/deploy.sh stage` (GCP, GHCR, 8080). `./scripts/deploy.sh stage-local` (local build+Docker). `./scripts/deploy.sh quick-test` (port 3002, no Docker).
+- **Single script**: `./scripts/deploy.sh <command>`. Commands: `prod`, `stage`, `stage-local`, `quick-test`. Implementation in `scripts/deploy/`.
+- **CI**: `.github/workflows/build.yml` builds and pushes to GHCR on push to develop/main.
 - **Dev**: Local, port 3000, `frontend/envs/env.dev`.
 
 ### STRICT: Push first, then deploy stage
 - **Stage deploy script pulls from origin/develop.** It does not use your local uncommitted or unpushed commits.
-- **Before running `deploy-stage-local.sh`:** commit all changes on `develop`, then **push to origin** (`git push origin develop`). If you do not push first, the script will reset to what is already on origin/develop and your latest local commits will not be deployed.
-- **Order:** 1) Commit on develop. 2) Push to origin (develop). 3) Run `./scripts/deploy-stage-local.sh`. Never run the stage deploy script when you have unpushed commits on develop if you want those changes in the staged build.
+- **Before running `deploy.sh stage` or `deploy.sh stage-local`:** commit on `develop`, then **push to origin** (`git push origin develop`). If you do not push first, the script will reset to origin/develop and your latest local commits will not be deployed.
+- **Order:** 1) Commit on develop. 2) Push to origin (develop). 3) Run `./scripts/deploy.sh stage` or `./scripts/deploy.sh stage-local`.
 
 ### Deployment Checklist
 - Before deploy: Run integration tests locally (`npm run test` in frontend).
@@ -67,10 +67,13 @@ alg-discovery/
 ├── docs/                    # Repo-level: deployment only
 │   └── DEPLOYMENT.md
 ├── scripts/                 # Deploy only (no scattered .sh in frontend)
-│   ├── deploy-from-git.sh   # Canonical deploy: stage=develop/8080, prod=main/80
-│   ├── deploy-stage-local.sh
-│   ├── deploy-stage-remote.sh  # GCP stage from develop
-│   └── deploy-prod-remote.sh   # GCP prod from main
+│   ├── deploy.sh            # Single entry: deploy.sh prod|stage|stage-local|quick-test
+│   └── deploy/               # Implementation
+│       ├── remote.sh         # SSH + from-ghcr.sh [stage|prod]
+│       ├── from-ghcr.sh      # On VM: pull GHCR image, run
+│       ├── from-git.sh       # Optional: build on VM from git
+│       ├── stage-local.sh    # Local stage (build + Docker, 8080)
+│       └── quick-test.sh     # Stage build, serve 3002, no Docker
 └── frontend/
     ├── docs/                # All frontend docs (README at root only)
     │   ├── README.md
@@ -184,15 +187,11 @@ alg-discovery/
 - **Build arg**: Use `BUILD_ENV=prod|stage` in single Dockerfile. No separate Dockerfiles per port/domain.
 - **FORBIDDEN**: `Dockerfile.*` (except Dockerfile), `docker-compose-*.yml` variants.
 
-## 11. DEPLOY SCRIPTS (STRICT – MINIMAL)
+## 11. DEPLOY SCRIPTS (STRICT – SINGLE ENTRY POINT)
 
-- **deploy-from-git.sh**: `./scripts/deploy-from-git.sh [stage|prod]`. stage → **develop** branch, port 8080. prod → **main** branch, port 80. Run on GCP or local.
-- **deploy-stage-local.sh**: Stage from **develop** (local, full Docker, 8080). Fetches **origin/develop** — **push first**.
-- **deploy-stage-remote.sh**: Stage on GCP via SSH; pulls **develop**, runs deploy-from-git.sh stage.
-- **deploy-prod-remote.sh**: Prod on GCP via SSH; pulls **main**, builds locally, runs.
-- **deploy-from-ghcr.sh**: Pull pre-built image from GHCR and run (no local build).
-- **deploy-prod-remote-ghcr.sh**: Prod on GCP via SSH; pulls image from GHCR (CI-built).
-- **run-quick-test.sh**: Quick test, build:stage, no Docker, port 3002.
+- **deploy.sh**: `./scripts/deploy.sh <command>`. Single entry. Commands: `prod` | `stage` | `stage-local` | `quick-test`.
+- **scripts/deploy/**: Implementation only. `remote.sh` (SSH+GHCR), `from-ghcr.sh` (VM), `from-git.sh` (optional VM build), `stage-local.sh`, `quick-test.sh`.
+- **FORBIDDEN**: Scattered deploy scripts at scripts/ root. All deploy logic under `scripts/deploy.sh` and `scripts/deploy/`.
 - **Frontend**: ONE optional `frontend/deploy.sh` for local Docker run.
 
 ### STRICT: Stage deploy = push first

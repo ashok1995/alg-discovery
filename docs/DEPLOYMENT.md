@@ -63,47 +63,41 @@ export ALGODISCOVERY_REPO_DIR=~/alg-discovery
 
 ---
 
-## Deploy (Git-Only)
+## Deploy (single script)
 
-**Stage (experiments on develop)** — push develop first:
+**One entry point:** `./scripts/deploy.sh <command>`
+
+| Command       | What it does |
+|---------------|--------------|
+| `prod`        | Deploy prod to GCP (SSH → pull GHCR image, run). Merge to main first. |
+| `stage`       | Deploy stage to GCP (SSH → GHCR, port 8080). Push develop first. |
+| `stage-local` | Deploy stage locally (build from git + Docker on 8080). |
+| `quick-test`  | Build stage on current branch, serve on 3002, no Docker. |
+
+**Examples:**
 ```bash
+# Prod (after merge to main)
+./scripts/deploy.sh prod
+
+# Stage on GCP (push develop first)
 git push origin develop
-./scripts/deploy-stage-remote.sh   # or deploy-stage-local.sh
+./scripts/deploy.sh stage
+
+# Stage on your machine
+./scripts/deploy.sh stage-local
+
+# Quick test without Docker
+./scripts/deploy.sh quick-test
 ```
 
-**Prod** — merge to main first:
-```bash
-git checkout main
-git pull origin main
-git merge develop
-git push origin main
-```
-
-**From local via SSH** (recommended for prod — pull from GHCR, no build on VM):
-
-```bash
-# Prod: CI pushes image to GHCR on push to main; VM pulls and runs
-./scripts/deploy-prod-remote-ghcr.sh   # Pulls ghcr.io/OWNER/algodiscovery-frontend:main
-
-# Stage: from develop branch (build on VM)
-./scripts/deploy-stage-remote.sh
-```
-
-**On GCP instance directly** (build on VM):
-
+**On GCP instance directly** (e.g. SSH'd into VM):
 ```bash
 cd ~/alg-discovery
-./scripts/deploy-from-ghcr.sh prod    # Pull from GHCR (no build)
-./scripts/deploy-from-git.sh prod     # Build on VM
-./scripts/deploy-from-git.sh stage    # Stage from develop
+./scripts/deploy/from-ghcr.sh prod   # or stage
+# Optional build on VM: ./scripts/deploy/from-git.sh [stage|prod]
 ```
 
-**GHCR**: Set `GITHUB_OWNER` (e.g. your org) and `GHCR_TOKEN` (GitHub PAT with `read:packages`) for private images.
-
-Custom repo path:
-```bash
-ALGODISCOVERY_REPO_DIR=/opt/alg-discovery ./scripts/deploy-from-git.sh prod
-```
+**GHCR**: Set `GITHUB_OWNER` and `GHCR_TOKEN` (GitHub PAT with `read:packages`) for private images.
 
 ## Local Run (No GCP)
 
