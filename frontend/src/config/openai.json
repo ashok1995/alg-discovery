@@ -36,7 +36,8 @@
           "health": "/health",
           "observabilityDb": "/v2/observability/db",
           "pipelineHealth": "/v2/health/pipeline",
-          "scoreBinPerformance": "/v2/learning/score-bin-performance"
+          "scoreBinPerformance": "/v2/learning/score-bin-performance",
+          "learningPerformance": "/v2/learning/performance"
         }
       }
     },
@@ -76,7 +77,8 @@
           "health": "/health",
           "observabilityDb": "/v2/observability/db",
           "pipelineHealth": "/v2/health/pipeline",
-          "scoreBinPerformance": "/v2/learning/score-bin-performance"
+          "scoreBinPerformance": "/v2/learning/score-bin-performance",
+          "learningPerformance": "/v2/learning/performance"
         }
       }
     }

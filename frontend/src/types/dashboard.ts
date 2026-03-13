@@ -248,11 +248,12 @@ export interface PositionStatusResponse {
   score: number | null;
 }
 
+/** API: quantity optional (default 0). trade_type: intraday_buy | intraday_sell | swing_buy | short | long_term */
 export interface PositionOpenRequest {
   symbol: string;
   trade_type: string;
   entry_price: number;
-  quantity: number;
+  quantity?: number;
 }
 
 export interface PositionOpenResponse {
@@ -315,6 +316,45 @@ export interface ScoreBinPerformanceItem {
   avg_return_pct: number;
   count: number;
   success_rate_pct: number;
+}
+
+// --- Learning Performance (GET /v2/learning/performance) ---
+
+export interface PerformanceSummary {
+  total_outcomes: number;
+  avg_return_pct: number;
+  overall_win_rate_pct: number;
+}
+
+export interface PerformanceGroupItem {
+  group_key: string | null;
+  trade_type: string | null;
+  count: number;
+  avg_return_pct: number;
+  min_return_pct: number;
+  max_return_pct: number;
+  win_rate_pct: number;
+  wins: number;
+}
+
+export interface TimeToExitItem {
+  trade_type: string | null;
+  source_arm: string | null;
+  outcome: string | null;
+  count: number;
+  avg_hours: number;
+  min_hours: number;
+  max_hours: number;
+  avg_return_pct: number;
+  win_rate_pct: number;
+}
+
+export interface LearningPerformanceResponse {
+  group_by: string;
+  filters_applied: Record<string, unknown>;
+  summary: PerformanceSummary;
+  groups: PerformanceGroupItem[];
+  time_to_exit: TimeToExitItem[];
 }
 
 // --- Analysis Performance ---

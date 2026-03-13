@@ -23,7 +23,12 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import type { ArmPerformanceItem, PerformanceTimelineDay, AnalysisPerformanceResponse } from '../../types/apiModels';
+import type {
+  ArmPerformanceItem,
+  PerformanceTimelineDay,
+  AnalysisPerformanceResponse,
+  LearningPerformanceResponse,
+} from '../../types/apiModels';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 
@@ -31,6 +36,7 @@ interface PerformanceTabProps {
   perfTimeline: PerformanceTimelineDay[];
   armPerformance: ArmPerformanceItem[];
   analysisPerformance?: AnalysisPerformanceResponse | null;
+  learningPerformance?: LearningPerformanceResponse | null;
 }
 
 type ArmKey = 'arm' | 'total' | 'wins' | 'win_rate' | 'avg_return_pct';
@@ -43,8 +49,15 @@ const ARM_COLUMNS: ColumnDef<ArmKey>[] = [
   { key: 'avg_return_pct', label: 'Avg Return %', align: 'right', sortable: true },
 ];
 
-const PerformanceTab: React.FC<PerformanceTabProps> = ({ perfTimeline, armPerformance, analysisPerformance }) => {
+const PerformanceTab: React.FC<PerformanceTabProps> = ({
+  perfTimeline,
+  armPerformance,
+  analysisPerformance,
+  learningPerformance,
+}) => {
   const dataVolume = analysisPerformance?.analysis?.data_volume as Array<{ trade_type: string; total_recs: number; unique_symbols: number }> | undefined;
+  const lpSummary = learningPerformance?.summary;
+  const lpGroups = learningPerformance?.groups ?? [];
   const { sortedData, requestSort, getSortDirection } = useSortableData<ArmPerformanceItem, ArmKey>(
     armPerformance,
     { key: 'avg_return_pct', direction: 'desc' },
@@ -52,6 +65,52 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ perfTimeline, armPerfor
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
+      {lpSummary && (
+        <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              Learning performance (by {learningPerformance?.group_by?.replace(/_/g, ' ') ?? 'score bin'})
+            </Typography>
+            <Box display="flex" gap={3} flexWrap="wrap" sx={{ mb: lpGroups.length ? 2 : 0 }}>
+              <Typography variant="body2">
+                <strong>Total outcomes:</strong> {lpSummary.total_outcomes.toLocaleString()}
+              </Typography>
+              <Typography variant="body2" color={lpSummary.avg_return_pct >= 0 ? 'success.main' : 'error.main'}>
+                <strong>Avg return:</strong> {lpSummary.avg_return_pct >= 0 ? '+' : ''}{lpSummary.avg_return_pct.toFixed(2)}%
+              </Typography>
+              <Typography variant="body2">
+                <strong>Win rate:</strong> {lpSummary.overall_win_rate_pct.toFixed(1)}%
+              </Typography>
+            </Box>
+            {lpGroups.length > 0 && (
+              <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 280, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                <Table size="small">
+                  <TableBody>
+                    <TableRow sx={{ bgcolor: 'grey.50' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Group</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Trade type</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>Count</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>Avg return %</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>Win rate %</TableCell>
+                    </TableRow>
+                    {lpGroups.slice(0, 20).map((g, i) => (
+                      <TableRow key={i}>
+                        <TableCell>{g.group_key ?? '—'}</TableCell>
+                        <TableCell>{g.trade_type ?? '—'}</TableCell>
+                        <TableCell align="right">{g.count}</TableCell>
+                        <TableCell align="right" sx={{ color: g.avg_return_pct >= 0 ? 'success.main' : 'error.main' }}>
+                          {(g.avg_return_pct >= 0 ? '+' : '') + g.avg_return_pct.toFixed(2)}%
+                        </TableCell>
+                        <TableCell align="right">{g.win_rate_pct.toFixed(1)}%</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
+      )}
       {Array.isArray(dataVolume) && dataVolume.length > 0 && (
         <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
           <CardContent>

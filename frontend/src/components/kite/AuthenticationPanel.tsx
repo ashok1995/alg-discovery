@@ -85,12 +85,11 @@ const AuthenticationPanel: React.FC<AuthenticationPanelProps> = ({
       <Typography variant="caption" display="block">
         {!tokenValid && (
           <>
-            <strong>Token invalid or expired?</strong> Use the same flow below to get a new token.
+            <strong>Token invalid or expired?</strong> Click &quot;Open Kite Login&quot; below, then paste the callback URL or token and save.
             <br />
           </>
         )}
-        Daily flow: 1) Click &quot;Get Redirect URL&quot; to fetch callback URL
-        from the Kite service. 2) Set that as Redirect URL in{' '}
+        Daily flow: 1) In{' '}
         <a
           href="https://developers.kite.trade/apps"
           target="_blank"
@@ -98,8 +97,8 @@ const AuthenticationPanel: React.FC<AuthenticationPanelProps> = ({
         >
           developers.kite.trade
         </a>
-        . 3) Click &quot;Open Kite Login&quot; to start Kite login. 4)
-        After redirect, paste the callback URL or access token below and save.
+        , set Redirect URL to your app&apos;s callback URL. 2) Click &quot;Open Kite Login&quot; below to open Kite. 3)
+        After login, copy the redirect URL (with request_token) or the access token and paste below. 4) Click Save.
       </Typography>
     </Alert>
 
@@ -153,7 +152,7 @@ const AuthenticationPanel: React.FC<AuthenticationPanelProps> = ({
       </Box>
     )}
 
-    {showCallbackDetails && refreshLoginUrl && (
+    {refreshLoginUrl && (
       <Box sx={{ mb: 2 }}>
         <Button
           size="medium"
@@ -165,6 +164,9 @@ const AuthenticationPanel: React.FC<AuthenticationPanelProps> = ({
         >
           Open Kite Login
         </Button>
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+          Opens Kite in a new tab. After login, copy the redirect URL (with request_token) or the access token and paste below.
+        </Typography>
       </Box>
     )}
 

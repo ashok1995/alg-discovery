@@ -1,6 +1,7 @@
 /**
- * Modern Kite Token Management Component
- * Flow: Check API key → Get callback URL → Paste URL or access token → Save for other services.
+ * Kite Token Management – two-step flow:
+ * 1) If API key not configured: show API key & secret form first (one-time via API).
+ * 2) If API key configured: show callback URL + token flow (get redirect URL, open Kite login, paste URL/token, save).
  */
 
 import React, { useState, useEffect } from 'react';
@@ -40,6 +41,7 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
   const [savingCreds, setSavingCreds] = useState(false);
+  /** When API key is present, show token flow; "Update API key" reveals form. When absent, form is shown by default. */
   const [showApiKeyForm, setShowApiKeyForm] = useState(false);
   const [showCallbackDetails, setShowCallbackDetails] = useState(false);
 
@@ -47,30 +49,31 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const [statusData, healthData, credStatus, cbData] = await Promise.all([
+      const [statusData, healthData] = await Promise.all([
         kiteTokenService.getTokenStatus().catch(() => ({} as TokenStatus)),
         kiteTokenService.getHealth().catch(() => ({ status: 'unhealthy' })),
-        kiteTokenService.getCredentialsStatus().catch(() => ({
-          api_key_configured: false,
-          message: 'Service unavailable',
-        })),
-        kiteTokenService.getCallbackUrl().catch(() => null),
       ]);
       setTokenStatus(statusData);
-      setCredentialsStatus(credStatus);
-      setCallbackUrl(cbData);
       setServiceHealthy(healthData?.status === 'healthy');
-      try {
-        const refreshData = await kiteTokenService.getRefreshInfo();
-        setRefreshInfo(refreshData);
-      } catch {
-        setRefreshInfo({
-          login_url: '',
-          message: credStatus?.api_key_configured
-            ? 'Use callback URL for login'
-            : 'Configure API key first',
-        });
+      const credsConfigured = statusData?.credentials_configured ?? false;
+      setCredentialsStatus({
+        api_key_configured: credsConfigured,
+        message: credsConfigured ? null : 'Configure API key and secret first',
+      });
+      if (credsConfigured) {
+        try {
+          const refreshData = await kiteTokenService.getRefreshInfo();
+          setRefreshInfo(refreshData);
+        } catch {
+          setRefreshInfo({
+            login_url: '',
+            message: 'Use Open Kite Login and paste callback URL to save token',
+          });
+        }
+      } else {
+        setRefreshInfo({ login_url: '', message: 'Configure API key first' });
       }
+      setCallbackUrl(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load token status');
       setServiceHealthy(false);
@@ -87,8 +90,9 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
     try {
       setSavingCreds(true);
       setError(null);
-      await kiteTokenService.saveCredentials(apiKey.trim(), apiSecret.trim());
-      setSuccess('API credentials saved. You can now get callback URL and tokens.');
+      setSuccess(null);
+      const result = await kiteTokenService.saveCredentials(apiKey.trim(), apiSecret.trim());
+      setSuccess(result.message ?? 'API credentials saved. Next: get callback URL and save your token below.');
       setApiKey('');
       setApiSecret('');
       setShowApiKeyForm(false);
@@ -117,15 +121,12 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
           setSubmitting(false);
           return;
         }
-        const result = await kiteTokenService.generateAccessToken(requestToken);
-        if (result.success && result.access_token) {
-          await kiteTokenService
-            .updateToken(result.access_token, result.user_id)
-            .catch(() => ({ success: false }));
+        const result = await kiteTokenService.saveTokenByRequestToken(requestToken);
+        if (result.success) {
           setPasteInput('');
-          setSuccess('Token generated and saved. Daily refresh complete.');
+          setSuccess(result.message ?? 'Token saved. You are authenticated.');
         } else {
-          throw new Error(result.error || 'Failed to exchange token');
+          throw new Error(result.message ?? 'Failed to save token');
         }
       } else if (looksLikeAccessToken(input)) {
         const result = await kiteTokenService.validateAndSaveAccessToken(input);
@@ -191,6 +192,8 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
   }
 
   const apiKeyPresent = credentialsStatus?.api_key_configured ?? false;
+  /** Step 1: no API key → show credentials form only. Step 2: key present → show callback URL + token flow. */
+  const showCredentialsFirst = !apiKeyPresent;
 
   return (
     <Card>
@@ -205,43 +208,65 @@ const SimpleKiteTokenManagement: React.FC<SimpleKiteTokenManagementProps> = ({
           onRefresh={loadStatus}
         />
 
-        <CredentialForm
-          apiKey={apiKey}
-          apiSecret={apiSecret}
-          apiKeyPresent={apiKeyPresent}
-          showForm={showApiKeyForm}
-          savingCreds={savingCreds}
-          onApiKeyChange={setApiKey}
-          onApiSecretChange={setApiSecret}
-          onSave={handleSaveCredentials}
-          onCancel={() => {
-            setShowApiKeyForm(false);
-            setApiKey('');
-            setApiSecret('');
-          }}
-          onShowForm={() => setShowApiKeyForm(true)}
-        />
-
-        {apiKeyPresent && (
-          <AuthenticationPanel
-            tokenValid={tokenStatus?.kite_token_valid ?? false}
-            tokenUserName={tokenStatus?.user_name}
-            tokenMasked={tokenStatus?.kite_token_masked}
-            effectiveCallbackUrl={effectiveCallbackUrl}
-            showCallbackDetails={showCallbackDetails}
-            pasteInput={pasteInput}
-            submitting={submitting}
-            submitButtonLabel={getSubmitButtonLabel()}
-            refreshLoginUrl={refreshInfo?.login_url}
-            onShowCallbackDetails={() => setShowCallbackDetails(true)}
-            onPasteChange={handlePasteChange}
-            onSubmit={submitTokenOrUrl}
-            onClear={() => {
-              setPasteInput('');
-              setError(null);
-            }}
-            onCopyCallbackUrl={copyCallbackUrl}
-          />
+        {showCredentialsFirst ? (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Configure API key and secret one time. After saving, you can get the callback URL and save your token.
+            </Typography>
+            <CredentialForm
+              apiKey={apiKey}
+              apiSecret={apiSecret}
+              apiKeyPresent={false}
+              showForm={true}
+              savingCreds={savingCreds}
+              onApiKeyChange={setApiKey}
+              onApiSecretChange={setApiSecret}
+              onSave={handleSaveCredentials}
+              onCancel={() => {
+                setApiKey('');
+                setApiSecret('');
+              }}
+              onShowForm={() => {}}
+            />
+          </>
+        ) : (
+          <>
+            <CredentialForm
+              apiKey={apiKey}
+              apiSecret={apiSecret}
+              apiKeyPresent={true}
+              showForm={showApiKeyForm}
+              savingCreds={savingCreds}
+              onApiKeyChange={setApiKey}
+              onApiSecretChange={setApiSecret}
+              onSave={handleSaveCredentials}
+              onCancel={() => {
+                setShowApiKeyForm(false);
+                setApiKey('');
+                setApiSecret('');
+              }}
+              onShowForm={() => setShowApiKeyForm(true)}
+            />
+            <AuthenticationPanel
+              tokenValid={tokenStatus?.kite_token_valid ?? false}
+              tokenUserName={tokenStatus?.user_name}
+              tokenMasked={tokenStatus?.kite_token_masked}
+              effectiveCallbackUrl={effectiveCallbackUrl}
+              showCallbackDetails={showCallbackDetails}
+              pasteInput={pasteInput}
+              submitting={submitting}
+              submitButtonLabel={getSubmitButtonLabel()}
+              refreshLoginUrl={refreshInfo?.login_url}
+              onShowCallbackDetails={() => setShowCallbackDetails(true)}
+              onPasteChange={handlePasteChange}
+              onSubmit={submitTokenOrUrl}
+              onClear={() => {
+                setPasteInput('');
+                setError(null);
+              }}
+              onCopyCallbackUrl={copyCallbackUrl}
+            />
+          </>
         )}
 
         <Typography

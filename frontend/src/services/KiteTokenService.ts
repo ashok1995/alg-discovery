@@ -11,6 +11,8 @@ const KITE_API_PREFIX = '/api/kite';
 export interface TokenStatus {
   kite_token_valid: boolean;
   token_valid?: boolean;
+  /** From GET /api/auth/status: whether API key/secret are configured (single source of truth for flow) */
+  credentials_configured?: boolean;
   authenticated?: boolean;
   needs_refresh?: boolean;
   user_id?: string;
@@ -85,25 +87,48 @@ class KiteTokenService {
     return KiteTokenService.instance;
   }
 
-  /** GET /api/auth/credentials/status - Check if API key is configured */
+  /** GET /api/auth/credentials/status - Check if API key is configured (404 = server-managed, no API) */
   async getCredentialsStatus(): Promise<CredentialsStatusResponse> {
-    const res = await this.api.get(`${KITE_API_PREFIX}/auth/credentials/status`);
-    return res.data;
+    try {
+      const res = await this.api.get(`${KITE_API_PREFIX}/auth/credentials/status`);
+      return res.data;
+    } catch (err: unknown) {
+      const status = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { status?: number } }).response?.status
+        : 0;
+      if (status === 404) {
+        return { api_key_configured: true, message: 'API key configured on server (no credentials API)' };
+      }
+      throw err;
+    }
   }
 
-  /** POST /api/auth/credentials - Save api_key and api_secret (optional, long-lived) */
+  /** POST /api/auth/credentials - Save api_key and api_secret (404 = service has no credentials API) */
   async saveCredentials(
     apiKey: string,
     apiSecret: string
   ): Promise<{ success: boolean; message?: string }> {
-    const res = await this.api.post(`${KITE_API_PREFIX}/auth/credentials`, {
-      api_key: apiKey.trim(),
-      api_secret: apiSecret.trim(),
-    });
-    return res.data;
+    try {
+      const res = await this.api.post(`${KITE_API_PREFIX}/auth/credentials`, {
+        api_key: apiKey.trim(),
+        api_secret: apiSecret.trim(),
+      });
+      return res.data;
+    } catch (err: unknown) {
+      const status = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { status?: number } }).response?.status
+        : 0;
+      if (status === 404) {
+        return {
+          success: true,
+          message: 'This service uses API key configured on the server. Use "Open Kite Login" and paste the callback URL or token below.',
+        };
+      }
+      throw err;
+    }
   }
 
-  /** GET /api/auth/status - Check auth and token validity */
+  /** GET /api/auth/status - Single source: credentials_configured, token_valid, user info */
   async getTokenStatus(): Promise<TokenStatus> {
     const res = await this.api.get(`${KITE_API_PREFIX}/auth/status`);
     const d = res.data;
@@ -111,6 +136,7 @@ class KiteTokenService {
     const authTime = d.token_refreshed_at ?? d.last_authenticated_at ?? d.authenticated_at ?? d.token_created_at;
     return {
       ...d,
+      credentials_configured: d.credentials_configured ?? false,
       kite_token_valid: valid,
       is_valid: valid,
       kite_token_expires_at: d.token_expiry ?? d.kite_token_expires_at,
@@ -118,7 +144,7 @@ class KiteTokenService {
     };
   }
 
-  /** GET /api/token/callback-url - Get callback URL for Kite app (Redirect URL in developers.kite.trade) */
+  /** GET /api/token/callback-url - Get callback URL (404 = endpoint not available; use login-url flow) */
   async getCallbackUrl(): Promise<CallbackUrlResponse | null> {
     try {
       const res = await this.api.get(`${KITE_API_PREFIX}/token/callback-url`);
@@ -159,7 +185,29 @@ class KiteTokenService {
     };
   }
 
-  /** PUT /api/auth/token - Validate and save access token (for direct token paste) */
+  /** PUT /api/auth/token - Save token using request_token from Kite callback URL */
+  async saveTokenByRequestToken(requestToken: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      const res = await this.api.put(`${KITE_API_PREFIX}/auth/token`, {
+        request_token: requestToken.trim(),
+      });
+      const d = res.data as { success?: boolean; message?: string; status?: string };
+      return {
+        success: d.success === true || d.status === 'authenticated',
+        message: d.message ?? 'Token saved successfully',
+      };
+    } catch (err: unknown) {
+      const detail = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { data?: { detail?: { message?: string } } } }).response?.data?.detail
+        : null;
+      const msg = typeof detail === 'object' && detail?.message
+        ? detail.message
+        : err instanceof Error ? err.message : 'Failed to save token';
+      return { success: false, message: msg };
+    }
+  }
+
+  /** PUT /api/auth/token - Save access token (direct paste) */
   async updateToken(accessToken: string, userId?: string): Promise<{ success: boolean; message?: string }> {
     const res = await this.api.put(`${KITE_API_PREFIX}/auth/token`, {
       access_token: accessToken.trim(),
@@ -219,7 +267,7 @@ class KiteTokenService {
     return m ? m[1] : null;
   }
 
-  /** GET /api/health - Service health (proxy maps /api/kite/health → upstream /api/health) */
+  /** GET /api/kite/health - Service health (proxy maps to upstream /health at root) */
   async getHealth(): Promise<{ status: string; service?: string; services?: Record<string, unknown> }> {
     const res = await this.api.get(`${KITE_API_PREFIX}/health`);
     return res.data;
