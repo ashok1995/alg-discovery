@@ -1,6 +1,7 @@
 # CI: Build frontend and Docker image on push to develop/main.
 # - Push to develop: build and push only if develop has unique commits (skip if develop == main, e.g. after merging main back).
 # - Push to main: always build and push. One image per branch when it actually has new work.
+# - Pull request targeting main: skip (main will build on merge); only main run matters.
 # develop → ghcr.io/OWNER/algodiscovery-frontend:develop, main → :main
 name: Build and Push
 
@@ -34,6 +35,9 @@ jobs:
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "skip=false" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.base_ref }}" = "main" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "Skipping: PR targeting main (main will build on merge)."
           elif [ "${{ github.ref }}" = "refs/heads/develop" ] && [ "${{ github.event_name }}" = "push" ]; then
             git fetch origin main
             if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]; then
