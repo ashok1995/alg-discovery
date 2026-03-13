@@ -21,6 +21,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Do not run at all for PRs targeting main (main will build on merge); avoids spinning a runner.
+    if: github.event_name != 'pull_request' || github.base_ref != 'main'
     defaults:
       run:
         working-directory: frontend
@@ -35,9 +37,6 @@ jobs:
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "skip=false" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.base_ref }}" = "main" ]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "Skipping: PR targeting main (main will build on merge)."
           elif [ "${{ github.ref }}" = "refs/heads/develop" ] && [ "${{ github.event_name }}" = "push" ]; then
             git fetch origin main
             if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]; then
