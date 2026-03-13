@@ -1,7 +1,7 @@
 # CI: Build frontend and Docker image on push to develop/main.
-# Push images to GHCR (ghcr.io). Prod VM pulls from GHCR for deploy.
-# develop → stage build, ghcr.io/OWNER/algodiscovery-frontend:develop
-# main    → prod build,  ghcr.io/OWNER/algodiscovery-frontend:main
+# - Push to develop: build and push only if develop has unique commits (skip if develop == main, e.g. after merging main back).
+# - Push to main: always build and push. One image per branch when it actually has new work.
+# develop → ghcr.io/OWNER/algodiscovery-frontend:develop, main → :main
 name: Build and Push
 
 on:
@@ -26,8 +26,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Skip redundant develop build
+        id: skipcheck
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "skip=false" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/develop" ] && [ "${{ github.event_name }}" = "push" ]; then
+            git fetch origin main
+            if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "Skipping: develop is at same commit as main (redundant image)."
+            else
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Setup Node
+        if: steps.skipcheck.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '18'
@@ -35,9 +55,11 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
+        if: steps.skipcheck.outputs.skip != 'true'
         run: npm ci
 
       - name: Build (develop=stage, main=prod)
+        if: steps.skipcheck.outputs.skip != 'true'
         env:
           DISABLE_ESLINT_PLUGIN: 'true'
         run: |
@@ -48,9 +70,11 @@ jobs:
           fi
 
       - name: Set up Docker Buildx
+        if: steps.skipcheck.outputs.skip != 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Set build env
+        if: steps.skipcheck.outputs.skip != 'true'
         id: buildenv
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
@@ -60,6 +84,7 @@ jobs:
           fi
 
       - name: Set image tag
+        if: steps.skipcheck.outputs.skip != 'true'
         id: imagetag
         run: |
           # Docker tags may not contain /; use [a-zA-Z0-9_.-] only
@@ -67,7 +92,7 @@ jobs:
           echo "tag=${SAFE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Log in to GHCR
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && steps.skipcheck.outputs.skip != 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -75,6 +100,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
+        if: steps.skipcheck.outputs.skip != 'true'
         uses: docker/build-push-action@v6
         with:
           context: frontend
