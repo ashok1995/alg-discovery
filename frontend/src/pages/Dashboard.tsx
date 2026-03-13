@@ -36,6 +36,7 @@ import type {
   TopMoverItem,
   ScoreBinPerformanceItem,
   AnalysisPerformanceResponse,
+  LearningPerformanceResponse,
 } from '../types/apiModels';
 
 const Dashboard: React.FC = () => {
@@ -56,6 +57,7 @@ const Dashboard: React.FC = () => {
   const [topTraded, setTopTraded] = useState<TopMoverItem[]>([]);
   const [scoreBins, setScoreBins] = useState<ScoreBinPerformanceItem[]>([]);
   const [analysisPerformance, setAnalysisPerformance] = useState<AnalysisPerformanceResponse | null>(null);
+  const [learningPerformance, setLearningPerformance] = useState<LearningPerformanceResponse | null>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -74,6 +76,7 @@ const Dashboard: React.FC = () => {
         tradedRes,
         binRes,
         analysisRes,
+        learnPerfRes,
       ] = await Promise.allSettled([
         seedDashboardService.getDailySummary(days),
         seedDashboardService.getPositions({ days, limit: 50 }),
@@ -85,8 +88,9 @@ const Dashboard: React.FC = () => {
         seedDashboardService.getTopGainers(20, 24),
         seedDashboardService.getTopLosers(20, 24),
         seedDashboardService.getTopTraded(20, 24),
-        seedDashboardService.getScoreBinPerformance(undefined, days),
+        seedDashboardService.getScoreBinPerformance({ days }),
         seedDashboardService.getAnalysisPerformance(days),
+        seedDashboardService.getLearningPerformance({ group_by: 'score_bin', days }),
       ]);
 
       if (sumRes.status === 'fulfilled') setSummary(sumRes.value);
@@ -101,6 +105,7 @@ const Dashboard: React.FC = () => {
       if (tradedRes.status === 'fulfilled') setTopTraded(tradedRes.value.top_traded);
       if (binRes.status === 'fulfilled') setScoreBins(binRes.value);
       if (analysisRes.status === 'fulfilled') setAnalysisPerformance(analysisRes.value);
+      if (learnPerfRes.status === 'fulfilled') setLearningPerformance(learnPerfRes.value);
 
       const failed = [sumRes, posRes, univRes, mktRes].filter((r) => r.status === 'rejected');
       if (failed.length === 4) setError('All dashboard API calls failed. Is seed-stocks-service running?');
@@ -183,6 +188,7 @@ const Dashboard: React.FC = () => {
           perfTimeline={perfTimeline}
           armPerformance={armPerformance}
           analysisPerformance={analysisPerformance}
+          learningPerformance={learningPerformance}
         />
       </TabPanel>
       <TabPanel value={tab} index={1}>

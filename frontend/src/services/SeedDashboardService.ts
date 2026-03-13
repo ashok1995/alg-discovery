@@ -22,6 +22,7 @@ import type {
   ScoreBinPerformanceItem,
   AnalysisPerformanceResponse,
   RegistryStatsResponse,
+  LearningPerformanceResponse,
 } from '../types/apiModels';
 
 const BASE = API_CONFIG.SEED_API_BASE_URL;
@@ -93,11 +94,35 @@ export const seedDashboardService = {
   getObservabilityDb: () =>
     fetchJSON<ObservabilityDbResponse>('/v2/observability/db'),
 
-  getScoreBinPerformance: (trade_type?: string, days = 30) =>
-    fetchJSON<ScoreBinPerformanceItem[]>('/v2/learning/score-bin-performance', {
-      days,
-      ...(trade_type ? { trade_type } : {}),
-    }),
+  getScoreBinPerformance: (opts?: { trade_type?: string; days?: number; from_date?: string; to_date?: string }) => {
+    const params: Record<string, string | number> = { days: opts?.days ?? 30 };
+    if (opts?.trade_type) params.trade_type = opts.trade_type;
+    if (opts?.from_date) params.from_date = opts.from_date;
+    if (opts?.to_date) params.to_date = opts.to_date;
+    return fetchJSON<ScoreBinPerformanceItem[]>('/v2/learning/score-bin-performance', params);
+  },
+
+  /** GET /v2/learning/performance – group_by (score_bin | source_arm | outcome_type), horizon_type (time | event | all), filters */
+  getLearningPerformance: (opts?: {
+    group_by?: 'score_bin' | 'source_arm' | 'outcome_type';
+    trade_type?: string;
+    source_arm?: string;
+    horizon_type?: 'time' | 'event' | 'all';
+    days?: number;
+    from_date?: string;
+    to_date?: string;
+  }) => {
+    const params: Record<string, string | number> = {
+      group_by: opts?.group_by ?? 'score_bin',
+      horizon_type: opts?.horizon_type ?? 'all',
+      days: opts?.days ?? 30,
+    };
+    if (opts?.trade_type) params.trade_type = opts.trade_type;
+    if (opts?.source_arm) params.source_arm = opts.source_arm;
+    if (opts?.from_date) params.from_date = opts.from_date;
+    if (opts?.to_date) params.to_date = opts.to_date;
+    return fetchJSON<LearningPerformanceResponse>('/v2/learning/performance', params);
+  },
 
   getAnalysisPerformance: (days = 30) =>
     fetchJSON<AnalysisPerformanceResponse>('/api/v2/analysis/performance', { days }),
