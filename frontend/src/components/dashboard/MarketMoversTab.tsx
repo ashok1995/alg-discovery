@@ -20,6 +20,7 @@ import { TrendingUp, TrendingDown, SwapVert } from '@mui/icons-material';
 import type { TopMoverItem } from '../../types/apiModels';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
+import SymbolLink from '../ui/SymbolLink';
 
 interface MarketMoversTabProps {
   topGainers: TopMoverItem[];
@@ -27,15 +28,15 @@ interface MarketMoversTabProps {
   topTraded: TopMoverItem[];
 }
 
-type MoverKey = 'symbol' | 'exchange' | 'last_price' | 'change_pct' | 'volume' | 'value_traded_cr';
+type MoverKey = 'symbol' | 'last_price' | 'change_pct' | 'volume' | 'value_traded_cr' | 'sector';
 
 const COLUMNS: ColumnDef<MoverKey>[] = [
-  { key: 'symbol', label: 'Symbol', sortable: true, minWidth: 100 },
-  { key: 'exchange', label: 'Exch', sortable: true, minWidth: 50 },
+  { key: 'symbol', label: 'Symbol', sortable: true, minWidth: 120 },
   { key: 'last_price', label: 'Price (₹)', align: 'right', sortable: true },
   { key: 'change_pct', label: 'Change %', align: 'right', sortable: true },
   { key: 'volume', label: 'Volume', align: 'right', sortable: true },
   { key: 'value_traded_cr', label: 'Value (Cr)', align: 'right', sortable: true },
+  { key: 'sector', label: 'Sector', sortable: true },
 ];
 
 const formatVolume = (v: number | null): string => {
@@ -45,6 +46,8 @@ const formatVolume = (v: number | null): string => {
   if (v >= 1e3) return `${(v / 1e3).toFixed(1)}K`;
   return v.toLocaleString('en-IN');
 };
+
+const pct = (s: TopMoverItem) => s.period_return_pct ?? s.change_pct ?? 0;
 
 const SortableMoverTable: React.FC<{ items: TopMoverItem[] }> = ({ items }) => {
   const { sortedData, requestSort, getSortDirection } = useSortableData<TopMoverItem, MoverKey>(
@@ -57,45 +60,52 @@ const SortableMoverTable: React.FC<{ items: TopMoverItem[] }> = ({ items }) => {
       <Table size="small" stickyHeader>
         <SortableTableHead columns={COLUMNS} onSort={requestSort} getSortDirection={getSortDirection} />
         <TableBody>
-          {sortedData.map((s, idx) => (
-            <TableRow
-              key={`${s.symbol}-${idx}`}
-              hover
-              sx={{ '&:last-child td': { borderBottom: 0 } }}
-            >
-              <TableCell>
-                <Typography variant="body2" fontWeight={600}>{s.symbol}</Typography>
-              </TableCell>
-              <TableCell>
-                <Chip label={s.exchange ?? 'NSE'} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
-              </TableCell>
-              <TableCell align="right">
-                <Typography variant="body2" fontWeight={500}>
-                  ₹{s.last_price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                </Typography>
-              </TableCell>
-              <TableCell align="right">
-                <Chip
-                  label={`${s.change_pct > 0 ? '+' : ''}${s.change_pct?.toFixed(2) ?? '0'}%`}
-                  size="small"
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '0.75rem',
-                    bgcolor: s.change_pct > 0 ? alpha('#4caf50', 0.12) : s.change_pct < 0 ? alpha('#f44336', 0.12) : 'grey.100',
-                    color: s.change_pct > 0 ? 'success.dark' : s.change_pct < 0 ? 'error.dark' : 'text.secondary',
-                  }}
-                />
-              </TableCell>
-              <TableCell align="right">
-                <Typography variant="body2" color="text.secondary">{formatVolume(s.volume)}</Typography>
-              </TableCell>
-              <TableCell align="right">
-                <Typography variant="body2" color="text.secondary">
-                  {s.value_traded_cr != null ? `₹${s.value_traded_cr.toFixed(1)}` : '—'}
-                </Typography>
-              </TableCell>
-            </TableRow>
-          ))}
+          {sortedData.map((s, idx) => {
+            const changePct = pct(s);
+            return (
+              <TableRow
+                key={`${s.symbol}-${idx}`}
+                hover
+                sx={{ '&:last-child td': { borderBottom: 0 } }}
+              >
+                <TableCell>
+                  <SymbolLink symbol={s.symbol} chartUrl={s.chart_url} exchange={s.exchange} />
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="body2" fontWeight={500}>
+                    ₹{s.last_price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Chip
+                    label={`${changePct > 0 ? '+' : ''}${changePct.toFixed(2)}%`}
+                    size="small"
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
+                      bgcolor: changePct > 0 ? alpha('#4caf50', 0.12) : changePct < 0 ? alpha('#f44336', 0.12) : 'grey.100',
+                      color: changePct > 0 ? 'success.dark' : changePct < 0 ? 'error.dark' : 'text.secondary',
+                    }}
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="body2" color="text.secondary">{formatVolume(s.volume)}</Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="body2" color="text.secondary">
+                    {s.value_traded_cr != null ? `₹${s.value_traded_cr.toFixed(1)}` : '—'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  {s.sector ? (
+                    <Chip label={s.sector} size="small" variant="outlined" sx={{ fontSize: '0.68rem', textTransform: 'capitalize' }} />
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">—</Typography>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
           {sortedData.length === 0 && (
             <TableRow>
               <TableCell colSpan={COLUMNS.length} align="center" sx={{ py: 4 }}>

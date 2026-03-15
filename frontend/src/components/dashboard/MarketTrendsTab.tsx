@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography, Box, Grid, Chip } from '@mui/material';
+import { Card, CardContent, Typography, Box, Grid, Chip, alpha } from '@mui/material';
 import {
   LineChart,
   Line,
@@ -12,13 +12,18 @@ import {
   Area,
   AreaChart,
 } from 'recharts';
-import type { MarketTrendPoint } from '../../types/apiModels';
+import type { MarketTrendPoint, TrendsSummary, GlobalContext } from '../../types/apiModels';
 
 interface MarketTrendsTabProps {
   marketTimeline: MarketTrendPoint[];
+  trendsSummary?: TrendsSummary | null;
+  globalContext?: GlobalContext | null;
 }
 
-const MarketTrendsTab: React.FC<MarketTrendsTabProps> = ({ marketTimeline }) => {
+const regimeColor = (r?: string) =>
+  r?.includes('bullish') ? '#4caf50' : r?.includes('bearish') ? '#f44336' : '#ff9800';
+
+const MarketTrendsTab: React.FC<MarketTrendsTabProps> = ({ marketTimeline, trendsSummary, globalContext }) => {
   const tickFormatter = (v: string) =>
     new Date(v).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
   const labelFormatter = (v: string) => new Date(v).toLocaleString('en-IN');
@@ -27,24 +32,83 @@ const MarketTrendsTab: React.FC<MarketTrendsTabProps> = ({ marketTimeline }) => 
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
-      {latestPoint && (
-        <Box display="flex" gap={1.5} flexWrap="wrap">
-          {latestPoint.regime && (
-            <Chip
-              label={`Regime: ${latestPoint.regime}`}
-              color={latestPoint.regime === 'bullish' ? 'success' : latestPoint.regime === 'bearish' ? 'error' : 'warning'}
-              size="small"
-              sx={{ fontWeight: 600 }}
-            />
-          )}
-          {latestPoint.sentiment && (
-            <Chip label={`Sentiment: ${latestPoint.sentiment}`} size="small" variant="outlined" />
-          )}
-          {latestPoint.vix_level && (
-            <Chip label={`VIX Level: ${latestPoint.vix_level}`} size="small" variant="outlined" />
-          )}
-        </Box>
+      {/* Global Context Cards */}
+      {globalContext && (
+        <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, mb: 1 }}>
+          <CardContent sx={{ py: 2 }}>
+            <Typography variant="subtitle1" fontWeight={700} mb={1.5}>Global Markets</Typography>
+            <Grid container spacing={2}>
+              {[
+                { label: 'S&P 500', value: globalContext.sp500?.toLocaleString('en-US'), change: globalContext.sp500_change_pct, regime: globalContext.sp500_regime_short },
+                { label: 'NASDAQ', value: globalContext.nasdaq?.toLocaleString('en-US'), change: globalContext.nasdaq_change_pct },
+                { label: 'VIX (US)', value: globalContext.vix_us?.toFixed(2), change: undefined, regime: globalContext.vix_regime_short },
+                { label: 'Gold', value: `$${globalContext.gold?.toLocaleString('en-US')}`, change: undefined },
+                { label: 'USD/INR', value: globalContext.usd_inr?.toFixed(2), change: undefined },
+                { label: 'Crude Oil', value: `$${globalContext.crude_oil?.toFixed(2)}`, change: undefined },
+              ].map(({ label, value, change, regime }) => (
+                <Grid item xs={6} sm={4} md={2} key={label}>
+                  <Box sx={{ textAlign: 'center', py: 1 }}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>{label}</Typography>
+                    <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.2, mt: 0.3 }}>{value ?? '—'}</Typography>
+                    <Box display="flex" justifyContent="center" gap={0.5} mt={0.5}>
+                      {change != null && (
+                        <Chip
+                          label={`${change >= 0 ? '+' : ''}${change.toFixed(2)}%`}
+                          size="small"
+                          sx={{
+                            fontWeight: 700, fontSize: '0.65rem', height: 20,
+                            bgcolor: alpha(change >= 0 ? '#4caf50' : '#f44336', 0.12),
+                            color: change >= 0 ? 'success.dark' : 'error.dark',
+                          }}
+                        />
+                      )}
+                      {regime && (
+                        <Chip
+                          label={regime}
+                          size="small"
+                          sx={{ fontSize: '0.6rem', height: 18, bgcolor: alpha(regimeColor(regime), 0.12), color: regimeColor(regime), textTransform: 'capitalize' }}
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+            {globalContext.global_equity_stance && (
+              <Box mt={1.5} display="flex" justifyContent="center">
+                <Chip
+                  label={`Global Equity Stance: ${globalContext.global_equity_stance.replace(/_/g, ' ')}`}
+                  sx={{
+                    fontWeight: 700, textTransform: 'capitalize',
+                    bgcolor: alpha(regimeColor(globalContext.global_equity_stance), 0.12),
+                    color: regimeColor(globalContext.global_equity_stance),
+                  }}
+                />
+              </Box>
+            )}
+          </CardContent>
+        </Card>
       )}
+
+      {/* Trends Summary + Regime Chips */}
+      <Box display="flex" gap={1.5} flexWrap="wrap" alignItems="center">
+        {trendsSummary?.dominant_regime && (
+          <Chip
+            label={`Dominant: ${trendsSummary.dominant_regime}`}
+            color={trendsSummary.dominant_regime === 'bullish' ? 'success' : trendsSummary.dominant_regime === 'bearish' ? 'error' : 'warning'}
+            size="small" sx={{ fontWeight: 600 }}
+          />
+        )}
+        {trendsSummary?.vix_current != null && (
+          <Chip label={`VIX: ${trendsSummary.vix_current.toFixed(1)} (${trendsSummary.vix_direction})`} size="small" variant="outlined" />
+        )}
+        {trendsSummary?.ad_ratio_avg != null && (
+          <Chip label={`Avg A/D: ${trendsSummary.ad_ratio_avg.toFixed(2)}`} size="small" variant="outlined" />
+        )}
+        {latestPoint?.market_sentiment && (
+          <Chip label={`Sentiment: ${latestPoint.market_sentiment}`} size="small" variant="outlined" />
+        )}
+      </Box>
 
       <Grid container spacing={2}>
         <Grid item xs={12} lg={7}>
@@ -98,7 +162,7 @@ const MarketTrendsTab: React.FC<MarketTrendsTabProps> = ({ marketTimeline }) => 
                       labelFormatter={labelFormatter}
                       contentStyle={{ borderRadius: 8, border: '1px solid #eee' }}
                     />
-                    <Area type="monotone" dataKey="vix" name="VIX" stroke="#f44336" fill="url(#vixGrad)" strokeWidth={2} dot={false} />
+                    <Area type="monotone" dataKey="vix_india" name="VIX India" stroke="#f44336" fill="url(#vixGrad)" strokeWidth={2} dot={false} />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (

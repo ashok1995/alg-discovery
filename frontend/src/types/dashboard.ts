@@ -53,6 +53,8 @@ export interface DashboardPositionSummary {
   total: number;
   open: number;
   closed: number;
+  stops: number;
+  targets: number;
   wins: number;
   win_rate: number;
   avg_return_pct: number;
@@ -85,6 +87,16 @@ export interface MarketContext {
   nifty_50?: NiftyData;
   sector_performance?: Record<string, SectorPerformanceEntry>;
   market_sentiment?: string;
+  confidence_score?: number;
+  institutional_sentiment?: { sentiment: string };
+  volatility_regime?: string;
+  nifty_regime_short?: string;
+  nifty_regime_medium?: string;
+  vix_india_regime_short?: string;
+  vix_india_regime_medium?: string;
+  banknifty_regime_short?: string;
+  indian_equity_stance?: string;
+  created_at?: string;
 }
 
 export interface DashboardDailySummary {
@@ -104,6 +116,7 @@ export interface SystemStatusState {
 
 export interface TrackedPositionItem {
   id: number;
+  recommendation_log_id: number | null;
   symbol: string;
   trade_type: string;
   entry_price: number;
@@ -117,13 +130,53 @@ export interface TrackedPositionItem {
   outcome_horizon: string | null;
   score_bin: string | null;
   source_arm: string | null;
+  allocated_capital: number | null;
+  quantity: number | null;
+  entry_charges: number | null;
+  exit_charges: number | null;
+  gross_pnl: number | null;
+  net_pnl: number | null;
+  entry_vix_india: number | null;
+  entry_vix_us: number | null;
+  entry_market_regime: string | null;
+  entry_global_stance: string | null;
+  entry_indian_stance: string | null;
+  entry_nifty_change_pct: number | null;
+  entry_ad_ratio: number | null;
   opened_at: string | null;
   closed_at: string | null;
   valid_until: string | null;
+  duration_minutes: number | null;
+  slippage_pct: number | null;
+  is_gap_exit: boolean | null;
+  risk_reward_ratio: number | null;
+  chart_url?: string;
+  sector: string | null;
+}
+
+export interface PositionsSummaryResponse {
+  total: number;
+  open: number;
+  closed: number;
+  outcome_distribution: Record<string, number> | null;
+  arm_distribution: Record<string, number> | null;
+  win_rate_pct: number | null;
+  avg_return_pct: number | null;
+  avg_win_pct: number | null;
+  avg_loss_pct: number | null;
+  best_return_pct: number | null;
+  worst_return_pct: number | null;
+  avg_duration_min: number | null;
+  avg_duration_hours: number | null;
+  min_duration_min: number | null;
+  max_duration_min: number | null;
+  gap_exits: number | null;
+  gap_exit_pct: number | null;
 }
 
 export interface PositionsResponse {
   count: number;
+  summary: PositionsSummaryResponse;
   positions: TrackedPositionItem[];
 }
 
@@ -142,20 +195,58 @@ export interface UniverseHealthResponse {
 
 export interface MarketTrendPoint {
   timestamp: string;
-  regime: string | null;
-  vix: number | null;
+  market_regime: string | null;
+  regime?: string | null;
+  vix_india: number | null;
+  vix?: number | null;
   vix_level: string | null;
   nifty50_price: number | null;
-  nifty50_change_pct: number | null;
+  nifty50_change_percent?: number | null;
+  nifty50_change_pct?: number | null;
   advance_decline_ratio: number | null;
-  sentiment: string | null;
+  market_sentiment: string | null;
+  sentiment?: string | null;
   breadth_trend: string | null;
   vix_trend: string | null;
+  nifty_regime_short?: string | null;
+  nifty_regime_medium?: string | null;
+  vix_india_regime_short?: string | null;
+  vix_india_regime_medium?: string | null;
+  banknifty_regime_short?: string | null;
+  indian_equity_stance?: string | null;
   sector_performance: Record<string, unknown> | null;
+}
+
+export interface TrendsSummary {
+  nifty_change_from_first: number;
+  vix_current: number;
+  vix_avg: number;
+  vix_direction: string;
+  ad_ratio_avg: number;
+  dominant_regime: string;
+  regime_distribution: Record<string, number>;
+}
+
+export interface GlobalContext {
+  sp500: number;
+  sp500_change_pct: number;
+  nasdaq: number;
+  nasdaq_change_pct: number;
+  vix_us: number;
+  gold: number;
+  usd_inr: number;
+  crude_oil: number;
+  sp500_regime_short?: string;
+  sp500_regime_medium?: string;
+  vix_regime_short?: string;
+  vix_regime_medium?: string;
+  global_equity_stance?: string;
 }
 
 export interface MarketTrendsResponse {
   count: number;
+  trends_summary?: TrendsSummary;
+  global_context?: GlobalContext;
   timeline: MarketTrendPoint[];
 }
 
@@ -206,14 +297,22 @@ export interface TopMoverItem {
   symbol: string;
   exchange?: string;
   last_price: number;
+  period_return_pct?: number;
   change_pct: number;
+  change_pct_5min?: number | null;
+  change_pct_15min?: number | null;
+  change_pct_30min?: number | null;
+  change_pct_1h?: number | null;
   volume: number | null;
   value_traded_cr?: number;
+  chart_url?: string;
+  sector?: string | null;
+  market_cap_category?: string | null;
+  pe_ratio?: number | null;
   generated_at?: string;
   trade_type?: string;
   score?: number;
   relative_volume?: number | null;
-  sector?: string | null;
   ranked_at?: string;
 }
 
@@ -375,17 +474,153 @@ export interface RegistryStatsResponse {
   [key: string]: unknown;
 }
 
-// --- Internal / Global Market Context (Kite, Yahoo) ---
+// --- Capital Summary ---
 
-export interface InternalMarketContextResponse {
-  market_regime?: string;
-  vix?: number;
-  nifty_50?: number;
+export interface ScoreAllocationTier {
+  min_score: number;
+  fraction: number;
+}
+
+export interface CapitalSummaryResponse {
+  period_days: number;
+  capital_per_stock: number;
+  score_allocation_tiers: ScoreAllocationTier[];
+  open_positions: number;
+  open_capital_deployed: number;
+  closed_positions: number;
+  closed_capital_deployed: number;
+  total_gross_pnl: number;
+  total_charges: number;
+  total_net_pnl: number;
+  net_return_on_capital_pct: number;
+  charges_breakdown: { entry_total: number; exit_total: number };
+  by_trade_type: Record<string, unknown>;
+}
+
+// --- Charges Calculator ---
+
+export interface ChargesDetail {
+  turnover: number;
+  brokerage: number;
+  stt: number;
+  exchange_txn: number;
+  sebi: number;
+  stamp_duty: number;
+  gst: number;
+  dp_charges: number;
+  total: number;
+}
+
+export interface ChargesCalculatorResponse {
+  entry_charges: ChargesDetail;
+  exit_charges: ChargesDetail;
+  total_charges: number;
+  gross_pnl: number;
+  net_pnl: number;
+  charges_pct: number;
+}
+
+// --- P&L Timeline ---
+
+export interface PnlTimelineDay {
+  date: string;
+  gross_pnl: number;
+  net_pnl: number;
+  charges: number;
+  positions_closed: number;
+}
+
+export interface PnlTimelineResponse {
+  period_days: number;
+  timeline: PnlTimelineDay[];
+}
+
+// --- Trading Settings ---
+
+export interface TradingSettingsResponse {
+  charges: Record<string, number>;
+  capital: {
+    capital_per_stock: number;
+    score_tiers: Array<[number, number]>;
+    fallback_fraction: number;
+  };
+  opener: {
+    max_per_sector: number;
+    max_slippage_pct: Record<string, number>;
+    cooldown_hours: Record<string, number>;
+    intraday_entry_cutoff_buy: string;
+    intraday_entry_cutoff_sell: string;
+    vix_reduce_threshold: number;
+    vix_halt_buy_threshold: number;
+  };
+  tracker: Record<string, unknown>;
+  learning: Record<string, unknown>;
   [key: string]: unknown;
 }
 
+// --- Internal / Global Market Context (Kite, Yahoo) ---
+
+export interface TrendTimeframe {
+  roc: number;
+  slope_per_day: number;
+  r_squared: number;
+  rsi: number;
+  volatility_annualized: number;
+  atr_pct: number;
+  sma: number;
+  sma_distance_pct: number;
+  period_high: number;
+  period_low: number;
+  regime: string;
+  volatility_regime: string;
+  candles_used: number;
+}
+
+export interface IndexTrend {
+  intraday?: TrendTimeframe;
+  short_term?: TrendTimeframe;
+  medium_term?: TrendTimeframe;
+  long_term?: TrendTimeframe;
+}
+
+export interface InternalMarketContextResponse {
+  market_regime: string;
+  volatility_regime: string;
+  market_breadth: {
+    advances: number;
+    declines: number;
+    unchanged: number;
+    advance_decline_ratio: number;
+    total_stocks: number;
+    data_source: string;
+    timestamp: string;
+  };
+  nifty_50: { price: number; change_percent: number; trend: IndexTrend };
+  bank_nifty: { price: number; change_percent: number; trend: IndexTrend };
+  india_vix: { value: number; change_percent: number | null; level: string; trend: IndexTrend };
+  sectors: Record<string, { change_percent: number; leader: boolean }>;
+  institutional_sentiment: string;
+  confidence_score: number;
+  timestamp: string;
+}
+
+export interface GlobalAsset {
+  price?: number;
+  value?: number;
+  rate?: number;
+  change_percent: number;
+  trend: Omit<IndexTrend, 'intraday'>;
+}
+
 export interface GlobalContextResponse {
-  market_regime?: string;
-  vix?: number;
-  [key: string]: unknown;
+  sp500: GlobalAsset;
+  nasdaq: GlobalAsset;
+  dow_jones: GlobalAsset;
+  vix: { value: number; trend: Omit<IndexTrend, 'intraday'> };
+  gold: GlobalAsset;
+  usd_inr: GlobalAsset;
+  crude_oil: GlobalAsset;
+  nikkei: GlobalAsset;
+  hang_seng: GlobalAsset;
+  timestamp: string;
 }
