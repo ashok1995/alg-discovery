@@ -23,12 +23,27 @@ import type {
   AnalysisPerformanceResponse,
   RegistryStatsResponse,
   LearningPerformanceResponse,
+  CapitalSummaryResponse,
+  ChargesCalculatorResponse,
+  PnlTimelineResponse,
+  TradingSettingsResponse,
 } from '../types/apiModels';
 
 const BASE = API_CONFIG.SEED_API_BASE_URL;
-const TIMEOUT_MS = 15000;
+const DEFAULT_TIMEOUT_MS = 15_000;
+const SLOW_TIMEOUT_MS = 45_000;
 
-async function fetchJSON<T>(path: string, params?: Record<string, string | number>): Promise<T> {
+const SLOW_PATHS = new Set([
+  '/api/v2/dashboard/top-losers',
+  '/api/v2/dashboard/top-gainers',
+  '/api/v2/dashboard/top-traded',
+]);
+
+async function fetchJSON<T>(
+  path: string,
+  params?: Record<string, string | number>,
+  opts?: { method?: string; body?: unknown },
+): Promise<T> {
   const url = new URL(`${BASE}${path}`);
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
@@ -36,11 +51,19 @@ async function fetchJSON<T>(path: string, params?: Record<string, string | numbe
     });
   }
 
+  const timeout = SLOW_PATHS.has(path) ? SLOW_TIMEOUT_MS : DEFAULT_TIMEOUT_MS;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  const fetchOpts: RequestInit = { signal: controller.signal };
+  if (opts?.method) fetchOpts.method = opts.method;
+  if (opts?.body !== undefined) {
+    fetchOpts.body = JSON.stringify(opts.body);
+    fetchOpts.headers = { 'Content-Type': 'application/json' };
+  }
 
   try {
-    const res = await fetch(url.toString(), { signal: controller.signal });
+    const res = await fetch(url.toString(), fetchOpts);
     clearTimeout(timeoutId);
     if (!res.ok) {
       const text = await res.text();
@@ -79,14 +102,14 @@ export const seedDashboardService = {
       ...(trade_type ? { trade_type } : {}),
     }),
 
-  getTopGainers: (limit = 20, hours = 24) =>
-    fetchJSON<TopGainersResponse>('/api/v2/dashboard/top-gainers', { limit, hours }),
+  getTopGainers: (limit = 20, days = 1) =>
+    fetchJSON<TopGainersResponse>('/api/v2/dashboard/top-gainers', { limit, days }),
 
-  getTopLosers: (limit = 20, hours = 24) =>
-    fetchJSON<TopLosersResponse>('/api/v2/dashboard/top-losers', { limit, hours }),
+  getTopLosers: (limit = 20, days = 1) =>
+    fetchJSON<TopLosersResponse>('/api/v2/dashboard/top-losers', { limit, days }),
 
-  getTopTraded: (limit = 20, hours = 24) =>
-    fetchJSON<TopTradedResponse>('/api/v2/dashboard/top-traded', { limit, hours }),
+  getTopTraded: (limit = 20, days = 1) =>
+    fetchJSON<TopTradedResponse>('/api/v2/dashboard/top-traded', { limit, days }),
 
   getPipelineHealth: () =>
     fetchJSON<PipelineHealthResponse>('/v2/health/pipeline'),
@@ -129,6 +152,31 @@ export const seedDashboardService = {
 
   getRegistryStats: () =>
     fetchJSON<RegistryStatsResponse>('/api/v2/registry/stats'),
+
+  getCapitalSummary: (days = 30) =>
+    fetchJSON<CapitalSummaryResponse>('/api/v2/dashboard/capital-summary', { days }),
+
+  getChargesCalculator: (opts: { entry_price: number; exit_price: number; quantity?: number; is_intraday?: boolean }) => {
+    const params: Record<string, string | number> = {
+      entry_price: opts.entry_price,
+      exit_price: opts.exit_price,
+    };
+    if (opts.quantity != null) params.quantity = opts.quantity;
+    if (opts.is_intraday != null) params.is_intraday = opts.is_intraday ? 1 : 0;
+    return fetchJSON<ChargesCalculatorResponse>('/api/v2/dashboard/charges-calculator', params);
+  },
+
+  getPnlTimeline: (days = 30) =>
+    fetchJSON<PnlTimelineResponse>('/api/v2/dashboard/pnl-timeline', { days }),
+
+  getTradingSettings: () =>
+    fetchJSON<TradingSettingsResponse>('/api/v2/settings/trading'),
+
+  updateTradingSettings: (body: Partial<TradingSettingsResponse>) =>
+    fetchJSON<TradingSettingsResponse>('/api/v2/settings/trading', undefined, { method: 'PUT', body }),
+
+  getTradingSettingsSchema: () =>
+    fetchJSON<Record<string, unknown>>('/api/v2/settings/trading/schema'),
 };
 
 export default seedDashboardService;

@@ -16,6 +16,7 @@ import {
 import type { TrackedPositionItem } from '../../types/apiModels';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
+import SymbolLink from '../ui/SymbolLink';
 import { TRADE_TYPE_LABELS, returnColor } from './types';
 
 interface PositionsTabProps {
@@ -25,7 +26,7 @@ interface PositionsTabProps {
 type PosKey = 'symbol' | 'trade_type' | 'entry_price' | 'stop_loss' | 'target_1' | 'target_2' | 'status' | 'return_pct' | 'source_arm' | 'opened_at';
 
 const COLUMNS: ColumnDef<PosKey>[] = [
-  { key: 'symbol', label: 'Symbol', sortable: true, minWidth: 90 },
+  { key: 'symbol', label: 'Symbol', sortable: true, minWidth: 120 },
   { key: 'trade_type', label: 'Type', sortable: true },
   { key: 'entry_price', label: 'Entry', align: 'right', sortable: true },
   { key: 'stop_loss', label: 'Stop Loss', align: 'right', sortable: true },
@@ -59,7 +60,7 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ positions }) => {
               {sortedData.map((p) => (
                 <TableRow key={p.id} hover>
                   <TableCell>
-                    <Typography variant="body2" fontWeight={600}>{p.symbol}</Typography>
+                    <SymbolLink symbol={p.symbol} chartUrl={p.chart_url} />
                   </TableCell>
                   <TableCell>
                     <Chip

@@ -13,7 +13,6 @@ import {
   Home,
   Code,
   Psychology,
-  ShowChart,
 } from '@mui/icons-material';
 
 export interface MenuItem {
@@ -35,8 +34,8 @@ export const menuItems: MenuItem[] = [
   {
     text: 'Dashboard',
     icon: <Dashboard />,
-    path: '/dashboard',
-    description: 'Unified dashboard with all services',
+    path: '/seed-dashboard',
+    description: 'Positions, market movers, performance, capital & P&L',
     category: 'main'
   },
   {
@@ -52,13 +51,6 @@ export const menuItems: MenuItem[] = [
     path: '/investing',
     description: 'Comprehensive investment opportunities & portfolio building',
     category: 'trading'
-  },
-  {
-    text: 'Seed Dashboard',
-    icon: <ShowChart />,
-    path: '/seed-dashboard',
-    description: 'Positions, universe health, P&L, market trends',
-    category: 'analysis'
   },
   {
     text: 'ML / Learning',

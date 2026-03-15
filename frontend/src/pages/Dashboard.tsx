@@ -13,9 +13,8 @@ import {
   Tooltip,
   Tabs,
   Tab,
-  Chip,
 } from '@mui/material';
-import { Refresh, Timeline, ShowChart, Storage, Security, Psychology, TrendingUp } from '@mui/icons-material';
+import { Refresh, Timeline, ShowChart, Storage, Security, Psychology, AccountBalance, TrendingUp, ViewList } from '@mui/icons-material';
 import TabPanel from '../components/ui/TabPanel';
 import DashboardKpiCards from '../components/dashboard/DashboardKpiCards';
 import PerformanceTab from '../components/dashboard/PerformanceTab';
@@ -23,7 +22,9 @@ import MarketTrendsTab from '../components/dashboard/MarketTrendsTab';
 import UniverseTab from '../components/dashboard/UniverseTab';
 import PositionsTab from '../components/dashboard/PositionsTab';
 import MLLearningTab from '../components/dashboard/MLLearningTab';
-import MarketMoversTab from '../components/dashboard/MarketMoversTab';
+import CapitalPnlTab from '../components/dashboard/CapitalPnlTab';
+import HorizonPositionsSection from '../components/home/HorizonPositionsSection';
+import HomeMarketMoversTab from '../components/home/HomeMarketMoversTab';
 import { seedDashboardService } from '../services/SeedDashboardService';
 import type {
   DashboardDailySummary,
@@ -33,10 +34,13 @@ import type {
   ArmPerformanceItem,
   LearningStatusResponse,
   PerformanceTimelineDay,
-  TopMoverItem,
   ScoreBinPerformanceItem,
   AnalysisPerformanceResponse,
   LearningPerformanceResponse,
+  CapitalSummaryResponse,
+  PnlTimelineDay,
+  TrendsSummary,
+  GlobalContext,
 } from '../types/apiModels';
 
 const Dashboard: React.FC = () => {
@@ -52,12 +56,15 @@ const Dashboard: React.FC = () => {
   const [armPerformance, setArmPerformance] = useState<ArmPerformanceItem[]>([]);
   const [learningStatus, setLearningStatus] = useState<LearningStatusResponse | null>(null);
   const [perfTimeline, setPerfTimeline] = useState<PerformanceTimelineDay[]>([]);
-  const [topGainers, setTopGainers] = useState<TopMoverItem[]>([]);
-  const [topLosers, setTopLosers] = useState<TopMoverItem[]>([]);
-  const [topTraded, setTopTraded] = useState<TopMoverItem[]>([]);
+
+
   const [scoreBins, setScoreBins] = useState<ScoreBinPerformanceItem[]>([]);
   const [analysisPerformance, setAnalysisPerformance] = useState<AnalysisPerformanceResponse | null>(null);
   const [learningPerformance, setLearningPerformance] = useState<LearningPerformanceResponse | null>(null);
+  const [capitalSummary, setCapitalSummary] = useState<CapitalSummaryResponse | null>(null);
+  const [pnlTimeline, setPnlTimeline] = useState<PnlTimelineDay[]>([]);
+  const [trendsSummary, setTrendsSummary] = useState<TrendsSummary | null>(null);
+  const [globalContext, setGlobalContext] = useState<GlobalContext | null>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -71,9 +78,6 @@ const Dashboard: React.FC = () => {
         armRes,
         learnRes,
         perfRes,
-        gainRes,
-        loseRes,
-        tradedRes,
         binRes,
         analysisRes,
         learnPerfRes,
@@ -85,24 +89,31 @@ const Dashboard: React.FC = () => {
         seedDashboardService.getArmPerformance(days),
         seedDashboardService.getLearningStatus(),
         seedDashboardService.getPerformanceTimeline(days),
-        seedDashboardService.getTopGainers(20, 24),
-        seedDashboardService.getTopLosers(20, 24),
-        seedDashboardService.getTopTraded(20, 24),
         seedDashboardService.getScoreBinPerformance({ days }),
         seedDashboardService.getAnalysisPerformance(days),
         seedDashboardService.getLearningPerformance({ group_by: 'score_bin', days }),
       ]);
 
+      const [capitalRes, pnlRes] = await Promise.allSettled([
+        seedDashboardService.getCapitalSummary(days),
+        seedDashboardService.getPnlTimeline(days),
+      ]);
+      if (capitalRes.status === 'fulfilled') setCapitalSummary(capitalRes.value);
+      if (pnlRes.status === 'fulfilled') setPnlTimeline(pnlRes.value.timeline);
+
       if (sumRes.status === 'fulfilled') setSummary(sumRes.value);
       if (posRes.status === 'fulfilled') setPositions(posRes.value.positions);
       if (univRes.status === 'fulfilled') setUniverseHealth(univRes.value);
-      if (mktRes.status === 'fulfilled') setMarketTimeline(mktRes.value.timeline);
+      if (mktRes.status === 'fulfilled') {
+        setMarketTimeline(mktRes.value.timeline);
+        if (mktRes.value.trends_summary) setTrendsSummary(mktRes.value.trends_summary);
+        if (mktRes.value.global_context) setGlobalContext(mktRes.value.global_context);
+      }
       if (armRes.status === 'fulfilled') setArmPerformance(armRes.value.arms);
       if (learnRes.status === 'fulfilled') setLearningStatus(learnRes.value);
       if (perfRes.status === 'fulfilled') setPerfTimeline(perfRes.value.timeline);
-      if (gainRes.status === 'fulfilled') setTopGainers(gainRes.value.gainers);
-      if (loseRes.status === 'fulfilled') setTopLosers(loseRes.value.losers);
-      if (tradedRes.status === 'fulfilled') setTopTraded(tradedRes.value.top_traded);
+
+
       if (binRes.status === 'fulfilled') setScoreBins(binRes.value);
       if (analysisRes.status === 'fulfilled') setAnalysisPerformance(analysisRes.value);
       if (learnPerfRes.status === 'fulfilled') setLearningPerformance(learnPerfRes.value);
@@ -175,15 +186,23 @@ const Dashboard: React.FC = () => {
           '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, minHeight: 48 },
         }}
       >
+        <Tab icon={<ViewList />} label="Positions by Horizon" iconPosition="start" />
+        <Tab icon={<TrendingUp />} label="Market Movers" iconPosition="start" />
         <Tab icon={<Timeline />} label="Performance" iconPosition="start" />
-        <Tab icon={<TrendingUp />} label={<Box display="flex" alignItems="center" gap={0.5}>Market Movers <Chip label="Live" size="small" color="success" sx={{ height: 18, fontSize: '0.65rem' }} /></Box>} iconPosition="start" />
         <Tab icon={<ShowChart />} label="Market Trends" iconPosition="start" />
         <Tab icon={<Storage />} label="Universe" iconPosition="start" />
-        <Tab icon={<Security />} label="Positions" iconPosition="start" />
+        <Tab icon={<Security />} label="All Positions" iconPosition="start" />
+        <Tab icon={<AccountBalance />} label="Capital & P&L" iconPosition="start" />
         <Tab icon={<Psychology />} label="ML / Learning" iconPosition="start" />
       </Tabs>
 
       <TabPanel value={tab} index={0}>
+        <HorizonPositionsSection />
+      </TabPanel>
+      <TabPanel value={tab} index={1}>
+        <HomeMarketMoversTab />
+      </TabPanel>
+      <TabPanel value={tab} index={2}>
         <PerformanceTab
           perfTimeline={perfTimeline}
           armPerformance={armPerformance}
@@ -191,19 +210,19 @@ const Dashboard: React.FC = () => {
           learningPerformance={learningPerformance}
         />
       </TabPanel>
-      <TabPanel value={tab} index={1}>
-        <MarketMoversTab topGainers={topGainers} topLosers={topLosers} topTraded={topTraded} />
-      </TabPanel>
-      <TabPanel value={tab} index={2}>
-        <MarketTrendsTab marketTimeline={marketTimeline} />
-      </TabPanel>
       <TabPanel value={tab} index={3}>
-        <UniverseTab universeHealth={universeHealth} />
+        <MarketTrendsTab marketTimeline={marketTimeline} trendsSummary={trendsSummary} globalContext={globalContext} />
       </TabPanel>
       <TabPanel value={tab} index={4}>
-        <PositionsTab positions={positions} />
+        <UniverseTab universeHealth={universeHealth} />
       </TabPanel>
       <TabPanel value={tab} index={5}>
+        <PositionsTab positions={positions} />
+      </TabPanel>
+      <TabPanel value={tab} index={6}>
+        <CapitalPnlTab capitalSummary={capitalSummary} pnlTimeline={pnlTimeline} />
+      </TabPanel>
+      <TabPanel value={tab} index={7}>
         <MLLearningTab learningStatus={learningStatus} scoreBins={scoreBins} />
       </TabPanel>
     </Box>

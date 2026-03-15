@@ -46,7 +46,7 @@ const Settings: React.FC = () => {
   const [settings, setSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(4);
   const [, setSystemStatus] = useState({
     apiConnected: false,
     marketOpen: false,
