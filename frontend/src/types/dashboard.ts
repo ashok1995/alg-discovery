@@ -147,11 +147,16 @@ export interface TrackedPositionItem {
   closed_at: string | null;
   valid_until: string | null;
   duration_minutes: number | null;
+  time_in_trade_minutes: number | null;
   slippage_pct: number | null;
   is_gap_exit: boolean | null;
   risk_reward_ratio: number | null;
   chart_url?: string;
   sector: string | null;
+  current_price: number | null;
+  current_return_pct: number | null;
+  unrealized_return_pct: number | null;
+  unrealized_pnl: number | null;
 }
 
 export interface PositionsSummaryResponse {
@@ -170,11 +175,17 @@ export interface PositionsSummaryResponse {
   avg_duration_hours: number | null;
   min_duration_min: number | null;
   max_duration_min: number | null;
+  total_gross_pnl: number | null;
+  total_net_pnl: number | null;
+  total_charges: number | null;
+  total_capital_deployed: number | null;
+  net_return_on_capital_pct: number | null;
   gap_exits: number | null;
   gap_exit_pct: number | null;
 }
 
 export interface PositionsResponse {
+  category: string;
   count: number;
   summary: PositionsSummaryResponse;
   positions: TrackedPositionItem[];

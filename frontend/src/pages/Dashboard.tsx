@@ -28,7 +28,6 @@ import HomeMarketMoversTab from '../components/home/HomeMarketMoversTab';
 import { seedDashboardService } from '../services/SeedDashboardService';
 import type {
   DashboardDailySummary,
-  TrackedPositionItem,
   UniverseHealthResponse,
   MarketTrendPoint,
   ArmPerformanceItem,
@@ -50,7 +49,6 @@ const Dashboard: React.FC = () => {
   const [days, setDays] = useState(7);
 
   const [summary, setSummary] = useState<DashboardDailySummary | null>(null);
-  const [positions, setPositions] = useState<TrackedPositionItem[]>([]);
   const [universeHealth, setUniverseHealth] = useState<UniverseHealthResponse | null>(null);
   const [marketTimeline, setMarketTimeline] = useState<MarketTrendPoint[]>([]);
   const [armPerformance, setArmPerformance] = useState<ArmPerformanceItem[]>([]);
@@ -72,7 +70,6 @@ const Dashboard: React.FC = () => {
     try {
       const [
         sumRes,
-        posRes,
         univRes,
         mktRes,
         armRes,
@@ -81,9 +78,10 @@ const Dashboard: React.FC = () => {
         binRes,
         analysisRes,
         learnPerfRes,
+        capitalRes,
+        pnlRes,
       ] = await Promise.allSettled([
         seedDashboardService.getDailySummary(days),
-        seedDashboardService.getPositions({ days, limit: 50 }),
         seedDashboardService.getUniverseHealth(),
         seedDashboardService.getMarketTrends(30),
         seedDashboardService.getArmPerformance(days),
@@ -92,17 +90,11 @@ const Dashboard: React.FC = () => {
         seedDashboardService.getScoreBinPerformance({ days }),
         seedDashboardService.getAnalysisPerformance(days),
         seedDashboardService.getLearningPerformance({ group_by: 'score_bin', days }),
-      ]);
-
-      const [capitalRes, pnlRes] = await Promise.allSettled([
         seedDashboardService.getCapitalSummary(days),
         seedDashboardService.getPnlTimeline(days),
       ]);
-      if (capitalRes.status === 'fulfilled') setCapitalSummary(capitalRes.value);
-      if (pnlRes.status === 'fulfilled') setPnlTimeline(pnlRes.value.timeline);
 
       if (sumRes.status === 'fulfilled') setSummary(sumRes.value);
-      if (posRes.status === 'fulfilled') setPositions(posRes.value.positions);
       if (univRes.status === 'fulfilled') setUniverseHealth(univRes.value);
       if (mktRes.status === 'fulfilled') {
         setMarketTimeline(mktRes.value.timeline);
@@ -112,14 +104,14 @@ const Dashboard: React.FC = () => {
       if (armRes.status === 'fulfilled') setArmPerformance(armRes.value.arms);
       if (learnRes.status === 'fulfilled') setLearningStatus(learnRes.value);
       if (perfRes.status === 'fulfilled') setPerfTimeline(perfRes.value.timeline);
-
-
       if (binRes.status === 'fulfilled') setScoreBins(binRes.value);
       if (analysisRes.status === 'fulfilled') setAnalysisPerformance(analysisRes.value);
       if (learnPerfRes.status === 'fulfilled') setLearningPerformance(learnPerfRes.value);
+      if (capitalRes.status === 'fulfilled') setCapitalSummary(capitalRes.value);
+      if (pnlRes.status === 'fulfilled') setPnlTimeline(pnlRes.value.timeline);
 
-      const failed = [sumRes, posRes, univRes, mktRes].filter((r) => r.status === 'rejected');
-      if (failed.length === 4) setError('All dashboard API calls failed. Is seed-stocks-service running?');
+      const failed = [sumRes, univRes, mktRes].filter((r) => r.status === 'rejected');
+      if (failed.length === 3) setError('All dashboard API calls failed. Is seed-stocks-service running?');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
     } finally {
@@ -217,7 +209,7 @@ const Dashboard: React.FC = () => {
         <UniverseTab universeHealth={universeHealth} />
       </TabPanel>
       <TabPanel value={tab} index={5}>
-        <PositionsTab positions={positions} />
+        <PositionsTab />
       </TabPanel>
       <TabPanel value={tab} index={6}>
         <CapitalPnlTab capitalSummary={capitalSummary} pnlTimeline={pnlTimeline} />
