@@ -80,8 +80,29 @@ export const seedDashboardService = {
   getDailySummary: (days = 1) =>
     fetchJSON<DashboardDailySummary>('/api/v2/dashboard/daily-summary', { days }),
 
-  getPositions: (opts?: { status?: string; trade_type?: string; days?: number; limit?: number }) =>
-    fetchJSON<PositionsResponse>('/api/v2/dashboard/positions', opts as any),
+  getPositions: (opts?: {
+    category?: 'all' | 'learning' | 'paper_trade';
+    status?: string;
+    outcome?: string;
+    trade_type?: string;
+    source_arm?: string;
+    days?: number;
+    from_date?: string;
+    to_date?: string;
+    limit?: number;
+  }) => {
+    const params: Record<string, string | number> = {};
+    if (opts?.category) params.category = opts.category;
+    if (opts?.status) params.status = opts.status;
+    if (opts?.outcome) params.outcome = opts.outcome;
+    if (opts?.trade_type) params.trade_type = opts.trade_type;
+    if (opts?.source_arm) params.source_arm = opts.source_arm;
+    if (opts?.days != null) params.days = opts.days;
+    if (opts?.from_date) params.from_date = opts.from_date;
+    if (opts?.to_date) params.to_date = opts.to_date;
+    if (opts?.limit != null) params.limit = opts.limit;
+    return fetchJSON<PositionsResponse>('/api/v2/dashboard/positions', params);
+  },
 
   getUniverseHealth: () =>
     fetchJSON<UniverseHealthResponse>('/api/v2/dashboard/universe-health'),

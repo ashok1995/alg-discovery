@@ -33,16 +33,18 @@ interface HorizonData {
   loading: boolean;
 }
 
-type PosKey = 'symbol' | 'entry_price' | 'stop_loss' | 'target_1' | 'status' | 'return_pct'
-  | 'risk_reward_ratio' | 'score_bin' | 'sector' | 'opened_at' | 'duration_minutes' | 'source_arm';
+type PosKey = 'symbol' | 'entry_price' | 'current_price' | 'stop_loss' | 'target_1' | 'status' | 'return_pct'
+  | 'risk_reward_ratio' | 'score_bin' | 'sector' | 'opened_at' | 'duration_minutes' | 'source_arm' | 'unrealized_pnl';
 
 const COLUMNS: ColumnDef<PosKey>[] = [
   { key: 'symbol', label: 'Symbol', sortable: true, minWidth: 110 },
   { key: 'entry_price', label: 'Entry', align: 'right', sortable: true },
+  { key: 'current_price', label: 'LTP', align: 'right', sortable: true },
   { key: 'stop_loss', label: 'SL', align: 'right', sortable: true },
   { key: 'target_1', label: 'Target', align: 'right', sortable: true },
   { key: 'status', label: 'Status', sortable: true },
   { key: 'return_pct', label: 'Return %', align: 'right', sortable: true },
+  { key: 'unrealized_pnl', label: 'Unreal P&L', align: 'right', sortable: true },
   { key: 'risk_reward_ratio', label: 'R:R', align: 'right', sortable: true },
   { key: 'duration_minutes', label: 'Duration', align: 'right', sortable: true },
   { key: 'source_arm', label: 'ARM', sortable: true },
@@ -125,62 +127,94 @@ const PositionsTable: React.FC<{ positions: TrackedPositionItem[] }> = ({ positi
       <Table size="small" stickyHeader>
         <SortableTableHead columns={COLUMNS} onSort={requestSort} getSortDirection={getSortDirection} />
         <TableBody>
-          {sortedData.map((p) => (
-            <TableRow key={p.id} hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
-              <TableCell sx={{ py: 0.6 }}>
-                <SymbolLink symbol={p.symbol} chartUrl={p.chart_url} />
-              </TableCell>
-              <TableCell align="right" sx={{ py: 0.6 }}>
-                <Typography variant="body2" fontWeight={500} fontSize="0.8rem">₹{p.entry_price.toFixed(2)}</Typography>
-              </TableCell>
-              <TableCell align="right" sx={{ py: 0.6 }}>
-                <Typography variant="body2" fontSize="0.78rem" color="error.main">₹{p.stop_loss?.toFixed(2) ?? '—'}</Typography>
-              </TableCell>
-              <TableCell align="right" sx={{ py: 0.6 }}>
-                <Tooltip title={`T2: ₹${p.target_2?.toFixed(2) ?? '—'} | T3: ₹${p.target_3?.toFixed(2) ?? '—'}`} arrow>
-                  <Typography variant="body2" fontSize="0.78rem" color="success.main" sx={{ cursor: 'help' }}>
-                    ₹{p.target_1?.toFixed(2) ?? '—'}
+          {sortedData.map((p) => {
+            const isOpen = p.status === 'open';
+            const displayReturn = isOpen ? (p.current_return_pct ?? p.return_pct) : p.return_pct;
+            return (
+              <TableRow key={p.id} hover sx={{ '&:last-child td': { borderBottom: 0 }, bgcolor: isOpen ? alpha('#1976d2', 0.02) : undefined }}>
+                <TableCell sx={{ py: 0.6 }}>
+                  <SymbolLink symbol={p.symbol} chartUrl={p.chart_url} />
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.6 }}>
+                  <Typography variant="body2" fontWeight={500} fontSize="0.8rem">₹{p.entry_price.toFixed(2)}</Typography>
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.6 }}>
+                  {isOpen && p.current_price != null ? (
+                    <Tooltip title="Live price" arrow>
+                      <Typography variant="body2" fontWeight={600} fontSize="0.78rem" color="primary.main" sx={{ cursor: 'help' }}>
+                        ₹{p.current_price.toFixed(2)}
+                      </Typography>
+                    </Tooltip>
+                  ) : p.exit_price != null ? (
+                    <Typography variant="body2" fontSize="0.78rem" color="text.secondary">₹{p.exit_price.toFixed(2)}</Typography>
+                  ) : (
+                    <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>
+                  )}
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.6 }}>
+                  <Typography variant="body2" fontSize="0.78rem" color="error.main">₹{p.stop_loss?.toFixed(2) ?? '—'}</Typography>
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.6 }}>
+                  <Tooltip title={`T2: ₹${p.target_2?.toFixed(2) ?? '—'} | T3: ₹${p.target_3?.toFixed(2) ?? '—'}`} arrow>
+                    <Typography variant="body2" fontSize="0.78rem" color="success.main" sx={{ cursor: 'help' }}>
+                      ₹{p.target_1?.toFixed(2) ?? '—'}
+                    </Typography>
+                  </Tooltip>
+                </TableCell>
+                <TableCell sx={{ py: 0.6 }}>{statusChip(p.status)}</TableCell>
+                <TableCell align="right" sx={{ py: 0.6 }}>{returnCell(displayReturn)}</TableCell>
+                <TableCell align="right" sx={{ py: 0.6 }}>
+                  {isOpen && p.unrealized_pnl != null ? (
+                    <Typography variant="body2" fontWeight={600} fontSize="0.76rem" color={p.unrealized_pnl >= 0 ? 'success.main' : 'error.main'}>
+                      ₹{p.unrealized_pnl.toFixed(0)}
+                    </Typography>
+                  ) : !isOpen && p.net_pnl != null ? (
+                    <Typography variant="body2" fontWeight={600} fontSize="0.76rem" color={p.net_pnl >= 0 ? 'success.main' : 'error.main'}>
+                      ₹{p.net_pnl.toFixed(0)}
+                    </Typography>
+                  ) : (
+                    <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>
+                  )}
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.6 }}>
+                  <Typography variant="body2" fontSize="0.78rem" fontWeight={500}>
+                    {p.risk_reward_ratio != null ? p.risk_reward_ratio.toFixed(2) : '—'}
                   </Typography>
-                </Tooltip>
-              </TableCell>
-              <TableCell sx={{ py: 0.6 }}>{statusChip(p.status)}</TableCell>
-              <TableCell align="right" sx={{ py: 0.6 }}>{returnCell(p.return_pct)}</TableCell>
-              <TableCell align="right" sx={{ py: 0.6 }}>
-                <Typography variant="body2" fontSize="0.78rem" fontWeight={500}>
-                  {p.risk_reward_ratio != null ? p.risk_reward_ratio.toFixed(2) : '—'}
-                </Typography>
-              </TableCell>
-              <TableCell align="right" sx={{ py: 0.6 }}>
-                <Tooltip title={p.duration_minutes != null ? `${p.duration_minutes.toFixed(1)} minutes` : 'N/A'} arrow>
-                  <Typography variant="body2" fontSize="0.76rem" fontWeight={500} sx={{ cursor: 'help' }}>
-                    {formatDuration(p.duration_minutes)}
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.6 }}>
+                  <Tooltip title={p.duration_minutes != null ? `${p.duration_minutes.toFixed(1)} minutes` : 'N/A'} arrow>
+                    <Typography variant="body2" fontSize="0.76rem" fontWeight={500} sx={{ cursor: 'help' }}>
+                      {formatDuration(p.time_in_trade_minutes ?? p.duration_minutes)}
+                    </Typography>
+                  </Tooltip>
+                </TableCell>
+                <TableCell sx={{ py: 0.6 }}>
+                  {p.source_arm ? (
+                    <Tooltip title={p.source_arm} arrow>
+                      <Chip label={p.source_arm.length > 14 ? p.source_arm.slice(0, 14) + '…' : p.source_arm} size="small" variant="outlined" sx={{ fontSize: '0.6rem', height: 20, fontWeight: 600 }} />
+                    </Tooltip>
+                  ) : (
+                    <Typography variant="body2" color="text.disabled" fontSize="0.72rem">—</Typography>
+                  )}
+                </TableCell>
+                <TableCell sx={{ py: 0.6 }}>
+                  {p.score_bin ? (
+                    <Chip label={p.score_bin.replace('_', '-')} size="small" variant="outlined" sx={{ fontSize: '0.62rem', height: 20, fontWeight: 600 }} />
+                  ) : '—'}
+                </TableCell>
+                <TableCell sx={{ py: 0.6 }}>
+                  {p.sector ? (
+                    <Chip label={p.sector} size="small" variant="outlined" sx={{ fontSize: '0.62rem', height: 20, textTransform: 'capitalize' }} />
+                  ) : '—'}
+                </TableCell>
+                <TableCell sx={{ py: 0.6 }}>
+                  <Typography variant="body2" fontSize="0.72rem" color="text.secondary">
+                    {p.opened_at ? new Date(p.opened_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '—'}
                   </Typography>
-                </Tooltip>
-              </TableCell>
-              <TableCell sx={{ py: 0.6 }}>
-                {p.source_arm ? (
-                  <Chip label={p.source_arm} size="small" variant="outlined" sx={{ fontSize: '0.62rem', height: 20, fontWeight: 600 }} />
-                ) : (
-                  <Typography variant="body2" color="text.disabled" fontSize="0.72rem">—</Typography>
-                )}
-              </TableCell>
-              <TableCell sx={{ py: 0.6 }}>
-                {p.score_bin ? (
-                  <Chip label={p.score_bin.replace('_', '-')} size="small" variant="outlined" sx={{ fontSize: '0.62rem', height: 20, fontWeight: 600 }} />
-                ) : '—'}
-              </TableCell>
-              <TableCell sx={{ py: 0.6 }}>
-                {p.sector ? (
-                  <Chip label={p.sector} size="small" variant="outlined" sx={{ fontSize: '0.62rem', height: 20, textTransform: 'capitalize' }} />
-                ) : '—'}
-              </TableCell>
-              <TableCell sx={{ py: 0.6 }}>
-                <Typography variant="body2" fontSize="0.72rem" color="text.secondary">
-                  {p.opened_at ? new Date(p.opened_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '—'}
-                </Typography>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+              </TableRow>
+            );
+          })}
           {sortedData.length === 0 && (
             <TableRow>
               <TableCell colSpan={COLUMNS.length} align="center" sx={{ py: 4 }}>
