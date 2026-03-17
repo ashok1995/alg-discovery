@@ -27,6 +27,26 @@ import type {
   ChargesCalculatorResponse,
   PnlTimelineResponse,
   TradingSettingsResponse,
+  // New types
+  DashboardOverviewResponse,
+  QuickStatsResponse,
+  MarketPulseResponse,
+  SystemAlertsResponse,
+  PerformancePulseResponse,
+  LivePositionsResponse,
+  WatchlistResponse,
+  ProfitProtectionResponse,
+  PortfolioRiskResponse,
+  ArmLeaderboardResponse,
+  LearningInsightsResponse,
+  TopPerformersTodayResponse,
+  DataHealthResponse,
+  DataStatisticsResponse,
+  BatchCloseRequest,
+  BatchCloseResponse,
+  BatchAnalyzeRequest,
+  BatchAnalyzeResponse,
+  SearchPositionsResponse,
 } from '../types/apiModels';
 
 const BASE = API_CONFIG.SEED_API_BASE_URL;
@@ -37,6 +57,12 @@ const SLOW_PATHS = new Set([
   '/api/v2/dashboard/top-losers',
   '/api/v2/dashboard/top-gainers',
   '/api/v2/dashboard/top-traded',
+]);
+
+/** Fast paths: use a shorter timeout so polling loops don't block */
+const FAST_TIMEOUT_MS = 5_000;
+const FAST_PATHS = new Set([
+  '/api/v2/monitor/quick-stats',
 ]);
 
 async function fetchJSON<T>(
@@ -51,7 +77,11 @@ async function fetchJSON<T>(
     });
   }
 
-  const timeout = SLOW_PATHS.has(path) ? SLOW_TIMEOUT_MS : DEFAULT_TIMEOUT_MS;
+  const timeout = SLOW_PATHS.has(path)
+    ? SLOW_TIMEOUT_MS
+    : FAST_PATHS.has(path)
+      ? FAST_TIMEOUT_MS
+      : DEFAULT_TIMEOUT_MS;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -198,6 +228,100 @@ export const seedDashboardService = {
 
   getTradingSettingsSchema: () =>
     fetchJSON<Record<string, unknown>>('/api/v2/settings/trading/schema'),
+
+  // ===================================================
+  // NEW: Monitor, Batch, Export, Overview endpoints
+  // ===================================================
+
+  /** Single consolidated dashboard call — replaces fetching 10 endpoints individually */
+  getDashboardOverview: (opts?: { include_positions?: boolean; include_learning?: boolean }) => {
+    const params: Record<string, string | number> = {};
+    if (opts?.include_positions != null) params.include_positions = opts.include_positions ? 1 : 0;
+    if (opts?.include_learning != null) params.include_learning = opts.include_learning ? 1 : 0;
+    return fetchJSON<DashboardOverviewResponse>('/api/v2/dashboard/overview', params);
+  },
+
+  /** Ultra-fast (<10ms) header stats — poll every 15s */
+  getQuickStats: () =>
+    fetchJSON<QuickStatsResponse>('/api/v2/monitor/quick-stats'),
+
+  /** Real-time market context (VIX, regime, Nifty, S&P) */
+  getMarketPulse: () =>
+    fetchJSON<MarketPulseResponse>('/api/v2/monitor/market-pulse'),
+
+  /** System alerts for notification badge */
+  getSystemAlerts: () =>
+    fetchJSON<SystemAlertsResponse>('/api/v2/monitor/system-alerts'),
+
+  /** Multi-period win/return KPI cards (1h / 24h / 7d) */
+  getPerformancePulse: () =>
+    fetchJSON<PerformancePulseResponse>('/api/v2/monitor/performance-pulse'),
+
+  /** Live positions with proximity to stop / target */
+  getLivePositions: (includeClosedHours = 0) =>
+    fetchJSON<LivePositionsResponse>('/api/v2/monitor/live-positions', {
+      include_closed_hours: includeClosedHours,
+    }),
+
+  /** Positions within N% of a stop or target trigger */
+  getWatchlist: (proximityThreshold = 2.0) =>
+    fetchJSON<WatchlistResponse>('/api/v2/dashboard/watchlist', { proximity_threshold: proximityThreshold }),
+
+  /** Trailing stop / profit-protection status per open position */
+  getProfitProtectionStatus: () =>
+    fetchJSON<ProfitProtectionResponse>('/api/v2/dashboard/profit-protection-status'),
+
+  /** Portfolio risk breakdown by trade type and sector */
+  getPortfolioRisk: () =>
+    fetchJSON<PortfolioRiskResponse>('/api/v2/dashboard/portfolio-risk'),
+
+  /** Ranked ARM leaderboard with Thompson Sampling weights */
+  getArmLeaderboard: (days = 7) =>
+    fetchJSON<ArmLeaderboardResponse>('/api/v2/monitor/arm-leaderboard', { days }),
+
+  /** Quick learning health summary */
+  getLearningInsights: () =>
+    fetchJSON<LearningInsightsResponse>('/api/v2/monitor/learning-insights'),
+
+  /** Today's best and worst performing positions */
+  getTopPerformersToday: (limit = 10) =>
+    fetchJSON<TopPerformersTodayResponse>('/api/v2/monitor/top-performers-today', { limit }),
+
+  /** Data staleness checks per pipeline component */
+  getDataHealth: () =>
+    fetchJSON<DataHealthResponse>('/api/v2/monitor/data-health'),
+
+  /** DB row counts and quality metrics */
+  getDataStatistics: () =>
+    fetchJSON<DataStatisticsResponse>('/api/v2/batch/data-statistics'),
+
+  /** Emergency multi-position close (up to 50 positions) */
+  batchClosePositions: (body: BatchCloseRequest) =>
+    fetchJSON<BatchCloseResponse>('/api/v2/batch/close-positions', undefined, { method: 'POST', body }),
+
+  /** Bulk symbol performance analysis (up to 20 symbols) */
+  analyzeSymbols: (body: BatchAnalyzeRequest) =>
+    fetchJSON<BatchAnalyzeResponse>('/api/v2/batch/analyze-symbols', undefined, { method: 'POST', body }),
+
+  /** Full-text search across positions (symbol, ARM name, trade type) */
+  searchPositions: (query: string, limit = 20) =>
+    fetchJSON<SearchPositionsResponse>('/api/v2/export/search/positions', { query, limit }),
+
+  /** Returns a fully-qualified CSV download URL (use as href or window.open) */
+  getExportUrl: (type: 'positions' | 'outcomes' | 'market-context', params?: Record<string, string | number>) => {
+    const pathMap = {
+      positions: '/api/v2/export/positions.csv',
+      outcomes: '/api/v2/export/outcomes.json',
+      'market-context': '/api/v2/export/market-context.csv',
+    };
+    const url = new URL(`${BASE}${pathMap[type]}`);
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
+      });
+    }
+    return url.toString();
+  },
 };
 
 export default seedDashboardService;

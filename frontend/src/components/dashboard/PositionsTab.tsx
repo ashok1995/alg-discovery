@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  InputAdornment,
+  Snackbar,
+  Alert,
+  TextField,
   Typography,
   Table,
   TableBody,
@@ -22,7 +32,7 @@ import {
   InputLabel,
   Grid,
 } from '@mui/material';
-import { Refresh, FiberManualRecord } from '@mui/icons-material';
+import { Refresh, FiberManualRecord, FileDownload, Search, Close as CloseIcon } from '@mui/icons-material';
 import type { TrackedPositionItem, PositionsResponse } from '../../types/apiModels';
 import { seedDashboardService } from '../../services/SeedDashboardService';
 import { useSortableData } from '../../hooks/useSortableData';
@@ -149,11 +159,19 @@ const TRADE_TYPE_SHORT: Record<string, string> = {
   long_term: 'Long',
 };
 
-const PositionsTable: React.FC<{ positions: TrackedPositionItem[] }> = ({ positions }) => {
+interface PositionsTableProps {
+  positions: TrackedPositionItem[];
+  selectedIds?: Set<number>;
+  onToggleSelect?: (id: number) => void;
+}
+
+
+const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds, onToggleSelect }) => {
   const { sortedData, requestSort, getSortDirection } = useSortableData<TrackedPositionItem, PosKey>(
     positions,
     { key: 'opened_at', direction: 'desc' },
   );
+  const selectable = !!onToggleSelect;
 
   return (
     <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 520, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
@@ -163,11 +181,27 @@ const PositionsTable: React.FC<{ positions: TrackedPositionItem[] }> = ({ positi
           {sortedData.map((p) => {
             const isOpen = p.status === 'open';
             const displayReturn = isOpen ? (p.current_return_pct ?? p.return_pct) : p.return_pct;
+            const isSelected = selectedIds?.has(p.id) ?? false;
 
             return (
-              <TableRow key={p.id} hover sx={{ bgcolor: isOpen ? alpha('#1976d2', 0.02) : undefined }}>
+              <TableRow
+                key={p.id}
+                hover
+                selected={isSelected}
+                sx={{ bgcolor: isSelected ? alpha('#1976d2', 0.06) : isOpen ? alpha('#1976d2', 0.02) : undefined }}
+              >
                 <TableCell sx={{ py: 0.5 }}>
-                  <SymbolLink symbol={p.symbol} chartUrl={p.chart_url} />
+                  <Box display="flex" alignItems="center" gap={0.3}>
+                    {selectable && isOpen && (
+                      <Checkbox
+                        size="small"
+                        checked={isSelected}
+                        onChange={() => onToggleSelect!(p.id)}
+                        sx={{ p: 0.3, mr: 0.2 }}
+                      />
+                    )}
+                    <SymbolLink symbol={p.symbol} chartUrl={p.chart_url} />
+                  </Box>
                 </TableCell>
                 <TableCell sx={{ py: 0.5 }}>
                   <Chip
@@ -285,6 +319,67 @@ const PositionsTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const cacheRef = useRef<Map<string, { data: PositionsResponse; ts: number }>>(new Map());
 
+  // Batch close state
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [batchCloseOpen, setBatchCloseOpen] = useState(false);
+  const [batchLoading, setBatchLoading] = useState(false);
+  const [snack, setSnack] = useState<{ open: boolean; msg: string; severity: 'success' | 'error' }>({
+    open: false,
+    msg: '',
+    severity: 'success',
+  });
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<TrackedPositionItem[] | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  const toggleSelect = (id: number) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const handleBatchClose = async () => {
+    setBatchLoading(true);
+    try {
+      const res = await seedDashboardService.batchClosePositions({
+        position_ids: Array.from(selectedIds),
+        reason: 'manual_close',
+        fetch_live_prices: true,
+      });
+      setSnack({
+        open: true,
+        msg: `Closed ${res.successful}/${res.requested} positions${res.failed > 0 ? ` (${res.failed} failed)` : ''}`,
+        severity: res.failed > 0 ? 'error' : 'success',
+      });
+      setSelectedIds(new Set());
+      setBatchCloseOpen(false);
+      await fetchData(true);
+    } catch (err) {
+      setSnack({ open: true, msg: 'Batch close failed', severity: 'error' });
+    } finally {
+      setBatchLoading(false);
+    }
+  };
+
+  const handleSearch = async (q: string) => {
+    if (!q.trim()) { setSearchResults(null); return; }
+    setSearchLoading(true);
+    try {
+      const res = await seedDashboardService.searchPositions(q.trim(), 50);
+      setSearchResults(res.results ?? []);
+    } catch {
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const displayPositions = searchResults !== null ? searchResults : (data?.positions ?? []);
+
   const cacheKey = `${category}|${tradeType}|${status}|${days}`;
 
   const fetchData = useCallback(async (force = false) => {
@@ -316,19 +411,60 @@ const PositionsTab: React.FC = () => {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const summ = data?.summary;
-  const positions = data?.positions ?? [];
 
   return (
     <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
       {/* Header */}
-      <Box sx={{ px: 2.5, pt: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box sx={{ px: 2.5, pt: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
         <Box>
           <Typography variant="subtitle1" fontWeight={800}>Tracked Positions</Typography>
           <Typography variant="caption" color="text.secondary">
             Filter by category, type, status, and period
           </Typography>
         </Box>
-        <Box display="flex" alignItems="center" gap={1}>
+        <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+          {selectedIds.size > 0 && (
+            <Button
+              size="small"
+              variant="contained"
+              color="error"
+              sx={{ fontSize: '0.72rem', textTransform: 'none', fontWeight: 700 }}
+              onClick={() => setBatchCloseOpen(true)}
+            >
+              Close {selectedIds.size} selected
+            </Button>
+          )}
+          <Tooltip title="Export positions as CSV">
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<FileDownload fontSize="small" />}
+              sx={{ fontSize: '0.72rem', textTransform: 'none' }}
+              component="a"
+              href={seedDashboardService.getExportUrl('positions', {
+                days,
+                ...(tradeType ? { trade_type: tradeType } : {}),
+              })}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              CSV
+            </Button>
+          </Tooltip>
+          <Tooltip title="Export outcomes as JSON">
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<FileDownload fontSize="small" />}
+              sx={{ fontSize: '0.72rem', textTransform: 'none' }}
+              component="a"
+              href={seedDashboardService.getExportUrl('outcomes', { days })}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              JSON
+            </Button>
+          </Tooltip>
           {loading && <CircularProgress size={16} />}
           <Tooltip title="Refresh">
             <IconButton size="small" onClick={() => fetchData(true)}>
@@ -336,6 +472,43 @@ const PositionsTab: React.FC = () => {
             </IconButton>
           </Tooltip>
         </Box>
+      </Box>
+
+      {/* Search bar */}
+      <Box sx={{ px: 2.5, pb: 1 }}>
+        <TextField
+          size="small"
+          placeholder="Search symbol or ARM…"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            if (!e.target.value.trim()) setSearchResults(null);
+          }}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(searchQuery); }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                {searchLoading ? <CircularProgress size={14} /> : <Search fontSize="small" />}
+              </InputAdornment>
+            ),
+            endAdornment: searchQuery && (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={() => { setSearchQuery(''); setSearchResults(null); }}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+          sx={{ width: 280, '& .MuiInputBase-root': { fontSize: '0.8rem' } }}
+        />
+        {searchResults !== null && (
+          <Chip
+            label={`${searchResults.length} search results`}
+            size="small"
+            onDelete={() => { setSearchQuery(''); setSearchResults(null); }}
+            sx={{ ml: 1, fontWeight: 600 }}
+          />
+        )}
       </Box>
 
       {/* Category tabs */}
@@ -483,16 +656,55 @@ const PositionsTab: React.FC = () => {
 
       {/* Table */}
       <Box sx={{ px: 2.5, pb: 2.5 }}>
-        {loading && positions.length === 0 ? (
+        {loading && displayPositions.length === 0 ? (
           <Box>
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} variant="rectangular" height={32} sx={{ mb: 0.5, borderRadius: 1 }} />
             ))}
           </Box>
         ) : (
-          <PositionsTable positions={positions} />
+          <PositionsTable
+            positions={displayPositions}
+            selectedIds={selectedIds}
+            onToggleSelect={toggleSelect}
+          />
         )}
       </Box>
+
+      {/* Batch close confirmation dialog */}
+      <Dialog open={batchCloseOpen} onClose={() => setBatchCloseOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700 }}>Close {selectedIds.size} Position{selectedIds.size !== 1 ? 's' : ''}?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            This will close {selectedIds.size} selected position{selectedIds.size !== 1 ? 's' : ''} at live prices.
+            This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setBatchCloseOpen(false)} disabled={batchLoading}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleBatchClose}
+            disabled={batchLoading}
+            startIcon={batchLoading ? <CircularProgress size={14} /> : undefined}
+          >
+            {batchLoading ? 'Closing…' : 'Close Positions'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Toast notification */}
+      <Snackbar
+        open={snack.open}
+        autoHideDuration={4000}
+        onClose={() => setSnack((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={snack.severity} variant="filled" sx={{ fontWeight: 600 }}>
+          {snack.msg}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };

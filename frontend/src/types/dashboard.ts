@@ -569,6 +569,390 @@ export interface TradingSettingsResponse {
   [key: string]: unknown;
 }
 
+// ============================================================
+// NEW: Monitor, Batch, Export, and WebSocket types
+// ============================================================
+
+// --- Dashboard Overview (GET /api/v2/dashboard/overview) ---
+
+export interface OverviewPerformancePeriod {
+  positions_opened: number;
+  positions_closed: number;
+  wins: number;
+  win_rate_pct: number;
+  avg_return_pct: number;
+  total_return_pct: number;
+}
+
+export interface DashboardOverviewResponse {
+  timestamp: string;
+  market_status: 'open' | 'closed' | string;
+  performance: {
+    '1h': OverviewPerformancePeriod;
+    '24h': OverviewPerformancePeriod;
+    '7d': OverviewPerformancePeriod;
+  };
+  positions: {
+    total_open: number;
+    unique_trade_types: number;
+    unique_arms: number;
+    oldest_position_hours: number | null;
+    newest_position_minutes: number | null;
+  };
+  market_context: {
+    regime: string | null;
+    vix_india: number | null;
+    nifty50_change_pct: number | null;
+    indian_equity_stance: string | null;
+    market_sentiment: string | null;
+    last_update: string | null;
+  } | null;
+  system_health: {
+    status: string;
+    issues?: string[];
+    checks_passed?: boolean;
+  };
+  learning: {
+    status: string;
+    total_arms: number;
+    top_arm: { name: string; weight: number } | null;
+    bottom_arm: { name: string; weight: number } | null;
+    weight_spread: number | null;
+  } | null;
+  recent_activity: {
+    period_hours: number;
+    positions_opened: number;
+    positions_closed: number;
+    wins: number;
+    win_rate_pct: number;
+    target_3_hits: number;
+    stop_hits: number;
+    success_ratio: number;
+  } | null;
+}
+
+// --- Quick Stats (GET /api/v2/monitor/quick-stats) ---
+
+export interface QuickStatsResponse {
+  open_positions: number;
+  lifetime_win_rate_pct: number;
+  market_status: 'open' | 'closed' | string;
+  system_status: 'active' | 'inactive' | string;
+  generated_at: string;
+}
+
+// --- Market Pulse (GET /api/v2/monitor/market-pulse) ---
+
+export interface MarketPulseResponse {
+  market_regime: string | null;
+  vix_india: number | null;
+  nifty50_change_pct: number | null;
+  indian_equity_stance: string | null;
+  global_equity_stance: string | null;
+  sp500_change_pct: number | null;
+  market_status: 'open' | 'closed' | string;
+  recent_activity: {
+    positions_opened_4h: number;
+    positions_closed_4h: number;
+  } | null;
+  generated_at?: string;
+}
+
+// --- System Alerts (GET /api/v2/monitor/system-alerts) ---
+
+export interface SystemAlert {
+  severity: 'medium' | 'high';
+  type: string;
+  message: string;
+  action: string | null;
+}
+
+export interface SystemAlertsResponse {
+  alert_count: number;
+  system_status: 'healthy' | 'degraded' | string;
+  alerts: SystemAlert[];
+}
+
+// --- Performance Pulse (GET /api/v2/monitor/performance-pulse) ---
+
+export interface PerformancePulsePeriod {
+  period: '1h' | '24h' | '7d' | string;
+  closed_positions: number;
+  wins: number;
+  win_rate_pct: number;
+  avg_return_pct: number;
+}
+
+export interface PerformancePulseResponse {
+  performance: PerformancePulsePeriod[];
+  current_open_positions: number;
+  generated_at: string;
+}
+
+// --- Live Positions (GET /api/v2/monitor/live-positions) ---
+
+export interface LivePositionItem {
+  id?: number;
+  symbol: string;
+  trade_type?: string;
+  unrealized_return_pct: number | null;
+  /** proximity_pct = distance to nearest trigger (stop or target); 999 means no live price */
+  proximity_pct?: number | null;
+  /** distance_to_stop_pct may be derived from proximity; not always present */
+  distance_to_stop_pct?: number | null;
+  distance_to_target1_pct?: number | null;
+  entry_price?: number | null;
+  current_price?: number | null;
+  stop_loss?: number | null;
+  target_1?: number | null;
+  opened_at?: string | null;
+  source_arm?: string | null;
+  score_bin?: string | null;
+  peak_unrealized_pct?: number | null;
+}
+
+export interface LivePositionsResponse {
+  open_positions: {
+    count: number;
+    positions: LivePositionItem[];
+    total_unrealized: number | null;
+  };
+  recent_closed: {
+    count: number;
+    positions: LivePositionItem[];
+  };
+  market_status: 'open' | 'closed' | string;
+  generated_at?: string;
+}
+
+// --- Watchlist (GET /api/v2/dashboard/watchlist) ---
+
+export interface WatchlistItem {
+  id: number;
+  symbol: string;
+  trade_type: string;
+  unrealized_return_pct: number | null;
+  closest_trigger: 'stop_loss' | 'target_1' | 'target_2' | 'target_3';
+  trigger_price: number | null;
+  distance_pct: number | null;
+  opened_hours_ago: number | null;
+}
+
+export interface WatchlistResponse {
+  count: number;
+  threshold_pct: number;
+  watchlist: WatchlistItem[];
+  generated_at?: string;
+}
+
+// --- Profit Protection (GET /api/v2/dashboard/profit-protection-status) ---
+
+export interface ProfitProtectionItem {
+  id?: number;
+  symbol: string;
+  trade_type?: string;
+  unrealized_return_pct: number | null;
+  peak_unrealized_pct: number | null;
+  protection_active: boolean;
+}
+
+export interface ProfitProtectionResponse {
+  total_positions: number;
+  total_unrealized_return_pct: number | null;
+  positions_with_protection: number;
+  positions: ProfitProtectionItem[];
+}
+
+// --- Portfolio Risk (GET /api/v2/dashboard/portfolio-risk) ---
+
+export interface PortfolioRiskByType {
+  positions: number;
+  capital_at_risk: number;
+}
+
+export interface PortfolioRiskResponse {
+  total_positions: number;
+  total_capital_at_risk: number;
+  risk_by_trade_type: Record<string, PortfolioRiskByType>;
+  sector_exposure: Record<string, number>;
+}
+
+// --- ARM Leaderboard (GET /api/v2/monitor/arm-leaderboard) ---
+
+export interface ArmLeaderboardItem {
+  arm: string;
+  positions: number;
+  wins: number;
+  win_rate_pct: number;
+  avg_return_pct: number;
+  thompson_weight: number;
+  observations: number;
+  confidence: number;
+}
+
+export interface ArmLeaderboardResponse {
+  period_days: number;
+  arms_count: number;
+  leaderboard: ArmLeaderboardItem[];
+  generated_at?: string;
+}
+
+// --- Learning Insights (GET /api/v2/monitor/learning-insights) ---
+
+export interface LearningInsightArmItem {
+  arm: string;
+  weight: number;
+  confidence: number;
+  observations: number;
+}
+
+export interface LearningInsightsResponse {
+  top_arms: LearningInsightArmItem[];
+  total_arms: number;
+  regime_contexts?: string[];
+  learning_health: 'active' | 'inactive' | 'error' | string;
+}
+
+// --- Top Performers Today (GET /api/v2/monitor/top-performers-today) ---
+
+export interface TopPerformerItem {
+  id?: number;
+  symbol: string;
+  trade_type?: string;
+  unrealized_return_pct?: number | null;
+  return_pct?: number | null;
+  source_arm?: string | null;
+  opened_at?: string | null;
+}
+
+export interface TopPerformersTodayResponse {
+  date: string;
+  best_performers: TopPerformerItem[];
+  worst_performers: TopPerformerItem[];
+}
+
+// --- Data Health (GET /api/v2/monitor/data-health) ---
+
+export interface DataHealthCheck {
+  component: string;
+  description?: string;
+  total_rows: number | null;
+  latest_update?: string | null;
+  staleness_hours: number | null;
+  recent_updates_2h: number | null;
+  status: 'healthy' | 'stale' | 'empty' | string;
+}
+
+export interface DataHealthResponse {
+  overall_status: 'healthy' | 'degraded' | string;
+  market_open: boolean;
+  health_checks: DataHealthCheck[];
+}
+
+// --- Data Statistics (GET /api/v2/batch/data-statistics) ---
+
+export interface DataStatisticsResponse {
+  table_statistics: Record<string, {
+    total_rows?: number;
+    open_positions?: number;
+    active_stocks?: number;
+    [key: string]: unknown;
+  }>;
+  data_staleness?: Record<string, unknown>;
+  database_health?: string;
+  [key: string]: unknown;
+}
+
+// --- Batch Close Positions (POST /api/v2/batch/close-positions) ---
+
+export interface BatchCloseRequest {
+  position_ids: number[];
+  reason?: string;
+  fetch_live_prices?: boolean;
+}
+
+export interface BatchCloseResultItem {
+  id: number;
+  symbol: string;
+  entry_price: number;
+  exit_price: number | null;
+  return_pct: number | null;
+  duration_minutes: number | null;
+}
+
+export interface BatchCloseResponse {
+  requested: number;
+  successful: number;
+  failed: number;
+  closed_positions: BatchCloseResultItem[];
+  errors: Array<{ position_id: number; error: string }>;
+}
+
+// --- Batch Analyze Symbols (POST /api/v2/batch/analyze-symbols) ---
+
+export interface BatchAnalyzeRequest {
+  symbols: string[];
+  trade_types?: string[];
+  days_lookback?: number;
+}
+
+export interface BatchAnalyzeTradeStats {
+  total_positions: number;
+  wins: number;
+  win_rate_pct: number;
+  avg_return_pct: number;
+}
+
+export interface BatchAnalyzeResponse {
+  analyzed_symbols: number;
+  analysis: Record<string, Record<string, BatchAnalyzeTradeStats>>;
+}
+
+// --- Search Positions (GET /api/v2/export/search/positions) ---
+
+export interface SearchPositionsResponse {
+  count: number;
+  results: TrackedPositionItem[];
+  query: string;
+}
+
+// --- Seed WebSocket message types ---
+
+export interface SeedPositionsUpdateData {
+  open_positions: {
+    count: number;
+    avg_score: number | null;
+    unique_arms: number | null;
+  };
+  hourly_activity: {
+    opened: number;
+    closed: number;
+    wins: number;
+  } | null;
+  market_open: boolean;
+}
+
+export interface SeedPositionsMessage {
+  type: 'connected' | 'positions_update';
+  timestamp: string;
+  message?: string;
+  data?: SeedPositionsUpdateData;
+}
+
+export interface SeedHealthUpdateData {
+  tracked_positions_count: number;
+  stock_universe_count: number;
+  ranked_stocks_count: number;
+  ranking_staleness_hours: number | null;
+}
+
+export interface SeedHealthMessage {
+  type: 'connected' | 'health_update';
+  timestamp: string;
+  message?: string;
+  data?: SeedHealthUpdateData;
+}
+
 // --- Internal / Global Market Context (Kite, Yahoo) ---
 
 export interface TrendTimeframe {

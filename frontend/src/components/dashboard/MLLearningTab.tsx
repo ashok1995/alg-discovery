@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  Box,
   Card,
   CardContent,
+  Chip,
+  CircularProgress,
   Grid,
-  Typography,
+  LinearProgress,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableRow,
-  Paper,
-  Chip,
-  Box,
+  Tooltip,
+  Typography,
   alpha,
 } from '@mui/material';
 import {
@@ -24,7 +27,8 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import type { LearningStatusResponse, ScoreBinPerformanceItem } from '../../types/apiModels';
+import type { LearningStatusResponse, ScoreBinPerformanceItem, ArmLeaderboardItem, ArmLeaderboardResponse } from '../../types/apiModels';
+import { seedDashboardService } from '../../services/SeedDashboardService';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 
@@ -53,10 +57,32 @@ const WEIGHT_COLUMNS: ColumnDef<WeightKey>[] = [
   { key: 'beta', label: 'Beta', align: 'right', sortable: true },
 ];
 
+type LeaderboardKey = 'arm' | 'positions' | 'wins' | 'win_rate_pct' | 'avg_return_pct' | 'thompson_weight' | 'confidence';
+
+const LEADERBOARD_COLUMNS: ColumnDef<LeaderboardKey>[] = [
+  { key: 'arm', label: 'ARM', sortable: true, minWidth: 150 },
+  { key: 'positions', label: 'Trades', align: 'right', sortable: true },
+  { key: 'wins', label: 'Wins', align: 'right', sortable: true },
+  { key: 'win_rate_pct', label: 'Win %', align: 'right', sortable: true },
+  { key: 'avg_return_pct', label: 'Avg Return', align: 'right', sortable: true },
+  { key: 'thompson_weight', label: 'TS Weight', align: 'right', sortable: true },
+  { key: 'confidence', label: 'Confidence', align: 'right', sortable: true },
+];
+
 const MLLearningTab: React.FC<MLLearningTabProps> = ({ learningStatus, scoreBins = [] }) => {
   const top10 = learningStatus?.top_10 ?? [];
   const bottom5 = learningStatus?.bottom_5 ?? [];
   const totalArms = learningStatus?.total_arms ?? 0;
+
+  const [leaderboard, setLeaderboard] = useState<ArmLeaderboardResponse | null>(null);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+
+  useEffect(() => {
+    seedDashboardService.getArmLeaderboard(7)
+      .then(setLeaderboard)
+      .catch(() => {})
+      .finally(() => setLeaderboardLoading(false));
+  }, []);
 
   const { sortedData: sortedBins, requestSort: sortBin, getSortDirection: getBinDir } =
     useSortableData<ScoreBinPerformanceItem, BinKey>(scoreBins, { key: 'success_rate_pct', direction: 'desc' });
@@ -64,6 +90,15 @@ const MLLearningTab: React.FC<MLLearningTabProps> = ({ learningStatus, scoreBins
   const allWeights = [...top10, ...bottom5];
   const { sortedData: sortedWeights, requestSort: sortWeight, getSortDirection: getWeightDir } =
     useSortableData<typeof allWeights[number], WeightKey>(allWeights, { key: 'weight', direction: 'desc' });
+
+  const { sortedData: sortedLeaderboard, requestSort: sortLeader, getSortDirection: getLeaderDir } =
+    useSortableData<ArmLeaderboardItem, LeaderboardKey>(
+      leaderboard?.leaderboard ?? [],
+      { key: 'thompson_weight', direction: 'desc' },
+    );
+
+  // Max weight for normalizing the bar
+  const maxWeight = sortedLeaderboard[0]?.thompson_weight ?? 1;
 
   const binChartData = scoreBins.map((b) => ({
     name: `${b.score_bin} (${b.trade_type.replace(/_/g, ' ')})`,
@@ -124,6 +159,90 @@ const MLLearningTab: React.FC<MLLearningTabProps> = ({ learningStatus, scoreBins
               </TableContainer>
             ) : (
               <Typography color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>No learning data yet</Typography>
+            )}
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* ARM Leaderboard — Thompson Sampling with real performance data */}
+      <Grid item xs={12}>
+        <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+          <CardContent sx={{ p: 2 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1.5}>
+              <Typography variant="h6" fontWeight={600}>ARM Leaderboard (7-day)</Typography>
+              <Box display="flex" alignItems="center" gap={1}>
+                {leaderboardLoading && <CircularProgress size={14} />}
+                <Chip label={`${leaderboard?.arms_count ?? 0} arms`} size="small" variant="outlined" />
+              </Box>
+            </Box>
+            {sortedLeaderboard.length > 0 ? (
+              <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 340, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                <Table size="small" stickyHeader>
+                  <SortableTableHead columns={LEADERBOARD_COLUMNS} onSort={sortLeader} getSortDirection={getLeaderDir} />
+                  <TableBody>
+                    {sortedLeaderboard.map((a) => (
+                      <TableRow key={a.arm} hover>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight={500} fontSize="0.74rem">
+                            {a.arm.replace(/_/g, ' ')}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">{a.positions}</TableCell>
+                        <TableCell align="right">{a.wins}</TableCell>
+                        <TableCell align="right">
+                          <Typography
+                            variant="body2"
+                            fontWeight={700}
+                            fontSize="0.74rem"
+                            color={(a.win_rate_pct ?? 0) >= 50 ? 'success.main' : 'error.main'}
+                          >
+                            {a.win_rate_pct.toFixed(0)}%
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Typography
+                            variant="body2"
+                            fontWeight={600}
+                            fontSize="0.74rem"
+                            color={(a.avg_return_pct ?? 0) >= 0 ? 'success.main' : 'error.main'}
+                          >
+                            {a.avg_return_pct >= 0 ? '+' : ''}{a.avg_return_pct.toFixed(2)}%
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Tooltip title={`Weight: ${a.thompson_weight.toFixed(4)}`} arrow>
+                            <Box display="flex" alignItems="center" gap={0.5} justifyContent="flex-end">
+                              <LinearProgress
+                                variant="determinate"
+                                value={(a.thompson_weight / maxWeight) * 100}
+                                sx={{ width: 48, height: 5, borderRadius: 2, bgcolor: alpha('#1976d2', 0.15), '& .MuiLinearProgress-bar': { bgcolor: '#1976d2' } }}
+                              />
+                              <Typography variant="caption" fontSize="0.65rem">{a.thompson_weight.toFixed(3)}</Typography>
+                            </Box>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Chip
+                            label={`${(a.confidence * 100).toFixed(0)}%`}
+                            size="small"
+                            sx={{
+                              fontSize: '0.62rem',
+                              height: 18,
+                              fontWeight: 600,
+                              bgcolor: alpha(a.confidence >= 0.7 ? '#4caf50' : '#ff9800', 0.12),
+                              color: a.confidence >= 0.7 ? 'success.dark' : 'warning.dark',
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Typography color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
+                {leaderboardLoading ? 'Loading leaderboard…' : 'No leaderboard data yet'}
+              </Typography>
             )}
           </CardContent>
         </Card>
