@@ -14,7 +14,7 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
-import { Refresh, Timeline, ShowChart, Storage, Security, Psychology, AccountBalance, TrendingUp, ViewList } from '@mui/icons-material';
+import { Refresh, Timeline, ShowChart, Storage, Security, Psychology, AccountBalance, TrendingUp, ViewList, FiberManualRecord } from '@mui/icons-material';
 import TabPanel from '../components/ui/TabPanel';
 import DashboardKpiCards from '../components/dashboard/DashboardKpiCards';
 import PerformanceTab from '../components/dashboard/PerformanceTab';
@@ -23,6 +23,9 @@ import UniverseTab from '../components/dashboard/UniverseTab';
 import PositionsTab from '../components/dashboard/PositionsTab';
 import MLLearningTab from '../components/dashboard/MLLearningTab';
 import CapitalPnlTab from '../components/dashboard/CapitalPnlTab';
+import LivePositionsTab from '../components/dashboard/LivePositionsTab';
+import QuickStatsBar from '../components/dashboard/QuickStatsBar';
+import SystemAlertsWidget from '../components/dashboard/SystemAlertsWidget';
 import HorizonPositionsSection from '../components/home/HorizonPositionsSection';
 import HomeMarketMoversTab from '../components/home/HomeMarketMoversTab';
 import { seedDashboardService } from '../services/SeedDashboardService';
@@ -145,6 +148,8 @@ const Dashboard: React.FC = () => {
           </Typography>
         </Box>
         <Box display="flex" gap={1.5} alignItems="center">
+          <QuickStatsBar />
+          <SystemAlertsWidget />
           <FormControl size="small" sx={{ minWidth: 110 }}>
             <InputLabel>Period</InputLabel>
             <Select value={days} label="Period" onChange={(e) => setDays(Number(e.target.value))}>
@@ -180,6 +185,7 @@ const Dashboard: React.FC = () => {
       >
         <Tab icon={<ViewList />} label="Positions by Horizon" iconPosition="start" />
         <Tab icon={<TrendingUp />} label="Market Movers" iconPosition="start" />
+        <Tab icon={<FiberManualRecord sx={{ fontSize: 10 }} />} label="Live Positions" iconPosition="start" />
         <Tab icon={<Timeline />} label="Performance" iconPosition="start" />
         <Tab icon={<ShowChart />} label="Market Trends" iconPosition="start" />
         <Tab icon={<Storage />} label="Universe" iconPosition="start" />
@@ -195,6 +201,9 @@ const Dashboard: React.FC = () => {
         <HomeMarketMoversTab />
       </TabPanel>
       <TabPanel value={tab} index={2}>
+        <LivePositionsTab />
+      </TabPanel>
+      <TabPanel value={tab} index={3}>
         <PerformanceTab
           perfTimeline={perfTimeline}
           armPerformance={armPerformance}
@@ -202,19 +211,19 @@ const Dashboard: React.FC = () => {
           learningPerformance={learningPerformance}
         />
       </TabPanel>
-      <TabPanel value={tab} index={3}>
+      <TabPanel value={tab} index={4}>
         <MarketTrendsTab marketTimeline={marketTimeline} trendsSummary={trendsSummary} globalContext={globalContext} />
       </TabPanel>
-      <TabPanel value={tab} index={4}>
+      <TabPanel value={tab} index={5}>
         <UniverseTab universeHealth={universeHealth} />
       </TabPanel>
-      <TabPanel value={tab} index={5}>
+      <TabPanel value={tab} index={6}>
         <PositionsTab />
       </TabPanel>
-      <TabPanel value={tab} index={6}>
+      <TabPanel value={tab} index={7}>
         <CapitalPnlTab capitalSummary={capitalSummary} pnlTimeline={pnlTimeline} />
       </TabPanel>
-      <TabPanel value={tab} index={7}>
+      <TabPanel value={tab} index={8}>
         <MLLearningTab learningStatus={learningStatus} scoreBins={scoreBins} />
       </TabPanel>
     </Box>
