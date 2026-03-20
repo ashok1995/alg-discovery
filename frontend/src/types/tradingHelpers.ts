@@ -17,7 +17,7 @@ import type { UIRecommendationRequest } from './trading';
 export function validateUIRequest(request: Partial<UIRecommendationRequest>): ValidationError[] {
   const errors: ValidationError[] = [];
   if (!request.strategy) errors.push({ field: 'strategy', message: 'Strategy is required' });
-  if (!request.risk_level) errors.push({ field: 'risk_level', message: 'Risk level is required' });
+  // risk_level optional: Seed GET /v2/recommendations does not use it (min_score only).
   if (request.min_score !== undefined && (request.min_score < 0 || request.min_score > 100)) {
     errors.push({ field: 'min_score', message: 'Min score must be between 0 and 100' });
   }

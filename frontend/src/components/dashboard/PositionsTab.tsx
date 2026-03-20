@@ -38,6 +38,7 @@ import { seedDashboardService } from '../../services/SeedDashboardService';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 import SymbolLink from '../ui/SymbolLink';
+import { displayReturnPctForRow, openUnrealizedPnlDisplay } from '../../utils/positionDisplayUtils';
 
 type PosKey = 'symbol' | 'trade_type' | 'entry_price' | 'current_price' | 'stop_loss' | 'target_1'
   | 'status' | 'return_pct' | 'unrealized_pnl' | 'duration_minutes' | 'source_arm' | 'allocated_capital'
@@ -180,7 +181,8 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
         <TableBody>
           {sortedData.map((p) => {
             const isOpen = p.status === 'open';
-            const displayReturn = isOpen ? (p.current_return_pct ?? p.return_pct) : p.return_pct;
+            const displayReturn = displayReturnPctForRow(p);
+            const unrealForRow = openUnrealizedPnlDisplay(p);
             const isSelected = selectedIds?.has(p.id) ?? false;
 
             return (
@@ -240,10 +242,16 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
                 <TableCell sx={{ py: 0.5 }}>{statusChip(p.status)}</TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>{returnCell(displayReturn)}</TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>
-                  {isOpen ? pnlCell(p.unrealized_pnl) : <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>}
+                  {isOpen ? pnlCell(unrealForRow) : <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>}
                 </TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>
-                  {!isOpen ? pnlCell(p.net_pnl) : <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>}
+                  {!isOpen ? (
+                    pnlCell(p.net_pnl)
+                  ) : (
+                    <Tooltip title="Net P&amp;L is finalized at close. While open, use Unreal P&amp;L (or estimate from capital × return %).">
+                      <span>{pnlCell(p.net_pnl ?? unrealForRow)}</span>
+                    </Tooltip>
+                  )}
                 </TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>
                   <Tooltip title={p.duration_minutes != null ? `${p.duration_minutes.toFixed(1)} minutes` : ''} arrow>
@@ -310,8 +318,14 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
 
 const CACHE_TTL = 90_000;
 
-const PositionsTab: React.FC = () => {
-  const [category, setCategory] = useState<'all' | 'learning' | 'paper_trade'>('all');
+export interface PositionsTabProps {
+  /** When set, category is fixed and the category toggle is hidden (e.g. for Detailed Positions page). */
+  lockCategory?: 'paper_trade' | 'learning';
+}
+
+const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
+  const [category, setCategory] = useState<'all' | 'learning' | 'paper_trade'>(lockCategory ?? 'all');
+  const effectiveCategory = lockCategory ?? category;
   const [tradeType, setTradeType] = useState('');
   const [status, setStatus] = useState('');
   const [days, setDays] = useState(30);
@@ -380,7 +394,12 @@ const PositionsTab: React.FC = () => {
 
   const displayPositions = searchResults !== null ? searchResults : (data?.positions ?? []);
 
-  const cacheKey = `${category}|${tradeType}|${status}|${days}`;
+  const cacheKey = `${effectiveCategory}|${tradeType}|${status}|${days}`;
+
+  /** Search results ignore table filters — clear when filters change so users are not misled */
+  useEffect(() => {
+    setSearchResults(null);
+  }, [tradeType, status, days, effectiveCategory]);
 
   const fetchData = useCallback(async (force = false) => {
     const cached = cacheRef.current.get(cacheKey);
@@ -393,7 +412,7 @@ const PositionsTab: React.FC = () => {
     setLoading(true);
     try {
       const res = await seedDashboardService.getPositions({
-        category: category === 'all' ? undefined : category,
+        category: effectiveCategory === 'all' ? undefined : effectiveCategory,
         trade_type: tradeType || undefined,
         status: status || undefined,
         days,
@@ -406,7 +425,7 @@ const PositionsTab: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [cacheKey, category, tradeType, status, days]);
+  }, [cacheKey, effectiveCategory, tradeType, status, days]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -443,6 +462,7 @@ const PositionsTab: React.FC = () => {
               component="a"
               href={seedDashboardService.getExportUrl('positions', {
                 days,
+                ...(effectiveCategory !== 'all' ? { category: effectiveCategory } : {}),
                 ...(tradeType ? { trade_type: tradeType } : {}),
               })}
               target="_blank"
@@ -511,24 +531,26 @@ const PositionsTab: React.FC = () => {
         )}
       </Box>
 
-      {/* Category tabs */}
-      <Box sx={{ px: 2.5, pb: 1 }}>
-        <ToggleButtonGroup
-          value={category}
-          exclusive
-          onChange={(_, v) => v && setCategory(v)}
-          size="small"
-          sx={{ '& .MuiToggleButton-root': { py: 0.5, px: 2, textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' } }}
-        >
-          {CATEGORIES.map((c) => (
-            <ToggleButton key={c.key} value={c.key}>
-              <Tooltip title={c.desc} arrow>
-                <span>{c.label}</span>
-              </Tooltip>
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </Box>
+      {/* Category tabs — hidden when lockCategory is set */}
+      {!lockCategory && (
+        <Box sx={{ px: 2.5, pb: 1 }}>
+          <ToggleButtonGroup
+            value={category}
+            exclusive
+            onChange={(_, v) => v && setCategory(v)}
+            size="small"
+            sx={{ '& .MuiToggleButton-root': { py: 0.5, px: 2, textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' } }}
+          >
+            {CATEGORIES.map((c) => (
+              <ToggleButton key={c.key} value={c.key}>
+                <Tooltip title={c.desc} arrow>
+                  <span>{c.label}</span>
+                </Tooltip>
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Box>
+      )}
 
       {/* Filters row */}
       <Box sx={{ px: 2.5, pb: 1.5 }}>

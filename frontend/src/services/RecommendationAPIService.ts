@@ -74,15 +74,15 @@ class RecommendationAPIService {
       }
 
       const strategy = String(request.strategy);
-      const risk_level = request.risk_level != null ? String(request.risk_level) : 'moderate';
       const limit = request.limit ?? 20;
+      const min_score = request.min_score;
 
       const v2Request: import('./RecommendationV2Service').V2RecommendationRequestParams = {
         strategy: strategy as 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term',
-        risk_level: risk_level as 'low' | 'medium' | 'high',
         limit,
+        ...(min_score != null ? { min_score } : {}),
       };
-      console.log(`🌱 [SeedService] POST ${API_CONFIG.SEED_V2_RECOMMENDATIONS_PATH}`, v2Request);
+      console.log(`🌱 [SeedService] GET /v2/recommendations`, v2Request);
 
       const data = await fetchV2Recommendations(v2Request);
       console.log(`✅ [SeedService] Response: ${data.count} recommendations`);

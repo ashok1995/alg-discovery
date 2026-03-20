@@ -187,7 +187,8 @@ export interface PositionsSummaryResponse {
 export interface PositionsResponse {
   category: string;
   count: number;
-  summary: PositionsSummaryResponse;
+  /** May be null if client omitted `include=summary` or server returned list-only. */
+  summary: PositionsSummaryResponse | null;
   positions: TrackedPositionItem[];
 }
 
@@ -309,7 +310,8 @@ export interface TopMoverItem {
   exchange?: string;
   last_price: number;
   period_return_pct?: number;
-  change_pct: number;
+  /** Optional: improved Seed market-movers may only send period_return_pct */
+  change_pct?: number;
   change_pct_5min?: number | null;
   change_pct_15min?: number | null;
   change_pct_30min?: number | null;
@@ -344,6 +346,32 @@ export interface TopTradedResponse {
   top_traded: TopMoverItem[];
   generated_at: string;
 }
+
+/** Improved Seed: single GET /api/v2/dashboard/market-movers (mover_type=gainers|losers|traded) */
+export interface MarketMoversSingleResponse {
+  mover_type: 'gainers' | 'losers' | 'traded';
+  count: number;
+  items: TopMoverItem[];
+  days: number;
+  generated_at: string;
+}
+
+export interface MarketMoversAllResponse {
+  mover_type: 'all';
+  days: number;
+  limit: number;
+  gainers: TopMoverItem[];
+  losers: TopMoverItem[];
+  top_traded: TopMoverItem[];
+  counts: {
+    gainers: number;
+    losers: number;
+    top_traded: number;
+  };
+  generated_at: string;
+}
+
+export type MarketMoversResponse = MarketMoversSingleResponse | MarketMoversAllResponse;
 
 // --- Position Management ---
 
@@ -989,11 +1017,12 @@ export interface InternalMarketContextResponse {
     total_stocks: number;
     data_source: string;
     timestamp: string;
-  };
-  nifty_50: { price: number; change_percent: number; trend: IndexTrend };
-  bank_nifty: { price: number; change_percent: number; trend: IndexTrend };
-  india_vix: { value: number; change_percent: number | null; level: string; trend: IndexTrend };
-  sectors: Record<string, { change_percent: number; leader: boolean }>;
+  } | null;
+  /** API may omit or null when index feed is unavailable */
+  nifty_50: { price: number; change_percent: number; trend: IndexTrend } | null;
+  bank_nifty: { price: number; change_percent: number; trend: IndexTrend } | null;
+  india_vix: { value: number; change_percent: number | null; level: string; trend: IndexTrend } | null;
+  sectors: Record<string, { change_percent: number; leader: boolean }> | null;
   institutional_sentiment: string;
   confidence_score: number;
   timestamp: string;
@@ -1008,14 +1037,14 @@ export interface GlobalAsset {
 }
 
 export interface GlobalContextResponse {
-  sp500: GlobalAsset;
-  nasdaq: GlobalAsset;
-  dow_jones: GlobalAsset;
-  vix: { value: number; trend: Omit<IndexTrend, 'intraday'> };
-  gold: GlobalAsset;
-  usd_inr: GlobalAsset;
-  crude_oil: GlobalAsset;
-  nikkei: GlobalAsset;
-  hang_seng: GlobalAsset;
+  sp500: GlobalAsset | null;
+  nasdaq: GlobalAsset | null;
+  dow_jones: GlobalAsset | null;
+  vix: { value: number; trend: Omit<IndexTrend, 'intraday'> } | null;
+  gold: GlobalAsset | null;
+  usd_inr: GlobalAsset | null;
+  crude_oil: GlobalAsset | null;
+  nikkei: GlobalAsset | null;
+  hang_seng: GlobalAsset | null;
   timestamp: string;
 }

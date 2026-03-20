@@ -16,12 +16,18 @@ export function getScoreColor(score: number): string {
   return '#f44336';
 }
 
+/** Cap rows returned to the UI (Seed already filters by min_score / limit). */
+export function limitRecommendationRows(items: DynamicRecommendationItem[], maxResults: number): DynamicRecommendationItem[] {
+  return items.slice(0, maxResults);
+}
+
+/** @deprecated use limitRecommendationRows */
 export function applyRiskBasedFiltering(
   items: DynamicRecommendationItem[],
   _risk: 'low' | 'medium' | 'high',
   maxResults: number
 ): DynamicRecommendationItem[] {
-  return items.slice(0, maxResults);
+  return limitRecommendationRows(items, maxResults);
 }
 
 export function computeRecommendationMetrics(

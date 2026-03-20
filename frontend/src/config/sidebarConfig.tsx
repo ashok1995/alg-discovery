@@ -6,13 +6,14 @@ import {
   Settings,
   Analytics,
   Storage,
-  FilterList,
   AutoAwesome,
   Business,
   Build,
   Home,
-  Code,
   Psychology,
+  ViewList,
+  ShowChart,
+  Visibility,
 } from '@mui/icons-material';
 
 export interface MenuItem {
@@ -28,14 +29,21 @@ export const menuItems: MenuItem[] = [
     text: 'Home',
     icon: <Home />,
     path: '/',
-    description: 'System overview and key metrics',
+    description: 'Summary — market context, P&L strip, horizon cards, universe',
     category: 'main'
   },
   {
     text: 'Dashboard',
     icon: <Dashboard />,
     path: '/seed-dashboard',
-    description: 'Positions, market movers, performance, capital & P&L',
+    description: 'Summary — KPIs, quick stats, market movers, links to detail pages',
+    category: 'main'
+  },
+  {
+    text: 'Positions',
+    icon: <ViewList />,
+    path: '/positions',
+    description: 'Paper trading & learning positions with filters',
     category: 'main'
   },
   {
@@ -43,6 +51,13 @@ export const menuItems: MenuItem[] = [
     icon: <AutoAwesome />,
     path: '/recommendations',
     description: 'AI-powered stock recommendations with comprehensive metrics',
+    category: 'trading'
+  },
+  {
+    text: 'Market Movers',
+    icon: <ShowChart />,
+    path: '/market-movers',
+    description: 'Top gainers, losers & most traded',
     category: 'trading'
   },
   {
@@ -55,59 +70,38 @@ export const menuItems: MenuItem[] = [
   {
     text: 'ML / Learning',
     icon: <Psychology />,
-    path: '/seed-dashboard?tab=ml',
-    description: 'ARM weights, Thompson Sampling, reward loop',
+    path: '/ml-learning',
+    description: 'ARM weights, Thompson Sampling, score-bin performance',
     category: 'analysis'
   },
   {
-    text: 'Backtesting',
-    icon: <Assessment />,
-    path: '/backtesting',
-    description: 'Strategy backtesting and analysis',
-    category: 'analysis'
-  },
-  {
-    text: 'Query Manager',
+    text: 'ARM manager',
     icon: <Analytics />,
-    path: '/query-manager',
-    description: 'Register, test, and manage queries',
+    path: '/arm-manager',
+    description: 'Seed /api/v2/arms — catalog, verify-query, create/update, scenarios, performance, observability',
     category: 'analysis'
   },
   {
-    text: 'System Control',
-    icon: <Settings />,
-    path: '/system-control',
-    description: 'Manage system components and configuration',
-    category: 'management'
-  },
-  {
-    text: 'Stock Mapping Manager',
+    text: 'Universe Manager',
     icon: <Storage />,
-    path: '/stock-mapping',
-    description: 'Manage stock mappings and database',
+    path: '/universe',
+    description: 'Seed universe-health API, stock mappings, candidates',
     category: 'management'
   },
   {
-    text: 'Stock Candidate Populator',
-    icon: <FilterList />,
-    path: '/stock-candidate-populator',
-    description: 'Populate and manage stock candidates',
-    category: 'management'
+    text: 'Observability',
+    icon: <Visibility />,
+    path: '/observability',
+    description: 'Read-only: pulse, pipeline, service map, learning (no config)',
+    category: 'tools'
   },
   {
-    text: 'Settings',
+    text: 'System Settings',
     icon: <Build />,
     path: '/settings',
-    description: 'Application settings and configuration',
+    description: 'Configure: API, workspace, Seed trading/platform (view telemetry on Observability)',
     category: 'tools'
   },
-  {
-    text: 'Recommendation Service Test',
-    icon: <Code />,
-    path: '/test/recommendation-service',
-    description: 'Test and debug recommendation service connection',
-    category: 'tools'
-  }
 ];
 
 export const categories = {
