@@ -114,7 +114,11 @@ export const seedDashboardService = {
     return fetchJSON<DashboardDailySummary>('/api/v2/dashboard/daily-summary', params);
   },
 
-  /** Universal positions endpoint — include=summary|list|summary,list; scenario/category=all|paper_trade|learning */
+  /**
+   * Universal positions endpoint — scenario/category=all|paper_trade|learning.
+   * Defaults `include=summary,list` so summary KPIs populate (Home horizons, Dashboard).
+   * Pass `include: 'list'` only if you intentionally want list rows without summary.
+   */
   getPositions: (opts?: {
     scenario?: 'all' | 'paper_trade' | 'learning';
     category?: 'all' | 'learning' | 'paper_trade';
@@ -141,7 +145,7 @@ export const seedDashboardService = {
     if (opts?.to_date) params.to_date = opts.to_date;
     if (opts?.limit != null) params.limit = opts.limit;
     if (opts?.offset != null) params.offset = opts.offset;
-    if (opts?.include) params.include = opts.include;
+    params.include = opts?.include ?? 'summary,list';
     return fetchJSON<PositionsResponse>('/api/v2/dashboard/positions', params);
   },
 

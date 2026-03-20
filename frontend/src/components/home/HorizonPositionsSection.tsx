@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import type { TrackedPositionItem, PositionsSummaryResponse } from '../../types/apiModels';
 import { seedDashboardService } from '../../services/SeedDashboardService';
+import { displayReturnPctForRow, openUnrealizedPnlDisplay } from '../../utils/positionDisplayUtils';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 import SymbolLink from '../ui/SymbolLink';
@@ -134,7 +135,8 @@ const PositionsTable: React.FC<{ positions: TrackedPositionItem[] }> = ({ positi
         <TableBody>
           {sortedData.map((p) => {
             const isOpen = p.status === 'open';
-            const displayReturn = isOpen ? (p.current_return_pct ?? p.return_pct) : p.return_pct;
+            const displayReturn = displayReturnPctForRow(p);
+            const unrealDisplay = openUnrealizedPnlDisplay(p);
             return (
               <TableRow key={p.id} hover sx={{ '&:last-child td': { borderBottom: 0 }, bgcolor: isOpen ? alpha('#1976d2', 0.02) : undefined }}>
                 <TableCell sx={{ py: 0.6 }}>
@@ -169,9 +171,9 @@ const PositionsTable: React.FC<{ positions: TrackedPositionItem[] }> = ({ positi
                 <TableCell sx={{ py: 0.6 }}>{statusChip(p.status)}</TableCell>
                 <TableCell align="right" sx={{ py: 0.6 }}>{returnCell(displayReturn)}</TableCell>
                 <TableCell align="right" sx={{ py: 0.6 }}>
-                  {isOpen && p.unrealized_pnl != null ? (
-                    <Typography variant="body2" fontWeight={600} fontSize="0.76rem" color={p.unrealized_pnl >= 0 ? 'success.main' : 'error.main'}>
-                      ₹{p.unrealized_pnl.toFixed(0)}
+                  {isOpen && unrealDisplay != null ? (
+                    <Typography variant="body2" fontWeight={600} fontSize="0.76rem" color={unrealDisplay >= 0 ? 'success.main' : 'error.main'}>
+                      ₹{unrealDisplay.toFixed(0)}
                     </Typography>
                   ) : !isOpen && p.net_pnl != null ? (
                     <Typography variant="body2" fontWeight={600} fontSize="0.76rem" color={p.net_pnl >= 0 ? 'success.main' : 'error.main'}>

@@ -38,6 +38,7 @@ import { seedDashboardService } from '../../services/SeedDashboardService';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 import SymbolLink from '../ui/SymbolLink';
+import { displayReturnPctForRow, openUnrealizedPnlDisplay } from '../../utils/positionDisplayUtils';
 
 type PosKey = 'symbol' | 'trade_type' | 'entry_price' | 'current_price' | 'stop_loss' | 'target_1'
   | 'status' | 'return_pct' | 'unrealized_pnl' | 'duration_minutes' | 'source_arm' | 'allocated_capital'
@@ -180,7 +181,8 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
         <TableBody>
           {sortedData.map((p) => {
             const isOpen = p.status === 'open';
-            const displayReturn = isOpen ? (p.current_return_pct ?? p.return_pct) : p.return_pct;
+            const displayReturn = displayReturnPctForRow(p);
+            const unrealForRow = openUnrealizedPnlDisplay(p);
             const isSelected = selectedIds?.has(p.id) ?? false;
 
             return (
@@ -240,10 +242,16 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
                 <TableCell sx={{ py: 0.5 }}>{statusChip(p.status)}</TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>{returnCell(displayReturn)}</TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>
-                  {isOpen ? pnlCell(p.unrealized_pnl) : <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>}
+                  {isOpen ? pnlCell(unrealForRow) : <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>}
                 </TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>
-                  {!isOpen ? pnlCell(p.net_pnl) : <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>}
+                  {!isOpen ? (
+                    pnlCell(p.net_pnl)
+                  ) : (
+                    <Tooltip title="Net P&amp;L is finalized at close. While open, use Unreal P&amp;L (or estimate from capital × return %).">
+                      <span>{pnlCell(p.net_pnl ?? unrealForRow)}</span>
+                    </Tooltip>
+                  )}
                 </TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>
                   <Tooltip title={p.duration_minutes != null ? `${p.duration_minutes.toFixed(1)} minutes` : ''} arrow>
@@ -388,6 +396,11 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
 
   const cacheKey = `${effectiveCategory}|${tradeType}|${status}|${days}`;
 
+  /** Search results ignore table filters — clear when filters change so users are not misled */
+  useEffect(() => {
+    setSearchResults(null);
+  }, [tradeType, status, days, effectiveCategory]);
+
   const fetchData = useCallback(async (force = false) => {
     const cached = cacheRef.current.get(cacheKey);
     if (!force && cached && Date.now() - cached.ts < CACHE_TTL) {
@@ -449,6 +462,7 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
               component="a"
               href={seedDashboardService.getExportUrl('positions', {
                 days,
+                ...(effectiveCategory !== 'all' ? { category: effectiveCategory } : {}),
                 ...(tradeType ? { trade_type: tradeType } : {}),
               })}
               target="_blank"

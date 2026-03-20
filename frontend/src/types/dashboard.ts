@@ -187,7 +187,8 @@ export interface PositionsSummaryResponse {
 export interface PositionsResponse {
   category: string;
   count: number;
-  summary: PositionsSummaryResponse;
+  /** May be null if client omitted `include=summary` or server returned list-only. */
+  summary: PositionsSummaryResponse | null;
   positions: TrackedPositionItem[];
 }
 

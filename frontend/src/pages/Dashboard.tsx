@@ -60,7 +60,8 @@ const Dashboard: React.FC = () => {
 
       const horizonSummaries = [intradayBuyRes, intradaySellRes, shortRes, swingRes, longTermRes]
         .filter((r): r is PromiseFulfilledResult<PositionsResponse> => r.status === 'fulfilled')
-        .map((r) => r.value.summary);
+        .map((r) => r.value.summary)
+        .filter((s): s is NonNullable<typeof s> => s != null && typeof s.total === 'number');
       if (horizonSummaries.length > 0) {
         const totalWeight = horizonSummaries.reduce((acc, s) => acc + (s.total || 0), 0);
         if (totalWeight > 0) {

@@ -32,6 +32,7 @@ import {
 import { seedDashboardService } from '../services/SeedDashboardService';
 import type { DashboardDailySummary, PositionsSummaryResponse } from '../types/apiModels';
 import { InternalMarketContextCard } from '../components/InternalMarketContextCard';
+import { positionsSummaryIsPresent } from '../utils/positionDisplayUtils';
 
 interface HorizonSummary {
   label: string;
@@ -50,11 +51,21 @@ const SCENARIO_OPTIONS = [
   { value: 'learning', label: 'Learning' },
 ] as const;
 
+type ScenarioValue = (typeof SCENARIO_OPTIONS)[number]['value'];
+
+function scenarioQuery(scenario: ScenarioValue): { category?: 'paper_trade' | 'learning'; scenario?: 'paper_trade' | 'learning' } {
+  if (scenario === 'all') return {};
+  return { category: scenario, scenario };
+}
+
 const Home: React.FC = () => {
-  const [summaryDays, setSummaryDays] = useState(1);
-  const [scenario, setScenario] = useState<(typeof SCENARIO_OPTIONS)[number]['value']>('all');
+  /** Align with Positions page default window so totals are comparable */
+  const [summaryDays, setSummaryDays] = useState(30);
+  const [scenario, setScenario] = useState<ScenarioValue>('all');
   const [liveSummary, setLiveSummary] = useState<DashboardDailySummary | null>(null);
   const [positionsSummary, setPositionsSummary] = useState<PositionsSummaryResponse | null>(null);
+  /** When scenario is "all", split counts (paper vs learning) for transparency */
+  const [scenarioSplit, setScenarioSplit] = useState<{ paper: number; learning: number } | null>(null);
   const [loadingSeed, setLoadingSeed] = useState(true);
   const [horizons, setHorizons] = useState<HorizonSummary[]>([
     { label: 'Intraday Buy', tradeType: 'intraday_buy', color: '#4caf50', icon: <TrendingUp />, summary: null, loading: true },
@@ -74,13 +85,42 @@ const Home: React.FC = () => {
   const fetchPositionsSummary = useCallback(async () => {
     try {
       const res = await seedDashboardService.getPositions({
-        category: scenario === 'all' ? undefined : scenario,
+        ...scenarioQuery(scenario),
         days: summaryDays,
-        limit: 1,
+        limit: 0,
       });
-      setPositionsSummary(res.summary);
+      setPositionsSummary(res.summary ?? null);
+
+      if (scenario === 'all') {
+        const [paper, learning] = await Promise.allSettled([
+          seedDashboardService.getPositions({
+            category: 'paper_trade',
+            scenario: 'paper_trade',
+            days: summaryDays,
+            limit: 0,
+          }),
+          seedDashboardService.getPositions({
+            category: 'learning',
+            scenario: 'learning',
+            days: summaryDays,
+            limit: 0,
+          }),
+        ]);
+        let ptot = 0;
+        let ltot = 0;
+        if (paper.status === 'fulfilled' && positionsSummaryIsPresent(paper.value.summary)) {
+          ptot = paper.value.summary.total;
+        }
+        if (learning.status === 'fulfilled' && positionsSummaryIsPresent(learning.value.summary)) {
+          ltot = learning.value.summary.total;
+        }
+        setScenarioSplit({ paper: ptot, learning: ltot });
+      } else {
+        setScenarioSplit(null);
+      }
     } catch {
       setPositionsSummary(null);
+      setScenarioSplit(null);
     }
   }, [scenario, summaryDays]);
 
@@ -88,10 +128,10 @@ const Home: React.FC = () => {
     const types = ['intraday_buy', 'intraday_sell', 'short_buy', 'swing_buy', 'long_term'];
     const results = await Promise.allSettled(
       types.map((tt) => seedDashboardService.getPositions({
-        category: scenario === 'all' ? undefined : scenario,
+        ...scenarioQuery(scenario),
         trade_type: tt,
         days: summaryDays,
-        limit: 1,
+        limit: 0,
       }))
     );
     setHorizons((prev) =>
@@ -160,7 +200,17 @@ const Home: React.FC = () => {
               </Typography>
               <Typography variant="caption" display="block" color="text.secondary">
                 {summaryDays} day{summaryDays !== 1 ? 's' : ''} · {SCENARIO_OPTIONS.find((option) => option.value === scenario)?.label}
+                {scenario === 'all' && scenarioSplit != null && (
+                  <> · Paper {scenarioSplit.paper} · Learning {scenarioSplit.learning}</>
+                )}
               </Typography>
+              {scenario === 'all' && (
+                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.25 }}>
+                  &quot;All scenarios&quot; sums paper + learning. Use the scenario filter or{' '}
+                  <Box component={RouterLink} to="/positions" sx={{ color: 'primary.main', fontWeight: 600 }}>Positions</Box>
+                  {' '}for a single lane.
+                </Typography>
+              )}
             </Box>
             <Box display="flex" gap={1.25} flexWrap="wrap" justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
               <FormControl size="small" sx={{ minWidth: 168 }}>
@@ -272,7 +322,7 @@ const Home: React.FC = () => {
                     <Box display="flex" alignItems="center" gap={0.5} mb={1.5}>
                       <Box sx={{ color: h.color, display: 'flex', fontSize: 18 }}>{h.icon}</Box>
                       <Typography variant="caption" fontWeight={800} fontSize="0.8rem">{h.label}</Typography>
-                      {!h.loading && s && (
+                      {!h.loading && positionsSummaryIsPresent(s) && (
                         <Chip
                           label={`${s.open} open`}
                           size="small"
@@ -282,7 +332,7 @@ const Home: React.FC = () => {
                     </Box>
                     {h.loading ? (
                       <Skeleton height={60} />
-                    ) : s ? (
+                    ) : positionsSummaryIsPresent(s) ? (
                       <>
                         {/* KPI row — minWidth so numbers aren't clipped */}
                         <Box display="flex" justifyContent="space-between" gap={0.5} mb={0.5} sx={{ minWidth: 0 }}>
