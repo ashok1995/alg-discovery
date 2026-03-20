@@ -24,29 +24,20 @@ import NotificationsTab from '../components/settings/NotificationsTab';
 import PerformanceTab from '../components/settings/PerformanceTab';
 import SystemTab from '../components/settings/SystemTab';
 import type { SystemSettings } from '../components/settings/types';
+import { DEFAULT_WORKSPACE_SETTINGS } from '../config/workspacePreferencesDefaults';
 
-const DEFAULT_SETTINGS: SystemSettings = {
-  autoRefresh: true,
-  refreshInterval: 30,
-  riskLevel: 'medium',
-  maxPositions: 5,
-  defaultStopLoss: 2.0,
-  defaultTarget: 5.0,
-  notifications: true,
-  soundAlerts: false,
-  emailAlerts: false,
-  marketHours: { start: '09:15', end: '15:30' },
-  cacheEnabled: true,
-  cacheDuration: 300,
-  debugMode: false,
-  logLevel: 'info',
-};
+const DEFAULT_SETTINGS: SystemSettings = { ...DEFAULT_WORKSPACE_SETTINGS };
 
-const Settings: React.FC = () => {
+interface SettingsProps {
+  /** When true, hide the page title and description (e.g. when embedded in System Settings). */
+  embedMode?: boolean;
+}
+
+const Settings: React.FC<SettingsProps> = ({ embedMode = false }) => {
   const [settings, setSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
-  const [activeTab, setActiveTab] = useState(4);
+  const [activeTab, setActiveTab] = useState(0);
   const [, setSystemStatus] = useState({
     apiConnected: false,
     marketOpen: false,
@@ -85,13 +76,15 @@ const Settings: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" gutterBottom>System Settings</Typography>
-        <Typography variant="body1" color="text.secondary">
-          Configure your trading system preferences, API connections, and system behavior
-        </Typography>
-      </Box>
+    <Box sx={{ p: embedMode ? 0 : 3 }}>
+      {!embedMode && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4" gutterBottom>System Settings</Typography>
+          <Typography variant="body1" color="text.secondary">
+            Configure your trading system preferences, API connections, and system behavior
+          </Typography>
+        </Box>
+      )}
 
       {saveStatus === 'success' && (
         <Alert severity="success" sx={{ mb: 3 }}>Settings saved successfully!</Alert>

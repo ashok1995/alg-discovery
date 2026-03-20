@@ -77,7 +77,7 @@ export interface ScoreFilters {
 
 export interface UIQuickRecommendationRequest {
   strategy: StrategyType;
-  risk_level: RiskLevel;
+  risk_level?: RiskLevel;
   investment_horizon?: InvestmentHorizon;
   max_positions?: number;
   profit_target_value?: number;
@@ -88,7 +88,8 @@ export interface UIQuickRecommendationRequest {
 
 export interface UIRecommendationRequest {
   strategy: StrategyType;
-  risk_level: RiskLevel;
+  /** Optional for display/legacy; Seed v2 rec API ignores risk — use min_score. */
+  risk_level?: RiskLevel;
   investment_horizon?: InvestmentHorizon;
   max_positions?: number;
   profit_target_value?: number;

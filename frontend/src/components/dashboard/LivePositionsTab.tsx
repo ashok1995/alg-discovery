@@ -84,6 +84,8 @@ const TRADE_TYPE_SHORT: Record<string, string> = {
   long_term: 'Long',
 };
 
+const TRADE_TYPE_ORDER = ['intraday_buy', 'intraday_sell', 'short_buy', 'swing_buy', 'long_term'] as const;
+
 const LivePositionsTable: React.FC<{ positions: LivePositionItem[] }> = ({ positions }) => (
   <TableContainer sx={{ maxHeight: 480 }}>
     <Table size="small" stickyHeader>
@@ -208,6 +210,11 @@ const LivePositionsTab: React.FC = () => {
   const recentClosed = data?.recent_closed?.positions ?? [];
   const totalUnrealized = data?.open_positions?.total_unrealized ?? null;
   const wsCount = positionsData?.open_positions?.count;
+  const scenarioCounts = TRADE_TYPE_ORDER.map((tt) => ({
+    tradeType: tt,
+    label: TRADE_TYPE_SHORT[tt] ?? tt,
+    count: openPositions.filter((p) => p.trade_type === tt).length,
+  }));
 
   return (
     <Grid container spacing={2}>
@@ -260,6 +267,25 @@ const LivePositionsTab: React.FC = () => {
                 </IconButton>
               </Tooltip>
             </Box>
+          </Box>
+
+          <Box
+            px={2}
+            py={1}
+            sx={{ borderTop: '1px dashed', borderColor: 'divider', display: 'flex', gap: 0.75, flexWrap: 'wrap' }}
+          >
+            <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mr: 0.5 }}>
+              Scenario-wise open:
+            </Typography>
+            {scenarioCounts.map((s) => (
+              <Chip
+                key={s.tradeType}
+                size="small"
+                variant="outlined"
+                label={`${s.label} ${s.count}`}
+                sx={{ height: 20, fontSize: '0.66rem', fontWeight: 600 }}
+              />
+            ))}
           </Box>
 
           <LivePositionsTable positions={openPositions} />

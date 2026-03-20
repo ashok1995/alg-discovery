@@ -9,7 +9,7 @@ import attachAxiosLogging from './httpLogger';
 import type { DynamicRecommendationResponse } from '../types/trading';
 import type { SeedRecommendationRequest, SeedRecommendationResponse } from '../types/stock';
 import type { RecommendationRequest } from '../types/recommendations';
-import { mapToSeedStrategy, mapToSeedRiskLevel, getArmStrategiesForType, getStrategyForType } from '../config/recommendationRoutes';
+import { mapToSeedStrategy, getArmStrategiesForType, getStrategyForType } from '../config/recommendationRoutes';
 import { transformSeedResponse, transformProductionStocksToDynamicItems } from './recommendationTransformers';
 
 export type GetSeedRecommendationsFn = (req: Partial<SeedRecommendationRequest>) => Promise<SeedRecommendationResponse>;
@@ -32,12 +32,11 @@ export async function handleGetRecommendationsByType(
 
   try {
     const seedStrategy = mapToSeedStrategy(strategy);
-    const seedRiskLevel = mapToSeedRiskLevel(request.risk_profile || 'moderate');
     const specificArms = getArmStrategiesForType(type);
     const seedRequest: SeedRecommendationRequest = {
       strategy: seedStrategy,
-      risk_level: seedRiskLevel,
       limit: request.max_recommendations || 10,
+      min_score: request.min_score,
       specific_arms: specificArms?.length ? specificArms : undefined,
       include_technical_analysis: true,
       include_reasoning: true,

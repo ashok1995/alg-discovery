@@ -16,6 +16,9 @@ import {
   Skeleton,
   CircularProgress,
   alpha,
+  FormControl,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import {
   Refresh,
@@ -69,6 +72,8 @@ const HORIZONS: HorizonDef[] = [
   { key: 'swing', label: 'Swing', shortLabel: 'Swing', tradeType: 'swing_buy', color: '#ff9800', description: 'Swing trades (days to weeks)' },
   { key: 'long', label: 'Long Term', shortLabel: 'Long', tradeType: 'long_term', color: '#2196f3', description: 'Positional & long-duration holdings' },
 ];
+
+const PERIOD_OPTIONS = [1, 3, 5, 10, 20, 30] as const;
 
 const formatDuration = (minutes: number | null): string => {
   if (minutes == null) return '—';
@@ -233,13 +238,27 @@ const CACHE_TTL = 120_000;
 const initData: Record<string, HorizonData> = {};
 HORIZONS.forEach((h) => { initData[h.key] = { positions: [], summary: null, loading: true }; });
 
-const HorizonPositionsSection: React.FC = () => {
+export interface HorizonPositionsSectionProps {
+  /** When provided with onSummaryDaysChange, section uses this value and does not render its own day selector (e.g. Dashboard single selector). */
+  controlledSummaryDays?: number;
+  onSummaryDaysChange?: (days: number) => void;
+}
+
+const HorizonPositionsSection: React.FC<HorizonPositionsSectionProps> = ({
+  controlledSummaryDays,
+  onSummaryDaysChange,
+}) => {
   const [activeHorizon, setActiveHorizon] = useState('intra_buy');
+  const [internalDays, setInternalDays] = useState<number>(1);
+  const summaryDays = controlledSummaryDays ?? internalDays;
+  const setSummaryDays = onSummaryDaysChange ?? setInternalDays;
+  const showDaysSelector = controlledSummaryDays === undefined;
   const [horizonData, setHorizonData] = useState<Record<string, HorizonData>>(initData);
   const cacheTimestamps = useRef<Record<string, number>>({});
 
   const fetchHorizon = useCallback(async (horizon: HorizonDef, force = false) => {
-    const cached = cacheTimestamps.current[horizon.key];
+    const cacheKey = `${horizon.key}-${summaryDays}`;
+    const cached = cacheTimestamps.current[cacheKey];
     if (!force && cached && Date.now() - cached < CACHE_TTL) return;
 
     setHorizonData((prev) => ({
@@ -250,7 +269,7 @@ const HorizonPositionsSection: React.FC = () => {
     try {
       const res = await seedDashboardService.getPositions({
         trade_type: horizon.tradeType,
-        days: 30,
+        days: summaryDays,
         limit: 50,
       });
       setHorizonData((prev) => ({
@@ -261,14 +280,14 @@ const HorizonPositionsSection: React.FC = () => {
           loading: false,
         },
       }));
-      cacheTimestamps.current[horizon.key] = Date.now();
+      cacheTimestamps.current[cacheKey] = Date.now();
     } catch {
       setHorizonData((prev) => ({
         ...prev,
         [horizon.key]: { ...prev[horizon.key], loading: false },
       }));
     }
-  }, []);
+  }, [summaryDays]);
 
   useEffect(() => {
     HORIZONS.forEach((h) => fetchHorizon(h));
@@ -284,13 +303,26 @@ const HorizonPositionsSection: React.FC = () => {
       <Box sx={{ px: 2.5, pt: 2, pb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="subtitle1" fontWeight={800}>Trading Positions</Typography>
-          <Typography variant="caption" color="text.secondary">Last 30 days — all 5 trade types</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Last {summaryDays} day{summaryDays > 1 ? 's' : ''} — all 5 trade types
+          </Typography>
         </Box>
-        <Tooltip title="Refresh all">
-          <IconButton size="small" onClick={() => HORIZONS.forEach((h) => fetchHorizon(h, true))}>
-            <Refresh fontSize="small" />
-          </IconButton>
-        </Tooltip>
+        <Box display="flex" alignItems="center" gap={1}>
+          {showDaysSelector && (
+            <FormControl size="small" sx={{ minWidth: 92 }}>
+              <Select value={summaryDays} onChange={(e) => setSummaryDays(Number(e.target.value))} displayEmpty>
+                {PERIOD_OPTIONS.map((d) => (
+                  <MenuItem key={d} value={d}>{d}D</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+          <Tooltip title="Refresh all">
+            <IconButton size="small" onClick={() => HORIZONS.forEach((h) => fetchHorizon(h, true))}>
+              <Refresh fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
 
       {/* 5-way toggle */}

@@ -310,8 +310,14 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
 
 const CACHE_TTL = 90_000;
 
-const PositionsTab: React.FC = () => {
-  const [category, setCategory] = useState<'all' | 'learning' | 'paper_trade'>('all');
+export interface PositionsTabProps {
+  /** When set, category is fixed and the category toggle is hidden (e.g. for Detailed Positions page). */
+  lockCategory?: 'paper_trade' | 'learning';
+}
+
+const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
+  const [category, setCategory] = useState<'all' | 'learning' | 'paper_trade'>(lockCategory ?? 'all');
+  const effectiveCategory = lockCategory ?? category;
   const [tradeType, setTradeType] = useState('');
   const [status, setStatus] = useState('');
   const [days, setDays] = useState(30);
@@ -380,7 +386,7 @@ const PositionsTab: React.FC = () => {
 
   const displayPositions = searchResults !== null ? searchResults : (data?.positions ?? []);
 
-  const cacheKey = `${category}|${tradeType}|${status}|${days}`;
+  const cacheKey = `${effectiveCategory}|${tradeType}|${status}|${days}`;
 
   const fetchData = useCallback(async (force = false) => {
     const cached = cacheRef.current.get(cacheKey);
@@ -393,7 +399,7 @@ const PositionsTab: React.FC = () => {
     setLoading(true);
     try {
       const res = await seedDashboardService.getPositions({
-        category: category === 'all' ? undefined : category,
+        category: effectiveCategory === 'all' ? undefined : effectiveCategory,
         trade_type: tradeType || undefined,
         status: status || undefined,
         days,
@@ -406,7 +412,7 @@ const PositionsTab: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [cacheKey, category, tradeType, status, days]);
+  }, [cacheKey, effectiveCategory, tradeType, status, days]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -511,24 +517,26 @@ const PositionsTab: React.FC = () => {
         )}
       </Box>
 
-      {/* Category tabs */}
-      <Box sx={{ px: 2.5, pb: 1 }}>
-        <ToggleButtonGroup
-          value={category}
-          exclusive
-          onChange={(_, v) => v && setCategory(v)}
-          size="small"
-          sx={{ '& .MuiToggleButton-root': { py: 0.5, px: 2, textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' } }}
-        >
-          {CATEGORIES.map((c) => (
-            <ToggleButton key={c.key} value={c.key}>
-              <Tooltip title={c.desc} arrow>
-                <span>{c.label}</span>
-              </Tooltip>
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </Box>
+      {/* Category tabs — hidden when lockCategory is set */}
+      {!lockCategory && (
+        <Box sx={{ px: 2.5, pb: 1 }}>
+          <ToggleButtonGroup
+            value={category}
+            exclusive
+            onChange={(_, v) => v && setCategory(v)}
+            size="small"
+            sx={{ '& .MuiToggleButton-root': { py: 0.5, px: 2, textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' } }}
+          >
+            {CATEGORIES.map((c) => (
+              <ToggleButton key={c.key} value={c.key}>
+                <Tooltip title={c.desc} arrow>
+                  <span>{c.label}</span>
+                </Tooltip>
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Box>
+      )}
 
       {/* Filters row */}
       <Box sx={{ px: 2.5, pb: 1.5 }}>

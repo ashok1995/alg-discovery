@@ -41,7 +41,7 @@ export const API_CONFIG = {
   // Seed service API URL (Seed Stocks Service - http://203.57.85.201:8182/docs)
   SEED_API_BASE_URL: process.env.REACT_APP_SEED_API_BASE_URL ||
                      (isProduction() ? 'http://203.57.85.201:8182' : 'http://localhost:8282'),
-  // Seed v2 recommendations: POST body { strategy, risk_level, limit } (proxied via /api/seed in dev; nginx in prod)
+  // Seed v2 recommendations: GET /v2/recommendations?trade_type=&limit=&min_score= (no risk_level; see OpenAPI)
   SEED_V2_RECOMMENDATIONS_PATH: '/api/seed/recommendations',
 
   // Theme recommendations API URLs (legacy naming, kept for ThemeRecommendationsService)
