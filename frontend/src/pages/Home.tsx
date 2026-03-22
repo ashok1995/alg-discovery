@@ -32,7 +32,11 @@ import {
 import { seedDashboardService } from '../services/SeedDashboardService';
 import type { DashboardDailySummary, PositionsSummaryResponse } from '../types/apiModels';
 import { InternalMarketContextCard } from '../components/InternalMarketContextCard';
-import { positionsSummaryIsPresent } from '../utils/positionDisplayUtils';
+import {
+  positionsSummaryIsPresent,
+  stopHitCountFromDistribution,
+  avgDurationMinutesFromPositions,
+} from '../utils/positionDisplayUtils';
 
 interface HorizonSummary {
   label: string;
@@ -77,13 +81,15 @@ const Home: React.FC = () => {
 
   const fetchSummary = useCallback(async () => {
     try {
-      const res = await seedDashboardService.getDailySummary(summaryDays);
+      const opts = scenario === 'all' ? undefined : scenarioQuery(scenario);
+      const res = await seedDashboardService.getDailySummary(summaryDays, opts);
       setLiveSummary(res);
     } catch { /* silent */ } finally { setLoadingSeed(false); }
-  }, [summaryDays]);
+  }, [summaryDays, scenario]);
 
   const fetchPositionsSummary = useCallback(async () => {
     try {
+      /** limit: 0 — summary-only; avoids backends that return empty/wrong summary when list+filter combined */
       const res = await seedDashboardService.getPositions({
         ...scenarioQuery(scenario),
         days: summaryDays,
@@ -137,11 +143,22 @@ const Home: React.FC = () => {
     setHorizons((prev) =>
       prev.map((h, i) => {
         const r = results[i];
-        return {
-          ...h,
-          summary: r.status === 'fulfilled' ? r.value.summary : null,
-          loading: false,
-        };
+        if (r.status !== 'fulfilled') {
+          return { ...h, summary: null, loading: false };
+        }
+        const summ = r.value.summary;
+        const rows = r.value.positions ?? [];
+        const avgMin = rows.length > 0 ? avgDurationMinutesFromPositions(rows) : null;
+        if (
+          summ &&
+          positionsSummaryIsPresent(summ) &&
+          summ.avg_duration_min == null &&
+          summ.avg_duration_hours == null &&
+          avgMin != null
+        ) {
+          return { ...h, summary: { ...summ, avg_duration_min: avgMin }, loading: false };
+        }
+        return { ...h, summary: summ, loading: false };
       })
     );
   }, [scenario, summaryDays]);
@@ -162,7 +179,14 @@ const Home: React.FC = () => {
   const regime = liveSummary?.market_context?.market_regime;
   const pos = positionsSummary;
   const universe = liveSummary?.universe;
-  const stopsCount = pos?.outcome_distribution?.stop ?? 0;
+  /**
+   * Stops must respect the same scenario as the P&L strip. For Paper/Learning, use only
+   * `positionsSummary.outcome_distribution` so we never show global stops next to filtered zeros.
+   * (Daily-summary `stops` is only used when scenario is "all".)
+   */
+  const stopsFromDist = stopHitCountFromDistribution(pos?.outcome_distribution ?? null);
+  const stopsFromDaily = liveSummary?.positions?.stops ?? 0;
+  const stopsCount = scenario === 'all' ? Math.max(stopsFromDist, stopsFromDaily) : stopsFromDist;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pb: 4, background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)', minHeight: '100%', p: 3 }}>
@@ -281,6 +305,14 @@ const Home: React.FC = () => {
                 </Grid>
                 <Grid item xs={4} sm={2}>
                   <Box textAlign="center">
+                    <Typography variant="h5" fontWeight={800} color={(pos?.total_net_pnl ?? 0) >= 0 ? '#4caf50' : '#f44336'}>
+                      {pos?.total_net_pnl != null ? `${pos.total_net_pnl >= 0 ? '+' : ''}₹${Math.abs(pos.total_net_pnl).toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Net P&amp;L</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4} sm={2}>
+                  <Box textAlign="center">
                     <Typography variant="h5" fontWeight={800} color="#f44336">{stopsCount}</Typography>
                     <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Stops Hit</Typography>
                   </Box>
@@ -288,6 +320,27 @@ const Home: React.FC = () => {
               </>
             )}
           </Grid>
+          {!loadingSeed && pos?.outcome_distribution && Object.keys(pos.outcome_distribution).length > 0 && (
+            <Box sx={{ mt: 1.5, pt: 1, borderTop: 1, borderColor: 'divider', display: 'flex', flexWrap: 'wrap', gap: 0.75, justifyContent: 'center' }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ width: '100%', textAlign: 'center' }}>
+                Outcomes (same window)
+              </Typography>
+              {Object.entries(pos.outcome_distribution).map(([outcome, count]) => {
+                const oColor = outcome === 'stop' || outcome === 'stop_hit' || outcome === 'sl_hit' ? '#f44336'
+                  : outcome === 'target_3' ? '#4caf50'
+                  : outcome === 'expired' ? '#9e9e9e'
+                  : '#ff9800';
+                return (
+                  <Chip
+                    key={outcome}
+                    size="small"
+                    label={`${outcome.replace(/_/g, ' ')}: ${count}`}
+                    sx={{ fontWeight: 600, fontSize: '0.68rem', bgcolor: alpha(oColor, 0.12), color: oColor, textTransform: 'capitalize' }}
+                  />
+                );
+              })}
+            </Box>
+          )}
         </CardContent>
       </Card>
 

@@ -9,6 +9,8 @@
  * directly by both frontend and backend components.
  */
 
+import { QUERY_EXECUTION_SERVICE_LABEL, QUERY_EXECUTION_SOURCE_PREFIX } from '../config/serviceDisplayNames';
+
 export interface ServiceHealth {
   name: string;
   status: 'healthy' | 'unhealthy' | 'degraded';
@@ -155,7 +157,7 @@ class SharedDataManager {
       overall: 'unhealthy',
       services: [
         { name: 'Seed Stocks Service', status: 'unhealthy', url: '/api/seed/health', lastCheck: '', responseTime: 0 },
-        { name: 'Chartink Service', status: 'unhealthy', url: '/api/chartink-health', lastCheck: '', responseTime: 0 },
+        { name: QUERY_EXECUTION_SERVICE_LABEL, status: 'unhealthy', url: '/api/chartink-health', lastCheck: '', responseTime: 0 },
         { name: 'Kite Services', status: 'unhealthy', url: '/api/kite/health', lastCheck: '', responseTime: 0 },
       ],
       lastUpdate: new Date().toISOString(),
@@ -248,7 +250,7 @@ class SharedDataManager {
           responseTime: 1
         },
         {
-          name: 'Chartink Service',
+          name: QUERY_EXECUTION_SERVICE_LABEL,
           status: 'healthy',
           url: 'shared-memory://chartink-service',
           lastCheck: new Date().toISOString(),
@@ -542,7 +544,7 @@ class SharedDataManager {
             change: (stock.price * stock.change_pct) / 100,
             changePercent: stock.change_pct,
             volume: stock.volume,
-            source: `Chartink - ${stock.source}`,
+            source: `${QUERY_EXECUTION_SOURCE_PREFIX} - ${stock.source}`,
             course: stock.course
           })));
           console.log('✅ [SharedDataManager] Processed top gainers:', topGainers);
@@ -592,7 +594,7 @@ class SharedDataManager {
             change: (stock.price * stock.change_pct) / 100,
             changePercent: stock.change_pct,
             volume: stock.volume,
-            source: `Chartink - ${stock.source}`,
+            source: `${QUERY_EXECUTION_SOURCE_PREFIX} - ${stock.source}`,
             course: stock.course
           })));
           console.log('✅ [SharedDataManager] Processed top losers:', topLosers);
@@ -640,7 +642,7 @@ class SharedDataManager {
             value: stock.price * stock.volume,
             price: stock.price,
             changePercent: stock.change_pct,
-            source: `Chartink - ${stock.source}`
+            source: `${QUERY_EXECUTION_SOURCE_PREFIX} - ${stock.source}`
           })));
           console.log('✅ [SharedDataManager] Processed most active:', mostActive);
         } else {
@@ -683,7 +685,7 @@ class SharedDataManager {
             name: stock.symbol,
             volume: stock.volume,
             changePercent: stock.change_pct,
-            source: `Chartink - ${stock.source}`
+            source: `${QUERY_EXECUTION_SOURCE_PREFIX} - ${stock.source}`
           })));
           console.log('✅ [SharedDataManager] Processed volume shockers:', volumeShockers);
         } else {
@@ -778,7 +780,7 @@ class SharedDataManager {
           confidence: rec.confidence,
           signal: rec.entry_signal?.toUpperCase() || 'BUY',
           sector: rec.sector_analysis?.sector || 'General',
-          source: rec.source === 'chartink' ? 'Chartink Live' : `Unified - ${rec.source}`,
+          source: rec.source === 'chartink' ? 'Query execution live' : `Unified - ${rec.source}`,
           course: rec.course,
           recommendationStrength: rec.recommendation_strength,
           riskLevel: rec.risk_level,

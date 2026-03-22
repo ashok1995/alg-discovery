@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   Box,
   Button,
@@ -33,16 +33,23 @@ import {
   Grid,
 } from '@mui/material';
 import { Refresh, FiberManualRecord, FileDownload, Search, Close as CloseIcon } from '@mui/icons-material';
-import type { TrackedPositionItem, PositionsResponse } from '../../types/apiModels';
+import type { TrackedPositionItem, PositionsResponse, PositionsSummaryResponse } from '../../types/apiModels';
 import { seedDashboardService } from '../../services/SeedDashboardService';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 import SymbolLink from '../ui/SymbolLink';
-import { displayReturnPctForRow, openUnrealizedPnlDisplay } from '../../utils/positionDisplayUtils';
+import {
+  displayReturnPctForRow,
+  openUnrealizedPnlDisplay,
+  rowTotalCharges,
+  closedNetProfitDisplay,
+  avgDurationMinutesFromPositions,
+  computePositionListSummary,
+} from '../../utils/positionDisplayUtils';
 
 type PosKey = 'symbol' | 'trade_type' | 'entry_price' | 'current_price' | 'stop_loss' | 'target_1'
   | 'status' | 'return_pct' | 'unrealized_pnl' | 'duration_minutes' | 'source_arm' | 'allocated_capital'
-  | 'net_pnl' | 'score_bin' | 'sector' | 'opened_at';
+  | 'net_pnl' | 'charges' | 'score_bin' | 'sector' | 'opened_at';
 
 const ALL_COLUMNS: ColumnDef<PosKey>[] = [
   { key: 'symbol', label: 'Symbol', sortable: true, minWidth: 110 },
@@ -55,6 +62,7 @@ const ALL_COLUMNS: ColumnDef<PosKey>[] = [
   { key: 'return_pct', label: 'Return %', align: 'right', sortable: true },
   { key: 'unrealized_pnl', label: 'Unreal P&L', align: 'right', sortable: true },
   { key: 'net_pnl', label: 'Net P&L', align: 'right', sortable: true },
+  { key: 'charges', label: 'Charges', align: 'right', sortable: true },
   { key: 'duration_minutes', label: 'Duration', align: 'right', sortable: true },
   { key: 'source_arm', label: 'ARM', sortable: true },
   { key: 'allocated_capital', label: 'Capital', align: 'right', sortable: true },
@@ -88,6 +96,14 @@ const CATEGORIES = [
 ] as const;
 
 const DAYS_OPTIONS = [7, 14, 30, 60, 90];
+
+const SCORE_BIN_OPTIONS = [
+  { value: '', label: 'All score bins' },
+  { value: '80_100', label: 'Score 80–100' },
+  { value: '60_80', label: 'Score 60–80' },
+  { value: '40_60', label: 'Score 40–60' },
+  { value: '_40', label: 'Score < 40' },
+] as const;
 
 const formatDuration = (minutes: number | null): string => {
   if (minutes == null) return '—';
@@ -166,6 +182,24 @@ interface PositionsTableProps {
   onToggleSelect?: (id: number) => void;
 }
 
+function formatOpenedAt(iso: string | null): string {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+  } catch {
+    return iso;
+  }
+}
 
 const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds, onToggleSelect }) => {
   const { sortedData, requestSort, getSortDirection } = useSortableData<TrackedPositionItem, PosKey>(
@@ -194,12 +228,13 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
               >
                 <TableCell sx={{ py: 0.5 }}>
                   <Box display="flex" alignItems="center" gap={0.3}>
-                    {selectable && isOpen && (
+                    {selectable && (
                       <Checkbox
                         size="small"
                         checked={isSelected}
                         onChange={() => onToggleSelect!(p.id)}
                         sx={{ p: 0.3, mr: 0.2 }}
+                        title={isOpen ? 'Select for batch close' : 'Select for summary'}
                       />
                     )}
                     <SymbolLink symbol={p.symbol} chartUrl={p.chart_url} />
@@ -245,13 +280,16 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
                   {isOpen ? pnlCell(unrealForRow) : <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>}
                 </TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>
-                  {!isOpen ? (
-                    pnlCell(p.net_pnl)
-                  ) : (
-                    <Tooltip title="Net P&amp;L is finalized at close. While open, use Unreal P&amp;L (or estimate from capital × return %).">
-                      <span>{pnlCell(p.net_pnl ?? unrealForRow)}</span>
+                  {isOpen ? (
+                    <Tooltip title="Net P&amp;L is shown after close. While open, use Unreal P&amp;L.">
+                      <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>
                     </Tooltip>
+                  ) : (
+                    pnlCell(closedNetProfitDisplay(p))
                   )}
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.5 }}>
+                  {pnlCell(rowTotalCharges(p))}
                 </TableCell>
                 <TableCell align="right" sx={{ py: 0.5 }}>
                   <Tooltip title={p.duration_minutes != null ? `${p.duration_minutes.toFixed(1)} minutes` : ''} arrow>
@@ -296,8 +334,8 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
                   ) : '—'}
                 </TableCell>
                 <TableCell sx={{ py: 0.5 }}>
-                  <Typography variant="body2" fontSize="0.7rem" color="text.secondary">
-                    {p.opened_at ? new Date(p.opened_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '—'}
+                  <Typography variant="body2" fontSize="0.68rem" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
+                    {formatOpenedAt(p.opened_at)}
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -310,6 +348,61 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
               </TableCell>
             </TableRow>
           )}
+          {selectable && selectedIds && selectedIds.size > 0 && (() => {
+            const sel = sortedData.filter((p) => selectedIds.has(p.id));
+            let sumUnreal = 0;
+            let sumNetClosed = 0;
+            let sumCharges = 0;
+            let nRet = 0;
+            let sumRet = 0;
+            for (const p of sel) {
+              if (p.status === 'open') {
+                const u = openUnrealizedPnlDisplay(p);
+                if (u != null) sumUnreal += u;
+              } else {
+                const n = closedNetProfitDisplay(p);
+                if (n != null) sumNetClosed += n;
+              }
+              const ch = rowTotalCharges(p);
+              if (ch != null) sumCharges += ch;
+              const r = displayReturnPctForRow(p);
+              if (r != null) {
+                sumRet += r;
+                nRet += 1;
+              }
+            }
+            const avgRet = nRet > 0 ? sumRet / nRet : null;
+            return (
+              <TableRow sx={{ bgcolor: alpha('#1976d2', 0.12), '& td': { borderTop: '2px solid', borderColor: 'primary.main', py: 1 } }}>
+                <TableCell colSpan={ALL_COLUMNS.length}>
+                  <Box display="flex" flexWrap="wrap" alignItems="center" gap={2} justifyContent="space-between">
+                    <Typography variant="caption" fontWeight={800} color="primary.main" textTransform="uppercase">
+                      Selected summary ({sel.length} row{sel.length !== 1 ? 's' : ''})
+                    </Typography>
+                    <Box display="flex" flexWrap="wrap" gap={2}>
+                      <Typography variant="caption" fontWeight={700}>
+                        Σ Unreal P&amp;L (open):{' '}
+                        <Box component="span" color={sumUnreal >= 0 ? 'success.main' : 'error.main'}>{formatCurrency(sumUnreal)}</Box>
+                      </Typography>
+                      <Typography variant="caption" fontWeight={700}>
+                        Σ Net P&amp;L (closed):{' '}
+                        <Box component="span" color={sumNetClosed >= 0 ? 'success.main' : 'error.main'}>{formatCurrency(sumNetClosed)}</Box>
+                      </Typography>
+                      <Typography variant="caption" fontWeight={700}>
+                        Σ Charges: <Box component="span" color="warning.main">{formatCurrency(sumCharges)}</Box>
+                      </Typography>
+                      <Typography variant="caption" fontWeight={700}>
+                        Avg return %:{' '}
+                        <Box component="span" color={avgRet != null && avgRet >= 0 ? 'success.main' : 'error.main'}>
+                          {avgRet != null ? `${avgRet > 0 ? '+' : ''}${avgRet.toFixed(2)}%` : '—'}
+                        </Box>
+                      </Typography>
+                    </Box>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            );
+          })()}
         </TableBody>
       </Table>
     </TableContainer>
@@ -328,9 +421,13 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
   const effectiveCategory = lockCategory ?? category;
   const [tradeType, setTradeType] = useState('');
   const [status, setStatus] = useState('');
+  const [sourceArm, setSourceArm] = useState('');
+  const [scoreBinFilter, setScoreBinFilter] = useState('');
+  const [armOptions, setArmOptions] = useState<string[]>([]);
   const [days, setDays] = useState(30);
   const [data, setData] = useState<PositionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const cacheRef = useRef<Map<string, { data: PositionsResponse; ts: number }>>(new Map());
 
   // Batch close state
@@ -357,10 +454,19 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
     });
 
   const handleBatchClose = async () => {
+    const pool = searchResults !== null ? searchResults : (data?.positions ?? []);
+    const openIds = Array.from(selectedIds).filter((id) => {
+      const p = pool.find((x) => x.id === id);
+      return p?.status === 'open';
+    });
+    if (openIds.length === 0) {
+      setSnack({ open: true, msg: 'Select at least one open position to close.', severity: 'error' });
+      return;
+    }
     setBatchLoading(true);
     try {
       const res = await seedDashboardService.batchClosePositions({
-        position_ids: Array.from(selectedIds),
+        position_ids: openIds,
         reason: 'manual_close',
         fetch_live_prices: true,
       });
@@ -392,14 +498,35 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
     }
   };
 
-  const displayPositions = searchResults !== null ? searchResults : (data?.positions ?? []);
+  const displayPositions = useMemo(() => {
+    const base = searchResults !== null ? searchResults : (data?.positions ?? []);
+    if (!scoreBinFilter) return base;
+    return base.filter((p) => p.score_bin === scoreBinFilter);
+  }, [searchResults, data?.positions, scoreBinFilter]);
 
-  const cacheKey = `${effectiveCategory}|${tradeType}|${status}|${days}`;
+  const selectedOpenCount = useMemo(
+    () => displayPositions.filter((p) => selectedIds.has(p.id) && p.status === 'open').length,
+    [displayPositions, selectedIds],
+  );
+
+  const cacheKey = `${effectiveCategory}|${tradeType}|${status}|${sourceArm}|${days}`;
 
   /** Search results ignore table filters — clear when filters change so users are not misled */
   useEffect(() => {
     setSearchResults(null);
-  }, [tradeType, status, days, effectiveCategory]);
+  }, [tradeType, status, days, effectiveCategory, sourceArm]);
+
+  useEffect(() => {
+    setArmOptions((prev) => {
+      const next = new Set(prev);
+      (data?.positions ?? []).forEach((p) => {
+        if (p.source_arm) next.add(p.source_arm);
+      });
+      const dist = data?.summary?.arm_distribution;
+      if (dist) Object.keys(dist).forEach((k) => next.add(k));
+      return Array.from(next).sort((a, b) => a.localeCompare(b));
+    });
+  }, [data?.positions, data?.summary?.arm_distribution]);
 
   const fetchData = useCallback(async (force = false) => {
     const cached = cacheRef.current.get(cacheKey);
@@ -410,26 +537,77 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
     }
 
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await seedDashboardService.getPositions({
         category: effectiveCategory === 'all' ? undefined : effectiveCategory,
         trade_type: tradeType || undefined,
         status: status || undefined,
+        source_arm: sourceArm || undefined,
         days,
         limit: 200,
       });
       setData(res);
       cacheRef.current.set(cacheKey, { data: res, ts: Date.now() });
-    } catch {
-      /* surface previous data if available */
+    } catch (e: unknown) {
+      setData({ category: effectiveCategory, count: 0, summary: null, positions: [] });
+      setLoadError(e instanceof Error ? e.message : 'Positions API failed');
     } finally {
       setLoading(false);
     }
-  }, [cacheKey, effectiveCategory, tradeType, status, days]);
+  }, [cacheKey, effectiveCategory, tradeType, status, sourceArm, days]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const summ = data?.summary;
+
+  const effectiveSumm = useMemo((): PositionsSummaryResponse | null => {
+    const rows = displayPositions;
+    const avgMinRows = avgDurationMinutesFromPositions(rows);
+    if (scoreBinFilter) {
+      const comp = computePositionListSummary(rows);
+      const totalNet = rows
+        .filter((p) => p.status !== 'open')
+        .reduce((acc, p) => acc + (closedNetProfitDisplay(p) ?? 0), 0);
+      const chargesSum = rows.reduce((acc, p) => acc + (rowTotalCharges(p) ?? 0), 0);
+      return {
+        ...(summ ?? ({} as PositionsSummaryResponse)),
+        total: comp.total,
+        open: comp.open,
+        closed: comp.closed,
+        win_rate_pct: comp.win_rate_pct,
+        avg_return_pct: comp.avg_return_pct,
+        avg_duration_min: avgMinRows ?? summ?.avg_duration_min ?? null,
+        avg_duration_hours:
+          summ?.avg_duration_hours ?? (avgMinRows != null && avgMinRows >= 60 ? avgMinRows / 60 : null),
+        total_net_pnl: totalNet,
+        total_charges: chargesSum > 0 ? chargesSum : summ?.total_charges ?? null,
+        outcome_distribution: summ?.outcome_distribution ?? null,
+        arm_distribution: summ?.arm_distribution ?? null,
+        gap_exits: summ?.gap_exits ?? null,
+        gap_exit_pct: summ?.gap_exit_pct ?? null,
+        total_capital_deployed: summ?.total_capital_deployed ?? null,
+        total_gross_pnl: summ?.total_gross_pnl ?? null,
+        min_duration_min: summ?.min_duration_min ?? null,
+        max_duration_min: summ?.max_duration_min ?? null,
+        avg_win_pct: summ?.avg_win_pct ?? null,
+        avg_loss_pct: summ?.avg_loss_pct ?? null,
+        best_return_pct: summ?.best_return_pct ?? null,
+        worst_return_pct: summ?.worst_return_pct ?? null,
+        net_return_on_capital_pct: summ?.net_return_on_capital_pct ?? null,
+      };
+    }
+    if (!summ) return null;
+    if (summ.avg_duration_min == null && summ.avg_duration_hours == null && avgMinRows != null && rows.length > 0) {
+      return { ...summ, avg_duration_min: avgMinRows };
+    }
+    return summ;
+  }, [summ, scoreBinFilter, displayPositions]);
+
+  const computedCharges = useMemo(
+    () => displayPositions.reduce((acc, p) => acc + (rowTotalCharges(p) ?? 0), 0),
+    [displayPositions],
+  );
 
   return (
     <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
@@ -443,15 +621,21 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
         </Box>
         <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
           {selectedIds.size > 0 && (
-            <Button
-              size="small"
-              variant="contained"
-              color="error"
-              sx={{ fontSize: '0.72rem', textTransform: 'none', fontWeight: 700 }}
-              onClick={() => setBatchCloseOpen(true)}
-            >
-              Close {selectedIds.size} selected
-            </Button>
+            <Tooltip title={selectedOpenCount === 0 ? 'Select open rows to batch close' : ''}>
+              <span>
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="error"
+                  sx={{ fontSize: '0.72rem', textTransform: 'none', fontWeight: 700 }}
+                  onClick={() => setBatchCloseOpen(true)}
+                  disabled={selectedOpenCount === 0}
+                >
+                  Close {selectedOpenCount} open
+                  {selectedIds.size > selectedOpenCount ? ` (${selectedIds.size} selected)` : ''}
+                </Button>
+              </span>
+            </Tooltip>
           )}
           <Tooltip title="Export positions as CSV">
             <Button
@@ -493,6 +677,12 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
           </Tooltip>
         </Box>
       </Box>
+
+      {loadError && (
+        <Alert severity="warning" sx={{ mx: 2.5, mb: 1 }}>
+          Filter query failed on backend: {loadError}. Display is cleared to avoid stale rows.
+        </Alert>
+      )}
 
       {/* Search bar */}
       <Box sx={{ px: 2.5, pb: 1 }}>
@@ -555,7 +745,7 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
       {/* Filters row */}
       <Box sx={{ px: 2.5, pb: 1.5 }}>
         <Grid container spacing={1.5} alignItems="center">
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <FormControl size="small" fullWidth>
               <InputLabel>Trade Type</InputLabel>
               <Select value={tradeType} label="Trade Type" onChange={(e) => setTradeType(e.target.value)}>
@@ -563,7 +753,7 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <FormControl size="small" fullWidth>
               <InputLabel>Status</InputLabel>
               <Select value={status} label="Status" onChange={(e) => setStatus(e.target.value)}>
@@ -571,7 +761,32 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>ARM</InputLabel>
+              <Select value={sourceArm} label="ARM" onChange={(e) => setSourceArm(e.target.value)}>
+                <MenuItem value="">All ARMs</MenuItem>
+                {armOptions.map((arm) => (
+                  <MenuItem key={arm} value={arm}>{arm.length > 42 ? `${arm.slice(0, 40)}…` : arm}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Score bin</InputLabel>
+              <Select
+                value={scoreBinFilter}
+                label="Score bin"
+                onChange={(e) => setScoreBinFilter(e.target.value)}
+              >
+                {SCORE_BIN_OPTIONS.map((o) => (
+                  <MenuItem key={o.value || 'all'} value={o.value}>{o.label}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={9}>
             <ToggleButtonGroup
               value={days}
               exclusive
@@ -582,9 +797,9 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
               {DAYS_OPTIONS.map((d) => <ToggleButton key={d} value={d}>{d}d</ToggleButton>)}
             </ToggleButtonGroup>
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <Chip
-              label={`${data?.count ?? 0} results`}
+              label={`${data?.count ?? 0} API rows · ${displayPositions.length} shown`}
               size="small"
               sx={{ fontWeight: 700 }}
             />
@@ -592,8 +807,14 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
         </Grid>
       </Box>
 
+      {scoreBinFilter && (
+        <Alert severity="info" sx={{ mx: 2.5, mb: 1 }} onClose={() => setScoreBinFilter('')}>
+          KPI strip below uses <strong>score-filtered</strong> rows only (client-side). Clear score bin to restore API summary.
+        </Alert>
+      )}
+
       {/* Summary KPI strip */}
-      {summ && !loading && (
+      {effectiveSumm && !loading && (
         <Box
           sx={{
             mx: 2.5, mb: 1.5, py: 0.3, px: 0.5,
@@ -602,55 +823,57 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
             display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap',
           }}
         >
-          <KpiCard label="Total" value={String(summ.total)} />
-          <KpiCard label="Open" value={String(summ.open)} color="#1976d2" />
-          <KpiCard label="Closed" value={String(summ.closed)} />
+          <KpiCard label="Total" value={String(effectiveSumm.total)} />
+          <KpiCard label="Open" value={String(effectiveSumm.open)} color="#1976d2" />
+          <KpiCard label="Closed" value={String(effectiveSumm.closed)} />
           <KpiCard
             label="Win Rate"
-            value={summ.win_rate_pct != null ? `${summ.win_rate_pct.toFixed(0)}%` : '—'}
-            color={(summ.win_rate_pct ?? 0) >= 50 ? '#4caf50' : '#f44336'}
+            value={effectiveSumm.win_rate_pct != null ? `${effectiveSumm.win_rate_pct.toFixed(0)}%` : '—'}
+            color={(effectiveSumm.win_rate_pct ?? 0) >= 50 ? '#4caf50' : '#f44336'}
           />
           <KpiCard
             label="Avg Return"
-            value={summ.avg_return_pct != null ? `${summ.avg_return_pct > 0 ? '+' : ''}${summ.avg_return_pct.toFixed(2)}%` : '—'}
-            color={(summ.avg_return_pct ?? 0) >= 0 ? '#4caf50' : '#f44336'}
+            value={effectiveSumm.avg_return_pct != null ? `${effectiveSumm.avg_return_pct > 0 ? '+' : ''}${effectiveSumm.avg_return_pct.toFixed(2)}%` : '—'}
+            color={(effectiveSumm.avg_return_pct ?? 0) >= 0 ? '#4caf50' : '#f44336'}
           />
           <KpiCard
             label="Avg Duration"
-            value={summ.avg_duration_hours != null && summ.avg_duration_hours >= 1
-              ? `${summ.avg_duration_hours.toFixed(1)}h`
-              : summ.avg_duration_min != null ? `${summ.avg_duration_min.toFixed(0)}m` : '—'}
+            value={effectiveSumm.avg_duration_hours != null && effectiveSumm.avg_duration_hours >= 1
+              ? `${effectiveSumm.avg_duration_hours.toFixed(1)}h`
+              : effectiveSumm.avg_duration_min != null ? `${effectiveSumm.avg_duration_min.toFixed(0)}m` : '—'}
           />
-          {summ.total_capital_deployed != null && summ.total_capital_deployed > 0 && (
-            <KpiCard label="Capital" value={formatCurrency(summ.total_capital_deployed)} />
+          {effectiveSumm.total_capital_deployed != null && effectiveSumm.total_capital_deployed > 0 && (
+            <KpiCard label="Capital" value={formatCurrency(effectiveSumm.total_capital_deployed)} />
           )}
-          {summ.total_net_pnl != null && (
+          {effectiveSumm.total_net_pnl != null && (
             <KpiCard
               label="Net P&L"
-              value={formatCurrency(summ.total_net_pnl)}
-              color={summ.total_net_pnl >= 0 ? '#4caf50' : '#f44336'}
+              value={formatCurrency(effectiveSumm.total_net_pnl)}
+              color={effectiveSumm.total_net_pnl >= 0 ? '#4caf50' : '#f44336'}
             />
           )}
-          {summ.total_charges != null && summ.total_charges > 0 && (
-            <KpiCard label="Charges" value={formatCurrency(summ.total_charges)} color="#ff9800" />
-          )}
-          {summ.arm_distribution && Object.keys(summ.arm_distribution).length > 0 && (
+          <KpiCard
+            label="Charges"
+            value={formatCurrency(effectiveSumm.total_charges != null ? effectiveSumm.total_charges : computedCharges)}
+            color="#ff9800"
+          />
+          {effectiveSumm.arm_distribution && Object.keys(effectiveSumm.arm_distribution).length > 0 && (
             <KpiCard
               label="ARMs"
-              value={`${Object.keys(summ.arm_distribution).length} strategies`}
+              value={`${Object.keys(effectiveSumm.arm_distribution).length} strategies`}
             />
           )}
-          {summ.gap_exits != null && summ.gap_exits > 0 && (
-            <KpiCard label="Gap Exits" value={`${summ.gap_exits} (${summ.gap_exit_pct?.toFixed(0) ?? 0}%)`} color="#ff9800" />
+          {effectiveSumm.gap_exits != null && effectiveSumm.gap_exits > 0 && (
+            <KpiCard label="Gap Exits" value={`${effectiveSumm.gap_exits} (${effectiveSumm.gap_exit_pct?.toFixed(0) ?? 0}%)`} color="#ff9800" />
           )}
         </Box>
       )}
 
       {/* ARM distribution chips (visible for learning/all when data exists) */}
-      {summ?.arm_distribution && Object.keys(summ.arm_distribution).length > 0 && (
+      {effectiveSumm?.arm_distribution && Object.keys(effectiveSumm.arm_distribution).length > 0 && (
         <Box sx={{ px: 2.5, pb: 1, display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
           <Typography variant="caption" color="text.secondary" sx={{ mr: 0.5, lineHeight: 2 }}>ARMs:</Typography>
-          {Object.entries(summ.arm_distribution).map(([arm, count]) => (
+          {Object.entries(effectiveSumm.arm_distribution).map(([arm, count]) => (
             <Chip key={arm} label={`${arm.replace(/_/g, ' ')} (${count})`} size="small" variant="outlined"
               sx={{ fontSize: '0.6rem', height: 20, fontWeight: 600, textTransform: 'capitalize' }}
             />
@@ -659,10 +882,10 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
       )}
 
       {/* Outcome distribution chips */}
-      {summ?.outcome_distribution && Object.keys(summ.outcome_distribution).length > 0 && (
+      {effectiveSumm?.outcome_distribution && Object.keys(effectiveSumm.outcome_distribution).length > 0 && (
         <Box sx={{ px: 2.5, pb: 1, display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
           <Typography variant="caption" color="text.secondary" sx={{ mr: 0.5, lineHeight: 2 }}>Outcomes:</Typography>
-          {Object.entries(summ.outcome_distribution).map(([outcome, count]) => {
+          {Object.entries(effectiveSumm.outcome_distribution).map(([outcome, count]) => {
             const oColor = outcome === 'stop' || outcome === 'stop_hit' ? '#f44336'
               : outcome === 'target_3' ? '#4caf50'
               : outcome === 'expired' ? '#9e9e9e'
@@ -695,11 +918,11 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
 
       {/* Batch close confirmation dialog */}
       <Dialog open={batchCloseOpen} onClose={() => setBatchCloseOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700 }}>Close {selectedIds.size} Position{selectedIds.size !== 1 ? 's' : ''}?</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700 }}>Close {selectedOpenCount} open position{selectedOpenCount !== 1 ? 's' : ''}?</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary">
-            This will close {selectedIds.size} selected position{selectedIds.size !== 1 ? 's' : ''} at live prices.
-            This action cannot be undone.
+            Only <strong>open</strong> rows are closed ({selectedOpenCount} of {selectedIds.size} selected). Live prices will be used.
+            This cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

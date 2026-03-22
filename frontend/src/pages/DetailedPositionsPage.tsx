@@ -6,7 +6,7 @@ import PositionsTab from '../components/dashboard/PositionsTab';
 import PageHero from '../components/layout/PageHero';
 
 const DetailedPositionsPage: React.FC = () => {
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(1);
 
   return (
     <Box

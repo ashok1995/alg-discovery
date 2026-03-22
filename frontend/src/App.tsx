@@ -107,7 +107,7 @@ function App() {
     'dashboard-api': <Dashboard />,
     'stock-mapping-api': <UniverseManagerPage />,
     'stock-candidate-populator-api': <UniverseManagerPage />,
-    'chartink-query-tester': <ArmManagerPage />,
+    'query-execution-tester': <ArmManagerPage />,
     'candidate-query-registry': <ArmManagerPage />,
     'system-control': <ObservabilityPage />,
     'observability': <ObservabilityPage />,

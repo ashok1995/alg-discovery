@@ -3,7 +3,8 @@
  * Left: list of top-level config groups.  Right: form for the selected group only.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -100,7 +101,12 @@ const SeedSettingsEditor: React.FC<SeedSettingsEditorProps> = ({ variant }) => {
         setConfigText(JSON.stringify(data, null, 2));
         setSchemaPayload(schema);
         setFormLayoutPayload(null);
-        setSelectedSection((prev) => prev ?? sortedKeys(rec)[0] ?? null);
+        const tradingKeys = sortedKeys(rec).filter((k) => k !== 'charges');
+        setSelectedSection((prev) => {
+          const keys = tradingKeys.length > 0 ? tradingKeys : sortedKeys(rec);
+          if (prev && keys.includes(prev)) return prev;
+          return keys[0] ?? null;
+        });
       } else {
         const [data, schema, form] = await Promise.all([
           seedDashboardService.getSystemSettings(),
@@ -170,12 +176,16 @@ const SeedSettingsEditor: React.FC<SeedSettingsEditorProps> = ({ variant }) => {
     [],
   );
 
-  const sections = sortedKeys(configData);
+  const sections = useMemo(() => {
+    const keys = sortedKeys(configData);
+    if (variant === 'trading') return keys.filter((k) => k !== 'charges');
+    return keys;
+  }, [configData, variant]);
 
   const variantMeta = variant === 'trading'
     ? {
         title: 'Seed trading rules',
-        subtitle: 'Capital, opener, charges, learning — PUT /api/v2/settings/trading',
+        subtitle: 'Capital, opener, learning — PUT /api/v2/settings/trading (charges: Observability → Trading economics)',
         color: '#1565c0',
       }
     : {
@@ -272,6 +282,17 @@ const SeedSettingsEditor: React.FC<SeedSettingsEditorProps> = ({ variant }) => {
       {banner && (
         <Alert severity={banner.severity} sx={{ mb: 2 }} onClose={() => setBanner(null)}>
           {banner.text}
+        </Alert>
+      )}
+
+      {variant === 'trading' && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          <Typography variant="body2">
+            <strong>Charges</strong> and the full <strong>per–trade-type</strong> opener view (slippage, cooldowns, intraday cutoffs) are{' '}
+            <strong>read-only</strong> on{' '}
+            <Box component={RouterLink} to="/observability" sx={{ fontWeight: 700 }}>Observability → Trading economics</Box>.
+            To edit charges or timing, use <strong>JSON</strong> mode here (full payload) or extend the Seed API; the <em>opener</em> form still edits slippage/cooldown/cutoffs when those fields are in schema.
+          </Typography>
         </Alert>
       )}
 

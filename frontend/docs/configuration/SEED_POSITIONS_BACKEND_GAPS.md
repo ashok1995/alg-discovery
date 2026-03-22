@@ -91,3 +91,33 @@ OpenAPI lists **scenario** and **category** as aliases.
 ---
 
 *Last updated: 2026-02-27 — paired with frontend fixes in `SeedDashboardService`, `Home`, `PositionsTab`, and `positionDisplayUtils`.*
+
+
+## 11. `trade_type=intraday_sell` filter triggers backend 500
+
+Observed on prod (2026-03-20):
+
+- `GET /api/v2/dashboard/positions?days=30&limit=50&include=summary,list` -> 200
+- `GET /api/v2/dashboard/positions?days=30&limit=50&include=summary,list&trade_type=intraday_sell` -> **500**
+- Same 500 with `category=learning` + `trade_type=intraday_sell`
+
+UI impact: filter appears to "show all" if frontend keeps stale data after failed fetch.
+
+Frontend mitigation: clear table and show warning on fetch failure.
+
+Backend action: fix query path for `trade_type=intraday_sell` with/without category/status.
+
+## 12. Short-stop semantics appear inverted vs naming
+
+Sample `intraday_sell` rows with `status=stop_hit` show:
+
+- `entry_price` > `exit_price`
+- positive `return_pct` and positive `net_pnl`
+- `stop_loss` also below entry in these rows
+
+This suggests either:
+
+1. `stop_loss` for short trades is being repurposed as a favorable trailing lock, or
+2. field naming / assignment is inconsistent for short-side exits.
+
+Backend action: document short-side stop semantics explicitly, or emit separate fields (`protective_stop`, `trailing_lock`, `exit_reason`) to avoid ambiguity.

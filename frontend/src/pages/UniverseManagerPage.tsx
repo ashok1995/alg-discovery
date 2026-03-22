@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Tabs, Tab, Snackbar, Alert, alpha } from '@mui/material';
+import { Box, Tabs, Tab, Snackbar, Alert, alpha, Typography } from '@mui/material';
 import { Storage, FilterList, Hub } from '@mui/icons-material';
 import TabPanel from '../components/ui/TabPanel';
 import PageHero from '../components/layout/PageHero';
 import StockMappingManager from './StockMappingManager';
 import StockCandidatePopulator from '../components/StockCandidatePopulator';
 import SeedUniverseHealthPanel from '../components/universe/SeedUniverseHealthPanel';
+import SeedCandidatesV2Panel from '../components/universe/SeedCandidatesV2Panel';
 import type { CandidateDetail } from '../services/stockCandidatePopulatorService';
 
 const UniverseManagerPage: React.FC = () => {
@@ -74,8 +75,14 @@ const UniverseManagerPage: React.FC = () => {
           </Box>
         </TabPanel>
         <TabPanel value={tab} index={2}>
-          <Box sx={{ p: 2 }}>
-            <StockCandidatePopulator onCandidatesGenerated={handleCandidatesGenerated} />
+          <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <SeedCandidatesV2Panel />
+            <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 2 }}>
+              <Typography variant="subtitle2" fontWeight={800} gutterBottom color="text.secondary">
+                Legacy theme populator (8180 / populator API)
+              </Typography>
+              <StockCandidatePopulator onCandidatesGenerated={handleCandidatesGenerated} />
+            </Box>
           </Box>
         </TabPanel>
       </Box>

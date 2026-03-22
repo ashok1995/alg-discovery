@@ -26,12 +26,15 @@ import {
   Paper,
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { Speed, Storage, Map, Psychology, Refresh } from '@mui/icons-material';
+import { Speed, Storage, Map, Psychology, Refresh, Savings } from '@mui/icons-material';
 import TabPanel from '../components/ui/TabPanel';
 import PageHero from '../components/layout/PageHero';
 import SystemControl from './SystemControl';
+import SeedTradingEconomyPanel from '../components/observability/SeedTradingEconomyPanel';
+import LearningObservabilityHub from '../components/observability/LearningObservabilityHub';
 import StructuredDataView from '../components/ui/StructuredDataView';
 import { seedDashboardService } from '../services/SeedDashboardService';
+import type { ArmLeaderboardResponse, LearningInsightsResponse } from '../types/dashboard';
 import { useSortableData } from '../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../components/ui/SortableTableHead';
 
@@ -186,7 +189,7 @@ const ObservabilityPulseTab: React.FC = () => {
         </Button>
       </Box>
       <Alert severity="info" sx={{ mb: 1.5 }}>
-        Learning data sources: <code>/api/v2/monitor/learning-insights</code>, <code>/api/v2/monitor/arm-leaderboard</code>, <code>/api/v2/arms/observability/learning</code>, <code>/api/v2/arms/observability/utilization</code>, <code>/api/v2/candidates/observability/coverage</code>.
+        For learning / scorer timing / ARMs, use <strong>Observability → Learning &amp; arms</strong> (grouped hub + ~60s refresh).
       </Alert>
       <Box sx={{ mb: 1.5 }}>
         <StatusLegend />
@@ -454,31 +457,16 @@ const ObservabilityServiceMapTab: React.FC = () => {
   );
 };
 
+const LEARNING_OBS_POLL_MS = 60_000;
+
 const ObservabilityLearningTab: React.FC = () => {
   const [learning, setLearning] = useState<unknown>(null);
   const [utilization, setUtilization] = useState<unknown>(null);
   const [coverage, setCoverage] = useState<unknown>(null);
-  const [insights, setInsights] = useState<unknown>(null);
-  const [leaderboard, setLeaderboard] = useState<unknown>(null);
+  const [insights, setInsights] = useState<LearningInsightsResponse | null>(null);
+  const [leaderboard, setLeaderboard] = useState<ArmLeaderboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [subTab, setSubTab] = useState(0);
-  type ArmLbKey = 'arm' | 'positions' | 'win_rate_pct' | 'avg_return_pct' | 'thompson_weight' | 'confidence';
-  const LB_COLUMNS: ColumnDef<ArmLbKey>[] = [
-    { key: 'arm', label: 'ARM', sortable: true, minWidth: 180 },
-    { key: 'positions', label: 'Positions', align: 'right', sortable: true },
-    { key: 'win_rate_pct', label: 'Win %', align: 'right', sortable: true },
-    { key: 'avg_return_pct', label: 'Avg return %', align: 'right', sortable: true },
-    { key: 'thompson_weight', label: 'Weight', align: 'right', sortable: true },
-    { key: 'confidence', label: 'Confidence', align: 'right', sortable: true },
-  ];
-  const lbRows = (Array.isArray((leaderboard as Record<string, unknown> | null)?.leaderboard)
-    ? ((leaderboard as Record<string, unknown>).leaderboard as Array<Record<string, unknown>>)
-    : []);
-  const { sortedData: sortedLbRows, requestSort: sortLb, getSortDirection: lbSortDir } = useSortableData<Record<string, unknown>, ArmLbKey>(
-    lbRows,
-    { key: 'thompson_weight', direction: 'desc' },
-  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -494,8 +482,8 @@ const ObservabilityLearningTab: React.FC = () => {
       setLearning(l.status === 'fulfilled' ? l.value : null);
       setUtilization(u.status === 'fulfilled' ? u.value : null);
       setCoverage(c.status === 'fulfilled' ? c.value : null);
-      setInsights(i.status === 'fulfilled' ? i.value : null);
-      setLeaderboard(lb.status === 'fulfilled' ? lb.value : null);
+      setInsights(i.status === 'fulfilled' ? (i.value as LearningInsightsResponse) : null);
+      setLeaderboard(lb.status === 'fulfilled' ? (lb.value as ArmLeaderboardResponse) : null);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load learning data');
     } finally {
@@ -505,16 +493,21 @@ const ObservabilityLearningTab: React.FC = () => {
 
   useEffect(() => {
     void load();
+    const id = window.setInterval(() => void load(), LEARNING_OBS_POLL_MS);
+    return () => window.clearInterval(id);
   }, [load]);
 
-  if (loading && !learning) {
+  const hasAnyData =
+    insights != null || leaderboard != null || learning != null || utilization != null || coverage != null;
+
+  if (loading && !hasAnyData && !error) {
     return (
       <Box display="flex" justifyContent="center" py={6}>
         <CircularProgress />
       </Box>
     );
   }
-  if (error) {
+  if (error && !hasAnyData) {
     return (
       <Alert severity="error" action={<Button onClick={() => void load()}>Retry</Button>}>
         {error}
@@ -522,92 +515,16 @@ const ObservabilityLearningTab: React.FC = () => {
     );
   }
   return (
-    <Box sx={{ p: 2 }}>
-      <Box display="flex" justifyContent="flex-end" mb={1}>
-        <Button size="small" startIcon={<Refresh />} onClick={() => void load()} disabled={loading}>
-          Refresh
-        </Button>
-      </Box>
-      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-        <Tabs
-          value={subTab}
-          onChange={(_, v) => setSubTab(v)}
-          orientation="vertical"
-          variant="scrollable"
-          sx={{ borderRight: 1, borderColor: 'divider', minWidth: 220, bgcolor: 'action.hover', borderRadius: 1 }}
-        >
-          <Tab label="Highlights" />
-          <Tab label="ARM ranking table" />
-          <Tab label="ARM learning detail" />
-          <Tab label="ARM utilization detail" />
-          <Tab label="Candidate coverage detail" />
-          <Tab label="Raw payloads" />
-        </Tabs>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-      <TabPanel value={subTab} index={0}>
-        <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <MetricCard label="Learning health" value={toStr((insights as Record<string, unknown> | null)?.learning_health) ?? '—'} />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <MetricCard label="Total ARMs" value={String(toNum((insights as Record<string, unknown> | null)?.total_arms) ?? 0)} />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <MetricCard label="Leaderboard arms" value={String(toNum((leaderboard as Record<string, unknown> | null)?.arms_count) ?? 0)} />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <MetricCard label="Generated" value={toStr((leaderboard as Record<string, unknown> | null)?.generated_at) ?? '—'} />
-          </Grid>
-        </Grid>
-        {insights != null ? <StructuredDataView data={insights} title="Learning health snapshot (`/api/v2/monitor/learning-insights`)" /> : <Alert severity="info">No insights payload.</Alert>}
-      </TabPanel>
-
-      <TabPanel value={subTab} index={1}>
-        {lbRows.length > 0 ? (
-          <TableContainer component={Paper} variant="outlined">
-            <Table size="small" stickyHeader>
-              <SortableTableHead columns={LB_COLUMNS} onSort={sortLb} getSortDirection={lbSortDir} />
-              <TableBody>
-                {sortedLbRows.map((row, idx) => (
-                  <TableRow key={`${toStr(row.arm) ?? 'arm'}-${idx}`}>
-                    <TableCell>{toStr(row.arm) ?? '—'}</TableCell>
-                    <TableCell align="right">{toNum(row.positions) ?? 0}</TableCell>
-                    <TableCell align="right">{(toNum(row.win_rate_pct) ?? 0).toFixed(2)}%</TableCell>
-                    <TableCell align="right" sx={{ color: (toNum(row.avg_return_pct) ?? 0) >= 0 ? 'success.main' : 'error.main', fontWeight: 600 }}>
-                      {(toNum(row.avg_return_pct) ?? 0).toFixed(2)}%
-                    </TableCell>
-                    <TableCell align="right">{(toNum(row.thompson_weight) ?? 0).toFixed(3)}</TableCell>
-                    <TableCell align="right">{(toNum(row.confidence) ?? 0).toFixed(3)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ) : (
-          <Alert severity="info">No leaderboard payload.</Alert>
-        )}
-      </TabPanel>
-
-      <TabPanel value={subTab} index={2}>
-        {learning != null ? <StructuredDataView data={learning} title="ARM learning distribution (`/api/v2/arms/observability/learning`)" /> : <Alert severity="info">No ARM learning payload.</Alert>}
-      </TabPanel>
-      <TabPanel value={subTab} index={3}>
-        {utilization != null ? <StructuredDataView data={utilization} title="ARM capacity/utilization (`/api/v2/arms/observability/utilization`)" /> : <Alert severity="info">No utilization payload.</Alert>}
-      </TabPanel>
-      <TabPanel value={subTab} index={4}>
-        {coverage != null ? <StructuredDataView data={coverage} title="Candidate coverage quality (`/api/v2/candidates/observability/coverage`)" /> : <Alert severity="info">No coverage payload.</Alert>}
-      </TabPanel>
-      <TabPanel value={subTab} index={5}>
-        <Stack spacing={2}>
-          {learning != null && <StructuredDataView data={learning} title="ARMs observability (learning)" />}
-          {utilization != null && <StructuredDataView data={utilization} title="ARMs utilization" />}
-          {coverage != null && <StructuredDataView data={coverage} title="Candidates coverage" />}
-          {insights != null && <StructuredDataView data={insights} title="Learning insights" />}
-          {leaderboard != null && <StructuredDataView data={leaderboard} title="ARM leaderboard" />}
-        </Stack>
-      </TabPanel>
-        </Box>
-      </Box>
+    <Box sx={{ p: 1 }}>
+      <LearningObservabilityHub
+        insights={insights}
+        leaderboard={leaderboard}
+        learning={learning}
+        utilization={utilization}
+        coverage={coverage}
+        loading={loading}
+        onRefresh={() => void load()}
+      />
     </Box>
   );
 };
@@ -625,7 +542,7 @@ const ObservabilityPage: React.FC = () => {
     >
       <PageHero
         title="Observability"
-        subtitle="Read-only telemetry: pulse, pipeline, service map, and learning. To change configuration, use System settings."
+        subtitle="Read-only telemetry: pulse, pipeline, trading economics (charges & timing), service map, and learning. Edit values in System settings → Seed."
         variant="teal"
       />
 
@@ -670,6 +587,7 @@ const ObservabilityPage: React.FC = () => {
         >
           <Tab icon={<Speed />} iconPosition="start" label="Pulse" />
           <Tab icon={<Storage />} iconPosition="start" label="Pipeline & storage" />
+          <Tab icon={<Savings />} iconPosition="start" label="Trading economics" />
           <Tab icon={<Map />} iconPosition="start" label="Service map" />
           <Tab icon={<Psychology />} iconPosition="start" label="Learning & arms" />
         </Tabs>
@@ -681,9 +599,12 @@ const ObservabilityPage: React.FC = () => {
             <SystemControl embedMode contentLayout="sections" />
           </TabPanel>
           <TabPanel value={tab} index={2}>
-            <ObservabilityServiceMapTab />
+            <SeedTradingEconomyPanel />
           </TabPanel>
           <TabPanel value={tab} index={3}>
+            <ObservabilityServiceMapTab />
+          </TabPanel>
+          <TabPanel value={tab} index={4}>
             <ObservabilityLearningTab />
           </TabPanel>
         </Box>

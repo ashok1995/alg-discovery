@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -14,8 +15,9 @@ import {
   FormControl,
   InputLabel,
   Slider,
+  Alert,
 } from '@mui/material';
-import { Settings as SettingsIcon, Speed, Schedule, InfoOutlined } from '@mui/icons-material';
+import { Settings as SettingsIcon, Speed, InfoOutlined } from '@mui/icons-material';
 import type { SystemSettings } from './types';
 
 interface TradingTabProps {
@@ -26,22 +28,6 @@ interface TradingTabProps {
 const MAX_RESULTS_OPTIONS = [10, 20, 50, 100] as const;
 
 const TradingTab: React.FC<TradingTabProps> = ({ settings, onSettingChange }) => {
-  const pw = settings.positionWindows;
-
-  const setIntraday = (patch: Partial<SystemSettings['positionWindows']['intraday']>): void => {
-    onSettingChange('positionWindows', {
-      ...settings.positionWindows,
-      intraday: { ...settings.positionWindows.intraday, ...patch },
-    });
-  };
-
-  const setOther = (patch: Partial<SystemSettings['positionWindows']['other']>): void => {
-    onSettingChange('positionWindows', {
-      ...settings.positionWindows,
-      other: { ...settings.positionWindows.other, ...patch },
-    });
-  };
-
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
@@ -158,106 +144,15 @@ const TradingTab: React.FC<TradingTabProps> = ({ settings, onSettingChange }) =>
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={6}>
-        <Card variant="outlined">
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Schedule sx={{ mr: 1 }} />
-              <Typography variant="h6">Intraday — session &amp; cutoffs</Typography>
-            </Box>
-            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
-              Local UI hints for open/close (e.g. 9:30–15:25 session, entry by 14:30, exit by 15:22). Seed opener rules remain
-              authoritative on the server.
-            </Typography>
-            <TextField
-              fullWidth
-              label="Session open"
-              type="time"
-              value={pw.intraday.sessionOpen}
-              onChange={(e) => setIntraday({ sessionOpen: e.target.value })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              label="Session close"
-              type="time"
-              value={pw.intraday.sessionClose}
-              onChange={(e) => setIntraday({ sessionClose: e.target.value })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              label="Latest new entry"
-              type="time"
-              value={pw.intraday.entryCutoff ?? '14:30'}
-              onChange={(e) => setIntraday({ entryCutoff: e.target.value })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              label="Latest exit"
-              type="time"
-              value={pw.intraday.exitCutoff ?? '15:22'}
-              onChange={(e) => setIntraday({ exitCutoff: e.target.value })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-          </CardContent>
-        </Card>
-      </Grid>
-
-      <Grid item xs={12} md={6}>
-        <Card variant="outlined">
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Schedule sx={{ mr: 1 }} />
-              <Typography variant="h6">Swing / long / short — session</Typography>
-            </Box>
-            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
-              Wider window for non-intraday styles (e.g. 9:15–15:29). Optional entry/exit cutoffs if you add them later.
-            </Typography>
-            <TextField
-              fullWidth
-              label="Session open"
-              type="time"
-              value={pw.other.sessionOpen}
-              onChange={(e) => setOther({ sessionOpen: e.target.value })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              label="Session close"
-              type="time"
-              value={pw.other.sessionClose}
-              onChange={(e) => setOther({ sessionClose: e.target.value })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              label="Latest new entry (optional)"
-              type="time"
-              value={pw.other.entryCutoff ?? ''}
-              onChange={(e) => setOther({ entryCutoff: e.target.value || undefined })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-              helperText="Leave empty to use session close"
-            />
-            <TextField
-              fullWidth
-              label="Latest exit (optional)"
-              type="time"
-              value={pw.other.exitCutoff ?? ''}
-              onChange={(e) => setOther({ exitCutoff: e.target.value || undefined })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-          </CardContent>
-        </Card>
+      <Grid item xs={12}>
+        <Alert severity="info">
+          <Typography variant="body2">
+            <strong>Session &amp; market timing</strong> (entry/exit cutoffs and per–trade-type slippage) are centralized on{' '}
+            <Box component={RouterLink} to="/observability" sx={{ fontWeight: 700 }}>Observability → Trading economics</Box>{' '}
+            (read-only) and edited via <strong>System settings → Seed (advanced) → Trading</strong> (<em>opener</em>).
+            Local “position window” hints were removed to avoid duplicating Seed rules.
+          </Typography>
+        </Alert>
       </Grid>
     </Grid>
   );
