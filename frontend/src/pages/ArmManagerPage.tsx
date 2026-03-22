@@ -459,7 +459,7 @@ const ArmManagerPage: React.FC = () => {
                   fullWidth
                   multiline
                   minRows={4}
-                  label="Chartink query string"
+                  label="Query execution string"
                   value={verifyQuery}
                   onChange={(e) => setVerifyQuery(e.target.value)}
                 />

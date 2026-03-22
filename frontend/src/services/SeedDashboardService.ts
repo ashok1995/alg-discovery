@@ -47,6 +47,15 @@ import type {
   SearchPositionsResponse,
   MarketMoversAllResponse,
   MarketMoversSingleResponse,
+  CandidateOutV2,
+  CandidateDetailOutV2,
+  CoverageOutV2,
+  KiteGapOutV2,
+  KiteMatchInV2,
+  KiteMatchOutV2,
+  StatusUpdateInV2,
+  StatusUpdateOutV2,
+  SyncResultOutV2,
 } from '../types/apiModels';
 
 const BASE = API_CONFIG.SEED_API_BASE_URL;
@@ -55,6 +64,7 @@ const SLOW_TIMEOUT_MS = 45_000;
 
 const SLOW_PATHS = new Set([
   '/api/v2/dashboard/market-movers',
+  '/api/v2/candidates/sync',
 ]);
 
 /** Fast paths: use a shorter timeout so polling loops don't block */
@@ -411,7 +421,53 @@ export const seedDashboardService = {
 
   /** GET /api/v2/candidates/observability/coverage */
   getCandidatesObservabilityCoverage: () =>
-    fetchJSON<Record<string, unknown>>('/api/v2/candidates/observability/coverage'),
+    fetchJSON<CoverageOutV2>('/api/v2/candidates/observability/coverage'),
+
+  /** GET /api/v2/candidates — paginated list (array body) */
+  listCandidates: (opts?: {
+    status?: string;
+    sector?: string;
+    market_cap_category?: string;
+    limit?: number;
+  }) => {
+    const params: Record<string, string | number> = {};
+    if (opts?.status) params.status = opts.status;
+    if (opts?.sector) params.sector = opts.sector;
+    if (opts?.market_cap_category) params.market_cap_category = opts.market_cap_category;
+    if (opts?.limit != null) params.limit = opts.limit;
+    return fetchJSON<CandidateOutV2[]>('/api/v2/candidates', Object.keys(params).length ? params : undefined);
+  },
+
+  /** GET /api/v2/candidates/{symbol} */
+  getCandidateDetail: (symbol: string, historyWeeks?: number) => {
+    const path = `/api/v2/candidates/${encodeURIComponent(symbol)}`;
+    const params = historyWeeks != null ? { history_weeks: historyWeeks } : undefined;
+    return fetchJSON<CandidateDetailOutV2>(path, params);
+  },
+
+  /** GET /api/v2/candidates/observability/kite-gap */
+  getCandidatesKiteGap: (limit?: number) =>
+    fetchJSON<KiteGapOutV2>('/api/v2/candidates/observability/kite-gap', limit != null ? { limit } : undefined),
+
+  /** PUT /api/v2/candidates/{symbol}/status */
+  updateCandidateStatus: (symbol: string, body: StatusUpdateInV2) =>
+    fetchJSON<StatusUpdateOutV2>(
+      `/api/v2/candidates/${encodeURIComponent(symbol)}/status`,
+      undefined,
+      { method: 'PUT', body },
+    ),
+
+  /** PUT /api/v2/candidates/{symbol}/match */
+  updateCandidateKiteMatch: (symbol: string, body: KiteMatchInV2) =>
+    fetchJSON<KiteMatchOutV2>(
+      `/api/v2/candidates/${encodeURIComponent(symbol)}/match`,
+      undefined,
+      { method: 'PUT', body },
+    ),
+
+  /** POST /api/v2/candidates/sync — ops; may be slow */
+  syncCandidates: () =>
+    fetchJSON<SyncResultOutV2>('/api/v2/candidates/sync', undefined, { method: 'POST', body: {} }),
 
   /** Returns a fully-qualified CSV download URL (use as href or window.open) */
   getExportUrl: (type: 'positions' | 'outcomes' | 'market-context', params?: Record<string, string | number>) => {

@@ -53,7 +53,8 @@ export interface DashboardPositionSummary {
   total: number;
   open: number;
   closed: number;
-  stops: number;
+  /** Stop-loss hits in period (when API provides). */
+  stops?: number;
   targets: number;
   wins: number;
   win_rate: number;
@@ -834,11 +835,119 @@ export interface LearningInsightArmItem {
   observations: number;
 }
 
+/** Thompson / weight diagnostics nested under `convergence.convergence` (Seed `get_full_learning_health`). */
+export interface LearningThompsonDiagnostics {
+  weight_stability?: number | Record<string, unknown>;
+  evidence_summary?: Record<string, unknown>;
+  stuck_arms?: string[];
+  top_confident?: Array<Record<string, unknown>>;
+  posteriors?: unknown;
+  regime_coverage?: Record<string, unknown>;
+  total_arms?: number;
+}
+
+/** Beta posterior health under `convergence.reward_distribution`. */
+export interface LearningRewardDistribution {
+  posterior_distribution?: unknown;
+  saturation_pct?: number | null;
+  is_saturated?: boolean;
+  avg_alpha?: number | null;
+  avg_beta?: number | null;
+  health?: string;
+}
+
+/** Full convergence block: Thompson + reward distribution + compute time. */
+export interface LearningConvergenceBlock {
+  convergence?: LearningThompsonDiagnostics;
+  reward_distribution?: LearningRewardDistribution;
+  timestamp?: string;
+}
+
+/** Cached learned snapshot (adaptive insights cache); keys optional when insufficient data. */
+export interface LearnedInsightsSnapshot {
+  dynamic_expectations?: Record<string, unknown>;
+  profit_protection?: Record<string, unknown>;
+  high_score_perf?: Record<string, unknown>;
+  context_correlations?: Record<string, unknown>;
+  regime_horizon_weights?: Record<string, unknown>;
+  score_band_weights?: Record<string, unknown>;
+  min_score_adj?: number | Record<string, unknown> | null;
+  cache_age_seconds?: number | null;
+  /** Per trade type / TA signal multipliers when Seed exposes them. */
+  signal_weights?: Record<string, unknown>;
+  /** Per trade type paper-trade bin eligibility. */
+  paper_trade_eligible_bins?: Record<string, unknown>;
+}
+
+/** Per-process rollup under `scorer_weights_timing.summary_by_process`. */
+export interface ScorerProcessTimingSummary {
+  n: number;
+  avg_duration_ms: number;
+  max_duration_ms: number;
+}
+
+/** Single row in `scorer_weights_timing.recent_runs`. */
+export interface ScorerWeightsRecentRun {
+  process: string;
+  scenario?: string | null;
+  status: string;
+  duration_ms?: number;
+  started_at?: string;
+  finished_at?: string | null;
+  rows_scanned?: number;
+  rows_updated?: number;
+  metric_used?: string;
+  error?: string | null;
+  extra?: Record<string, unknown>;
+}
+
+/** Scorer pipeline + weight timing (learning-observability-ui-integration.md). */
+export interface ScorerWeightsTiming {
+  recent_runs?: ScorerWeightsRecentRun[];
+  summary_by_process?: Record<string, ScorerProcessTimingSummary>;
+  orchestrator_last_scenario_timing?: Record<string, Record<string, unknown>>;
+  /** Tooltip / label glossary from server. */
+  fields?: Record<string, string>;
+}
+
+/** One process row in `learner_observability.processes`. */
+export interface LearnerObservabilityProcess {
+  name?: string;
+  scenario?: string | null;
+  schedule_status?: string;
+  lag_seconds?: number | null;
+  expected_interval_seconds?: number | null;
+  last_run?: string | null;
+  error?: string | null;
+  [key: string]: unknown;
+}
+
+/** Learner cadence / lag (same endpoint). */
+export interface LearnerObservability {
+  generated_at?: string;
+  processes?: LearnerObservabilityProcess[];
+  summary?: Record<string, unknown>;
+  error?: string;
+}
+
 export interface LearningInsightsResponse {
   top_arms: LearningInsightArmItem[];
   total_arms: number;
   regime_contexts?: string[];
   learning_health: 'active' | 'inactive' | 'error' | string;
+  /** Payload build time (ISO). */
+  generated_at?: string;
+  learning_iterations?: number;
+  /** Present when Seed exposes `get_full_learning_health()` on this endpoint. */
+  convergence?: LearningConvergenceBlock | null;
+  /** Rolling / learned tuning snapshot (cache_age_seconds reflects staleness). */
+  learned_insights?: LearnedInsightsSnapshot | null;
+  adaptive_insights?: unknown;
+  learner_observability?: LearnerObservability | null;
+  learning_runs?: Array<Record<string, unknown>>;
+  scorer_weights_timing?: ScorerWeightsTiming | null;
+  table_growth?: Record<string, unknown>;
+  error?: string;
 }
 
 // --- Top Performers Today (GET /api/v2/monitor/top-performers-today) ---

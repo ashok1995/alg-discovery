@@ -11,20 +11,16 @@ import {
   Chip,
   Alert,
   CircularProgress,
-  Divider,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Paper,
   Button,
-  alpha,
 } from '@mui/material';
 import {
   Settings as SettingsIcon,
-  Security,
   Refresh,
   Save,
   CloudDownload,
@@ -49,9 +45,6 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
   const [editMaxPerSector, setEditMaxPerSector] = useState<number>(3);
   const [editVixHalt, setEditVixHalt] = useState<number>(25);
   const [editVixReduce, setEditVixReduce] = useState<number>(18);
-  const [editBuyCutoff, setEditBuyCutoff] = useState<string>('13:00');
-  const [editSellCutoff, setEditSellCutoff] = useState<string>('14:30');
-
   const loadConfig = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -62,8 +55,6 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
       setEditMaxPerSector(config.opener.max_per_sector);
       setEditVixHalt(config.opener.vix_halt_buy_threshold);
       setEditVixReduce(config.opener.vix_reduce_threshold);
-      setEditBuyCutoff(config.opener.intraday_entry_cutoff_buy);
-      setEditSellCutoff(config.opener.intraday_entry_cutoff_sell);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load trading config');
     } finally {
@@ -89,8 +80,8 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
           max_per_sector: editMaxPerSector,
           vix_halt_buy_threshold: editVixHalt,
           vix_reduce_threshold: editVixReduce,
-          intraday_entry_cutoff_buy: editBuyCutoff,
-          intraday_entry_cutoff_sell: editSellCutoff,
+          intraday_entry_cutoff_buy: tradingConfig?.opener.intraday_entry_cutoff_buy ?? '13:00',
+          intraday_entry_cutoff_sell: tradingConfig?.opener.intraday_entry_cutoff_sell ?? '14:30',
           max_slippage_pct: tradingConfig?.opener.max_slippage_pct ?? {},
           cooldown_hours: tradingConfig?.opener.cooldown_hours ?? {},
         },
@@ -201,32 +192,11 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
                   margin="normal"
                   size="small"
                 />
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Buy Cutoff"
-                      type="time"
-                      value={editBuyCutoff}
-                      onChange={(e) => setEditBuyCutoff(e.target.value)}
-                      margin="normal"
-                      size="small"
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Sell Cutoff"
-                      type="time"
-                      value={editSellCutoff}
-                      onChange={(e) => setEditSellCutoff(e.target.value)}
-                      margin="normal"
-                      size="small"
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                </Grid>
+                <Alert severity="info" sx={{ mt: 1 }}>
+                  Intraday entry cutoffs and per–trade-type slippage/cooldowns are shown under{' '}
+                  <strong>Observability → Trading economics</strong>. Edit them via{' '}
+                  <strong>System settings → Seed (advanced) → Trading</strong> (opener section or JSON).
+                </Alert>
 
                 <Box display="flex" justifyContent="flex-end" mt={2}>
                   <Button
@@ -244,97 +214,6 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
           </CardContent>
         </Card>
       </Grid>
-
-      {/* Charges & Slippage read-only overview */}
-      {tradingConfig && (
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                <Security sx={{ verticalAlign: 'middle', mr: 1 }} />
-                Trading Charges & Slippage Config
-              </Typography>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle2" fontWeight={600} mb={1}>Brokerage & Charges</Typography>
-                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                    <Table size="small">
-                      <TableBody>
-                        {Object.entries(tradingConfig.charges).map(([key, val]) => (
-                          <TableRow key={key}>
-                            <TableCell sx={{ fontSize: '0.8rem' }}>{key.replace(/_/g, ' ')}</TableCell>
-                            <TableCell align="right">
-                              <Chip
-                                label={typeof val === 'number' ? val.toString() : String(val)}
-                                size="small"
-                                variant="outlined"
-                                sx={{ fontSize: '0.72rem' }}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle2" fontWeight={600} mb={1}>Max Slippage per Trade Type</Typography>
-                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>Trade Type</TableCell>
-                          <TableCell align="right" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>Max Slippage %</TableCell>
-                          <TableCell align="right" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>Cooldown (h)</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {Object.entries(tradingConfig.opener.max_slippage_pct).map(([tt, slip]) => (
-                          <TableRow key={tt}>
-                            <TableCell sx={{ fontSize: '0.8rem' }}>{tt.replace(/_/g, ' ')}</TableCell>
-                            <TableCell align="right">
-                              <Chip
-                                label={`${slip}%`}
-                                size="small"
-                                sx={{
-                                  fontSize: '0.72rem',
-                                  bgcolor: alpha(slip <= 1.5 ? '#4caf50' : slip <= 3 ? '#ff9800' : '#f44336', 0.12),
-                                  color: slip <= 1.5 ? 'success.dark' : slip <= 3 ? 'warning.dark' : 'error.dark',
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell align="right" sx={{ fontSize: '0.8rem' }}>
-                              {tradingConfig.opener.cooldown_hours[tt] ?? 0}h
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-
-                  <Divider sx={{ my: 2 }} />
-
-                  <Typography variant="subtitle2" fontWeight={600} mb={1}>Score Allocation Tiers</Typography>
-                  <Box display="flex" gap={1} flexWrap="wrap">
-                    {tradingConfig.capital.score_tiers.map(([score, fraction]) => (
-                      <Chip
-                        key={score}
-                        label={`≥${score}: ${(fraction * 100).toFixed(0)}%`}
-                        size="small"
-                        sx={{
-                          fontWeight: 600,
-                          bgcolor: alpha(score >= 90 ? '#4caf50' : score >= 80 ? '#8bc34a' : score >= 70 ? '#ff9800' : '#ff5722', 0.12),
-                          color: score >= 90 ? 'success.dark' : score >= 80 ? '#558b2f' : score >= 70 ? 'warning.dark' : 'error.dark',
-                        }}
-                      />
-                    ))}
-                  </Box>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-      )}
 
       {/* Tracker & Learning Config (read-only) */}
       {tradingConfig && (

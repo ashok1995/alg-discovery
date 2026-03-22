@@ -12,7 +12,7 @@ interface SymbolLinkProps {
   fontSize?: string;
 }
 
-const CHARTINK_BASE = 'https://chartink.com/stocks-new?symbol=';
+const DEFAULT_CHART_BASE = 'https://www.tradingview.com/symbols/NSE-';
 
 const SymbolLink: React.FC<SymbolLinkProps> = ({
   symbol,
@@ -22,7 +22,7 @@ const SymbolLink: React.FC<SymbolLinkProps> = ({
   showAvatar = false,
   fontSize = '0.875rem',
 }) => {
-  const href = chartUrl || `${CHARTINK_BASE}${encodeURIComponent(symbol)}`;
+  const href = chartUrl || `${DEFAULT_CHART_BASE}${encodeURIComponent(symbol)}/`; 
 
   return (
     <Box display="flex" alignItems="center" gap={showAvatar ? 1 : 0.5}>

@@ -15,6 +15,13 @@ import {
   Select,
   MenuItem,
   alpha,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableContainer,
+  Paper,
 } from '@mui/material';
 import {
   Business,
@@ -36,7 +43,7 @@ import InvestmentOpportunities from '../components/investing/InvestmentOpportuni
 import FundamentalAnalysis from '../components/investing/FundamentalAnalysis';
 import AssetAllocation from '../components/investing/AssetAllocation';
 import type { InvestmentOpportunity, PortfolioAllocation } from '../components/investing/types';
-import type { CapitalSummaryResponse } from '../types/apiModels';
+import type { CapitalSummaryResponse, PnlTimelineResponse } from '../types/apiModels';
 
 const DAYS_OPTIONS = [1, 7, 14, 30, 60];
 
@@ -47,9 +54,13 @@ const formatCurrency = (v: number): string => {
   return `₹${v.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 };
 
+const formatSignedCurrency = (v: number): string => `${v >= 0 ? '+' : ''}${formatCurrency(v)}`;
+
+
 const Investing: React.FC = () => {
   const [opportunities, setOpportunities] = useState<InvestmentOpportunity[]>([]);
   const [capitalSummary, setCapitalSummary] = useState<CapitalSummaryResponse | null>(null);
+  const [pnlTimeline, setPnlTimeline] = useState<PnlTimelineResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [seedLoading, setSeedLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,10 +74,15 @@ const Investing: React.FC = () => {
   const fetchSeedData = useCallback(async () => {
     setSeedLoading(true);
     try {
-      const summary = await seedDashboardService.getCapitalSummary(days);
+      const [summary, timeline] = await Promise.all([
+        seedDashboardService.getCapitalSummary(days),
+        seedDashboardService.getPnlTimeline(days),
+      ]);
       setCapitalSummary(summary);
+      setPnlTimeline(timeline);
     } catch {
       setCapitalSummary(null);
+      setPnlTimeline(null);
     } finally {
       setSeedLoading(false);
     }
@@ -306,6 +322,36 @@ const Investing: React.FC = () => {
               <Box sx={{ mt: 2, p: 2, bgcolor: alpha('#1976d2', 0.06), borderRadius: 2 }}>
                 <Typography variant="subtitle2" fontWeight={700} gutterBottom>Summary (last {days} days)</Typography>
                 <Typography variant="body2">Open positions: {cs.open_positions} · Closed: {cs.closed_positions} · Gross P&L: {formatCurrency(cs.total_gross_pnl)} · Charges: {formatCurrency(cs.total_charges)}</Typography>
+              </Box>
+            )}
+
+            {pnlTimeline?.timeline && pnlTimeline.timeline.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>Day-wise P&L & charges</Typography>
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Date</TableCell>
+                        <TableCell align="right">Gross P&L</TableCell>
+                        <TableCell align="right">Charges</TableCell>
+                        <TableCell align="right">Net P&L</TableCell>
+                        <TableCell align="right">Closed</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {pnlTimeline.timeline.map((d) => (
+                        <TableRow key={d.date} hover>
+                          <TableCell>{new Date(d.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</TableCell>
+                          <TableCell align="right" sx={{ color: d.gross_pnl >= 0 ? 'success.main' : 'error.main', fontWeight: 600 }}>{formatSignedCurrency(d.gross_pnl)}</TableCell>
+                          <TableCell align="right" sx={{ color: 'warning.main', fontWeight: 600 }}>{formatCurrency(d.charges)}</TableCell>
+                          <TableCell align="right" sx={{ color: d.net_pnl >= 0 ? 'success.main' : 'error.main', fontWeight: 700 }}>{formatSignedCurrency(d.net_pnl)}</TableCell>
+                          <TableCell align="right">{d.positions_closed}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </Box>
             )}
           </TabPanel>

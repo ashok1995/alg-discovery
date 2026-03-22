@@ -53,7 +53,7 @@ const QueryManagerLegacyPanel: React.FC = () => {
   const [form, setForm] = useState({
     query_name: '',
     query_string: '',
-    query_type: 'chartink',
+    query_type: 'query_execution',
     description: '',
     tags: '[]',
     parameters: '{}',
@@ -189,7 +189,7 @@ const QueryManagerLegacyPanel: React.FC = () => {
                   value={form.query_type}
                   onChange={(e) => setForm((prev) => ({ ...prev, query_type: e.target.value as string }))}
                 >
-                  <MenuItem value="chartink">Chartink</MenuItem>
+                  <MenuItem value="query_execution">Query Execution</MenuItem>
                   <MenuItem value="sql">SQL</MenuItem>
                   <MenuItem value="custom">Custom</MenuItem>
                 </Select>

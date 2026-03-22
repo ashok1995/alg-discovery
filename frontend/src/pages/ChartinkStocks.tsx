@@ -55,9 +55,8 @@ interface QueryResult {
   error?: string;
 }
 
-// Use proxy path for CORS compatibility
-// Proxy rewrites /api/chartink-query to /api/v1, so we just need /execute
-const CHARTINK_SERVICE_URL = '/api/chartink-query';
+// Use proxy path for CORS compatibility (path unchanged: /api/chartink-query → backend /api/v1)
+const QUERY_EXECUTION_API_BASE = '/api/chartink-query';
 
 // Predefined query templates
 const QUERY_TEMPLATES = {
@@ -84,7 +83,7 @@ const QUERY_TEMPLATES = {
   'custom': {
     name: 'Custom Query',
     query: '',
-    description: 'Enter your own Chartink query'
+    description: 'Enter your own screening query'
   }
 };
 
@@ -114,7 +113,7 @@ const ChartinkStocks: React.FC = () => {
 
     try {
       // Proxy rewrites /api/chartink-query to /api/v1, so we use /execute directly
-      const response = await fetch(`${CHARTINK_SERVICE_URL}/execute`, {
+      const response = await fetch(`${QUERY_EXECUTION_API_BASE}/execute`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -200,8 +199,8 @@ const ChartinkStocks: React.FC = () => {
     return String(value);
   };
 
-  // Get Chartink chart URL
-  const getChartUrl = (symbol: string): string => {
+  /** External chart deep link (provider URL from env-backed config in other flows). */
+  const getExternalChartUrl = (symbol: string): string => {
     return `https://chartink.com/stocks-new?symbol=${symbol.toUpperCase()}`;
   };
 
@@ -220,14 +219,14 @@ const ChartinkStocks: React.FC = () => {
       <Paper elevation={3} sx={{ p: 3 }}>
         <Box sx={{ mb: 4 }}>
           <Typography variant="h4" gutterBottom>
-            📊 Chartink Stock Query
+            📊 Stock query (query execution)
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Query Chartink and display stocks in real-time
+            Run screening queries and display stocks in real time
           </Typography>
         </Box>
 
-        {/* Chartink Query Status (session-status) */}
+        {/* Query execution session status */}
         <Alert
           severity={isAuthenticated ? 'success' : 'warning'}
           sx={{ mb: 3 }}
@@ -285,12 +284,12 @@ const ChartinkStocks: React.FC = () => {
               fullWidth
               multiline
               rows={3}
-              label="Chartink Query"
+              label="Query string"
               value={customQuery}
               onChange={(e) => setCustomQuery(e.target.value)}
               placeholder="select symbol, Daily Close WHERE({cash} Daily Close > 100)"
               disabled={selectedTemplate !== 'custom'}
-              helperText={selectedTemplate !== 'custom' ? QUERY_TEMPLATES[selectedTemplate as keyof typeof QUERY_TEMPLATES].description : 'Enter your Chartink query'}
+              helperText={selectedTemplate !== 'custom' ? QUERY_TEMPLATES[selectedTemplate as keyof typeof QUERY_TEMPLATES].description : 'Enter your screening query'}
             />
 
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -372,10 +371,10 @@ const ChartinkStocks: React.FC = () => {
                         </TableCell>
                       ))}
                       <TableCell>
-                        <Tooltip title="View on Chartink">
+                        <Tooltip title="Open external chart">
                           <IconButton
                             size="small"
-                            href={getChartUrl(stock.symbol)}
+                            href={getExternalChartUrl(stock.symbol)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
