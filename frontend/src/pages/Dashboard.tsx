@@ -11,104 +11,70 @@ import {
   MenuItem,
   IconButton,
   Tooltip,
-  Tabs,
-  Tab,
-  Chip,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
-import { Refresh, Timeline, ShowChart, Storage, Security, Psychology, TrendingUp } from '@mui/icons-material';
-import TabPanel from '../components/ui/TabPanel';
+import { Refresh, Hub, ExpandMore } from '@mui/icons-material';
 import DashboardKpiCards from '../components/dashboard/DashboardKpiCards';
-import PerformanceTab from '../components/dashboard/PerformanceTab';
-import MarketTrendsTab from '../components/dashboard/MarketTrendsTab';
-import UniverseTab from '../components/dashboard/UniverseTab';
-import PositionsTab from '../components/dashboard/PositionsTab';
-import MLLearningTab from '../components/dashboard/MLLearningTab';
-import MarketMoversTab from '../components/dashboard/MarketMoversTab';
+import QuickStatsBar from '../components/dashboard/QuickStatsBar';
+import SystemAlertsWidget from '../components/dashboard/SystemAlertsWidget';
+import SeedAllEndpointsTab from '../components/dashboard/SeedAllEndpointsTab';
 import { seedDashboardService } from '../services/SeedDashboardService';
-import type {
-  DashboardDailySummary,
-  TrackedPositionItem,
-  UniverseHealthResponse,
-  MarketTrendPoint,
-  ArmPerformanceItem,
-  LearningStatusResponse,
-  PerformanceTimelineDay,
-  TopMoverItem,
-  ScoreBinPerformanceItem,
-  AnalysisPerformanceResponse,
-  LearningPerformanceResponse,
-} from '../types/apiModels';
+import type { DashboardDailySummary, PositionsResponse } from '../types/apiModels';
 
+/**
+ * Seed Dashboard — summary only: KPIs, quick stats, and API tools.
+ * Deep views live under dedicated pages (Positions, Investing, Learning, Universe, etc.).
+ */
 const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState(0);
   const [days, setDays] = useState(7);
 
   const [summary, setSummary] = useState<DashboardDailySummary | null>(null);
-  const [positions, setPositions] = useState<TrackedPositionItem[]>([]);
-  const [universeHealth, setUniverseHealth] = useState<UniverseHealthResponse | null>(null);
-  const [marketTimeline, setMarketTimeline] = useState<MarketTrendPoint[]>([]);
-  const [armPerformance, setArmPerformance] = useState<ArmPerformanceItem[]>([]);
-  const [learningStatus, setLearningStatus] = useState<LearningStatusResponse | null>(null);
-  const [perfTimeline, setPerfTimeline] = useState<PerformanceTimelineDay[]>([]);
-  const [topGainers, setTopGainers] = useState<TopMoverItem[]>([]);
-  const [topLosers, setTopLosers] = useState<TopMoverItem[]>([]);
-  const [topTraded, setTopTraded] = useState<TopMoverItem[]>([]);
-  const [scoreBins, setScoreBins] = useState<ScoreBinPerformanceItem[]>([]);
-  const [analysisPerformance, setAnalysisPerformance] = useState<AnalysisPerformanceResponse | null>(null);
-  const [learningPerformance, setLearningPerformance] = useState<LearningPerformanceResponse | null>(null);
+  const [kpiWinRate, setKpiWinRate] = useState<number | null>(null);
+  const [kpiAvgReturn, setKpiAvgReturn] = useState<number | null>(null);
 
-  const fetchAll = useCallback(async () => {
+  const fetchSummary = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const [
         sumRes,
-        posRes,
-        univRes,
-        mktRes,
-        armRes,
-        learnRes,
-        perfRes,
-        gainRes,
-        loseRes,
-        tradedRes,
-        binRes,
-        analysisRes,
-        learnPerfRes,
+        intradayBuyRes,
+        intradaySellRes,
+        shortRes,
+        swingRes,
+        longTermRes,
       ] = await Promise.allSettled([
         seedDashboardService.getDailySummary(days),
-        seedDashboardService.getPositions({ days, limit: 50 }),
-        seedDashboardService.getUniverseHealth(),
-        seedDashboardService.getMarketTrends(30),
-        seedDashboardService.getArmPerformance(days),
-        seedDashboardService.getLearningStatus(),
-        seedDashboardService.getPerformanceTimeline(days),
-        seedDashboardService.getTopGainers(20, 24),
-        seedDashboardService.getTopLosers(20, 24),
-        seedDashboardService.getTopTraded(20, 24),
-        seedDashboardService.getScoreBinPerformance({ days }),
-        seedDashboardService.getAnalysisPerformance(days),
-        seedDashboardService.getLearningPerformance({ group_by: 'score_bin', days }),
+        seedDashboardService.getPositions({ trade_type: 'intraday_buy', days, limit: 1 }),
+        seedDashboardService.getPositions({ trade_type: 'intraday_sell', days, limit: 1 }),
+        seedDashboardService.getPositions({ trade_type: 'short_buy', days, limit: 1 }),
+        seedDashboardService.getPositions({ trade_type: 'swing_buy', days, limit: 1 }),
+        seedDashboardService.getPositions({ trade_type: 'long_term', days, limit: 1 }),
       ]);
 
       if (sumRes.status === 'fulfilled') setSummary(sumRes.value);
-      if (posRes.status === 'fulfilled') setPositions(posRes.value.positions);
-      if (univRes.status === 'fulfilled') setUniverseHealth(univRes.value);
-      if (mktRes.status === 'fulfilled') setMarketTimeline(mktRes.value.timeline);
-      if (armRes.status === 'fulfilled') setArmPerformance(armRes.value.arms);
-      if (learnRes.status === 'fulfilled') setLearningStatus(learnRes.value);
-      if (perfRes.status === 'fulfilled') setPerfTimeline(perfRes.value.timeline);
-      if (gainRes.status === 'fulfilled') setTopGainers(gainRes.value.gainers);
-      if (loseRes.status === 'fulfilled') setTopLosers(loseRes.value.losers);
-      if (tradedRes.status === 'fulfilled') setTopTraded(tradedRes.value.top_traded);
-      if (binRes.status === 'fulfilled') setScoreBins(binRes.value);
-      if (analysisRes.status === 'fulfilled') setAnalysisPerformance(analysisRes.value);
-      if (learnPerfRes.status === 'fulfilled') setLearningPerformance(learnPerfRes.value);
 
-      const failed = [sumRes, posRes, univRes, mktRes].filter((r) => r.status === 'rejected');
-      if (failed.length === 4) setError('All dashboard API calls failed. Is seed-stocks-service running?');
+      const horizonSummaries = [intradayBuyRes, intradaySellRes, shortRes, swingRes, longTermRes]
+        .filter((r): r is PromiseFulfilledResult<PositionsResponse> => r.status === 'fulfilled')
+        .map((r) => r.value.summary)
+        .filter((s): s is NonNullable<typeof s> => s != null && typeof s.total === 'number');
+      if (horizonSummaries.length > 0) {
+        const totalWeight = horizonSummaries.reduce((acc, s) => acc + (s.total || 0), 0);
+        if (totalWeight > 0) {
+          const weightedWin = horizonSummaries.reduce((acc, s) => acc + ((s.win_rate_pct ?? 0) * (s.total || 0)), 0) / totalWeight;
+          const weightedAvgReturn = horizonSummaries.reduce((acc, s) => acc + ((s.avg_return_pct ?? 0) * (s.total || 0)), 0) / totalWeight;
+          setKpiWinRate(weightedWin);
+          setKpiAvgReturn(weightedAvgReturn);
+        }
+      }
+
+      if (sumRes.status === 'rejected') {
+        setError('Dashboard summary failed. Is seed-stocks-service running?');
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
     } finally {
@@ -117,10 +83,10 @@ const Dashboard: React.FC = () => {
   }, [days]);
 
   useEffect(() => {
-    fetchAll();
-    const interval = setInterval(fetchAll, 60000);
+    void fetchSummary();
+    const interval = setInterval(() => void fetchSummary(), 60000);
     return () => clearInterval(interval);
-  }, [fetchAll]);
+  }, [fetchSummary]);
 
   if (loading && !summary) {
     return (
@@ -132,16 +98,18 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
-            Seed Stocks Dashboard
+            Seed Dashboard
           </Typography>
           <Typography variant="body2" color="text.secondary" mt={0.5}>
-            Continuous analysis pipeline — all endpoints integrated
+            Summary cards and system pulse. Open dedicated pages for deep-dive analysis.
           </Typography>
         </Box>
-        <Box display="flex" gap={1.5} alignItems="center">
+        <Box display="flex" gap={1.5} alignItems="center" flexWrap="wrap">
+          <QuickStatsBar />
+          <SystemAlertsWidget />
           <FormControl size="small" sx={{ minWidth: 110 }}>
             <InputLabel>Period</InputLabel>
             <Select value={days} label="Period" onChange={(e) => setDays(Number(e.target.value))}>
@@ -152,8 +120,8 @@ const Dashboard: React.FC = () => {
               <MenuItem value={30}>30 days</MenuItem>
             </Select>
           </FormControl>
-          <Tooltip title="Refresh all data">
-            <IconButton onClick={fetchAll} color="primary" sx={{ bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } }}>
+          <Tooltip title="Refresh">
+            <IconButton onClick={() => void fetchSummary()} color="primary" sx={{ bgcolor: 'primary.50', '&:hover': { bgcolor: 'primary.100' } }}>
               <Refresh />
             </IconButton>
           </Tooltip>
@@ -163,49 +131,26 @@ const Dashboard: React.FC = () => {
       {loading && <LinearProgress sx={{ mb: 1, borderRadius: 1 }} />}
       {error && <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
-      {summary && <DashboardKpiCards summary={summary} />}
-
-      <Tabs
-        value={tab}
-        onChange={(_, v) => setTab(v)}
-        variant="scrollable"
-        scrollButtons="auto"
-        sx={{
-          mb: 2,
-          '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, minHeight: 48 },
-        }}
-      >
-        <Tab icon={<Timeline />} label="Performance" iconPosition="start" />
-        <Tab icon={<TrendingUp />} label={<Box display="flex" alignItems="center" gap={0.5}>Market Movers <Chip label="Live" size="small" color="success" sx={{ height: 18, fontSize: '0.65rem' }} /></Box>} iconPosition="start" />
-        <Tab icon={<ShowChart />} label="Market Trends" iconPosition="start" />
-        <Tab icon={<Storage />} label="Universe" iconPosition="start" />
-        <Tab icon={<Security />} label="Positions" iconPosition="start" />
-        <Tab icon={<Psychology />} label="ML / Learning" iconPosition="start" />
-      </Tabs>
-
-      <TabPanel value={tab} index={0}>
-        <PerformanceTab
-          perfTimeline={perfTimeline}
-          armPerformance={armPerformance}
-          analysisPerformance={analysisPerformance}
-          learningPerformance={learningPerformance}
+      {summary && (
+        <DashboardKpiCards
+          summary={summary}
+          winRateOverride={kpiWinRate}
+          avgReturnOverride={kpiAvgReturn}
+          winRateScopeLabel={`${days}-day weighted across trade types`}
         />
-      </TabPanel>
-      <TabPanel value={tab} index={1}>
-        <MarketMoversTab topGainers={topGainers} topLosers={topLosers} topTraded={topTraded} />
-      </TabPanel>
-      <TabPanel value={tab} index={2}>
-        <MarketTrendsTab marketTimeline={marketTimeline} />
-      </TabPanel>
-      <TabPanel value={tab} index={3}>
-        <UniverseTab universeHealth={universeHealth} />
-      </TabPanel>
-      <TabPanel value={tab} index={4}>
-        <PositionsTab positions={positions} />
-      </TabPanel>
-      <TabPanel value={tab} index={5}>
-        <MLLearningTab learningStatus={learningStatus} scoreBins={scoreBins} />
-      </TabPanel>
+      )}
+
+      <Accordion defaultExpanded={false} disableGutters elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, '&:before': { display: 'none' } }}>
+        <AccordionSummary expandIcon={<ExpandMore />} sx={{ px: 2, minHeight: 48 }}>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Hub fontSize="small" color="action" />
+            <Typography fontWeight={700}>Seed API tools (advanced)</Typography>
+          </Box>
+        </AccordionSummary>
+        <AccordionDetails sx={{ px: 2, pt: 0, borderTop: '1px solid', borderColor: 'divider' }}>
+          <SeedAllEndpointsTab />
+        </AccordionDetails>
+      </Accordion>
     </Box>
   );
 };

@@ -1,212 +1,477 @@
+/**
+ * Home — summary only (no embedded Market Movers; those live on /seed-dashboard and /market-movers).
+ */
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
+  Typography,
+  Chip,
   Grid,
   Card,
   CardContent,
-  Typography,
-  Chip,
-  Tabs,
-  Tab,
+  Skeleton,
   alpha,
+  TextField,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Link,
 } from '@mui/material';
 import {
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  Insights,
-  ShowChart,
+  TrendingUp,
+  TrendingDown,
+  SwapHoriz,
+  Inventory,
+  FiberManualRecord,
+  Speed,
+  Timer,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 import { seedDashboardService } from '../services/SeedDashboardService';
-import type { DashboardDailySummary, TrackedPositionItem, TopMoverItem } from '../types/apiModels';
+import type { DashboardDailySummary, PositionsSummaryResponse } from '../types/apiModels';
 import { InternalMarketContextCard } from '../components/InternalMarketContextCard';
-import HomeOverviewTab from '../components/home/HomeOverviewTab';
-import HomeDetailsTab from '../components/home/HomeDetailsTab';
-import HomeMarketMoversTab from '../components/home/HomeMarketMoversTab';
-import TabPanel from '../components/ui/TabPanel';
+import {
+  positionsSummaryIsPresent,
+  stopHitCountFromDistribution,
+  avgDurationMinutesFromPositions,
+} from '../utils/positionDisplayUtils';
 
-interface MarketCard {
-  name: string;
-  value: string;
-  change: string;
-  trend: 'up' | 'down' | 'neutral';
+interface HorizonSummary {
+  label: string;
+  tradeType: string;
+  color: string;
   icon: React.ReactNode;
+  summary: PositionsSummaryResponse | null;
+  loading: boolean;
+}
+
+const SUMMARY_DAYS_MIN = 1;
+const SUMMARY_DAYS_MAX = 90;
+const SCENARIO_OPTIONS = [
+  { value: 'all', label: 'All Scenarios' },
+  { value: 'paper_trade', label: 'Paper Trading' },
+  { value: 'learning', label: 'Learning' },
+] as const;
+
+type ScenarioValue = (typeof SCENARIO_OPTIONS)[number]['value'];
+
+function scenarioQuery(scenario: ScenarioValue): { category?: 'paper_trade' | 'learning'; scenario?: 'paper_trade' | 'learning' } {
+  if (scenario === 'all') return {};
+  return { category: scenario, scenario };
 }
 
 const Home: React.FC = () => {
-  const navigate = useNavigate();
-  const [tabValue, setTabValue] = useState(0);
+  /** Align with Positions page default window so totals are comparable */
+  const [summaryDays, setSummaryDays] = useState(30);
+  const [scenario, setScenario] = useState<ScenarioValue>('all');
   const [liveSummary, setLiveSummary] = useState<DashboardDailySummary | null>(null);
-  const [recentPositions, setRecentPositions] = useState<TrackedPositionItem[]>([]);
-  const [topGainers, setTopGainers] = useState<TopMoverItem[]>([]);
-  const [topLosers, setTopLosers] = useState<TopMoverItem[]>([]);
-  const [topTraded, setTopTraded] = useState<TopMoverItem[]>([]);
+  const [positionsSummary, setPositionsSummary] = useState<PositionsSummaryResponse | null>(null);
+  /** When scenario is "all", split counts (paper vs learning) for transparency */
+  const [scenarioSplit, setScenarioSplit] = useState<{ paper: number; learning: number } | null>(null);
   const [loadingSeed, setLoadingSeed] = useState(true);
+  const [horizons, setHorizons] = useState<HorizonSummary[]>([
+    { label: 'Intraday Buy', tradeType: 'intraday_buy', color: '#4caf50', icon: <TrendingUp />, summary: null, loading: true },
+    { label: 'Intraday Sell', tradeType: 'intraday_sell', color: '#f44336', icon: <TrendingDown />, summary: null, loading: true },
+    { label: 'Short', tradeType: 'short_buy', color: '#e91e63', icon: <Speed />, summary: null, loading: true },
+    { label: 'Swing', tradeType: 'swing_buy', color: '#ff9800', icon: <SwapHoriz />, summary: null, loading: true },
+    { label: 'Long Term', tradeType: 'long_term', color: '#2196f3', icon: <Timer />, summary: null, loading: true },
+  ]);
 
-  const fetchLiveData = useCallback(async () => {
+  const fetchSummary = useCallback(async () => {
     try {
-      const [sumRes, posRes, gainRes, loseRes, tradedRes] = await Promise.allSettled([
-        seedDashboardService.getDailySummary(1),
-        seedDashboardService.getPositions({ days: 1, limit: 10 }),
-        seedDashboardService.getTopGainers(10, 24),
-        seedDashboardService.getTopLosers(10, 24),
-        seedDashboardService.getTopTraded(10, 24),
-      ]);
-      if (sumRes.status === 'fulfilled') setLiveSummary(sumRes.value);
-      if (posRes.status === 'fulfilled') setRecentPositions(posRes.value.positions);
-      if (gainRes.status === 'fulfilled') setTopGainers(gainRes.value.gainers);
-      if (loseRes.status === 'fulfilled') setTopLosers(loseRes.value.losers);
-      if (tradedRes.status === 'fulfilled') setTopTraded(tradedRes.value.top_traded);
+      const opts = scenario === 'all' ? undefined : scenarioQuery(scenario);
+      const res = await seedDashboardService.getDailySummary(summaryDays, opts);
+      setLiveSummary(res);
     } catch { /* silent */ } finally { setLoadingSeed(false); }
-  }, []);
+  }, [summaryDays, scenario]);
+
+  const fetchPositionsSummary = useCallback(async () => {
+    try {
+      /** limit: 0 — summary-only; avoids backends that return empty/wrong summary when list+filter combined */
+      const res = await seedDashboardService.getPositions({
+        ...scenarioQuery(scenario),
+        days: summaryDays,
+        limit: 0,
+      });
+      setPositionsSummary(res.summary ?? null);
+
+      if (scenario === 'all') {
+        const [paper, learning] = await Promise.allSettled([
+          seedDashboardService.getPositions({
+            category: 'paper_trade',
+            scenario: 'paper_trade',
+            days: summaryDays,
+            limit: 0,
+          }),
+          seedDashboardService.getPositions({
+            category: 'learning',
+            scenario: 'learning',
+            days: summaryDays,
+            limit: 0,
+          }),
+        ]);
+        let ptot = 0;
+        let ltot = 0;
+        if (paper.status === 'fulfilled' && positionsSummaryIsPresent(paper.value.summary)) {
+          ptot = paper.value.summary.total;
+        }
+        if (learning.status === 'fulfilled' && positionsSummaryIsPresent(learning.value.summary)) {
+          ltot = learning.value.summary.total;
+        }
+        setScenarioSplit({ paper: ptot, learning: ltot });
+      } else {
+        setScenarioSplit(null);
+      }
+    } catch {
+      setPositionsSummary(null);
+      setScenarioSplit(null);
+    }
+  }, [scenario, summaryDays]);
+
+  const fetchHorizons = useCallback(async () => {
+    const types = ['intraday_buy', 'intraday_sell', 'short_buy', 'swing_buy', 'long_term'];
+    const results = await Promise.allSettled(
+      types.map((tt) => seedDashboardService.getPositions({
+        ...scenarioQuery(scenario),
+        trade_type: tt,
+        days: summaryDays,
+        limit: 0,
+      }))
+    );
+    setHorizons((prev) =>
+      prev.map((h, i) => {
+        const r = results[i];
+        if (r.status !== 'fulfilled') {
+          return { ...h, summary: null, loading: false };
+        }
+        const summ = r.value.summary;
+        const rows = r.value.positions ?? [];
+        const avgMin = rows.length > 0 ? avgDurationMinutesFromPositions(rows) : null;
+        if (
+          summ &&
+          positionsSummaryIsPresent(summ) &&
+          summ.avg_duration_min == null &&
+          summ.avg_duration_hours == null &&
+          avgMin != null
+        ) {
+          return { ...h, summary: { ...summ, avg_duration_min: avgMin }, loading: false };
+        }
+        return { ...h, summary: summ, loading: false };
+      })
+    );
+  }, [scenario, summaryDays]);
 
   useEffect(() => {
-    fetchLiveData();
-    const iv = setInterval(fetchLiveData, 60000);
+    setLoadingSeed(true);
+    setHorizons((prev) => prev.map((h) => ({ ...h, loading: true })));
+    fetchSummary();
+    fetchPositionsSummary();
+    fetchHorizons();
+  }, [fetchSummary, fetchHorizons, fetchPositionsSummary]);
+
+  useEffect(() => {
+    const iv = setInterval(fetchSummary, 60_000);
     return () => clearInterval(iv);
-  }, [fetchLiveData]);
+  }, [fetchSummary]);
 
-  const mktCtx = liveSummary?.market_context;
-  const nifty = mktCtx?.nifty_50;
-  const breadth = mktCtx?.market_breadth;
-  const regime = mktCtx?.market_regime;
-
-  const marketCards: MarketCard[] = [
-    {
-      name: 'NIFTY 50',
-      value: nifty?.price ? nifty.price.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—',
-      change: nifty?.change_percent != null ? `${nifty.change_percent >= 0 ? '+' : ''}${nifty.change_percent.toFixed(2)}%` : '—',
-      trend: (nifty?.change_percent ?? 0) >= 0 ? 'up' : 'down',
-      icon: <ShowChart />,
-    },
-    {
-      name: 'VIX India',
-      value: mktCtx?.vix_india != null ? mktCtx.vix_india.toFixed(2) : '—',
-      change: mktCtx?.vix_level ?? '—',
-      trend: (mktCtx?.vix_india ?? 0) > 18 ? 'down' : 'up',
-      icon: <Insights />,
-    },
-    {
-      name: 'Market Regime',
-      value: regime ? regime.charAt(0).toUpperCase() + regime.slice(1) : '—',
-      change: mktCtx?.market_sentiment ?? '—',
-      trend: regime === 'bullish' ? 'up' : regime === 'bearish' ? 'down' : 'neutral',
-      icon: regime === 'bullish' ? <TrendingUpIcon /> : <TrendingDownIcon />,
-    },
-    {
-      name: 'Advance / Decline',
-      value: breadth?.advance_decline_ratio != null ? breadth.advance_decline_ratio.toFixed(2) : '—',
-      change: breadth?.advance_count != null ? `${breadth.advance_count}A / ${breadth.decline_count}D` : '—',
-      trend: (breadth?.advance_decline_ratio ?? 0) >= 1 ? 'up' : 'down',
-      icon: <ShowChart />,
-    },
-  ];
-
-  const trendColor = (t: string) => (t === 'up' ? '#4caf50' : t === 'down' ? '#f44336' : '#ff9800');
-
-  const recentActivities = recentPositions.map((p) => ({
-    time: p.opened_at ? new Date(p.opened_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—',
-    action: p.trade_type.replace(/_/g, ' '),
-    stock: p.symbol,
-    price: p.entry_price ? `₹${p.entry_price.toFixed(2)}` : '—',
-    status: p.status,
-  }));
+  const regime = liveSummary?.market_context?.market_regime;
+  const pos = positionsSummary;
+  const universe = liveSummary?.universe;
+  /**
+   * Stops must respect the same scenario as the P&L strip. For Paper/Learning, use only
+   * `positionsSummary.outcome_distribution` so we never show global stops next to filtered zeros.
+   * (Daily-summary `stops` is only used when scenario is "all".)
+   */
+  const stopsFromDist = stopHitCountFromDistribution(pos?.outcome_distribution ?? null);
+  const stopsFromDaily = liveSummary?.positions?.stops ?? 0;
+  const stopsCount = scenario === 'all' ? Math.max(stopsFromDist, stopsFromDaily) : stopsFromDist;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
-          Financial Markets Overview
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
-          Real-time market data, indices, and trading opportunities
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 1.5 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pb: 4, background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)', minHeight: '100%', p: 3 }}>
+      {/* Header */}
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box>
+          <Typography variant="h5" fontWeight={800} color="#1a1a2e">Trading Command Center</Typography>
+          <Typography variant="body2" color="text.secondary">Summary only — market context, P&amp;L, horizons; use Dashboard for movers, other pages for detail</Typography>
+        </Box>
+        <Box display="flex" gap={1} alignItems="center">
           <Chip
             label={regime ? `Market: ${regime}` : 'Loading...'}
             color={regime === 'bullish' ? 'success' : regime === 'bearish' ? 'error' : 'warning'}
             size="small"
             sx={{ fontWeight: 600 }}
           />
-          <Typography variant="caption" color="text.secondary">
-            {liveSummary?.generated_at ? `Updated ${new Date(liveSummary.generated_at).toLocaleTimeString('en-IN')}` : ''}
-          </Typography>
+          {liveSummary?.generated_at && (
+            <Typography variant="caption" color="text.secondary">
+              {new Date(liveSummary.generated_at).toLocaleTimeString('en-IN')}
+            </Typography>
+          )}
         </Box>
       </Box>
 
+      {/* Market Context — full India + Global with trends */}
       <InternalMarketContextCard />
 
-      <Grid container spacing={2.5} sx={{ mb: 4 }}>
-        {marketCards.map((card) => {
-          const color = trendColor(card.trend);
-          return (
-            <Grid item xs={12} sm={6} md={3} key={card.name}>
-              <Card
-                elevation={0}
-                sx={{
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 2.5,
-                  transition: 'all 0.25s ease',
-                  '&:hover': {
-                    transform: 'translateY(-3px)',
-                    boxShadow: `0 12px 32px ${alpha(color, 0.15)}`,
-                  },
+      {/* P&L Summary Strip */}
+      <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+        <CardContent sx={{ py: 1.5, px: 2.5, '&:last-child': { pb: 1.5 } }}>
+          <Box display="flex" justifyContent="space-between" alignItems={{ xs: 'stretch', md: 'center' }} gap={1.5} flexDirection={{ xs: 'column', md: 'row' }}>
+            <Box>
+              <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5} fontSize="0.62rem">
+                P&amp;L Summary
+              </Typography>
+              <Typography variant="caption" display="block" color="text.secondary">
+                {summaryDays} day{summaryDays !== 1 ? 's' : ''} · {SCENARIO_OPTIONS.find((option) => option.value === scenario)?.label}
+                {scenario === 'all' && scenarioSplit != null && (
+                  <> · Paper {scenarioSplit.paper} · Learning {scenarioSplit.learning}</>
+                )}
+              </Typography>
+              {scenario === 'all' && (
+                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.25 }}>
+                  &quot;All scenarios&quot; sums paper + learning. Use the scenario filter or{' '}
+                  <Box component={RouterLink} to="/positions" sx={{ color: 'primary.main', fontWeight: 600 }}>Positions</Box>
+                  {' '}for a single lane.
+                </Typography>
+              )}
+            </Box>
+            <Box display="flex" gap={1.25} flexWrap="wrap" justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
+              <FormControl size="small" sx={{ minWidth: 168 }}>
+                <InputLabel>Scenario</InputLabel>
+                <Select value={scenario} label="Scenario" onChange={(e) => setScenario(e.target.value as (typeof SCENARIO_OPTIONS)[number]['value'])}>
+                  {SCENARIO_OPTIONS.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                type="number"
+                size="small"
+                label="Days"
+                value={summaryDays}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  if (!Number.isNaN(v)) setSummaryDays(Math.min(SUMMARY_DAYS_MAX, Math.max(SUMMARY_DAYS_MIN, v)));
                 }}
-              >
-                <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-                  <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                    <Typography variant="body2" fontWeight={600} color="text.secondary" textTransform="uppercase" letterSpacing={0.5} fontSize="0.72rem">
-                      {card.name}
-                    </Typography>
-                    <Box sx={{ bgcolor: alpha(color, 0.1), borderRadius: 1.5, p: 0.6, display: 'flex', color }}>
-                      {card.icon}
-                    </Box>
+                inputProps={{ min: SUMMARY_DAYS_MIN, max: SUMMARY_DAYS_MAX, step: 1 }}
+                InputProps={{
+                  endAdornment: <InputAdornment position="end"><Typography variant="caption" color="text.secondary">days</Typography></InputAdornment>,
+                }}
+                sx={{ width: 172, '& .MuiInputBase-input': { fontWeight: 700 } }}
+              />
+            </Box>
+          </Box>
+          <Grid container spacing={2} sx={{ mt: 0.5 }}>
+            {loadingSeed ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Grid item xs={4} sm={2} key={i}><Skeleton height={44} /></Grid>
+              ))
+            ) : (
+              <>
+                <Grid item xs={4} sm={2}>
+                  <Box textAlign="center">
+                    <Typography variant="h5" fontWeight={800} color="primary.main">{pos?.total ?? 0}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Total Positions</Typography>
                   </Box>
-                  <Typography variant="h4" fontWeight={800} sx={{ mt: 1.5, mb: 0.5, color }}>
-                    {card.value}
-                  </Typography>
+                </Grid>
+                <Grid item xs={4} sm={2}>
+                  <Box textAlign="center">
+                    <Typography variant="h5" fontWeight={800} color="#1976d2">{pos?.open ?? 0}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Open</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4} sm={2}>
+                  <Box textAlign="center">
+                    <Typography variant="h5" fontWeight={800}>{pos?.closed ?? 0}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Closed</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4} sm={2}>
+                  <Box textAlign="center">
+                    <Typography variant="h5" fontWeight={800} color={(pos?.win_rate_pct ?? 0) >= 50 ? '#4caf50' : '#f44336'}>
+                      {pos?.win_rate_pct != null ? `${pos.win_rate_pct.toFixed(0)}%` : '—'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Win Rate</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4} sm={2}>
+                  <Box textAlign="center">
+                    <Typography variant="h5" fontWeight={800} color={(pos?.avg_return_pct ?? 0) >= 0 ? '#4caf50' : '#f44336'}>
+                      {pos?.avg_return_pct != null ? `${pos.avg_return_pct > 0 ? '+' : ''}${pos.avg_return_pct.toFixed(1)}%` : '—'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Avg Return</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4} sm={2}>
+                  <Box textAlign="center">
+                    <Typography variant="h5" fontWeight={800} color={(pos?.total_net_pnl ?? 0) >= 0 ? '#4caf50' : '#f44336'}>
+                      {pos?.total_net_pnl != null ? `${pos.total_net_pnl >= 0 ? '+' : ''}₹${Math.abs(pos.total_net_pnl).toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Net P&amp;L</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4} sm={2}>
+                  <Box textAlign="center">
+                    <Typography variant="h5" fontWeight={800} color="#f44336">{stopsCount}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Stops Hit</Typography>
+                  </Box>
+                </Grid>
+              </>
+            )}
+          </Grid>
+          {!loadingSeed && pos?.outcome_distribution && Object.keys(pos.outcome_distribution).length > 0 && (
+            <Box sx={{ mt: 1.5, pt: 1, borderTop: 1, borderColor: 'divider', display: 'flex', flexWrap: 'wrap', gap: 0.75, justifyContent: 'center' }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ width: '100%', textAlign: 'center' }}>
+                Outcomes (same window)
+              </Typography>
+              {Object.entries(pos.outcome_distribution).map(([outcome, count]) => {
+                const oColor = outcome === 'stop' || outcome === 'stop_hit' || outcome === 'sl_hit' ? '#f44336'
+                  : outcome === 'target_3' ? '#4caf50'
+                  : outcome === 'expired' ? '#9e9e9e'
+                  : '#ff9800';
+                return (
                   <Chip
-                    label={card.change}
+                    key={outcome}
                     size="small"
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: '0.72rem',
-                      bgcolor: alpha(color, 0.08),
-                      color,
-                    }}
+                    label={`${outcome.replace(/_/g, ' ')}: ${count}`}
+                    sx={{ fontWeight: 600, fontSize: '0.68rem', bgcolor: alpha(oColor, 0.12), color: oColor, textTransform: 'capitalize' }}
                   />
-                </CardContent>
-              </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
+                );
+              })}
+            </Box>
+          )}
+        </CardContent>
+      </Card>
 
-      <Box sx={{ flexGrow: 1 }}>
-        <Tabs
-          value={tabValue}
-          onChange={(_, v) => setTabValue(v)}
-          sx={{
-            mb: 2,
-            '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: '0.9rem' },
-          }}
-        >
-          <Tab label="Trading Overview" />
-          <Tab label="Market Movers" />
-          <Tab label="Recent Activities" />
-        </Tabs>
-
-        <TabPanel value={tabValue} index={0}>
-          <HomeOverviewTab liveSummary={liveSummary} loadingSeed={loadingSeed} onStrategyClick={(p) => navigate(p)} />
-        </TabPanel>
-        <TabPanel value={tabValue} index={1}>
-          <HomeMarketMoversTab topGainers={topGainers} topLosers={topLosers} topTraded={topTraded} loading={loadingSeed} />
-        </TabPanel>
-        <TabPanel value={tabValue} index={2}>
-          <HomeDetailsTab recentActivities={recentActivities} />
-        </TabPanel>
+      {/* Horizon Summary Cards — all 5 trade types */}
+      <Box>
+        <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5} fontSize="0.62rem" sx={{ mb: 1, display: 'block' }}>
+          Position Summary by Trade Type ({summaryDays} day{summaryDays !== 1 ? 's' : ''})
+        </Typography>
+        <Grid container spacing={2}>
+          {horizons.map((h) => {
+            const s = h.summary;
+            const durationLabel = s?.avg_duration_hours != null && s.avg_duration_hours >= 1
+              ? `${s.avg_duration_hours.toFixed(1)}h`
+              : s?.avg_duration_min != null
+                ? `${s.avg_duration_min.toFixed(0)}m`
+                : '—';
+            return (
+              <Grid item xs={12} sm={6} md={4} lg key={h.tradeType} sx={{ minWidth: 0 }}>
+                <Card
+                  elevation={0}
+                  sx={{
+                    border: '2px solid',
+                    borderColor: alpha(h.color, 0.15),
+                    borderRadius: 2.5,
+                    transition: 'all 0.2s',
+                    '&:hover': { borderColor: h.color, boxShadow: 2 },
+                    height: '100%',
+                  }}
+                >
+                  <CardContent sx={{ py: 2, px: 2, '&:last-child': { pb: 2 } }}>
+                    {/* Header */}
+                    <Box display="flex" alignItems="center" gap={0.5} mb={1.5}>
+                      <Box sx={{ color: h.color, display: 'flex', fontSize: 18 }}>{h.icon}</Box>
+                      <Typography variant="caption" fontWeight={800} fontSize="0.8rem">{h.label}</Typography>
+                      {!h.loading && positionsSummaryIsPresent(s) && (
+                        <Chip
+                          label={`${s.open} open`}
+                          size="small"
+                          sx={{ ml: 'auto', height: 18, fontSize: '0.55rem', fontWeight: 700, bgcolor: alpha(h.color, 0.1), color: h.color }}
+                        />
+                      )}
+                    </Box>
+                    {h.loading ? (
+                      <Skeleton height={60} />
+                    ) : positionsSummaryIsPresent(s) ? (
+                      <>
+                        {/* KPI row — minWidth so numbers aren't clipped */}
+                        <Box display="flex" justifyContent="space-between" gap={0.5} mb={0.5} sx={{ minWidth: 0 }}>
+                          <Box textAlign="center" flex={1} sx={{ minWidth: 36 }}>
+                            <Typography variant="subtitle2" fontWeight={800} noWrap>{s.total}</Typography>
+                            <Typography variant="caption" color="text.secondary" fontSize="0.55rem">Total</Typography>
+                          </Box>
+                          <Box textAlign="center" flex={1} sx={{ minWidth: 44 }}>
+                            <Typography variant="subtitle2" fontWeight={800} color={(s.win_rate_pct ?? 0) >= 50 ? '#4caf50' : '#f44336'} noWrap>
+                              {s.win_rate_pct != null ? `${s.win_rate_pct.toFixed(0)}%` : '—'}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" fontSize="0.55rem">Win</Typography>
+                          </Box>
+                          <Box textAlign="center" flex={1} sx={{ minWidth: 52 }}>
+                            <Typography variant="subtitle2" fontWeight={800} color={(s.avg_return_pct ?? 0) >= 0 ? '#4caf50' : '#f44336'} noWrap>
+                              {s.avg_return_pct != null ? `${s.avg_return_pct > 0 ? '+' : ''}${s.avg_return_pct.toFixed(1)}%` : '—'}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" fontSize="0.55rem">Avg Ret</Typography>
+                          </Box>
+                        </Box>
+                        {/* Duration + Best/Worst chips */}
+                        <Box display="flex" gap={0.4} flexWrap="wrap" justifyContent="center">
+                          <Chip label={`Avg: ${durationLabel}`} size="small" sx={{ height: 16, fontSize: '0.52rem', fontWeight: 600 }} />
+                          {s.best_return_pct != null && (
+                            <Chip icon={<FiberManualRecord sx={{ fontSize: 5 }} />} label={`${s.best_return_pct.toFixed(1)}%`} size="small" sx={{ height: 16, fontSize: '0.52rem', fontWeight: 600, '& .MuiChip-icon': { color: '#4caf50' } }} />
+                          )}
+                          {s.worst_return_pct != null && (
+                            <Chip icon={<FiberManualRecord sx={{ fontSize: 5 }} />} label={`${s.worst_return_pct.toFixed(1)}%`} size="small" sx={{ height: 16, fontSize: '0.52rem', fontWeight: 600, '& .MuiChip-icon': { color: '#f44336' } }} />
+                          )}
+                          {s.arm_distribution && Object.keys(s.arm_distribution).length > 0 && (
+                            <Chip label={`ARM: ${Object.keys(s.arm_distribution).join(', ')}`} size="small" variant="outlined" sx={{ height: 16, fontSize: '0.52rem', fontWeight: 600 }} />
+                          )}
+                        </Box>
+                      </>
+                    ) : (
+                      <Typography color="text.secondary" variant="caption">No data</Typography>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            );
+          })}
+        </Grid>
       </Box>
+
+      <Box sx={{ py: 0.5, textAlign: 'center' }}>
+        <Typography variant="caption" color="text.secondary">
+          Market movers:{' '}
+          <Link component={RouterLink} to="/seed-dashboard" underline="hover" fontWeight={600}>
+            Seed Dashboard
+          </Link>
+          {' · '}
+          <Link component={RouterLink} to="/market-movers" underline="hover" fontWeight={600}>
+            full page
+          </Link>
+        </Typography>
+      </Box>
+
+      {/* Universe Health Strip */}
+      {universe && (
+        <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+          <CardContent sx={{ py: 1.5, px: 2.5, '&:last-child': { pb: 1.5 } }}>
+            <Box display="flex" alignItems="center" gap={1} mb={1}>
+              <Inventory sx={{ fontSize: 18, color: 'text.secondary' }} />
+              <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5} fontSize="0.62rem">
+                Stock Universe
+              </Typography>
+            </Box>
+            <Box display="flex" gap={1.5} flexWrap="wrap">
+              {Object.entries(universe).map(([type, count]) => (
+                <Chip
+                  key={type}
+                  label={`${type.replace(/_/g, ' ')}: ${count}`}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '0.72rem',
+                    textTransform: 'capitalize',
+                    bgcolor: alpha('#1976d2', 0.06),
+                  }}
+                />
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+      )}
     </Box>
   );
 };

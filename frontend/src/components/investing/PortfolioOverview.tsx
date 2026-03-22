@@ -35,7 +35,9 @@ const PortfolioOverview: React.FC<PortfolioOverviewProps> = ({ portfolioAllocati
                 </Box>
               </Box>
               <Typography variant="h4" sx={{ fontWeight: 'bold', color: allocation.color }}>
-                ₹{(allocation.percentage * 1250 / 100).toFixed(1)}K
+                {allocation.amount != null
+                  ? (allocation.amount >= 1e5 ? `₹${(allocation.amount / 1e5).toFixed(2)}L` : allocation.amount >= 1e3 ? `₹${(allocation.amount / 1e3).toFixed(1)}K` : `₹${allocation.amount.toFixed(0)}`)
+                  : `₹${(allocation.percentage * 12.5).toFixed(1)}K`}
               </Typography>
             </CardContent>
           </Card>

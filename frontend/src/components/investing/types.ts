@@ -29,4 +29,6 @@ export interface PortfolioAllocation {
   percentage: number;
   color: string;
   description: string;
+  /** When set, show this amount (e.g. from Seed) instead of deriving from percentage. */
+  amount?: number;
 }

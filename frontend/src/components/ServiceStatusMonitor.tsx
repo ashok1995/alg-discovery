@@ -19,6 +19,7 @@ import {
   Api,
   Speed
 } from '@mui/icons-material';
+import { QUERY_EXECUTION_SERVICE_LABEL } from '../config/serviceDisplayNames';
 
 interface ServiceStatus {
   name: string;
@@ -53,9 +54,9 @@ const ServiceStatusMonitor: React.FC<ServiceStatusMonitorProps> = ({
       description: 'Stock recommendations & analysis'
     },
     {
-      name: 'Chartink Service',
+      name: QUERY_EXECUTION_SERVICE_LABEL,
       endpoint: '/api/chartink/session-status',
-      description: 'Technical analysis & screening'
+      description: 'Screening query execution & session'
     },
     {
       name: 'Yahoo Service',
@@ -83,7 +84,7 @@ const ServiceStatusMonitor: React.FC<ServiceStatusMonitorProps> = ({
         if (config.name === 'Seed Service') {
           status = data.status === 'healthy' ? 'healthy' : 'degraded';
           healthScore = status === 'healthy' ? 100 : 70;
-        } else if (config.name === 'Chartink Service') {
+        } else if (config.name === QUERY_EXECUTION_SERVICE_LABEL) {
           const ok = data.authenticated === true || data.session_working === true;
           status = ok ? 'healthy' : 'unhealthy';
           healthScore = ok ? 100 : 0;

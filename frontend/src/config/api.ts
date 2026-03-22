@@ -34,14 +34,14 @@ export const API_CONFIG = {
     process.env.REACT_APP_RECOMMENDATION_V2_API_BASE_URL ||
     (isProduction() ? 'http://203.57.85.201:8182' : 'http://localhost:8282'),
 
-  // Chartink Authentication Service URL (port 8081)
+  // Query execution auth proxy (dev: port 8081 → same integration as /api/chartink)
   CHARTINK_AUTH_BASE_URL: process.env.REACT_APP_CHARTINK_AUTH_BASE_URL || 
                           (isProduction() ? 'http://algodiscovery.com:8081' : 'http://localhost:8081'),
 
   // Seed service API URL (Seed Stocks Service - http://203.57.85.201:8182/docs)
   SEED_API_BASE_URL: process.env.REACT_APP_SEED_API_BASE_URL ||
                      (isProduction() ? 'http://203.57.85.201:8182' : 'http://localhost:8282'),
-  // Seed v2 recommendations: POST body { strategy, risk_level, limit } (proxied via /api/seed in dev; nginx in prod)
+  // Seed v2 recommendations: GET /v2/recommendations?trade_type=&limit=&min_score= (no risk_level; see OpenAPI)
   SEED_V2_RECOMMENDATIONS_PATH: '/api/seed/recommendations',
 
   // Theme recommendations API URLs (legacy naming, kept for ThemeRecommendationsService)
@@ -178,11 +178,15 @@ export const getServiceUrl = (port: number, endpoint: string = ''): string => {
 };
 
 /**
- * Get Chartink URL for a symbol
+ * External stocks URL for a symbol (query-execution provider; env: REACT_APP_CHARTINK_STOCKS_URL).
+ * @deprecated Prefer `getQueryExecutionExternalChartUrl` — same implementation.
  */
 export const getChartinkUrl = (symbol: string): string => {
   return `${API_CONFIG.EXTERNAL.CHARTINK.STOCKS_URL}?symbol=${symbol}`;
 };
+
+/** Alias for external chart URL (same as getChartinkUrl). */
+export const getQueryExecutionExternalChartUrl = getChartinkUrl;
 
 /**
  * Get Zerodha chart URL for a symbol

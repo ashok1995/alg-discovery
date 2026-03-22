@@ -7,6 +7,7 @@
  */
 
 import { sharedDataManager } from './SharedDataManager';
+import { QUERY_EXECUTION_SOURCE_PREFIX } from '../config/serviceDisplayNames';
 
 export class DataBridge {
   private static instance: DataBridge;
@@ -134,7 +135,7 @@ export class DataBridge {
             change: (stock.price * stock.change_pct) / 100,
             changePercent: stock.change_pct,
             volume: stock.volume,
-            source: `Chartink - ${stock.source}`
+            source: `${QUERY_EXECUTION_SOURCE_PREFIX} - ${stock.source}`
           })));
         }
       } catch (error) {
@@ -155,7 +156,7 @@ export class DataBridge {
             change: (stock.price * stock.change_pct) / 100,
             changePercent: stock.change_pct,
             volume: stock.volume,
-            source: `Chartink - ${stock.source}`
+            source: `${QUERY_EXECUTION_SOURCE_PREFIX} - ${stock.source}`
           })));
         }
       } catch (error) {
@@ -176,7 +177,7 @@ export class DataBridge {
             value: stock.price * stock.volume,
             price: stock.price,
             changePercent: stock.change_pct,
-            source: `Chartink - ${stock.source}`
+            source: `${QUERY_EXECUTION_SOURCE_PREFIX} - ${stock.source}`
           })));
         }
       } catch (error) {
@@ -195,7 +196,7 @@ export class DataBridge {
             name: stock.symbol,
             volume: stock.volume,
             changePercent: stock.change_pct,
-            source: `Chartink - ${stock.source}`
+            source: `${QUERY_EXECUTION_SOURCE_PREFIX} - ${stock.source}`
           })));
         }
       } catch (error) {
@@ -274,7 +275,7 @@ export class DataBridge {
           confidence: rec.confidence,
           signal: rec.entry_signal?.toUpperCase() || 'BUY',
           sector: rec.sector_analysis?.sector || 'General',
-          source: rec.source === 'chartink' ? 'Chartink Live' : `Unified - ${rec.source}`,
+          source: rec.source === 'chartink' ? 'Query execution live' : `Unified - ${rec.source}`,
           course: rec.course,
           recommendationStrength: rec.recommendation_strength,
           riskLevel: rec.risk_level,

@@ -5,6 +5,9 @@ import type { DashboardDailySummary } from '../../types/apiModels';
 
 interface DashboardKpiCardsProps {
   summary: DashboardDailySummary;
+  winRateOverride?: number | null;
+  avgReturnOverride?: number | null;
+  winRateScopeLabel?: string;
 }
 
 interface KpiDef {
@@ -15,10 +18,17 @@ interface KpiDef {
   icon: React.ReactNode;
 }
 
-const DashboardKpiCards: React.FC<DashboardKpiCardsProps> = ({ summary }) => {
+const DashboardKpiCards: React.FC<DashboardKpiCardsProps> = ({
+  summary,
+  winRateOverride,
+  avgReturnOverride,
+  winRateScopeLabel,
+}) => {
   const mktCtx = summary.market_context;
   const regime = mktCtx?.market_regime ?? 'unknown';
   const regimeColor = regime === 'bullish' ? '#4caf50' : regime === 'bearish' ? '#f44336' : '#ff9800';
+  const displayedWinRate = winRateOverride ?? summary.positions.win_rate;
+  const displayedAvgReturn = avgReturnOverride ?? summary.positions.avg_return_pct;
 
   const kpis: KpiDef[] = [
     {
@@ -30,16 +40,16 @@ const DashboardKpiCards: React.FC<DashboardKpiCardsProps> = ({ summary }) => {
     },
     {
       label: 'Win Rate',
-      value: `${summary.positions.win_rate.toFixed(1)}%`,
-      subtitle: `${summary.positions.wins} wins of ${summary.positions.total}`,
-      color: summary.positions.win_rate >= 50 ? '#4caf50' : '#f44336',
+      value: `${displayedWinRate.toFixed(1)}%`,
+      subtitle: winRateScopeLabel ?? `${summary.positions.wins} wins of ${summary.positions.total}`,
+      color: displayedWinRate >= 50 ? '#4caf50' : '#f44336',
       icon: <EmojiEvents />,
     },
     {
       label: 'Avg Return',
-      value: `${summary.positions.avg_return_pct > 0 ? '+' : ''}${summary.positions.avg_return_pct.toFixed(2)}%`,
+      value: `${displayedAvgReturn > 0 ? '+' : ''}${displayedAvgReturn.toFixed(2)}%`,
       subtitle: `${summary.period_days}-day period`,
-      color: summary.positions.avg_return_pct >= 0 ? '#4caf50' : '#f44336',
+      color: displayedAvgReturn >= 0 ? '#4caf50' : '#f44336',
       icon: <TrendingUp />,
     },
     {

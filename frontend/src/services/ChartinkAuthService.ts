@@ -1,9 +1,7 @@
 /**
- * Chartink Authentication Service
- * ===============================
- *
- * Integrates with Chartink Auth API (prod: 35.232.205.155:8181)
- * Endpoints: session-status (unified), vnc-url, cookie/force-update, cookie/status, clear, health
+ * Query execution auth client (proxied as /api/chartink → /api/v1/auth).
+ * Backend host unchanged (e.g. prod 35.232.205.155:8181).
+ * Endpoints: session-status, vnc-url, cookie/force-update, cookie/status, clear, health.
  */
 
 import axios, { AxiosInstance } from 'axios';
@@ -88,7 +86,7 @@ class ChartinkAuthService {
       (err) => {
         const d = err.response?.data;
         const msg = (d?.detail as string) ?? (d?.message as string) ?? err.message;
-        console.error('[ChartinkAuth]', err.config?.method, err.config?.url, err.response?.status, msg);
+        console.error('[QueryExecutionAuth]', err.config?.method, err.config?.url, err.response?.status, msg);
         return Promise.reject(err);
       }
     );

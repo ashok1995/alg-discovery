@@ -7,7 +7,7 @@ import type { DynamicRecommendationResponse, UIRecommendationResponse } from '..
 import type { SeedRecommendationRequest, SeedRecommendationResponse } from '../types/stock';
 import { SeedStrategyType, SeedRiskLevel } from '../types/stock';
 import type { RecommendationRequest } from '../types/recommendations';
-import { mapToSeedStrategy, mapToSeedRiskLevel } from '../config/recommendationRoutes';
+import { mapToSeedStrategy } from '../config/recommendationRoutes';
 import { transformSeedResponse, transformSeedToUIStocks, transformSeedToProductionStocks } from './recommendationTransformers';
 
 export type GetSeedRecommendationsFn = (req: Partial<SeedRecommendationRequest>) => Promise<SeedRecommendationResponse>;
@@ -52,13 +52,11 @@ export async function handleGetDynamicRecommendations(
 
 export async function handleGetUIOrQuickRecommendations(
   getSeed: GetSeedRecommendationsFn,
-  request: { strategy: string; risk_level: string; limit?: number; min_price?: number; max_price?: number; min_volume?: number }
+  request: { strategy: string; risk_level?: string; limit?: number; min_price?: number; max_price?: number; min_volume?: number }
 ): Promise<UIRecommendationResponse> {
   const seedStrategy = mapToSeedStrategy(request.strategy);
-  const seedRiskLevel = mapToSeedRiskLevel(request.risk_level);
   const seedRequest = {
     strategy: seedStrategy,
-    risk_level: seedRiskLevel,
     limit: request.limit || 20,
     min_price: request.min_price || 10.0,
     max_price: request.max_price || 10000.0,
@@ -80,13 +78,11 @@ export async function handleGetUIOrQuickRecommendations(
 
 export async function handleGetProductionRecommendations(
   getSeed: GetSeedRecommendationsFn,
-  request: { strategy: string; risk_level: string; min_price?: number; max_price?: number; min_volume?: number; limit?: number }
+  request: { strategy: string; risk_level?: string; min_price?: number; max_price?: number; min_volume?: number; limit?: number }
 ): Promise<Record<string, unknown>> {
   const seedStrategy = mapToSeedStrategy(request.strategy);
-  const seedRiskLevel = mapToSeedRiskLevel(request.risk_level);
   const seedRequest = {
     strategy: seedStrategy,
-    risk_level: seedRiskLevel,
     limit: request.limit || 20,
     min_price: request.min_price || 10.0,
     max_price: request.max_price || 10000.0,
@@ -105,10 +101,8 @@ export async function handleGetFullRecommendations(
   request: Record<string, unknown>
 ): Promise<UIRecommendationResponse> {
   const seedStrategy = mapToSeedStrategy((request.strategy as string) || 'swing');
-  const seedRiskLevel = mapToSeedRiskLevel((request.risk_level as string) || 'moderate');
   const seedRequest = {
     strategy: seedStrategy,
-    risk_level: seedRiskLevel,
     limit: (request.limit as number) || 20,
     min_price: (request.min_price as number) || 10.0,
     max_price: (request.max_price as number) || 10000.0,
@@ -177,7 +171,6 @@ export async function handleGetOpportunities(
   try {
     const seedResponse = await getSeed({
       strategy: SeedStrategyType.INTRADAY,
-      risk_level: riskLevel,
       specific_arms: arms,
       limit,
       include_technical_analysis: true,

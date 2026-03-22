@@ -68,7 +68,7 @@ export const seedPositionService = {
    * expose /v2/recommendations/all; use GET /v2/recommendations?trade_type=X per type instead.
    * This method may 404 in prod - callers should handle or use RecommendationAPIService per type.
    */
-  getAllRecommendations: async (opts?: { limit?: number; min_score?: number; risk_level?: string }) => {
+  getAllRecommendations: async (opts?: { limit?: number; min_score?: number }) => {
     try {
       return await fetchJSON<{
         trade_types: Record<string, { count: number; recommendation_source: string; recommendations: Array<Record<string, unknown>> }>;
