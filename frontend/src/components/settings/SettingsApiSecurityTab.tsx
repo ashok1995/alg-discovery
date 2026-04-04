@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { DataUsage, Speed, Storage, Security, Wifi } from '@mui/icons-material';
 import SimpleKiteTokenManagement from '../SimpleKiteTokenManagement';
-import ChartinkAuthManager from '../ChartinkAuthManager';
+import QueryExecutionAuthManager from '../QueryExecutionAuthManager';
 import type { SystemStatusState } from './types';
 
 interface SettingsApiSecurityTabProps {
@@ -78,7 +78,7 @@ const SettingsApiSecurityTab: React.FC<SettingsApiSecurityTabProps> = ({
         <SimpleKiteTokenManagement onTokenUpdate={onTokenUpdate ?? (() => {})} />
       </Grid>
       <Grid item xs={12} md={6}>
-        <ChartinkAuthManager />
+        <QueryExecutionAuthManager />
       </Grid>
     </Grid>
   );

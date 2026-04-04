@@ -104,7 +104,7 @@ function SeedOps(): React.ReactElement {
 
   const utilsActions = useMemo(
     () => [
-      { key: 'getAllSettings', label: 'GET /api/v2/settings', run: () => seedDashboardService.getAllSettings() },
+      { key: 'getAllSettings', label: 'GET /api/v2/settings', run: () => seedDashboardService.getSettings() },
       { key: 'dashboardOverview', label: 'GET /api/v2/dashboard/overview', run: () => seedDashboardService.getDashboardOverview({ include_positions: true, include_learning: true }) },
       { key: 'charges', label: 'GET /api/v2/dashboard/charges-calculator', run: () => seedDashboardService.getChargesCalculator({ entry_price: 100, exit_price: 105, quantity: 100, is_intraday: true }) },
       { key: 'exportMarketContextUrl', label: 'GET /api/v2/export/market-context.csv (URL)', run: async () => ({ url: seedDashboardService.getExportUrl('market-context', { days: 7 }) }) },

@@ -1,49 +1,44 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Container, Paper, Typography, Chip, Alert, CircularProgress } from '@mui/material';
-import { useBackgroundRefresh } from '../hooks/useBackgroundRefresh';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Box, Container, Paper, Typography, Chip, Alert, CircularProgress, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { recommendationAPIService } from '../services/RecommendationAPIService';
 import { StrategyType, DynamicRecommendationItem } from '../types/apiModels';
 import {
-  applyRiskBasedFiltering,
+  limitRecommendationRows,
   computeRecommendationMetrics,
-  type RecommendationMetricsData
+  type RecommendationMetricsData,
 } from '../utils/recommendationUtils';
-import { strategyConfig, strategyTypeMap, riskColorMap } from '../config/recommendationsConfig';
+import { strategyConfig, strategyTypeMap } from '../config/recommendationsConfig';
 import RecommendationFilters from '../components/recommendations/RecommendationFilters';
 import RecommendationMetrics from '../components/recommendations/RecommendationMetrics';
 import RecommendationTable from '../components/recommendations/RecommendationTable';
+import { useWorkspacePreferences } from '../context/WorkspacePreferencesContext';
 
 const UnifiedRecommendations: React.FC = () => {
+  const { settings: workspace } = useWorkspacePreferences();
   const [selectedStrategy, setSelectedStrategy] = useState<StrategyType>(StrategyType.SWING);
-  const [selectedRisk, setSelectedRisk] = useState<'low' | 'medium' | 'high'>('medium');
   const [recommendations, setRecommendations] = useState<DynamicRecommendationItem[]>([]);
   const [metrics, setMetrics] = useState<RecommendationMetricsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
-  const [expandedFilters, setExpandedFilters] = useState(false);
-  const [minScore, setMinScore] = useState(60);
-  const [maxResults, setMaxResults] = useState(20);
-  const [sortBy, setSortBy] = useState<'score' | 'price' | 'volume' | 'change'>('score');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const fetchSeq = useRef(0);
 
   const config = useMemo(() => strategyConfig[selectedStrategy], [selectedStrategy]);
 
+  const minScore = workspace.recommendationsMinScore;
+  const maxResults = workspace.recommendationsMaxResults;
+
   const fetchRecommendations = useCallback(
     async (_forceRefresh: boolean = false) => {
+      const seq = ++fetchSeq.current;
       try {
         setLoading(true);
         setError(null);
         const legacyType = strategyTypeMap[selectedStrategy];
         const legacyRequest = {
-          risk_profile: (selectedRisk === 'low'
-            ? 'conservative'
-            : selectedRisk === 'high'
-              ? 'aggressive'
-              : 'moderate') as 'conservative' | 'moderate' | 'aggressive',
           min_score: minScore,
-          max_recommendations: maxResults
+          max_recommendations: maxResults,
         };
 
         const response = await recommendationAPIService.getRecommendationsByType(
@@ -51,10 +46,12 @@ const UnifiedRecommendations: React.FC = () => {
           legacyRequest
         );
 
+        if (seq !== fetchSeq.current) return;
+
         if (response.success && (response.items || response.recommendations)) {
           let items =
             (response.items || response.recommendations || []) as DynamicRecommendationItem[];
-          items = applyRiskBasedFiltering(items, selectedRisk, maxResults);
+          items = limitRecommendationRows(items, maxResults);
           setRecommendations(items);
           setLastRefreshTime(new Date());
           setMetrics(computeRecommendationMetrics(items, response.strategy || 'Unknown'));
@@ -63,55 +60,61 @@ const UnifiedRecommendations: React.FC = () => {
           setRecommendations([]);
         }
       } catch (err: unknown) {
+        if (seq !== fetchSeq.current) return;
         const errorMessage =
           err && typeof err === 'object' && 'message' in err ? String((err as Error).message) : 'Unknown error';
         setError(`Failed to fetch recommendations: ${errorMessage}`);
         setRecommendations([]);
       } finally {
-        setLoading(false);
+        if (seq === fetchSeq.current) {
+          setLoading(false);
+        }
       }
     },
-    [selectedStrategy, selectedRisk, minScore, maxResults]
+    [selectedStrategy, minScore, maxResults]
   );
 
-  useBackgroundRefresh(fetchRecommendations, {
-    autoRefreshInterval: autoRefresh ? 30000 : 0,
-    strategy: selectedStrategy.toLowerCase().replace('_', '-'),
-    initialAutoRefresh: true,
-    enableCaching: true
-  });
+  /** Timed refresh only while this page is mounted, tab visible, and workspace auto-refresh on. */
+  useEffect(() => {
+    if (!workspace.autoRefresh || workspace.refreshInterval <= 0) {
+      return undefined;
+    }
+    const ms = Math.max(5000, workspace.refreshInterval * 1000);
+    const id = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      void fetchRecommendations(false);
+    }, ms);
+    return () => clearInterval(id);
+  }, [workspace.autoRefresh, workspace.refreshInterval, fetchRecommendations]);
 
   useEffect(() => {
-    fetchRecommendations(true);
+    void fetchRecommendations(true);
   }, [fetchRecommendations]);
 
   const handleStrategyChange = (strategy: StrategyType) => {
     setSelectedStrategy(strategy);
-    setMinScore(strategyConfig[strategy].minScore);
   };
 
   return (
     <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
+      <Box sx={{ mb: 1.5 }}>
+        <Typography variant="body2" color="text.secondary">
+          Min score, max results, auto refresh, and session windows are in{' '}
+          <Link component={RouterLink} to="/settings" underline="hover" fontWeight={600}>
+            System settings → Workspace preferences
+          </Link>
+          . Seed API uses <code>trade_type</code>, <code>limit</code>, <code>min_score</code> only.
+        </Typography>
+      </Box>
+
       <RecommendationFilters
         strategyConfig={strategyConfig}
         selectedStrategy={selectedStrategy}
-        selectedRisk={selectedRisk}
-        expandedFilters={expandedFilters}
-        minScore={minScore}
-        maxResults={maxResults}
-        sortBy={sortBy}
-        sortDirection={sortDirection}
-        autoRefresh={autoRefresh}
         loading={loading}
+        autoRefreshEnabled={workspace.autoRefresh}
+        refreshIntervalSec={workspace.refreshInterval}
         onStrategyChange={handleStrategyChange}
-        onRiskChange={setSelectedRisk}
-        onExpandedFiltersChange={() => setExpandedFilters((prev) => !prev)}
-        onMinScoreChange={setMinScore}
-        onMaxResultsChange={setMaxResults}
-        onSortByChange={setSortBy}
-        onSortDirectionChange={setSortDirection}
-        onAutoRefreshToggle={() => setAutoRefresh((prev) => !prev)}
-        onRefresh={() => fetchRecommendations(true)}
+        onRefresh={() => void fetchRecommendations(true)}
       />
 
       {metrics && (
@@ -141,7 +144,6 @@ const UnifiedRecommendations: React.FC = () => {
           recommendations={recommendations}
           strategyConfig={strategyConfig}
           selectedStrategy={selectedStrategy}
-          selectedRisk={selectedRisk}
           minScore={minScore}
           lastRefreshTime={lastRefreshTime}
           loading={loading}
@@ -159,19 +161,11 @@ const UnifiedRecommendations: React.FC = () => {
               size="small"
               sx={{ backgroundColor: config.color, color: 'white' }}
             />
-            <Chip
-              label={`Risk: ${selectedRisk.toUpperCase()}`}
-              size="small"
-              variant="outlined"
-              sx={{
-                borderColor: riskColorMap[selectedRisk],
-                color: riskColorMap[selectedRisk]
-              }}
-            />
             <Chip label={`Min Score: ${minScore}`} size="small" variant="outlined" />
+            <Chip label={`Limit: ${maxResults}`} size="small" variant="outlined" />
           </Box>
           <Typography variant="body2" color="text.secondary">
-            Try adjusting your filters or refresh the data
+            Adjust min score / max results in workspace preferences or refresh the data
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
             Last updated: {lastRefreshTime?.toLocaleTimeString()}

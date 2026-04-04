@@ -10,4 +10,5 @@ export * from './trading';
 export * from './tradingHelpers';
 export * from './stock';
 export * from './recommendations';
+export * from './candidatesV2';
 export * from './seedOps';

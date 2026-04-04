@@ -11,24 +11,29 @@ import type { ObservabilityDbResponse, PipelineHealthResponse, ScoreBinPerforman
 
 const TIMEOUT_MS = 30000;
 
-/** Prod API trade types (OpenAPI: short_buy = short-term buy 1-5 days) */
-export type SeedTradeType = 'intraday_buy' | 'intraday_sell' | 'swing_buy' | 'short_buy' | 'short' | 'positional';
+/** Prod OpenAPI trade_type values (seed-openapi.json /v2/recommendations) */
+export type SeedTradeType =
+  | 'intraday_buy'
+  | 'intraday_sell'
+  | 'swing_buy'
+  | 'short_buy'
+  | 'long_term';
 
-/** Prod API risk_level: low | med | high (min_score overridden when set) */
+/** @deprecated Seed no longer accepts risk_level on GET /v2/recommendations — kept for typing legacy UI only */
 export type SeedRiskLevel = 'low' | 'med' | 'high';
 
-/** Query params for GET /v2/recommendations */
+/** Query params for GET /v2/recommendations (OpenAPI: trade_type, limit, min_score only) */
 export interface V2RecommendationQueryParams {
   trade_type: SeedTradeType;
   limit?: number;
   min_score?: number;
-  risk_level?: SeedRiskLevel;
 }
 
-/** Legacy request: map strategy/risk for callers using StrategyType. */
+/** Legacy request: strategy maps to trade_type; risk_level is ignored for the Seed API. */
 export interface V2RecommendationRequestParams {
   strategy: 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term';
-  risk_level: 'low' | 'medium' | 'high';
+  /** Ignored by Seed v2 recommendations (not in OpenAPI). */
+  risk_level?: 'low' | 'medium' | 'high';
   limit?: number;
   min_score?: number;
 }
@@ -38,13 +43,10 @@ function buildRecommendationsQuery(params: V2RecommendationQueryParams): string 
   q.set('trade_type', params.trade_type);
   q.set('limit', String(params.limit ?? 10));
   q.set('min_score', String(params.min_score ?? 60));
-  if (params.risk_level) {
-    q.set('risk_level', params.risk_level);
-  }
   return q.toString();
 }
 
-/** Map UI strategy to prod trade_type (API expects short_buy not short) */
+/** Map UI strategy to prod trade_type (OpenAPI: long_term, short_buy) */
 export function mapStrategyToSeedTradeType(
   strategy: 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'
 ): SeedTradeType {
@@ -53,13 +55,13 @@ export function mapStrategyToSeedTradeType(
     intraday: 'intraday_buy',
     intraday_buy: 'intraday_buy',
     intraday_sell: 'intraday_sell',
-    long_term: 'positional',
+    long_term: 'long_term',
     short_term: 'short_buy',
   };
   return map[strategy] ?? 'swing_buy';
 }
 
-/** Map UI risk (low|medium|high) to prod risk_level (low|med|high) */
+/** @deprecated Seed recommendations API no longer uses risk_level */
 export function mapRiskToSeedRiskLevel(risk: 'low' | 'medium' | 'high'): SeedRiskLevel {
   return risk === 'medium' ? 'med' : risk;
 }
@@ -76,13 +78,11 @@ export function buildV2RecommendationsUrl(
           trade_type: request.trade_type,
           limit: request.limit ?? 10,
           min_score: request.min_score ?? 60,
-          risk_level: request.risk_level as SeedRiskLevel | undefined,
         }
       : {
           trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
           limit: request.limit ?? 10,
           min_score: request.min_score ?? 60,
-          risk_level: mapRiskToSeedRiskLevel(request.risk_level),
         };
   const query = buildRecommendationsQuery(queryParams);
   return getRecommendationsV2Url('recommendations', query);
@@ -90,7 +90,7 @@ export function buildV2RecommendationsUrl(
 
 /**
  * Call V2 recommendations endpoint (GET with query params).
- * Prod API supports risk_level (low|med|high) - overrides min_score when set.
+ * OpenAPI: trade_type, limit, min_score only — risk_level is not sent.
  */
 export async function fetchV2Recommendations(
   request: V2RecommendationQueryParams | V2RecommendationRequestParams
@@ -101,13 +101,11 @@ export async function fetchV2Recommendations(
           trade_type: request.trade_type,
           limit: request.limit ?? 10,
           min_score: request.min_score ?? 60,
-          risk_level: request.risk_level as SeedRiskLevel | undefined,
         }
       : {
           trade_type: mapStrategyToSeedTradeType(request.strategy as 'swing' | 'intraday' | 'intraday_buy' | 'intraday_sell' | 'long_term' | 'short_term'),
           limit: request.limit ?? 10,
           min_score: request.min_score ?? 60,
-          risk_level: mapRiskToSeedRiskLevel(request.risk_level),
         };
   const query = buildRecommendationsQuery(queryParams);
   const url = getRecommendationsV2Url('recommendations', query);

@@ -27,13 +27,14 @@ import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 import SymbolLink from '../ui/SymbolLink';
 
-type MoverKey = 'symbol' | 'last_price' | 'period_return_pct' | 'change_pct_1h' | 'change_pct_5min' | 'volume' | 'value_traded_cr' | 'sector' | 'market_cap_category';
+type MoverKey = 'symbol' | 'last_price' | 'period_return_pct' | 'change_pct_1h' | 'change_pct_30min' | 'change_pct_5min' | 'volume' | 'value_traded_cr' | 'sector' | 'market_cap_category';
 
 const COLUMNS: ColumnDef<MoverKey>[] = [
   { key: 'symbol', label: 'Symbol', sortable: true, minWidth: 120 },
   { key: 'last_price', label: 'Price (₹)', align: 'right', sortable: true },
   { key: 'period_return_pct', label: 'Return %', align: 'right', sortable: true },
   { key: 'change_pct_1h', label: '1h %', align: 'right', sortable: true },
+  { key: 'change_pct_30min', label: '30m %', align: 'right', sortable: true },
   { key: 'change_pct_5min', label: '5m %', align: 'right', sortable: true },
   { key: 'volume', label: 'Volume', align: 'right', sortable: true },
   { key: 'value_traded_cr', label: 'Val (Cr)', align: 'right', sortable: true },
@@ -112,6 +113,7 @@ const SortableMoverTable: React.FC<{ items: TopMoverItem[] }> = ({ items }) => {
                 {pctCell(s.period_return_pct ?? s.change_pct)}
               </TableCell>
               <TableCell align="right" sx={{ py: 0.75 }}>{pctCell(s.change_pct_1h)}</TableCell>
+              <TableCell align="right" sx={{ py: 0.75 }}>{pctCell(s.change_pct_30min)}</TableCell>
               <TableCell align="right" sx={{ py: 0.75 }}>{pctCell(s.change_pct_5min)}</TableCell>
               <TableCell align="right" sx={{ py: 0.75 }}>
                 <Typography variant="body2" color="text.secondary" fontSize="0.78rem">{formatVolume(s.volume)}</Typography>
@@ -187,19 +189,26 @@ const HomeMarketMoversTab: React.FC = () => {
     setLoadingL(true);
     setLoadingT(true);
     try {
-      const res = await seedDashboardService.getMarketMovers({ mover_type: 'all', days: period, limit: 20 });
-      const gainers = res.gainers ?? [];
-      const losers = res.losers ?? [];
-      const traded = res.top_traded ?? [];
-      setTopGainers(gainers);
-      setTopLosers(losers);
-      setTopTraded(traded);
-      cacheRef.current.set(period, { gainers, losers, traded, fetchedAt: Date.now() });
+      const unified = await seedDashboardService.getAllMarketMovers(20, period);
+      setTopGainers(unified.gainers ?? []);
+      setTopLosers(unified.losers ?? []);
+      setTopTraded(unified.top_traded ?? []);
+      cacheRef.current.set(period, {
+        gainers: unified.gainers ?? [],
+        losers: unified.losers ?? [],
+        traded: unified.top_traded ?? [],
+        fetchedAt: Date.now(),
+      });
     } catch {
       setTopGainers([]);
       setTopLosers([]);
       setTopTraded([]);
-      cacheRef.current.set(period, { gainers: [], losers: [], traded: [], fetchedAt: Date.now() });
+      cacheRef.current.set(period, {
+        gainers: [],
+        losers: [],
+        traded: [],
+        fetchedAt: Date.now(),
+      });
     } finally {
       setLoadingG(false);
       setLoadingL(false);
@@ -280,8 +289,8 @@ const HomeMarketMoversTab: React.FC = () => {
                         {list[0].symbol}
                       </Typography>
                       <Typography variant="caption" display="block" fontWeight={600} fontSize="0.65rem" color={color}>
-                        {(list[0].period_return_pct ?? list[0].change_pct) > 0 ? '+' : ''}
-                        {(list[0].period_return_pct ?? list[0].change_pct)?.toFixed(1)}%
+                        {((list[0]?.period_return_pct ?? list[0]?.change_pct) ?? 0) > 0 ? '+' : ''}
+                        {((list[0]?.period_return_pct ?? list[0]?.change_pct) ?? 0).toFixed(1)}%
                       </Typography>
                     </Box>
                   )}

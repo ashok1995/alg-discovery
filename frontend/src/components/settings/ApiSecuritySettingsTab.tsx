@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { DataUsage, Wifi, Speed, Storage, Security } from '@mui/icons-material';
 import SimpleKiteTokenManagement from '../SimpleKiteTokenManagement';
-import ChartinkAuthManager from '../ChartinkAuthManager';
+import QueryExecutionAuthManager from '../QueryExecutionAuthManager';
 
 const ApiSecuritySettingsTab: React.FC = () => (
   <Grid container spacing={3}>
@@ -48,7 +48,7 @@ const ApiSecuritySettingsTab: React.FC = () => (
       <SimpleKiteTokenManagement onTokenUpdate={() => {}} />
     </Grid>
     <Grid item xs={12} md={6}>
-      <ChartinkAuthManager />
+      <QueryExecutionAuthManager />
     </Grid>
   </Grid>
 );

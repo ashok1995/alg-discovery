@@ -15,7 +15,6 @@ import {
   Chip,
   Alert,
   CircularProgress,
-  Divider,
   Table,
   TableBody,
   TableCell,
@@ -24,14 +23,15 @@ import {
   TableRow,
   Paper,
   Button,
+  Divider,
   alpha,
 } from '@mui/material';
 import {
   Settings as SettingsIcon,
-  Security,
   Refresh,
   Save,
   CloudDownload,
+  Security,
 } from '@mui/icons-material';
 import { seedDashboardService } from '../../services/SeedDashboardService';
 import type { SeedSystemSettingsResponse, TradingSettingsResponse } from '../../types/apiModels';
@@ -66,9 +66,6 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
   const [editMaxPerSector, setEditMaxPerSector] = useState<number>(3);
   const [editVixHalt, setEditVixHalt] = useState<number>(25);
   const [editVixReduce, setEditVixReduce] = useState<number>(18);
-  const [editBuyCutoff, setEditBuyCutoff] = useState<string>('13:00');
-  const [editSellCutoff, setEditSellCutoff] = useState<string>('14:30');
-
   const loadConfig = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -79,8 +76,6 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
       setEditMaxPerSector(config.opener.max_per_sector);
       setEditVixHalt(config.opener.vix_halt_buy_threshold);
       setEditVixReduce(config.opener.vix_reduce_threshold);
-      setEditBuyCutoff(config.opener.intraday_entry_cutoff_buy);
-      setEditSellCutoff(config.opener.intraday_entry_cutoff_sell);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load trading config');
     } finally {
@@ -92,7 +87,7 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
     setSystemLoading(true);
     setSystemError(null);
     try {
-      const sys = await seedDashboardService.getSystemSettings();
+      const sys = (await seedDashboardService.getSystemSettings()) as unknown as SeedSystemSettingsResponse;
       setSystemSettings(sys);
       setSystemDraft(sys);
     } catch (err: unknown) {
@@ -121,8 +116,8 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
           max_per_sector: editMaxPerSector,
           vix_halt_buy_threshold: editVixHalt,
           vix_reduce_threshold: editVixReduce,
-          intraday_entry_cutoff_buy: editBuyCutoff,
-          intraday_entry_cutoff_sell: editSellCutoff,
+          intraday_entry_cutoff_buy: tradingConfig?.opener.intraday_entry_cutoff_buy ?? '13:00',
+          intraday_entry_cutoff_sell: tradingConfig?.opener.intraday_entry_cutoff_sell ?? '14:30',
           max_slippage_pct: tradingConfig?.opener.max_slippage_pct ?? {},
           cooldown_hours: tradingConfig?.opener.cooldown_hours ?? {},
         },
@@ -145,7 +140,7 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
     setSystemSaving(true);
     setSystemSaveStatus('idle');
     try {
-      await seedDashboardService.updateSystemSettings(systemDraft);
+      await seedDashboardService.updateSystemSettings(systemDraft as unknown as Record<string, unknown>);
       setSystemSaveStatus('success');
       await loadSystem();
       setTimeout(() => setSystemSaveStatus('idle'), 3000);
@@ -286,32 +281,11 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
                   margin="normal"
                   size="small"
                 />
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Buy Cutoff"
-                      type="time"
-                      value={editBuyCutoff}
-                      onChange={(e) => setEditBuyCutoff(e.target.value)}
-                      margin="normal"
-                      size="small"
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Sell Cutoff"
-                      type="time"
-                      value={editSellCutoff}
-                      onChange={(e) => setEditSellCutoff(e.target.value)}
-                      margin="normal"
-                      size="small"
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                </Grid>
+                <Alert severity="info" sx={{ mt: 1 }}>
+                  Intraday entry cutoffs and per–trade-type slippage/cooldowns are shown under{' '}
+                  <strong>Observability → Trading economics</strong>. Edit them via{' '}
+                  <strong>System settings → Seed (advanced) → Trading</strong> (opener section or JSON).
+                </Alert>
 
                 <Box display="flex" justifyContent="flex-end" mt={2}>
                   <Button
@@ -351,7 +325,7 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
                 <Button
                   size="small"
                   variant="outlined"
-                  onClick={() => openMeta('Seed System Form', () => seedDashboardService.getSystemSettingsForm())}
+                  onClick={() => openMeta('Seed System Form', () => seedDashboardService.getSystemForm())}
                   disabled={systemLoading}
                 >
                   Form

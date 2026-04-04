@@ -34,7 +34,7 @@ const REGISTRY: EndpointRegistry = {
   // Seed Service v2 API endpoints (port 8082)
   'seed.recommendations.v2': { path: '/api/v2/stocks/recommendations', domain: 'seed' },
   'seed.health': { path: '/health', domain: 'seed' },
-  // Chartink Authentication Service endpoints (port 8181)
+  // Query execution auth (registry key `chartink`; paths unchanged)
   'chartink.auth.session_status': { path: '/api/v1/auth/session-status', domain: 'chartink' },
   'chartink.auth.browser_login': { path: '/api/v1/auth/browser-login', domain: 'chartink' },
   'chartink.health': { path: '/health', domain: 'chartink' },

@@ -20,16 +20,20 @@ export enum SeedRiskLevel {
   HIGH = 'high',
 }
 
+/** @deprecated risk_level — Seed GET /v2/recommendations no longer accepts risk_level; use min_score only. Kept for legacy callers. */
 export interface V2RecommendationRequest {
   strategy: string;
-  risk_level: string;
+  risk_level?: string;
   limit?: number;
 }
 
 export interface SeedRecommendationRequest {
   strategy: SeedStrategyType;
+  /** @deprecated Not sent to Seed v2 recommendations API (OpenAPI: trade_type, limit, min_score only). */
   risk_level?: SeedRiskLevel;
   limit?: number;
+  /** Optional score floor; default 60 in client when omitted. */
+  min_score?: number;
   min_price?: number;
   max_price?: number;
   min_volume?: number;

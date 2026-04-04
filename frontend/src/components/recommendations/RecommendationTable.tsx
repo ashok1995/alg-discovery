@@ -19,30 +19,33 @@ import {
 } from '@mui/material';
 import { AddCircleOutline, RemoveCircleOutline, Warning } from '@mui/icons-material';
 import type { DynamicRecommendationItem, PositionStatusResponse } from '../../types/apiModels';
+import { StrategyType } from '../../types/tradingEnums';
 import { getScoreColor } from '../../utils/recommendationUtils';
 import { seedPositionService } from '../../services/SeedPositionService';
 import type { StrategyConfigItem } from '../../config/recommendationsConfig';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 import SymbolLink from '../ui/SymbolLink';
+import { useWorkspacePreferences } from '../../context/WorkspacePreferencesContext';
+import { canOpenPositionInWindow } from '../../utils/positionWindowUtils';
 
 export interface RecommendationTableProps {
   recommendations: DynamicRecommendationItem[];
   strategyConfig: Record<string, StrategyConfigItem>;
   selectedStrategy: string;
-  selectedRisk: 'low' | 'medium' | 'high';
   minScore: number;
   lastRefreshTime: Date | null;
   loading: boolean;
 }
 
+/** Seed OpenAPI trade_type: long_term (not positional) */
 const strategyToTradeType: Record<string, string> = {
   swing: 'swing_buy',
   swing_buy: 'swing_buy',
   intraday_buy: 'intraday_buy',
   intraday_sell: 'intraday_sell',
-  long_term: 'positional',
-  positional: 'positional',
+  long_term: 'long_term',
+  positional: 'long_term',
   short_term: 'short_buy',
   short: 'short_buy',
   short_term_buy: 'short_buy',
@@ -86,12 +89,17 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
   recommendations,
   strategyConfig,
   selectedStrategy,
-  selectedRisk,
   minScore,
   lastRefreshTime,
   loading
 }) => {
+  const { settings: workspace } = useWorkspacePreferences();
   const config = strategyConfig[selectedStrategy];
+  const isIntradayStrategy =
+    selectedStrategy === StrategyType.INTRADAY_BUY || selectedStrategy === StrategyType.INTRADAY_SELL;
+  const sessionWindow = isIntradayStrategy ? workspace.positionWindows.intraday : workspace.positionWindows.other;
+  const now = new Date();
+  const openAllowed = canOpenPositionInWindow(now, sessionWindow, isIntradayStrategy);
   const [positionStatuses, setPositionStatuses] = useState<Record<string, PositionStatusResponse>>({});
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
@@ -161,7 +169,6 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
               {config?.label} Recommendations
             </Typography>
             <Chip label={`${recommendations.length} stocks`} size="small" sx={{ bgcolor: config?.color, color: 'white', fontWeight: 600 }} />
-            <Chip label={`Risk: ${selectedRisk}`} size="small" variant="outlined" sx={{ textTransform: 'capitalize' }} />
           </Box>
           <Box display="flex" alignItems="center" gap={1.5}>
             <Typography variant="caption" color="text.secondary">Min Score: {minScore}</Typography>
@@ -336,9 +343,30 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                               Close
                             </Button>
                           ) : (
-                            <Button size="small" variant="outlined" color="success" startIcon={<AddCircleOutline sx={{ fontSize: '0.85rem' }} />} onClick={(e) => { e.stopPropagation(); handleOpenPosition(item.symbol, entryPrice); }} sx={{ fontSize: '0.68rem', py: 0.25 }}>
-                              Open
-                            </Button>
+                            <Tooltip
+                              title={
+                                openAllowed
+                                  ? 'Open tracked position'
+                                  : 'Outside your workspace session / entry window (see System settings → Workspace preferences)'
+                              }
+                            >
+                              <span>
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  color="success"
+                                  disabled={!openAllowed || actionLoading !== null}
+                                  startIcon={<AddCircleOutline sx={{ fontSize: '0.85rem' }} />}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    void handleOpenPosition(item.symbol, entryPrice);
+                                  }}
+                                  sx={{ fontSize: '0.68rem', py: 0.25 }}
+                                >
+                                  Open
+                                </Button>
+                              </span>
+                            </Tooltip>
                           )}
                           {posStatus && (
                             <Chip

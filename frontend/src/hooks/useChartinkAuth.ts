@@ -1,8 +1,6 @@
 /**
- * useChartinkAuth Hook
- * ====================
- *
- * React hook for Chartink auth (35.232.205.155:8181: session-status, vnc-url, force-update)
+ * useChartinkAuth — session for query execution (VNC + /api/chartink session-status).
+ * Hook name kept for compatibility; uses ChartinkAuthService (same proxy paths).
  */
 
 import { useState, useEffect, useCallback } from 'react';

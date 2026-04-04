@@ -12,6 +12,7 @@ const FAST_TIMEOUT_MS = 5_000;
 // Keep these lists small and explicit to avoid surprises.
 const SLOW_PATHS = new Set<string>([
   '/api/v2/dashboard/market-movers',
+  '/api/v2/candidates/sync',
 ]);
 
 const FAST_PATHS = new Set<string>([

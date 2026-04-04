@@ -5,6 +5,7 @@
  * Uses SEED_API_BASE_URL from config (dev: localhost:8082, prod: VM:8182).
  */
 
+import { API_CONFIG } from '../config/api';
 import type {
   DashboardDailySummary,
   PositionsResponse,
@@ -13,9 +14,7 @@ import type {
   ArmPerformanceResponse,
   LearningStatusResponse,
   PerformanceTimelineResponse,
-  TopGainersResponse,
-  TopLosersResponse,
-  TopTradedResponse,
+  MarketMoversResponse,
   PipelineHealthResponse,
   ObservabilityDbResponse,
   ScoreBinPerformanceItem,
@@ -26,8 +25,6 @@ import type {
   ChargesCalculatorResponse,
   PnlTimelineResponse,
   TradingSettingsResponse,
-  SeedSystemSettingsResponse,
-  SeedAllSettingsResponse,
   // New types
   DashboardOverviewResponse,
   QuickStatsResponse,
@@ -43,22 +40,97 @@ import type {
   TopPerformersTodayResponse,
   DataHealthResponse,
   DataStatisticsResponse,
-  MarketMoversResponse,
   BatchCloseRequest,
   BatchCloseResponse,
   BatchAnalyzeRequest,
   BatchAnalyzeResponse,
   SearchPositionsResponse,
+  MarketMoversAllResponse,
+  MarketMoversSingleResponse,
+  CandidateOutV2,
+  CandidateDetailOutV2,
+  CoverageOutV2,
+  KiteGapOutV2,
+  KiteMatchInV2,
+  KiteMatchOutV2,
+  StatusUpdateInV2,
+  StatusUpdateOutV2,
+  SyncResultOutV2,
 } from '../types/apiModels';
-import { seedBuildUrl, seedFetchJSON } from './seedHttp';
 
-// Centralized HTTP logic lives in services/seedHttp.ts
+const BASE = API_CONFIG.SEED_API_BASE_URL;
+const DEFAULT_TIMEOUT_MS = 15_000;
+const SLOW_TIMEOUT_MS = 45_000;
+
+const SLOW_PATHS = new Set([
+  '/api/v2/dashboard/market-movers',
+  '/api/v2/candidates/sync',
+]);
+
+/** Fast paths: use a shorter timeout so polling loops don't block */
+const FAST_TIMEOUT_MS = 5_000;
+const FAST_PATHS = new Set([
+  '/api/v2/monitor/quick-stats',
+]);
+
+async function fetchJSON<T>(
+  path: string,
+  params?: Record<string, string | number>,
+  opts?: { method?: string; body?: unknown },
+): Promise<T> {
+  const url = new URL(`${BASE}${path}`);
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
+    });
+  }
+
+  const timeout = SLOW_PATHS.has(path)
+    ? SLOW_TIMEOUT_MS
+    : FAST_PATHS.has(path)
+      ? FAST_TIMEOUT_MS
+      : DEFAULT_TIMEOUT_MS;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  const fetchOpts: RequestInit = { signal: controller.signal };
+  if (opts?.method) fetchOpts.method = opts.method;
+  if (opts?.body !== undefined) {
+    fetchOpts.body = JSON.stringify(opts.body);
+    fetchOpts.headers = { 'Content-Type': 'application/json' };
+  }
+
+  try {
+    const res = await fetch(url.toString(), fetchOpts);
+    clearTimeout(timeoutId);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Dashboard API ${path} failed (${res.status}): ${text}`);
+    }
+    return (await res.json()) as T;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
 
 export const seedDashboardService = {
-  getDailySummary: (days = 1) =>
-    seedFetchJSON<DashboardDailySummary>('/api/v2/dashboard/daily-summary', { params: { days } }),
+  getDailySummary: (days = 1, opts?: { scenario?: string; category?: string; from_date?: string; to_date?: string }) => {
+    const params: Record<string, string | number> = { days };
+    if (opts?.scenario) params.scenario = opts.scenario;
+    if (opts?.category) params.category = opts.category;
+    if (opts?.from_date) params.from_date = opts.from_date;
+    if (opts?.to_date) params.to_date = opts.to_date;
+    return fetchJSON<DashboardDailySummary>('/api/v2/dashboard/daily-summary', params);
+  },
 
+  /**
+   * Universal positions endpoint — scenario/category=all|paper_trade|learning.
+   * Defaults `include=summary,list` so summary KPIs populate (Home horizons, Dashboard).
+   * Pass `include: 'list'` only if you intentionally want list rows without summary.
+   */
   getPositions: (opts?: {
+    scenario?: 'all' | 'paper_trade' | 'learning';
     category?: 'all' | 'learning' | 'paper_trade';
     status?: string;
     outcome?: string;
@@ -68,8 +140,11 @@ export const seedDashboardService = {
     from_date?: string;
     to_date?: string;
     limit?: number;
+    offset?: number;
+    include?: 'summary' | 'list' | 'summary,list';
   }) => {
     const params: Record<string, string | number> = {};
+    if (opts?.scenario) params.scenario = opts.scenario;
     if (opts?.category) params.category = opts.category;
     if (opts?.status) params.status = opts.status;
     if (opts?.outcome) params.outcome = opts.outcome;
@@ -79,80 +154,71 @@ export const seedDashboardService = {
     if (opts?.from_date) params.from_date = opts.from_date;
     if (opts?.to_date) params.to_date = opts.to_date;
     if (opts?.limit != null) params.limit = opts.limit;
-    return seedFetchJSON<PositionsResponse>('/api/v2/dashboard/positions', { params });
+    if (opts?.offset != null) params.offset = opts.offset;
+    params.include = opts?.include ?? 'summary,list';
+    return fetchJSON<PositionsResponse>('/api/v2/dashboard/positions', params);
   },
 
   getUniverseHealth: () =>
-    seedFetchJSON<UniverseHealthResponse>('/api/v2/dashboard/universe-health'),
+    fetchJSON<UniverseHealthResponse>('/api/v2/dashboard/universe-health'),
 
   /** API requires points >= 5 */
   getMarketTrends: (points = 20) =>
-    seedFetchJSON<MarketTrendsResponse>('/api/v2/dashboard/market-trends', { params: { points: Math.max(5, points) } }),
+    fetchJSON<MarketTrendsResponse>('/api/v2/dashboard/market-trends', { points: Math.max(5, points) }),
 
   getArmPerformance: (days = 7) =>
-    seedFetchJSON<ArmPerformanceResponse>('/api/v2/dashboard/arm-performance', { params: { days } }),
+    fetchJSON<ArmPerformanceResponse>('/api/v2/dashboard/arm-performance', { days }),
 
   getLearningStatus: () =>
-    seedFetchJSON<LearningStatusResponse>('/api/v2/dashboard/learning-status'),
+    fetchJSON<LearningStatusResponse>('/api/v2/dashboard/learning-status'),
 
   getPerformanceTimeline: (days = 7, trade_type?: string) =>
-    seedFetchJSON<PerformanceTimelineResponse>('/api/v2/dashboard/performance-timeline', {
-      params: { days, ...(trade_type ? { trade_type } : {}) },
+    fetchJSON<PerformanceTimelineResponse>('/api/v2/dashboard/performance-timeline', {
+      days,
+      ...(trade_type ? { trade_type } : {}),
     }),
 
-  /**
-   * Consolidated endpoint that returns movers in one call.
-   * mover_type: gainers | losers | traded | all
-   */
-  getMarketMovers: (opts?: { mover_type?: 'gainers' | 'losers' | 'traded' | 'all'; days?: number; limit?: number }) =>
-    seedFetchJSON<MarketMoversResponse>('/api/v2/dashboard/market-movers', {
-      params: {
-        mover_type: opts?.mover_type ?? 'all',
-        days: opts?.days ?? 1,
-        limit: opts?.limit ?? 20,
-      },
-    }),
+  /** Unified response mode: one call returns gainers + losers + top_traded. */
+  getAllMarketMovers: (limit = 20, days = 1) =>
+    fetchJSON<MarketMoversAllResponse>('/api/v2/dashboard/market-movers', { limit, days }),
 
-  // Backwards-compatible wrappers (the old split endpoints were removed from Seed API)
-  getTopGainers: async (limit = 20, days = 1): Promise<TopGainersResponse> => {
-    const res = await seedDashboardService.getMarketMovers({ mover_type: 'gainers', days, limit });
-    return {
-      count: res.counts?.gainers ?? res.gainers?.length ?? 0,
-      gainers: res.gainers ?? [],
-      generated_at: res.generated_at,
-    };
-  },
+  /** Backward-compatible accessor for one bucket. Prefer getAllMarketMovers for UI loads. */
+  getMarketMovers: (moverType: 'gainers' | 'losers' | 'traded', limit = 20, days = 1) =>
+    fetchJSON<MarketMoversResponse>('/api/v2/dashboard/market-movers', { mover_type: moverType, limit, days }),
 
-  getTopLosers: async (limit = 20, days = 1): Promise<TopLosersResponse> => {
-    const res = await seedDashboardService.getMarketMovers({ mover_type: 'losers', days, limit });
-    return {
-      count: res.counts?.losers ?? res.losers?.length ?? 0,
-      losers: res.losers ?? [],
-      generated_at: res.generated_at,
-    };
-  },
+  getTopGainers: (limit = 20, days = 1) =>
+    fetchJSON<MarketMoversSingleResponse>('/api/v2/dashboard/market-movers', { mover_type: 'gainers', limit, days }).then((r) => ({
+      count: r.count,
+      gainers: r.items,
+      generated_at: r.generated_at,
+    })),
 
-  getTopTraded: async (limit = 20, days = 1): Promise<TopTradedResponse> => {
-    const res = await seedDashboardService.getMarketMovers({ mover_type: 'traded', days, limit });
-    return {
-      count: res.counts?.top_traded ?? res.top_traded?.length ?? 0,
-      top_traded: res.top_traded ?? [],
-      generated_at: res.generated_at,
-    };
-  },
+  getTopLosers: (limit = 20, days = 1) =>
+    fetchJSON<MarketMoversSingleResponse>('/api/v2/dashboard/market-movers', { mover_type: 'losers', limit, days }).then((r) => ({
+      count: r.count,
+      losers: r.items,
+      generated_at: r.generated_at,
+    })),
+
+  getTopTraded: (limit = 20, days = 1) =>
+    fetchJSON<MarketMoversSingleResponse>('/api/v2/dashboard/market-movers', { mover_type: 'traded', limit, days }).then((r) => ({
+      count: r.count,
+      top_traded: r.items,
+      generated_at: r.generated_at,
+    })),
 
   getPipelineHealth: () =>
-    seedFetchJSON<PipelineHealthResponse>('/v2/health/pipeline'),
+    fetchJSON<PipelineHealthResponse>('/v2/health/pipeline'),
 
   getObservabilityDb: () =>
-    seedFetchJSON<ObservabilityDbResponse>('/v2/observability/db'),
+    fetchJSON<ObservabilityDbResponse>('/v2/observability/db'),
 
   getScoreBinPerformance: (opts?: { trade_type?: string; days?: number; from_date?: string; to_date?: string }) => {
     const params: Record<string, string | number> = { days: opts?.days ?? 30 };
     if (opts?.trade_type) params.trade_type = opts.trade_type;
     if (opts?.from_date) params.from_date = opts.from_date;
     if (opts?.to_date) params.to_date = opts.to_date;
-    return seedFetchJSON<ScoreBinPerformanceItem[]>('/v2/learning/score-bin-performance', { params });
+    return fetchJSON<ScoreBinPerformanceItem[]>('/v2/learning/score-bin-performance', params);
   },
 
   /** GET /v2/learning/performance – group_by (score_bin | source_arm | outcome_type), horizon_type (time | event | all), filters */
@@ -174,17 +240,23 @@ export const seedDashboardService = {
     if (opts?.source_arm) params.source_arm = opts.source_arm;
     if (opts?.from_date) params.from_date = opts.from_date;
     if (opts?.to_date) params.to_date = opts.to_date;
-    return seedFetchJSON<LearningPerformanceResponse>('/v2/learning/performance', { params });
+    return fetchJSON<LearningPerformanceResponse>('/v2/learning/performance', params);
   },
 
   getAnalysisPerformance: (days = 30) =>
-    seedFetchJSON<AnalysisPerformanceResponse>('/api/v2/analysis/performance', { params: { days } }),
+    fetchJSON<AnalysisPerformanceResponse>('/api/v2/analysis/performance', { days }),
 
   getRegistryStats: () =>
-    seedFetchJSON<RegistryStatsResponse>('/api/v2/registry/stats'),
+    fetchJSON<RegistryStatsResponse>('/api/v2/registry/stats'),
 
-  getCapitalSummary: (days = 30) =>
-    seedFetchJSON<CapitalSummaryResponse>('/api/v2/dashboard/capital-summary', { params: { days } }),
+  /** Optional scenario/category (all|paper_trade|learning), include=summary,timeline,risk,protection */
+  getCapitalSummary: (days = 30, opts?: { scenario?: string; category?: string; include?: string }) => {
+    const params: Record<string, string | number> = { days };
+    if (opts?.scenario) params.scenario = opts.scenario;
+    if (opts?.category) params.category = opts.category;
+    if (opts?.include) params.include = opts.include;
+    return fetchJSON<CapitalSummaryResponse>('/api/v2/dashboard/capital-summary', params);
+  },
 
   getChargesCalculator: (opts: { entry_price: number; exit_price: number; quantity?: number; is_intraday?: boolean }) => {
     const params: Record<string, string | number> = {
@@ -193,38 +265,43 @@ export const seedDashboardService = {
     };
     if (opts.quantity != null) params.quantity = opts.quantity;
     if (opts.is_intraday != null) params.is_intraday = opts.is_intraday ? 1 : 0;
-    return seedFetchJSON<ChargesCalculatorResponse>('/api/v2/dashboard/charges-calculator', { params });
+    return fetchJSON<ChargesCalculatorResponse>('/api/v2/dashboard/charges-calculator', params);
   },
 
-  getPnlTimeline: (days = 30) =>
-    seedFetchJSON<PnlTimelineResponse>('/api/v2/dashboard/pnl-timeline', { params: { days } }),
+  getPnlTimeline: (days = 30, opts?: { scenario?: string; category?: string }) => {
+    const params: Record<string, string | number> = { days };
+    if (opts?.scenario) params.scenario = opts.scenario;
+    if (opts?.category) params.category = opts.category;
+    return fetchJSON<PnlTimelineResponse>('/api/v2/dashboard/pnl-timeline', params);
+  },
 
   getTradingSettings: () =>
-    seedFetchJSON<TradingSettingsResponse>('/api/v2/settings/trading'),
+    fetchJSON<TradingSettingsResponse>('/api/v2/settings/trading'),
 
   updateTradingSettings: (body: Partial<TradingSettingsResponse>) =>
-    seedFetchJSON<TradingSettingsResponse>('/api/v2/settings/trading', { method: 'PUT', body }),
+    fetchJSON<TradingSettingsResponse>('/api/v2/settings/trading', undefined, { method: 'PUT', body }),
 
   getTradingSettingsSchema: () =>
-    seedFetchJSON<Record<string, unknown>>('/api/v2/settings/trading/schema'),
+    fetchJSON<Record<string, unknown>>('/api/v2/settings/trading/schema'),
 
   getTradingSettingsForm: () =>
-    seedFetchJSON<Record<string, unknown>>('/api/v2/settings/trading/form'),
+    fetchJSON<Record<string, unknown>>('/api/v2/settings/trading/form'),
+
+  /** Improved Seed: all settings (trading + system) for System Settings page */
+  getSettings: () =>
+    fetchJSON<Record<string, unknown>>('/api/v2/settings'),
 
   getSystemSettings: () =>
-    seedFetchJSON<SeedSystemSettingsResponse>('/api/v2/settings/system'),
-
-  updateSystemSettings: (body: Partial<SeedSystemSettingsResponse>) =>
-    seedFetchJSON<SeedSystemSettingsResponse>('/api/v2/settings/system', { method: 'PUT', body }),
+    fetchJSON<Record<string, unknown>>('/api/v2/settings/system'),
 
   getSystemSettingsSchema: () =>
-    seedFetchJSON<Record<string, unknown>>('/api/v2/settings/system/schema'),
+    fetchJSON<Record<string, unknown>>('/api/v2/settings/system/schema'),
 
-  getSystemSettingsForm: () =>
-    seedFetchJSON<Record<string, unknown>>('/api/v2/settings/system/form'),
+  getSystemForm: () =>
+    fetchJSON<Record<string, unknown>>('/api/v2/settings/system/form'),
 
-  getAllSettings: () =>
-    seedFetchJSON<SeedAllSettingsResponse>('/api/v2/settings'),
+  updateSystemSettings: (body: Record<string, unknown>) =>
+    fetchJSON<Record<string, unknown>>('/api/v2/settings/system', undefined, { method: 'PUT', body }),
 
   // ===================================================
   // NEW: Monitor, Batch, Export, Overview endpoints
@@ -235,74 +312,162 @@ export const seedDashboardService = {
     const params: Record<string, string | number> = {};
     if (opts?.include_positions != null) params.include_positions = opts.include_positions ? 1 : 0;
     if (opts?.include_learning != null) params.include_learning = opts.include_learning ? 1 : 0;
-    return seedFetchJSON<DashboardOverviewResponse>('/api/v2/dashboard/overview', { params });
+    return fetchJSON<DashboardOverviewResponse>('/api/v2/dashboard/overview', params);
   },
 
-  /** Ultra-fast (<10ms) header stats — poll every 15s */
-  getQuickStats: () =>
-    seedFetchJSON<QuickStatsResponse>('/api/v2/monitor/quick-stats'),
+  /** Ultra-fast (<10ms) header stats — poll every 15s; optional scenario/category (all|paper_trade|learning) */
+  getQuickStats: (opts?: { scenario?: string; category?: string }) => {
+    const params: Record<string, string> = {};
+    if (opts?.scenario) params.scenario = opts.scenario;
+    if (opts?.category) params.category = opts.category;
+    return fetchJSON<QuickStatsResponse>('/api/v2/monitor/quick-stats', Object.keys(params).length ? params : undefined);
+  },
 
   /** Real-time market context (VIX, regime, Nifty, S&P) */
   getMarketPulse: () =>
-    seedFetchJSON<MarketPulseResponse>('/api/v2/monitor/market-pulse'),
+    fetchJSON<MarketPulseResponse>('/api/v2/monitor/market-pulse'),
 
   /** System alerts for notification badge */
   getSystemAlerts: () =>
-    seedFetchJSON<SystemAlertsResponse>('/api/v2/monitor/system-alerts'),
+    fetchJSON<SystemAlertsResponse>('/api/v2/monitor/system-alerts'),
 
-  /** Multi-period win/return KPI cards (1h / 24h / 7d) */
-  getPerformancePulse: () =>
-    seedFetchJSON<PerformancePulseResponse>('/api/v2/monitor/performance-pulse'),
+  /** Multi-period win/return KPI cards (1h / 24h / 7d); optional scenario/category */
+  getPerformancePulse: (opts?: { scenario?: string; category?: string }) => {
+    const params: Record<string, string | number> = {};
+    if (opts?.scenario) params.scenario = opts.scenario;
+    if (opts?.category) params.category = opts.category;
+    return fetchJSON<PerformancePulseResponse>('/api/v2/monitor/performance-pulse', Object.keys(params).length ? params : undefined);
+  },
 
-  /** Live positions with proximity to stop / target */
-  getLivePositions: (includeClosedHours = 0) =>
-    seedFetchJSON<LivePositionsResponse>('/api/v2/monitor/live-positions', {
-      params: { include_closed_hours: includeClosedHours },
-    }),
+  /** Live positions with proximity to stop / target; optional scenario/category */
+  getLivePositions: (includeClosedHours = 0, opts?: { scenario?: string; category?: string }) => {
+    const params: Record<string, string | number> = { include_closed_hours: includeClosedHours };
+    if (opts?.scenario) params.scenario = opts.scenario;
+    if (opts?.category) params.category = opts.category;
+    return fetchJSON<LivePositionsResponse>('/api/v2/monitor/live-positions', params);
+  },
 
   /** Positions within N% of a stop or target trigger */
   getWatchlist: (proximityThreshold = 2.0) =>
-    seedFetchJSON<WatchlistResponse>('/api/v2/dashboard/watchlist', { params: { proximity_threshold: proximityThreshold } }),
+    fetchJSON<WatchlistResponse>('/api/v2/dashboard/watchlist', { proximity_threshold: proximityThreshold }),
 
   /** Trailing stop / profit-protection status per open position */
   getProfitProtectionStatus: () =>
-    seedFetchJSON<ProfitProtectionResponse>('/api/v2/dashboard/profit-protection-status'),
+    fetchJSON<ProfitProtectionResponse>('/api/v2/dashboard/profit-protection-status'),
 
   /** Portfolio risk breakdown by trade type and sector */
   getPortfolioRisk: () =>
-    seedFetchJSON<PortfolioRiskResponse>('/api/v2/dashboard/portfolio-risk'),
+    fetchJSON<PortfolioRiskResponse>('/api/v2/dashboard/portfolio-risk'),
 
   /** Ranked ARM leaderboard with Thompson Sampling weights */
   getArmLeaderboard: (days = 7) =>
-    seedFetchJSON<ArmLeaderboardResponse>('/api/v2/monitor/arm-leaderboard', { params: { days } }),
+    fetchJSON<ArmLeaderboardResponse>('/api/v2/monitor/arm-leaderboard', { days }),
 
   /** Quick learning health summary */
   getLearningInsights: () =>
-    seedFetchJSON<LearningInsightsResponse>('/api/v2/monitor/learning-insights'),
+    fetchJSON<LearningInsightsResponse>('/api/v2/monitor/learning-insights'),
 
   /** Today's best and worst performing positions */
   getTopPerformersToday: (limit = 10) =>
-    seedFetchJSON<TopPerformersTodayResponse>('/api/v2/monitor/top-performers-today', { params: { limit } }),
+    fetchJSON<TopPerformersTodayResponse>('/api/v2/monitor/top-performers-today', { limit }),
 
   /** Data staleness checks per pipeline component */
   getDataHealth: () =>
-    seedFetchJSON<DataHealthResponse>('/api/v2/monitor/data-health'),
+    fetchJSON<DataHealthResponse>('/api/v2/monitor/data-health'),
 
   /** DB row counts and quality metrics */
   getDataStatistics: () =>
-    seedFetchJSON<DataStatisticsResponse>('/api/v2/batch/data-statistics'),
+    fetchJSON<DataStatisticsResponse>('/api/v2/batch/data-statistics'),
 
   /** Emergency multi-position close (up to 50 positions) */
   batchClosePositions: (body: BatchCloseRequest) =>
-    seedFetchJSON<BatchCloseResponse>('/api/v2/batch/close-positions', { method: 'POST', body }),
+    fetchJSON<BatchCloseResponse>('/api/v2/batch/close-positions', undefined, { method: 'POST', body }),
 
   /** Bulk symbol performance analysis (up to 20 symbols) */
   analyzeSymbols: (body: BatchAnalyzeRequest) =>
-    seedFetchJSON<BatchAnalyzeResponse>('/api/v2/batch/analyze-symbols', { method: 'POST', body }),
+    fetchJSON<BatchAnalyzeResponse>('/api/v2/batch/analyze-symbols', undefined, { method: 'POST', body }),
 
   /** Full-text search across positions (symbol, ARM name, trade type) */
   searchPositions: (query: string, limit = 20) =>
-    seedFetchJSON<SearchPositionsResponse>('/api/v2/export/search/positions', { params: { query, limit } }),
+    fetchJSON<SearchPositionsResponse>('/api/v2/export/search/positions', { query, limit }),
+
+  // ===================================================
+  // Observability & service map (read-only)
+  // ===================================================
+
+  /** GET /api/v2/observability/endpoints — service map / endpoint list */
+  getObservabilityEndpoints: () =>
+    fetchJSON<Record<string, unknown>>('/api/v2/observability/endpoints'),
+
+  /** GET /api/v2/observability/performance — internal performance metrics */
+  getObservabilityPerformance: () =>
+    fetchJSON<Record<string, unknown>>('/api/v2/observability/performance'),
+
+  /** GET /api/v2/observability/performance/external */
+  getObservabilityPerformanceExternal: () =>
+    fetchJSON<Record<string, unknown>>('/api/v2/observability/performance/external'),
+
+  /** GET /v2/observability/regime-scoring */
+  getRegimeScoring: () =>
+    fetchJSON<Record<string, unknown>>('/v2/observability/regime-scoring'),
+
+  /** GET /api/v2/arms/observability/learning */
+  getArmsObservabilityLearning: () =>
+    fetchJSON<Record<string, unknown>>('/api/v2/arms/observability/learning'),
+
+  /** GET /api/v2/arms/observability/utilization */
+  getArmsObservabilityUtilization: () =>
+    fetchJSON<Record<string, unknown>>('/api/v2/arms/observability/utilization'),
+
+  /** GET /api/v2/candidates/observability/coverage */
+  getCandidatesObservabilityCoverage: () =>
+    fetchJSON<CoverageOutV2>('/api/v2/candidates/observability/coverage'),
+
+  /** GET /api/v2/candidates — paginated list (array body) */
+  listCandidates: (opts?: {
+    status?: string;
+    sector?: string;
+    market_cap_category?: string;
+    limit?: number;
+  }) => {
+    const params: Record<string, string | number> = {};
+    if (opts?.status) params.status = opts.status;
+    if (opts?.sector) params.sector = opts.sector;
+    if (opts?.market_cap_category) params.market_cap_category = opts.market_cap_category;
+    if (opts?.limit != null) params.limit = opts.limit;
+    return fetchJSON<CandidateOutV2[]>('/api/v2/candidates', Object.keys(params).length ? params : undefined);
+  },
+
+  /** GET /api/v2/candidates/{symbol} */
+  getCandidateDetail: (symbol: string, historyWeeks?: number) => {
+    const path = `/api/v2/candidates/${encodeURIComponent(symbol)}`;
+    const params = historyWeeks != null ? { history_weeks: historyWeeks } : undefined;
+    return fetchJSON<CandidateDetailOutV2>(path, params);
+  },
+
+  /** GET /api/v2/candidates/observability/kite-gap */
+  getCandidatesKiteGap: (limit?: number) =>
+    fetchJSON<KiteGapOutV2>('/api/v2/candidates/observability/kite-gap', limit != null ? { limit } : undefined),
+
+  /** PUT /api/v2/candidates/{symbol}/status */
+  updateCandidateStatus: (symbol: string, body: StatusUpdateInV2) =>
+    fetchJSON<StatusUpdateOutV2>(
+      `/api/v2/candidates/${encodeURIComponent(symbol)}/status`,
+      undefined,
+      { method: 'PUT', body },
+    ),
+
+  /** PUT /api/v2/candidates/{symbol}/match */
+  updateCandidateKiteMatch: (symbol: string, body: KiteMatchInV2) =>
+    fetchJSON<KiteMatchOutV2>(
+      `/api/v2/candidates/${encodeURIComponent(symbol)}/match`,
+      undefined,
+      { method: 'PUT', body },
+    ),
+
+  /** POST /api/v2/candidates/sync — ops; may be slow */
+  syncCandidates: () =>
+    fetchJSON<SyncResultOutV2>('/api/v2/candidates/sync', undefined, { method: 'POST', body: {} }),
 
   /** Returns a fully-qualified CSV download URL (use as href or window.open) */
   getExportUrl: (type: 'positions' | 'outcomes' | 'market-context', params?: Record<string, string | number>) => {
@@ -311,7 +476,13 @@ export const seedDashboardService = {
       outcomes: '/api/v2/export/outcomes.json',
       'market-context': '/api/v2/export/market-context.csv',
     };
-    return seedBuildUrl(pathMap[type], params);
+    const url = new URL(`${BASE}${pathMap[type]}`);
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
+      });
+    }
+    return url.toString();
   },
 };
 

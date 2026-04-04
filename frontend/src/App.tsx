@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -8,20 +8,22 @@ import AppLevelCacheManager from './services/AppLevelCacheManager';
 import SharedPriceManager from './services/SharedPriceManager';
 import SidebarLayout from './components/SidebarLayout';
 import UnifiedDashboard from './components/UnifiedDashboard';
-import RecommendationServiceTest from './components/RecommendationServiceTest';
 import KiteWebSocketTest from './components/KiteWebSocketTest';
 import Dashboard from './pages/Dashboard';
-import Backtesting from './pages/Backtesting';
-import SystemControl from './pages/SystemControl';
-import QueryManager from './pages/QueryManager';
+import ArmManagerPage from './pages/ArmManagerPage';
 import Home from './pages/Home';
 import Investing from './pages/Investing';
-import Settings from './pages/Settings';
-import StockMappingManager from './pages/StockMappingManager';
-import StockCandidatePopulatorPage from './pages/StockCandidatePopulatorPage';
 import UnifiedRecommendations from './pages/UnifiedRecommendations';
 import RecommendationObservabilityPage from './pages/RecommendationObservabilityPage';
+import DetailedPositionsPage from './pages/DetailedPositionsPage';
+import MLLearningPage from './pages/MLLearningPage';
+import MarketMoversPage from './pages/MarketMoversPage';
+import SystemSettingsPage from './pages/SystemSettingsPage';
+import ObservabilityPage from './pages/ObservabilityPage';
+import UniverseManagerPage from './pages/UniverseManagerPage';
+import Backtesting from './pages/Backtesting';
 import SeedOps from './pages/SeedOps';
+import { WorkspacePreferencesProvider } from './context/WorkspacePreferencesContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -105,13 +107,13 @@ function App() {
     'swing-recommendations': <UnifiedRecommendations />,
     'longterm-api': <Investing />,
     'dashboard-api': <Dashboard />,
-    'stock-mapping-api': <StockMappingManager />,
-    'stock-candidate-populator-api': <StockCandidatePopulatorPage />,
-    'chartink-query-tester': <QueryManager />,
-    'candidate-query-registry': <QueryManager />,
-    'backtesting': <Backtesting />,
-    'system-control': <SystemControl />,
-    'settings': <Settings />,
+    'stock-mapping-api': <UniverseManagerPage />,
+    'stock-candidate-populator-api': <UniverseManagerPage />,
+    'query-execution-tester': <ArmManagerPage />,
+    'candidate-query-registry': <ArmManagerPage />,
+    'system-control': <ObservabilityPage />,
+    'observability': <ObservabilityPage />,
+    'settings': <SystemSettingsPage />,
   };
 
   const getServiceComponent = (serviceName: string) =>
@@ -122,35 +124,43 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
+          <WorkspacePreferencesProvider>
           <SidebarLayout>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/dashboard" element={<UnifiedDashboard onServiceSelect={handleServiceSelect} activeService={activeService} />} />
               <Route path="/service/:serviceName" element={getServiceComponent(activeService)} />
               <Route path="/seed-dashboard" element={<Dashboard />} />
+              <Route path="/positions" element={<DetailedPositionsPage />} />
+              <Route path="/ml-learning" element={<MLLearningPage />} />
               <Route path="/recommendations" element={<UnifiedRecommendations />} />
+              <Route path="/market-movers" element={<MarketMoversPage />} />
               <Route path="/investing" element={<Investing />} />
               <Route path="/backtesting" element={<Backtesting />} />
               <Route path="/seed-ops" element={<SeedOps />} />
-              <Route path="/system-control" element={<SystemControl />} />
-              <Route path="/query-manager" element={<QueryManager />} />
+              <Route path="/system-control" element={<Navigate to="/observability" replace />} />
+              <Route path="/arm-manager" element={<ArmManagerPage />} />
+              <Route path="/query-manager" element={<Navigate to="/arm-manager" replace />} />
               <Route path="/recommendation-observability" element={<RecommendationObservabilityPage />} />
-              <Route path="/chartink-query-tester" element={<QueryManager />} />
-              <Route path="/candidate-query-registry" element={<QueryManager />} />
+              <Route path="/chartink-query-tester" element={<Navigate to="/arm-manager" replace />} />
+              <Route path="/candidate-query-registry" element={<Navigate to="/arm-manager" replace />} />
               <Route path="/swing-recommendations" element={<UnifiedRecommendations />} />
               <Route path="/unified-recommendations" element={<UnifiedRecommendations />} />
               <Route path="/long-term-trading" element={<Investing />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/stock-mapping" element={<StockMappingManager />} />
-              <Route path="/stock-candidate-populator" element={<StockCandidatePopulatorPage />} />
+              <Route path="/observability" element={<ObservabilityPage />} />
+              <Route path="/settings" element={<SystemSettingsPage />} />
+              <Route path="/universe" element={<UniverseManagerPage />} />
+              <Route path="/stock-mapping" element={<Navigate to="/universe" replace />} />
+              <Route path="/stock-candidate-populator" element={<Navigate to="/universe" replace />} />
               <Route path="/kite-websocket-test" element={<KiteWebSocketTest />} />
-              <Route path="/test/recommendation-service" element={<RecommendationServiceTest />} />
+              <Route path="/test/recommendation-service" element={<Navigate to="/seed-dashboard" replace />} />
             </Routes>
           </SidebarLayout>
+          </WorkspacePreferencesProvider>
         </Router>
       </ThemeProvider>
     </QueryClientProvider>
   );
 }
 
-export default App; 
+export default App;

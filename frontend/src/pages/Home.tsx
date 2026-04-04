@@ -1,4 +1,8 @@
+/**
+ * Home — summary only (no embedded Market Movers; those live on /seed-dashboard and /market-movers).
+ */
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -7,9 +11,14 @@ import {
   Card,
   CardContent,
   Skeleton,
-  Collapse,
-  IconButton,
   alpha,
+  TextField,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Link,
 } from '@mui/material';
 import {
   TrendingUp,
@@ -17,15 +26,17 @@ import {
   SwapHoriz,
   Inventory,
   FiberManualRecord,
-  ExpandMore,
-  ExpandLess,
   Speed,
   Timer,
 } from '@mui/icons-material';
 import { seedDashboardService } from '../services/SeedDashboardService';
 import type { DashboardDailySummary, PositionsSummaryResponse } from '../types/apiModels';
 import { InternalMarketContextCard } from '../components/InternalMarketContextCard';
-import HomeMarketMoversTab from '../components/home/HomeMarketMoversTab';
+import {
+  positionsSummaryIsPresent,
+  stopHitCountFromDistribution,
+  avgDurationMinutesFromPositions,
+} from '../utils/positionDisplayUtils';
 
 interface HorizonSummary {
   label: string;
@@ -36,10 +47,30 @@ interface HorizonSummary {
   loading: boolean;
 }
 
+const SUMMARY_DAYS_MIN = 1;
+const SUMMARY_DAYS_MAX = 90;
+const SCENARIO_OPTIONS = [
+  { value: 'all', label: 'All Scenarios' },
+  { value: 'paper_trade', label: 'Paper Trading' },
+  { value: 'learning', label: 'Learning' },
+] as const;
+
+type ScenarioValue = (typeof SCENARIO_OPTIONS)[number]['value'];
+
+function scenarioQuery(scenario: ScenarioValue): { category?: 'paper_trade' | 'learning'; scenario?: 'paper_trade' | 'learning' } {
+  if (scenario === 'all') return {};
+  return { category: scenario, scenario };
+}
+
 const Home: React.FC = () => {
+  /** Align with Positions page default window so totals are comparable */
+  const [summaryDays, setSummaryDays] = useState(30);
+  const [scenario, setScenario] = useState<ScenarioValue>('all');
   const [liveSummary, setLiveSummary] = useState<DashboardDailySummary | null>(null);
+  const [positionsSummary, setPositionsSummary] = useState<PositionsSummaryResponse | null>(null);
+  /** When scenario is "all", split counts (paper vs learning) for transparency */
+  const [scenarioSplit, setScenarioSplit] = useState<{ paper: number; learning: number } | null>(null);
   const [loadingSeed, setLoadingSeed] = useState(true);
-  const [moversOpen, setMoversOpen] = useState(true);
   const [horizons, setHorizons] = useState<HorizonSummary[]>([
     { label: 'Intraday Buy', tradeType: 'intraday_buy', color: '#4caf50', icon: <TrendingUp />, summary: null, loading: true },
     { label: 'Intraday Sell', tradeType: 'intraday_sell', color: '#f44336', icon: <TrendingDown />, summary: null, loading: true },
@@ -50,46 +81,120 @@ const Home: React.FC = () => {
 
   const fetchSummary = useCallback(async () => {
     try {
-      const res = await seedDashboardService.getDailySummary(1);
+      const opts = scenario === 'all' ? undefined : scenarioQuery(scenario);
+      const res = await seedDashboardService.getDailySummary(summaryDays, opts);
       setLiveSummary(res);
     } catch { /* silent */ } finally { setLoadingSeed(false); }
-  }, []);
+  }, [summaryDays, scenario]);
+
+  const fetchPositionsSummary = useCallback(async () => {
+    try {
+      /** limit: 0 — summary-only; avoids backends that return empty/wrong summary when list+filter combined */
+      const res = await seedDashboardService.getPositions({
+        ...scenarioQuery(scenario),
+        days: summaryDays,
+        limit: 0,
+      });
+      setPositionsSummary(res.summary ?? null);
+
+      if (scenario === 'all') {
+        const [paper, learning] = await Promise.allSettled([
+          seedDashboardService.getPositions({
+            category: 'paper_trade',
+            scenario: 'paper_trade',
+            days: summaryDays,
+            limit: 0,
+          }),
+          seedDashboardService.getPositions({
+            category: 'learning',
+            scenario: 'learning',
+            days: summaryDays,
+            limit: 0,
+          }),
+        ]);
+        let ptot = 0;
+        let ltot = 0;
+        if (paper.status === 'fulfilled' && positionsSummaryIsPresent(paper.value.summary)) {
+          ptot = paper.value.summary.total;
+        }
+        if (learning.status === 'fulfilled' && positionsSummaryIsPresent(learning.value.summary)) {
+          ltot = learning.value.summary.total;
+        }
+        setScenarioSplit({ paper: ptot, learning: ltot });
+      } else {
+        setScenarioSplit(null);
+      }
+    } catch {
+      setPositionsSummary(null);
+      setScenarioSplit(null);
+    }
+  }, [scenario, summaryDays]);
 
   const fetchHorizons = useCallback(async () => {
     const types = ['intraday_buy', 'intraday_sell', 'short_buy', 'swing_buy', 'long_term'];
     const results = await Promise.allSettled(
-      types.map((tt) => seedDashboardService.getPositions({ trade_type: tt, days: 30, limit: 1 }))
+      types.map((tt) => seedDashboardService.getPositions({
+        ...scenarioQuery(scenario),
+        trade_type: tt,
+        days: summaryDays,
+        limit: 0,
+      }))
     );
     setHorizons((prev) =>
       prev.map((h, i) => {
         const r = results[i];
-        return {
-          ...h,
-          summary: r.status === 'fulfilled' ? r.value.summary : null,
-          loading: false,
-        };
+        if (r.status !== 'fulfilled') {
+          return { ...h, summary: null, loading: false };
+        }
+        const summ = r.value.summary;
+        const rows = r.value.positions ?? [];
+        const avgMin = rows.length > 0 ? avgDurationMinutesFromPositions(rows) : null;
+        if (
+          summ &&
+          positionsSummaryIsPresent(summ) &&
+          summ.avg_duration_min == null &&
+          summ.avg_duration_hours == null &&
+          avgMin != null
+        ) {
+          return { ...h, summary: { ...summ, avg_duration_min: avgMin }, loading: false };
+        }
+        return { ...h, summary: summ, loading: false };
       })
     );
-  }, []);
+  }, [scenario, summaryDays]);
 
   useEffect(() => {
+    setLoadingSeed(true);
+    setHorizons((prev) => prev.map((h) => ({ ...h, loading: true })));
     fetchSummary();
+    fetchPositionsSummary();
     fetchHorizons();
+  }, [fetchSummary, fetchHorizons, fetchPositionsSummary]);
+
+  useEffect(() => {
     const iv = setInterval(fetchSummary, 60_000);
     return () => clearInterval(iv);
-  }, [fetchSummary, fetchHorizons]);
+  }, [fetchSummary]);
 
   const regime = liveSummary?.market_context?.market_regime;
-  const pos = liveSummary?.positions;
+  const pos = positionsSummary;
   const universe = liveSummary?.universe;
+  /**
+   * Stops must respect the same scenario as the P&L strip. For Paper/Learning, use only
+   * `positionsSummary.outcome_distribution` so we never show global stops next to filtered zeros.
+   * (Daily-summary `stops` is only used when scenario is "all".)
+   */
+  const stopsFromDist = stopHitCountFromDistribution(pos?.outcome_distribution ?? null);
+  const stopsFromDaily = liveSummary?.positions?.stops ?? 0;
+  const stopsCount = scenario === 'all' ? Math.max(stopsFromDist, stopsFromDaily) : stopsFromDist;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pb: 4 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pb: 4, background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)', minHeight: '100%', p: 3 }}>
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Box>
           <Typography variant="h5" fontWeight={800} color="#1a1a2e">Trading Command Center</Typography>
-          <Typography variant="body2" color="text.secondary">Market conditions, P&L summary, and horizon overview</Typography>
+          <Typography variant="body2" color="text.secondary">Summary only — market context, P&amp;L, horizons; use Dashboard for movers, other pages for detail</Typography>
         </Box>
         <Box display="flex" gap={1} alignItems="center">
           <Chip
@@ -112,9 +217,51 @@ const Home: React.FC = () => {
       {/* P&L Summary Strip */}
       <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
         <CardContent sx={{ py: 1.5, px: 2.5, '&:last-child': { pb: 1.5 } }}>
-          <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5} fontSize="0.62rem">
-            Today's P&L Summary
-          </Typography>
+          <Box display="flex" justifyContent="space-between" alignItems={{ xs: 'stretch', md: 'center' }} gap={1.5} flexDirection={{ xs: 'column', md: 'row' }}>
+            <Box>
+              <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5} fontSize="0.62rem">
+                P&amp;L Summary
+              </Typography>
+              <Typography variant="caption" display="block" color="text.secondary">
+                {summaryDays} day{summaryDays !== 1 ? 's' : ''} · {SCENARIO_OPTIONS.find((option) => option.value === scenario)?.label}
+                {scenario === 'all' && scenarioSplit != null && (
+                  <> · Paper {scenarioSplit.paper} · Learning {scenarioSplit.learning}</>
+                )}
+              </Typography>
+              {scenario === 'all' && (
+                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.25 }}>
+                  &quot;All scenarios&quot; sums paper + learning. Use the scenario filter or{' '}
+                  <Box component={RouterLink} to="/positions" sx={{ color: 'primary.main', fontWeight: 600 }}>Positions</Box>
+                  {' '}for a single lane.
+                </Typography>
+              )}
+            </Box>
+            <Box display="flex" gap={1.25} flexWrap="wrap" justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
+              <FormControl size="small" sx={{ minWidth: 168 }}>
+                <InputLabel>Scenario</InputLabel>
+                <Select value={scenario} label="Scenario" onChange={(e) => setScenario(e.target.value as (typeof SCENARIO_OPTIONS)[number]['value'])}>
+                  {SCENARIO_OPTIONS.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                type="number"
+                size="small"
+                label="Days"
+                value={summaryDays}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  if (!Number.isNaN(v)) setSummaryDays(Math.min(SUMMARY_DAYS_MAX, Math.max(SUMMARY_DAYS_MIN, v)));
+                }}
+                inputProps={{ min: SUMMARY_DAYS_MIN, max: SUMMARY_DAYS_MAX, step: 1 }}
+                InputProps={{
+                  endAdornment: <InputAdornment position="end"><Typography variant="caption" color="text.secondary">days</Typography></InputAdornment>,
+                }}
+                sx={{ width: 172, '& .MuiInputBase-input': { fontWeight: 700 } }}
+              />
+            </Box>
+          </Box>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
             {loadingSeed ? (
               Array.from({ length: 6 }).map((_, i) => (
@@ -142,8 +289,8 @@ const Home: React.FC = () => {
                 </Grid>
                 <Grid item xs={4} sm={2}>
                   <Box textAlign="center">
-                    <Typography variant="h5" fontWeight={800} color={(pos?.win_rate ?? 0) >= 50 ? '#4caf50' : '#f44336'}>
-                      {pos?.win_rate != null ? `${pos.win_rate.toFixed(0)}%` : '—'}
+                    <Typography variant="h5" fontWeight={800} color={(pos?.win_rate_pct ?? 0) >= 50 ? '#4caf50' : '#f44336'}>
+                      {pos?.win_rate_pct != null ? `${pos.win_rate_pct.toFixed(0)}%` : '—'}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Win Rate</Typography>
                   </Box>
@@ -158,22 +305,51 @@ const Home: React.FC = () => {
                 </Grid>
                 <Grid item xs={4} sm={2}>
                   <Box textAlign="center">
-                    <Typography variant="h5" fontWeight={800} color="#f44336">{pos?.stops ?? 0}</Typography>
+                    <Typography variant="h5" fontWeight={800} color={(pos?.total_net_pnl ?? 0) >= 0 ? '#4caf50' : '#f44336'}>
+                      {pos?.total_net_pnl != null ? `${pos.total_net_pnl >= 0 ? '+' : ''}₹${Math.abs(pos.total_net_pnl).toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Net P&amp;L</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4} sm={2}>
+                  <Box textAlign="center">
+                    <Typography variant="h5" fontWeight={800} color="#f44336">{stopsCount}</Typography>
                     <Typography variant="caption" color="text.secondary" fontSize="0.62rem">Stops Hit</Typography>
                   </Box>
                 </Grid>
               </>
             )}
           </Grid>
+          {!loadingSeed && pos?.outcome_distribution && Object.keys(pos.outcome_distribution).length > 0 && (
+            <Box sx={{ mt: 1.5, pt: 1, borderTop: 1, borderColor: 'divider', display: 'flex', flexWrap: 'wrap', gap: 0.75, justifyContent: 'center' }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ width: '100%', textAlign: 'center' }}>
+                Outcomes (same window)
+              </Typography>
+              {Object.entries(pos.outcome_distribution).map(([outcome, count]) => {
+                const oColor = outcome === 'stop' || outcome === 'stop_hit' || outcome === 'sl_hit' ? '#f44336'
+                  : outcome === 'target_3' ? '#4caf50'
+                  : outcome === 'expired' ? '#9e9e9e'
+                  : '#ff9800';
+                return (
+                  <Chip
+                    key={outcome}
+                    size="small"
+                    label={`${outcome.replace(/_/g, ' ')}: ${count}`}
+                    sx={{ fontWeight: 600, fontSize: '0.68rem', bgcolor: alpha(oColor, 0.12), color: oColor, textTransform: 'capitalize' }}
+                  />
+                );
+              })}
+            </Box>
+          )}
         </CardContent>
       </Card>
 
       {/* Horizon Summary Cards — all 5 trade types */}
       <Box>
         <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5} fontSize="0.62rem" sx={{ mb: 1, display: 'block' }}>
-          Position Summary by Trade Type (30 days)
+          Position Summary by Trade Type ({summaryDays} day{summaryDays !== 1 ? 's' : ''})
         </Typography>
-        <Grid container spacing={1.5}>
+        <Grid container spacing={2}>
           {horizons.map((h) => {
             const s = h.summary;
             const durationLabel = s?.avg_duration_hours != null && s.avg_duration_hours >= 1
@@ -182,7 +358,7 @@ const Home: React.FC = () => {
                 ? `${s.avg_duration_min.toFixed(0)}m`
                 : '—';
             return (
-              <Grid item xs={6} sm={4} md key={h.tradeType}>
+              <Grid item xs={12} sm={6} md={4} lg key={h.tradeType} sx={{ minWidth: 0 }}>
                 <Card
                   elevation={0}
                   sx={{
@@ -191,14 +367,15 @@ const Home: React.FC = () => {
                     borderRadius: 2.5,
                     transition: 'all 0.2s',
                     '&:hover': { borderColor: h.color, boxShadow: 2 },
+                    height: '100%',
                   }}
                 >
-                  <CardContent sx={{ py: 1.5, px: 1.5, '&:last-child': { pb: 1.5 } }}>
+                  <CardContent sx={{ py: 2, px: 2, '&:last-child': { pb: 2 } }}>
                     {/* Header */}
-                    <Box display="flex" alignItems="center" gap={0.5} mb={1}>
-                      <Box sx={{ color: h.color, display: 'flex', fontSize: 16 }}>{h.icon}</Box>
-                      <Typography variant="caption" fontWeight={800} fontSize="0.7rem">{h.label}</Typography>
-                      {!h.loading && s && (
+                    <Box display="flex" alignItems="center" gap={0.5} mb={1.5}>
+                      <Box sx={{ color: h.color, display: 'flex', fontSize: 18 }}>{h.icon}</Box>
+                      <Typography variant="caption" fontWeight={800} fontSize="0.8rem">{h.label}</Typography>
+                      {!h.loading && positionsSummaryIsPresent(s) && (
                         <Chip
                           label={`${s.open} open`}
                           size="small"
@@ -208,25 +385,25 @@ const Home: React.FC = () => {
                     </Box>
                     {h.loading ? (
                       <Skeleton height={60} />
-                    ) : s ? (
+                    ) : positionsSummaryIsPresent(s) ? (
                       <>
-                        {/* KPI row */}
-                        <Box display="flex" justifyContent="space-between" mb={0.5}>
-                          <Box textAlign="center" flex={1}>
-                            <Typography variant="subtitle2" fontWeight={800}>{s.total}</Typography>
-                            <Typography variant="caption" color="text.secondary" fontSize="0.5rem">Total</Typography>
+                        {/* KPI row — minWidth so numbers aren't clipped */}
+                        <Box display="flex" justifyContent="space-between" gap={0.5} mb={0.5} sx={{ minWidth: 0 }}>
+                          <Box textAlign="center" flex={1} sx={{ minWidth: 36 }}>
+                            <Typography variant="subtitle2" fontWeight={800} noWrap>{s.total}</Typography>
+                            <Typography variant="caption" color="text.secondary" fontSize="0.55rem">Total</Typography>
                           </Box>
-                          <Box textAlign="center" flex={1}>
-                            <Typography variant="subtitle2" fontWeight={800} color={(s.win_rate_pct ?? 0) >= 50 ? '#4caf50' : '#f44336'}>
+                          <Box textAlign="center" flex={1} sx={{ minWidth: 44 }}>
+                            <Typography variant="subtitle2" fontWeight={800} color={(s.win_rate_pct ?? 0) >= 50 ? '#4caf50' : '#f44336'} noWrap>
                               {s.win_rate_pct != null ? `${s.win_rate_pct.toFixed(0)}%` : '—'}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary" fontSize="0.5rem">Win</Typography>
+                            <Typography variant="caption" color="text.secondary" fontSize="0.55rem">Win</Typography>
                           </Box>
-                          <Box textAlign="center" flex={1}>
-                            <Typography variant="subtitle2" fontWeight={800} color={(s.avg_return_pct ?? 0) >= 0 ? '#4caf50' : '#f44336'}>
-                              {s.avg_return_pct != null ? `${s.avg_return_pct.toFixed(1)}%` : '—'}
+                          <Box textAlign="center" flex={1} sx={{ minWidth: 52 }}>
+                            <Typography variant="subtitle2" fontWeight={800} color={(s.avg_return_pct ?? 0) >= 0 ? '#4caf50' : '#f44336'} noWrap>
+                              {s.avg_return_pct != null ? `${s.avg_return_pct > 0 ? '+' : ''}${s.avg_return_pct.toFixed(1)}%` : '—'}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary" fontSize="0.5rem">Avg Ret</Typography>
+                            <Typography variant="caption" color="text.secondary" fontSize="0.55rem">Avg Ret</Typography>
                           </Box>
                         </Box>
                         {/* Duration + Best/Worst chips */}
@@ -254,34 +431,17 @@ const Home: React.FC = () => {
         </Grid>
       </Box>
 
-      {/* Market Movers — collapsible */}
-      <Box>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          onClick={() => setMoversOpen((p) => !p)}
-          sx={{
-            cursor: 'pointer',
-            py: 1,
-            px: 2,
-            bgcolor: alpha('#1976d2', 0.03),
-            borderRadius: moversOpen ? '12px 12px 0 0' : 3,
-            border: '1px solid',
-            borderColor: 'divider',
-            borderBottom: moversOpen ? 'none' : undefined,
-            transition: 'all 0.2s',
-            '&:hover': { bgcolor: alpha('#1976d2', 0.06) },
-          }}
-        >
-          <Typography variant="subtitle2" fontWeight={700}>Market Movers</Typography>
-          <IconButton size="small">{moversOpen ? <ExpandLess /> : <ExpandMore />}</IconButton>
-        </Box>
-        <Collapse in={moversOpen}>
-          <Box sx={{ border: '1px solid', borderColor: 'divider', borderTop: 'none', borderRadius: '0 0 12px 12px', p: 2 }}>
-            <HomeMarketMoversTab />
-          </Box>
-        </Collapse>
+      <Box sx={{ py: 0.5, textAlign: 'center' }}>
+        <Typography variant="caption" color="text.secondary">
+          Market movers:{' '}
+          <Link component={RouterLink} to="/seed-dashboard" underline="hover" fontWeight={600}>
+            Seed Dashboard
+          </Link>
+          {' · '}
+          <Link component={RouterLink} to="/market-movers" underline="hover" fontWeight={600}>
+            full page
+          </Link>
+        </Typography>
       </Box>
 
       {/* Universe Health Strip */}

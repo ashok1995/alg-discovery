@@ -20,18 +20,63 @@ import {
   Tooltip,
   Tabs,
   Tab,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Refresh, CheckCircle, Error as ErrorIcon, Storage, Speed, Memory } from '@mui/icons-material';
 import TabPanel from '../components/ui/TabPanel';
+import StructuredDataView from '../components/ui/StructuredDataView';
 import { seedDashboardService } from '../services/SeedDashboardService';
 import type { PipelineHealthResponse, ObservabilityDbResponse, RegistryStatsResponse } from '../types/apiModels';
-import ArmsRegistryTab from '../components/system/ArmsRegistryTab';
-import CandidatesRegistryTab from '../components/system/CandidatesRegistryTab';
-import SeedObservabilityTab from '../components/system/SeedObservabilityTab';
 
-const TRADE_TYPES = ['intraday_buy', 'intraday_sell', 'swing_buy', 'short', 'positional'];
+const TRADE_TYPES = ['intraday_buy', 'intraday_sell', 'swing_buy', 'short_buy', 'long_term'];
 
-const SystemControl: React.FC = () => {
+function renderOrchestratorTable(data: Record<string, unknown>): React.ReactElement {
+  const rows = Object.entries(data);
+  return (
+    <TableContainer component={Paper} variant="outlined">
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Component</TableCell>
+            <TableCell>Status / Value</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map(([k, v]) => {
+            const text = typeof v === 'string' ? v : JSON.stringify(v);
+            const normalized = text.toLowerCase();
+            const color =
+              normalized.includes('error') || normalized.includes('fail')
+                ? 'error'
+                : normalized.includes('ok') || normalized.includes('healthy') || normalized.includes('success')
+                  ? 'success'
+                  : 'default';
+            return (
+              <TableRow key={k}>
+                <TableCell>{k.replace(/_/g, ' ')}</TableCell>
+                <TableCell>
+                  <Chip size="small" label={text} color={color} variant={color === 'default' ? 'outlined' : 'filled'} />
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
+interface SystemControlProps {
+  /** When true, hide the page title (e.g. when embedded in System Settings). */
+  embedMode?: boolean;
+  /** `sections` = stacked accordions (no inner tab bar). `tabs` = classic sub-tabs. */
+  contentLayout?: 'tabs' | 'sections';
+}
+
+const SystemControl: React.FC<SystemControlProps> = ({ embedMode = false, contentLayout = 'tabs' }) => {
   const [pipelineHealth, setPipelineHealth] = useState<PipelineHealthResponse | null>(null);
   const [observability, setObservability] = useState<ObservabilityDbResponse | null>(null);
   const [registryStats, setRegistryStats] = useState<RegistryStatsResponse | null>(null);
@@ -80,13 +125,22 @@ const SystemControl: React.FC = () => {
   const universeByScenario = (pipeline?.stock_universe_by_scenario ?? {}) as Record<string, { active: number; total: number }>;
 
   return (
-    <Box p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4">System Control</Typography>
-        <Tooltip title="Refresh">
-          <IconButton onClick={fetchSystemData} color="primary"><Refresh /></IconButton>
-        </Tooltip>
-      </Box>
+    <Box p={embedMode ? 2 : 3}>
+      {!embedMode && (
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h4">System Control</Typography>
+          <Tooltip title="Refresh">
+            <IconButton onClick={fetchSystemData} color="primary"><Refresh /></IconButton>
+          </Tooltip>
+        </Box>
+      )}
+      {embedMode && (
+        <Box display="flex" justifyContent="flex-end" alignItems="center" mb={1}>
+          <Tooltip title="Refresh">
+            <IconButton onClick={fetchSystemData} color="primary" size="small"><Refresh /></IconButton>
+          </Tooltip>
+        </Box>
+      )}
 
       {loading && <LinearProgress sx={{ mb: 1 }} />}
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -137,17 +191,15 @@ const SystemControl: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
-        <Tab label="Pipeline Health" />
-        <Tab label="DB Observability" />
-        <Tab label="Registry Stats" />
-        <Tab label="ARMs" />
-        <Tab label="Candidates" />
-        <Tab label="Observability" />
-      </Tabs>
+      {contentLayout === 'tabs' ? (
+        <>
+          <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
+            <Tab label="Pipeline Health" />
+            <Tab label="DB Observability" />
+            <Tab label="Registry Stats" />
+          </Tabs>
 
-      {/* Pipeline Health Tab */}
-      <TabPanel value={tab} index={0}>
+          <TabPanel value={tab} index={0}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <Card>
@@ -187,9 +239,7 @@ const SystemControl: React.FC = () => {
               <CardContent>
                 <Typography variant="h6" gutterBottom>Orchestrator Status</Typography>
                 {pipeline?.orchestrator ? (
-                  <Box component="pre" sx={{ fontSize: 12, overflow: 'auto', maxHeight: 400, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
-                    {JSON.stringify(pipeline.orchestrator, null, 2)}
-                  </Box>
+                  renderOrchestratorTable(pipeline.orchestrator as Record<string, unknown>)
                 ) : (
                   <Typography color="text.secondary">No orchestrator data available.</Typography>
                 )}
@@ -204,21 +254,20 @@ const SystemControl: React.FC = () => {
             </Grid>
           )}
         </Grid>
-      </TabPanel>
+          </TabPanel>
 
-      {/* DB Observability Tab */}
-      <TabPanel value={tab} index={1}>
+          <TabPanel value={tab} index={1}>
         {observability ? (
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>Stock Universe</Typography>
-                  <Typography variant="body2">Total: {(observability.stock_universe as any)?.total ?? '—'}</Typography>
-                  <Typography variant="body2">Active: {(observability.stock_universe as any)?.active ?? '—'}</Typography>
-                  <Typography variant="body2">Inactive: {(observability.stock_universe as any)?.inactive ?? '—'}</Typography>
-                  <Typography variant="body2">Added (24h): {(observability.stock_universe as any)?.recently_added_24h ?? '—'}</Typography>
-                  <Typography variant="body2">Evicted (24h): {(observability.stock_universe as any)?.recently_evicted_24h ?? '—'}</Typography>
+                  <Typography variant="body2">Total: {String(observability.stock_universe.total ?? '—')}</Typography>
+                  <Typography variant="body2">Active: {String(observability.stock_universe.active ?? '—')}</Typography>
+                  <Typography variant="body2">Inactive: {String(observability.stock_universe.inactive ?? '—')}</Typography>
+                  <Typography variant="body2">Added (24h): {String(observability.stock_universe.recently_added_24h ?? '—')}</Typography>
+                  <Typography variant="body2">Evicted (24h): {String(observability.stock_universe.recently_evicted_24h ?? '—')}</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -226,10 +275,11 @@ const SystemControl: React.FC = () => {
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>Stock Indicators</Typography>
-                  <Typography variant="body2">Total: {(observability.stock_indicators as any)?.total ?? '—'}</Typography>
-                  {(observability.stock_indicators as any)?.by_trade_type && (
+                  <Typography variant="body2">Total: {String(observability.stock_indicators.total ?? '—')}</Typography>
+                  {observability.stock_indicators.by_trade_type != null &&
+                    typeof observability.stock_indicators.by_trade_type === 'object' && (
                     <Box mt={1}>
-                      {Object.entries((observability.stock_indicators as any).by_trade_type).map(([tt, cnt]) => (
+                      {Object.entries(observability.stock_indicators.by_trade_type as Record<string, unknown>).map(([tt, cnt]) => (
                         <Typography key={tt} variant="body2">{tt.replace(/_/g, ' ')}: {String(cnt)}</Typography>
                       ))}
                     </Box>
@@ -241,10 +291,11 @@ const SystemControl: React.FC = () => {
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>Ranked Stocks</Typography>
-                  <Typography variant="body2">Total: {(observability.ranked_stocks as any)?.total ?? '—'}</Typography>
-                  {(observability.ranked_stocks as any)?.by_trade_type && (
+                  <Typography variant="body2">Total: {String(observability.ranked_stocks.total ?? '—')}</Typography>
+                  {observability.ranked_stocks.by_trade_type != null &&
+                    typeof observability.ranked_stocks.by_trade_type === 'object' && (
                     <Box mt={1}>
-                      {Object.entries((observability.ranked_stocks as any).by_trade_type).map(([tt, cnt]) => (
+                      {Object.entries(observability.ranked_stocks.by_trade_type as Record<string, unknown>).map(([tt, cnt]) => (
                         <Typography key={tt} variant="body2">{tt.replace(/_/g, ' ')}: {String(cnt)}</Typography>
                       ))}
                     </Box>
@@ -271,7 +322,7 @@ const SystemControl: React.FC = () => {
                         {Object.entries(observability.by_scenario).map(([sc, data]) => (
                           <TableRow key={sc}>
                             <TableCell>{sc.replace(/_/g, ' ')}</TableCell>
-                            <TableCell align="right">{(data.stock_universe as any)?.active ?? '—'}</TableCell>
+                            <TableCell align="right">{String((data.stock_universe as Record<string, unknown>).active ?? '—')}</TableCell>
                             <TableCell align="right">{data.stock_indicators_count}</TableCell>
                             <TableCell align="right">{data.ranked_stocks_count}</TableCell>
                             <TableCell>
@@ -298,9 +349,7 @@ const SystemControl: React.FC = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Pipeline Operations</Typography>
-                    <Box component="pre" sx={{ fontSize: 12, overflow: 'auto', maxHeight: 400, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
-                      {JSON.stringify(observability.pipeline_operations, null, 2)}
-                    </Box>
+                    <StructuredDataView data={observability.pipeline_operations} />
                   </CardContent>
                 </Card>
               </Grid>
@@ -309,10 +358,9 @@ const SystemControl: React.FC = () => {
         ) : (
           <Typography color="text.secondary">No observability data available.</Typography>
         )}
-      </TabPanel>
+          </TabPanel>
 
-      {/* Registry Stats Tab */}
-      <TabPanel value={tab} index={2}>
+          <TabPanel value={tab} index={2}>
         {registryStats ? (
           <Grid container spacing={2}>
             <Grid item xs={12} sm={4}>
@@ -343,9 +391,7 @@ const SystemControl: React.FC = () => {
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>Full Registry Stats</Typography>
-                  <Box component="pre" sx={{ fontSize: 12, overflow: 'auto', maxHeight: 400, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
-                    {JSON.stringify(registryStats, null, 2)}
-                  </Box>
+                  <StructuredDataView data={registryStats} />
                 </CardContent>
               </Card>
             </Grid>
@@ -353,22 +399,233 @@ const SystemControl: React.FC = () => {
         ) : (
           <Typography color="text.secondary">No registry stats available.</Typography>
         )}
-      </TabPanel>
+          </TabPanel>
+        </>
+      ) : (
+        <Box>
+          <Accordion
+            defaultExpanded
+            disableGutters
+            elevation={0}
+            sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, mb: 1, '&:before': { display: 'none' } }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography fontWeight={700}>Pipeline health &amp; ranked universe</Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ pt: 0 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>Ranked Stocks by Trade Type</Typography>
+                      <TableContainer component={Paper} variant="outlined">
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Trade Type</TableCell>
+                              <TableCell align="right">Ranked</TableCell>
+                              <TableCell align="right">Universe (Active / Total)</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {TRADE_TYPES.map((tt) => (
+                              <TableRow key={tt}>
+                                <TableCell>{tt.replace(/_/g, ' ')}</TableCell>
+                                <TableCell align="right">
+                                  <Chip label={rankedStocks[tt] ?? 0} size="small" color="primary" variant="outlined" />
+                                </TableCell>
+                                <TableCell align="right">
+                                  {universeByScenario[tt]
+                                    ? `${universeByScenario[tt].active} / ${universeByScenario[tt].total}`
+                                    : '—'}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>Orchestrator Status</Typography>
+                      {pipeline?.orchestrator ? (
+                        renderOrchestratorTable(pipeline.orchestrator as Record<string, unknown>)
+                      ) : (
+                        <Typography color="text.secondary">No orchestrator data available.</Typography>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
+                {pipelineHealth?.errors && pipelineHealth.errors.length > 0 && (
+                  <Grid item xs={12}>
+                    <Alert severity="warning">
+                      Pipeline errors: {pipelineHealth.errors.join(', ')}
+                    </Alert>
+                  </Grid>
+                )}
+              </Grid>
+            </AccordionDetails>
+          </Accordion>
 
-      {/* ARM Registry */}
-      <TabPanel value={tab} index={3}>
-        <ArmsRegistryTab />
-      </TabPanel>
+          <Accordion disableGutters elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, mb: 1, '&:before': { display: 'none' } }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography fontWeight={700}>Database observability</Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ pt: 0 }}>
+              {observability ? (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>Stock Universe</Typography>
+                        <Typography variant="body2">Total: {String(observability.stock_universe.total ?? '—')}</Typography>
+                        <Typography variant="body2">Active: {String(observability.stock_universe.active ?? '—')}</Typography>
+                        <Typography variant="body2">Inactive: {String(observability.stock_universe.inactive ?? '—')}</Typography>
+                        <Typography variant="body2">Added (24h): {String(observability.stock_universe.recently_added_24h ?? '—')}</Typography>
+                        <Typography variant="body2">Evicted (24h): {String(observability.stock_universe.recently_evicted_24h ?? '—')}</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>Stock Indicators</Typography>
+                        <Typography variant="body2">Total: {String(observability.stock_indicators.total ?? '—')}</Typography>
+                        {observability.stock_indicators.by_trade_type != null &&
+                          typeof observability.stock_indicators.by_trade_type === 'object' && (
+                          <Box mt={1}>
+                            {Object.entries(observability.stock_indicators.by_trade_type as Record<string, unknown>).map(([tt, cnt]) => (
+                              <Typography key={tt} variant="body2">{tt.replace(/_/g, ' ')}: {String(cnt)}</Typography>
+                            ))}
+                          </Box>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>Ranked Stocks</Typography>
+                        <Typography variant="body2">Total: {String(observability.ranked_stocks.total ?? '—')}</Typography>
+                        {observability.ranked_stocks.by_trade_type != null &&
+                          typeof observability.ranked_stocks.by_trade_type === 'object' && (
+                          <Box mt={1}>
+                            {Object.entries(observability.ranked_stocks.by_trade_type as Record<string, unknown>).map(([tt, cnt]) => (
+                              <Typography key={tt} variant="body2">{tt.replace(/_/g, ' ')}: {String(cnt)}</Typography>
+                            ))}
+                          </Box>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>By Scenario</Typography>
+                        <TableContainer component={Paper} variant="outlined">
+                          <Table size="small">
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>Scenario</TableCell>
+                                <TableCell align="right">Universe (Active)</TableCell>
+                                <TableCell align="right">Indicators</TableCell>
+                                <TableCell align="right">Ranked</TableCell>
+                                <TableCell>Pipeline Last Run</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {Object.entries(observability.by_scenario).map(([sc, data]) => (
+                                <TableRow key={sc}>
+                                  <TableCell>{sc.replace(/_/g, ' ')}</TableCell>
+                                  <TableCell align="right">{String((data.stock_universe as Record<string, unknown>).active ?? '—')}</TableCell>
+                                  <TableCell align="right">{data.stock_indicators_count}</TableCell>
+                                  <TableCell align="right">{data.ranked_stocks_count}</TableCell>
+                                  <TableCell>
+                                    {data.pipeline_last_run ? (
+                                      <Box>
+                                        {Object.entries(data.pipeline_last_run).map(([comp, time]) => (
+                                          <Typography key={comp} variant="caption" display="block">
+                                            {comp}: {time}
+                                          </Typography>
+                                        ))}
+                                      </Box>
+                                    ) : '—'}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  {observability.pipeline_operations && Object.keys(observability.pipeline_operations).length > 0 && (
+                    <Grid item xs={12}>
+                      <Card>
+                        <CardContent>
+                          <Typography variant="h6" gutterBottom>Pipeline Operations</Typography>
+                          <StructuredDataView data={observability.pipeline_operations} />
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  )}
+                </Grid>
+              ) : (
+                <Typography color="text.secondary">No observability data available.</Typography>
+              )}
+            </AccordionDetails>
+          </Accordion>
 
-      {/* Candidate Registry */}
-      <TabPanel value={tab} index={4}>
-        <CandidatesRegistryTab />
-      </TabPanel>
-
-      {/* Observability */}
-      <TabPanel value={tab} index={5}>
-        <SeedObservabilityTab />
-      </TabPanel>
+          <Accordion disableGutters elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, '&:before': { display: 'none' } }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography fontWeight={700}>Query registry</Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ pt: 0 }}>
+              {registryStats ? (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={4}>
+                    <Card>
+                      <CardContent sx={{ textAlign: 'center' }}>
+                        <Typography variant="h3" color="primary">{registryStats.total_queries}</Typography>
+                        <Typography variant="subtitle1">Total Queries</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Card>
+                      <CardContent sx={{ textAlign: 'center' }}>
+                        <Typography variant="h3" color="success.main">{registryStats.active_queries}</Typography>
+                        <Typography variant="subtitle1">Active Queries</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Card>
+                      <CardContent sx={{ textAlign: 'center' }}>
+                        <Typography variant="h3" color="info.main">{registryStats.arm_queries}</Typography>
+                        <Typography variant="subtitle1">ARM Queries</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>Full Registry Stats</Typography>
+                        <StructuredDataView data={registryStats} />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+              ) : (
+                <Typography color="text.secondary">No registry stats available.</Typography>
+              )}
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+      )}
     </Box>
   );
 };

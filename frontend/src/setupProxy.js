@@ -36,7 +36,7 @@ module.exports = function(app) {
     })
   );
 
-  // Proxy for Chartink Query Service (same host as auth - 8181: execute, session-status)
+  // Query execution API (same host as auth - 8181: execute, session-status); path /api/chartink-query
   const chartinkQueryTarget = process.env.REACT_APP_CHARTINK_AUTH_TARGET || 'http://35.232.205.155:8181';
   app.use(
     '/api/chartink-query',
@@ -47,14 +47,14 @@ module.exports = function(app) {
         '^/api/chartink-query': '/api/v1',
       },
       onProxyReq: (proxyReq, req, res) => {
-        console.log('Proxying Chartink Query request:', req.method, req.url, 'to', chartinkQueryTarget + req.url.replace('/api/chartink-query', '/api/v1'));
+        console.log('Proxying query-execution request:', req.method, req.url, 'to', chartinkQueryTarget + req.url.replace('/api/chartink-query', '/api/v1'));
       },
       onError: (err, req, res) => {
-        console.error('Chartink Query proxy error:', err.message);
+        console.error('Query execution proxy error:', err.message);
         res.writeHead(500, {
           'Content-Type': 'application/json',
         });
-        res.end(JSON.stringify({ error: 'Chartink Query proxy error', message: err.message }));
+        res.end(JSON.stringify({ error: 'Query execution proxy error', message: err.message }));
       },
     })
   );
@@ -103,10 +103,10 @@ module.exports = function(app) {
     })
   );
 
-  // Proxy for Chartink Authentication Service – always prod 8181 (session-status, vnc-url, force-update, cookie/status, clear)
+  // Query execution auth proxy – 8181 (session-status, vnc-url, force-update, cookie/status, clear); path /api/chartink
   const chartinkAuthTarget = process.env.REACT_APP_CHARTINK_AUTH_TARGET || 'http://35.232.205.155:8181';
-  console.log('[setupProxy] Chartink Auth target:', chartinkAuthTarget);
-  // Chartink health: GET /health at service root
+  console.log('[setupProxy] Query execution auth target:', chartinkAuthTarget);
+  // Health: GET /health at service root
   app.use(
     '/api/chartink-health',
     createProxyMiddleware({
@@ -114,9 +114,9 @@ module.exports = function(app) {
       changeOrigin: true,
       pathRewrite: { '^/api/chartink-health': '/health' },
       onError: (err, req, res) => {
-        console.error('Chartink health proxy error:', err.message);
+        console.error('Query execution health proxy error:', err.message);
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Chartink health check failed', message: err.message }));
+        res.end(JSON.stringify({ error: 'Query execution health check failed', message: err.message }));
       },
     })
   );
@@ -129,14 +129,14 @@ module.exports = function(app) {
         '^/api/chartink': '/api/v1/auth',
       },
       onProxyReq: (proxyReq, req, res) => {
-        console.log('Proxying Chartink Auth request:', req.method, req.url, 'to', chartinkAuthTarget + req.url.replace('/api/chartink', '/api/v1/auth'));
+        console.log('Proxying query-execution auth request:', req.method, req.url, 'to', chartinkAuthTarget + req.url.replace('/api/chartink', '/api/v1/auth'));
       },
       onError: (err, req, res) => {
-        console.error('Chartink proxy error:', err.message);
+        console.error('Query execution auth proxy error:', err.message);
         res.writeHead(500, {
           'Content-Type': 'application/json',
         });
-        res.end(JSON.stringify({ error: 'Chartink proxy error', message: err.message }));
+        res.end(JSON.stringify({ error: 'Query execution auth proxy error', message: err.message }));
       },
     })
   );

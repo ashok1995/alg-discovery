@@ -23,6 +23,7 @@ import {
 } from '@mui/icons-material';
 import type { TrackedPositionItem, PositionsSummaryResponse } from '../../types/apiModels';
 import { seedDashboardService } from '../../services/SeedDashboardService';
+import { displayReturnPctForRow, openUnrealizedPnlDisplay } from '../../utils/positionDisplayUtils';
 import { useSortableData } from '../../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 import SymbolLink from '../ui/SymbolLink';
@@ -132,7 +133,8 @@ const PositionsTable: React.FC<{ positions: TrackedPositionItem[] }> = ({ positi
         <TableBody>
           {sortedData.map((p) => {
             const isOpen = p.status === 'open';
-            const displayReturn = isOpen ? (p.current_return_pct ?? p.return_pct) : p.return_pct;
+            const displayReturn = displayReturnPctForRow(p);
+            const unrealDisplay = openUnrealizedPnlDisplay(p);
             return (
               <TableRow key={p.id} hover sx={{ '&:last-child td': { borderBottom: 0 }, bgcolor: isOpen ? alpha('#1976d2', 0.02) : undefined }}>
                 <TableCell sx={{ py: 0.6 }}>
@@ -167,9 +169,9 @@ const PositionsTable: React.FC<{ positions: TrackedPositionItem[] }> = ({ positi
                 <TableCell sx={{ py: 0.6 }}>{statusChip(p.status)}</TableCell>
                 <TableCell align="right" sx={{ py: 0.6 }}>{returnCell(displayReturn)}</TableCell>
                 <TableCell align="right" sx={{ py: 0.6 }}>
-                  {isOpen && p.unrealized_pnl != null ? (
-                    <Typography variant="body2" fontWeight={600} fontSize="0.76rem" color={p.unrealized_pnl >= 0 ? 'success.main' : 'error.main'}>
-                      ₹{p.unrealized_pnl.toFixed(0)}
+                  {isOpen && unrealDisplay != null ? (
+                    <Typography variant="body2" fontWeight={600} fontSize="0.76rem" color={unrealDisplay >= 0 ? 'success.main' : 'error.main'}>
+                      ₹{unrealDisplay.toFixed(0)}
                     </Typography>
                   ) : !isOpen && p.net_pnl != null ? (
                     <Typography variant="body2" fontWeight={600} fontSize="0.76rem" color={p.net_pnl >= 0 ? 'success.main' : 'error.main'}>
@@ -236,14 +238,26 @@ const CACHE_TTL = 120_000;
 const initData: Record<string, HorizonData> = {};
 HORIZONS.forEach((h) => { initData[h.key] = { positions: [], summary: null, loading: true }; });
 
-const HorizonPositionsSection: React.FC = () => {
+export interface HorizonPositionsSectionProps {
+  /** When provided with onSummaryDaysChange, section uses this value and does not render its own day selector (e.g. Dashboard single selector). */
+  controlledSummaryDays?: number;
+  onSummaryDaysChange?: (days: number) => void;
+}
+
+const HorizonPositionsSection: React.FC<HorizonPositionsSectionProps> = ({
+  controlledSummaryDays,
+  onSummaryDaysChange,
+}) => {
   const [activeHorizon, setActiveHorizon] = useState('intra_buy');
-  const [days, setDays] = useState<number>(30);
+  const [internalDays, setInternalDays] = useState<number>(30);
+  const summaryDays = controlledSummaryDays ?? internalDays;
+  const setSummaryDays = onSummaryDaysChange ?? setInternalDays;
+  const showDaysSelector = controlledSummaryDays === undefined;
   const [horizonData, setHorizonData] = useState<Record<string, HorizonData>>(initData);
   const cacheTimestamps = useRef<Record<string, number>>({});
 
   const fetchHorizon = useCallback(async (horizon: HorizonDef, force = false) => {
-    const cacheKey = `${horizon.key}|${days}`;
+    const cacheKey = `${horizon.key}|${summaryDays}`;
     const cached = cacheTimestamps.current[cacheKey];
     if (!force && cached && Date.now() - cached < CACHE_TTL) return;
 
@@ -255,7 +269,7 @@ const HorizonPositionsSection: React.FC = () => {
     try {
       const res = await seedDashboardService.getPositions({
         trade_type: horizon.tradeType,
-        days,
+        days: summaryDays,
         limit: 50,
       });
       setHorizonData((prev) => ({
@@ -273,7 +287,7 @@ const HorizonPositionsSection: React.FC = () => {
         [horizon.key]: { ...prev[horizon.key], loading: false },
       }));
     }
-  }, [days]);
+  }, [summaryDays]);
 
   useEffect(() => {
     HORIZONS.forEach((h) => fetchHorizon(h));
@@ -290,7 +304,7 @@ const HorizonPositionsSection: React.FC = () => {
         <Box>
           <Typography variant="subtitle1" fontWeight={800}>Trading Positions</Typography>
           <Typography variant="caption" color="text.secondary">
-            Last {days} day{days === 1 ? '' : 's'} — all 5 trade types
+            Last {summaryDays} day{summaryDays === 1 ? '' : 's'} — all 5 trade types
           </Typography>
         </Box>
         <Tooltip title="Refresh all">
@@ -300,27 +314,28 @@ const HorizonPositionsSection: React.FC = () => {
         </Tooltip>
       </Box>
 
-      {/* Lookback (matches Dashboard Positions) */}
-      <Box sx={{ px: 2.5, pb: 1 }}>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
-          Lookback
-        </Typography>
-        <ToggleButtonGroup
-          value={days}
-          exclusive
-          onChange={(_, v) => v != null && setDays(v)}
-          size="small"
-          sx={{
-            flexWrap: 'wrap',
-            gap: 0.5,
-            '& .MuiToggleButton-root': { px: 1, py: 0.4, fontSize: '0.72rem', fontWeight: 600 },
-          }}
-        >
-          {HORIZON_DAYS_OPTIONS.map((d) => (
-            <ToggleButton key={d} value={d}>{d}d</ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </Box>
+      {showDaysSelector && (
+        <Box sx={{ px: 2.5, pb: 1 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
+            Lookback
+          </Typography>
+          <ToggleButtonGroup
+            value={summaryDays}
+            exclusive
+            onChange={(_, v) => v != null && setSummaryDays(v)}
+            size="small"
+            sx={{
+              flexWrap: 'wrap',
+              gap: 0.5,
+              '& .MuiToggleButton-root': { px: 1, py: 0.4, fontSize: '0.72rem', fontWeight: 600 },
+            }}
+          >
+            {HORIZON_DAYS_OPTIONS.map((d) => (
+              <ToggleButton key={d} value={d}>{d}d</ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Box>
+      )}
 
       {/* 5-way toggle */}
       <Box sx={{ px: 2.5, pb: 1.5 }}>
