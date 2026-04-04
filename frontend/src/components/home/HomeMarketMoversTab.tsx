@@ -186,35 +186,25 @@ const HomeMarketMoversTab: React.FC = () => {
     setLoadingG(true);
     setLoadingL(true);
     setLoadingT(true);
-
-    const results: { gainers?: TopMoverItem[]; losers?: TopMoverItem[]; traded?: TopMoverItem[] } = {};
-
-    const promises = [
-      seedDashboardService.getTopGainers(20, period).then((r) => {
-        results.gainers = r.gainers;
-        setTopGainers(r.gainers);
-        setLoadingG(false);
-      }).catch(() => { results.gainers = []; setLoadingG(false); }),
-      seedDashboardService.getTopLosers(20, period).then((r) => {
-        results.losers = r.losers;
-        setTopLosers(r.losers);
-        setLoadingL(false);
-      }).catch(() => { results.losers = []; setLoadingL(false); }),
-      seedDashboardService.getTopTraded(20, period).then((r) => {
-        results.traded = r.top_traded;
-        setTopTraded(r.top_traded);
-        setLoadingT(false);
-      }).catch(() => { results.traded = []; setLoadingT(false); }),
-    ];
-
-    await Promise.allSettled(promises);
-
-    cacheRef.current.set(period, {
-      gainers: results.gainers ?? [],
-      losers: results.losers ?? [],
-      traded: results.traded ?? [],
-      fetchedAt: Date.now(),
-    });
+    try {
+      const res = await seedDashboardService.getMarketMovers({ mover_type: 'all', days: period, limit: 20 });
+      const gainers = res.gainers ?? [];
+      const losers = res.losers ?? [];
+      const traded = res.top_traded ?? [];
+      setTopGainers(gainers);
+      setTopLosers(losers);
+      setTopTraded(traded);
+      cacheRef.current.set(period, { gainers, losers, traded, fetchedAt: Date.now() });
+    } catch {
+      setTopGainers([]);
+      setTopLosers([]);
+      setTopTraded([]);
+      cacheRef.current.set(period, { gainers: [], losers: [], traded: [], fetchedAt: Date.now() });
+    } finally {
+      setLoadingG(false);
+      setLoadingL(false);
+      setLoadingT(false);
+    }
   }, []);
 
   useEffect(() => {

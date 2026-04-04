@@ -81,6 +81,13 @@ export const menuItems: MenuItem[] = [
     category: 'management'
   },
   {
+    text: 'Seed Ops',
+    icon: <Analytics />,
+    path: '/seed-ops',
+    description: 'Admin/ops dashboards for unused Seed endpoints',
+    category: 'management'
+  },
+  {
     text: 'Stock Mapping Manager',
     icon: <Storage />,
     path: '/stock-mapping',

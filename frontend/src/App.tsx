@@ -21,6 +21,7 @@ import StockMappingManager from './pages/StockMappingManager';
 import StockCandidatePopulatorPage from './pages/StockCandidatePopulatorPage';
 import UnifiedRecommendations from './pages/UnifiedRecommendations';
 import RecommendationObservabilityPage from './pages/RecommendationObservabilityPage';
+import SeedOps from './pages/SeedOps';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -130,6 +131,7 @@ function App() {
               <Route path="/recommendations" element={<UnifiedRecommendations />} />
               <Route path="/investing" element={<Investing />} />
               <Route path="/backtesting" element={<Backtesting />} />
+              <Route path="/seed-ops" element={<SeedOps />} />
               <Route path="/system-control" element={<SystemControl />} />
               <Route path="/query-manager" element={<QueryManager />} />
               <Route path="/recommendation-observability" element={<RecommendationObservabilityPage />} />

@@ -62,6 +62,9 @@ interface HorizonDef {
   description: string;
 }
 
+/** Same lookback set as Dashboard → Positions (GET /api/v2/dashboard/positions `days`). */
+const HORIZON_DAYS_OPTIONS = [1, 2, 3, 7, 14, 30, 60, 90] as const;
+
 const HORIZONS: HorizonDef[] = [
   { key: 'intra_buy', label: 'Intraday Buy', shortLabel: 'ID Buy', tradeType: 'intraday_buy', color: '#4caf50', description: 'Intraday long positions' },
   { key: 'intra_sell', label: 'Intraday Sell', shortLabel: 'ID Sell', tradeType: 'intraday_sell', color: '#f44336', description: 'Intraday short positions' },
@@ -235,11 +238,13 @@ HORIZONS.forEach((h) => { initData[h.key] = { positions: [], summary: null, load
 
 const HorizonPositionsSection: React.FC = () => {
   const [activeHorizon, setActiveHorizon] = useState('intra_buy');
+  const [days, setDays] = useState<number>(30);
   const [horizonData, setHorizonData] = useState<Record<string, HorizonData>>(initData);
   const cacheTimestamps = useRef<Record<string, number>>({});
 
   const fetchHorizon = useCallback(async (horizon: HorizonDef, force = false) => {
-    const cached = cacheTimestamps.current[horizon.key];
+    const cacheKey = `${horizon.key}|${days}`;
+    const cached = cacheTimestamps.current[cacheKey];
     if (!force && cached && Date.now() - cached < CACHE_TTL) return;
 
     setHorizonData((prev) => ({
@@ -250,7 +255,7 @@ const HorizonPositionsSection: React.FC = () => {
     try {
       const res = await seedDashboardService.getPositions({
         trade_type: horizon.tradeType,
-        days: 30,
+        days,
         limit: 50,
       });
       setHorizonData((prev) => ({
@@ -261,14 +266,14 @@ const HorizonPositionsSection: React.FC = () => {
           loading: false,
         },
       }));
-      cacheTimestamps.current[horizon.key] = Date.now();
+      cacheTimestamps.current[cacheKey] = Date.now();
     } catch {
       setHorizonData((prev) => ({
         ...prev,
         [horizon.key]: { ...prev[horizon.key], loading: false },
       }));
     }
-  }, []);
+  }, [days]);
 
   useEffect(() => {
     HORIZONS.forEach((h) => fetchHorizon(h));
@@ -284,13 +289,37 @@ const HorizonPositionsSection: React.FC = () => {
       <Box sx={{ px: 2.5, pt: 2, pb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="subtitle1" fontWeight={800}>Trading Positions</Typography>
-          <Typography variant="caption" color="text.secondary">Last 30 days — all 5 trade types</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Last {days} day{days === 1 ? '' : 's'} — all 5 trade types
+          </Typography>
         </Box>
         <Tooltip title="Refresh all">
           <IconButton size="small" onClick={() => HORIZONS.forEach((h) => fetchHorizon(h, true))}>
             <Refresh fontSize="small" />
           </IconButton>
         </Tooltip>
+      </Box>
+
+      {/* Lookback (matches Dashboard Positions) */}
+      <Box sx={{ px: 2.5, pb: 1 }}>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
+          Lookback
+        </Typography>
+        <ToggleButtonGroup
+          value={days}
+          exclusive
+          onChange={(_, v) => v != null && setDays(v)}
+          size="small"
+          sx={{
+            flexWrap: 'wrap',
+            gap: 0.5,
+            '& .MuiToggleButton-root': { px: 1, py: 0.4, fontSize: '0.72rem', fontWeight: 600 },
+          }}
+        >
+          {HORIZON_DAYS_OPTIONS.map((d) => (
+            <ToggleButton key={d} value={d}>{d}d</ToggleButton>
+          ))}
+        </ToggleButtonGroup>
       </Box>
 
       {/* 5-way toggle */}

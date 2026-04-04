@@ -314,8 +314,10 @@ export interface TopMoverItem {
   change_pct_15min?: number | null;
   change_pct_30min?: number | null;
   change_pct_1h?: number | null;
+  change_pct_3h?: number | null;
   volume: number | null;
   value_traded_cr?: number;
+  non_null_column_count?: number;
   chart_url?: string;
   sector?: string | null;
   market_cap_category?: string | null;
@@ -325,6 +327,28 @@ export interface TopMoverItem {
   score?: number;
   relative_volume?: number | null;
   ranked_at?: string;
+}
+
+export interface MarketMoversCounts {
+  gainers?: number;
+  losers?: number;
+  top_traded?: number;
+}
+
+/**
+ * Consolidated market movers response (replaces top-gainers/top-losers/top-traded endpoints).
+ * Query: mover_type=gainers|losers|traded|all, days=1..30, limit=1..50
+ */
+export interface MarketMoversResponse {
+  mover_type: string;
+  days: number;
+  limit: number;
+  change_periods?: string[];
+  generated_at: string;
+  gainers?: TopMoverItem[];
+  losers?: TopMoverItem[];
+  top_traded?: TopMoverItem[];
+  counts?: MarketMoversCounts;
 }
 
 export interface TopGainersResponse {

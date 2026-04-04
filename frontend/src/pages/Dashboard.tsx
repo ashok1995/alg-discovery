@@ -14,7 +14,7 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
-import { Refresh, Timeline, ShowChart, Storage, Security, Psychology, AccountBalance, TrendingUp, ViewList, FiberManualRecord } from '@mui/icons-material';
+import { Refresh, Timeline, ShowChart, Storage, Security, Psychology, AccountBalance, TrendingUp, ViewList, FiberManualRecord, Bolt } from '@mui/icons-material';
 import TabPanel from '../components/ui/TabPanel';
 import DashboardKpiCards from '../components/dashboard/DashboardKpiCards';
 import PerformanceTab from '../components/dashboard/PerformanceTab';
@@ -24,6 +24,7 @@ import PositionsTab from '../components/dashboard/PositionsTab';
 import MLLearningTab from '../components/dashboard/MLLearningTab';
 import CapitalPnlTab from '../components/dashboard/CapitalPnlTab';
 import LivePositionsTab from '../components/dashboard/LivePositionsTab';
+import MonitorTab from '../components/dashboard/MonitorTab';
 import QuickStatsBar from '../components/dashboard/QuickStatsBar';
 import SystemAlertsWidget from '../components/dashboard/SystemAlertsWidget';
 import HorizonPositionsSection from '../components/home/HorizonPositionsSection';
@@ -192,6 +193,7 @@ const Dashboard: React.FC = () => {
         <Tab icon={<Security />} label="All Positions" iconPosition="start" />
         <Tab icon={<AccountBalance />} label="Capital & P&L" iconPosition="start" />
         <Tab icon={<Psychology />} label="ML / Learning" iconPosition="start" />
+        <Tab icon={<Bolt />} label="Monitor" iconPosition="start" />
       </Tabs>
 
       <TabPanel value={tab} index={0}>
@@ -225,6 +227,9 @@ const Dashboard: React.FC = () => {
       </TabPanel>
       <TabPanel value={tab} index={8}>
         <MLLearningTab learningStatus={learningStatus} scoreBins={scoreBins} />
+      </TabPanel>
+      <TabPanel value={tab} index={9}>
+        <MonitorTab />
       </TabPanel>
     </Box>
   );

@@ -25,6 +25,9 @@ import { Refresh, CheckCircle, Error as ErrorIcon, Storage, Speed, Memory } from
 import TabPanel from '../components/ui/TabPanel';
 import { seedDashboardService } from '../services/SeedDashboardService';
 import type { PipelineHealthResponse, ObservabilityDbResponse, RegistryStatsResponse } from '../types/apiModels';
+import ArmsRegistryTab from '../components/system/ArmsRegistryTab';
+import CandidatesRegistryTab from '../components/system/CandidatesRegistryTab';
+import SeedObservabilityTab from '../components/system/SeedObservabilityTab';
 
 const TRADE_TYPES = ['intraday_buy', 'intraday_sell', 'swing_buy', 'short', 'positional'];
 
@@ -138,6 +141,9 @@ const SystemControl: React.FC = () => {
         <Tab label="Pipeline Health" />
         <Tab label="DB Observability" />
         <Tab label="Registry Stats" />
+        <Tab label="ARMs" />
+        <Tab label="Candidates" />
+        <Tab label="Observability" />
       </Tabs>
 
       {/* Pipeline Health Tab */}
@@ -347,6 +353,21 @@ const SystemControl: React.FC = () => {
         ) : (
           <Typography color="text.secondary">No registry stats available.</Typography>
         )}
+      </TabPanel>
+
+      {/* ARM Registry */}
+      <TabPanel value={tab} index={3}>
+        <ArmsRegistryTab />
+      </TabPanel>
+
+      {/* Candidate Registry */}
+      <TabPanel value={tab} index={4}>
+        <CandidatesRegistryTab />
+      </TabPanel>
+
+      {/* Observability */}
+      <TabPanel value={tab} index={5}>
+        <SeedObservabilityTab />
       </TabPanel>
     </Box>
   );
