@@ -98,17 +98,31 @@ export const seedArmService = {
       limit: params?.limit ?? 200,
     }),
 
+  /** GET /api/v2/arms/observability/recent-runs */
+  getRecentRuns: (opts?: { days?: number; scenario?: string; limit?: number }) =>
+    fetchJSON<Record<string, unknown>>('/api/v2/arms/observability/recent-runs', {
+      days: opts?.days ?? 7,
+      scenario: opts?.scenario ?? undefined,
+      limit: opts?.limit ?? 50,
+    }),
+
   /** GET /api/v2/arms/observability/run/{pipeline_run_id} */
   getRunSummary: (pipelineRunId: string) =>
     fetchJSON<Record<string, unknown>>(`/api/v2/arms/observability/run/${encodeURIComponent(pipelineRunId)}`),
 
-  /** GET /api/v2/arms/observability/learning */
-  getObservabilityLearning: () =>
-    fetchJSON<Record<string, unknown>>('/api/v2/arms/observability/learning'),
+  /** GET /api/v2/arms/observability/learning — optional `days` 1–180 (OpenAPI default 30) */
+  getObservabilityLearning: (opts?: { days?: number }) =>
+    fetchJSON<Record<string, unknown>>(
+      '/api/v2/arms/observability/learning',
+      opts?.days != null ? { days: opts.days } : undefined,
+    ),
 
-  /** GET /api/v2/arms/observability/utilization */
-  getObservabilityUtilization: () =>
-    fetchJSON<Record<string, unknown>>('/api/v2/arms/observability/utilization'),
+  /** GET /api/v2/arms/observability/utilization — optional `days` 1–90 (OpenAPI default 30) */
+  getObservabilityUtilization: (opts?: { days?: number }) =>
+    fetchJSON<Record<string, unknown>>(
+      '/api/v2/arms/observability/utilization',
+      opts?.days != null ? { days: opts.days } : undefined,
+    ),
 };
 
 export default seedArmService;

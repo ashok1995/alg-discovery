@@ -193,7 +193,6 @@ const HomeMarketMoversTab: React.FC = () => {
       setTopGainers(unified.gainers ?? []);
       setTopLosers(unified.losers ?? []);
       setTopTraded(unified.top_traded ?? []);
-
       cacheRef.current.set(period, {
         gainers: unified.gainers ?? [],
         losers: unified.losers ?? [],

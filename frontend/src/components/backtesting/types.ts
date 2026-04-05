@@ -1,40 +1,31 @@
+export type SeedBacktestMode = 'fast' | 'realistic' | 'walk_forward';
+
+/** Form state aligned with Seed `POST /api/v2/backtesting/run` (BacktestConfigRequest). */
 export interface BacktestConfig {
   start_date: string;
   end_date: string;
   initial_capital: number;
-  risk_per_trade: number;
-  strategy_type: string;
-  symbols: string[];
-  atr_multiplier_sl: number;
-  atr_multiplier_tp: number;
+  mode: SeedBacktestMode;
   max_positions: number;
-  include_slippage: boolean;
-  include_commission: boolean;
+  /** Comma-separated trade types, e.g. `intraday_buy,swing_buy` */
+  trade_types: string;
+  min_score: number;
+  slippage_bps: number;
+  enable_costs: boolean;
+  enable_regime_filters: boolean;
+  /** Quick backtest path param */
+  quick_days: number;
+  quick_trade_type: string;
+  quick_min_score: number;
+  /** Compare-strategies query params */
+  compare_days: number;
+  compare_trade_types: string;
+  compare_score_thresholds: string;
 }
 
-export interface BacktestResult {
+export interface BacktestRunEntry {
   id: string;
-  status: 'running' | 'completed' | 'failed';
-  total_trades: number;
-  winning_trades: number;
-  losing_trades: number;
-  win_rate: number;
-  total_pnl: number;
-  max_drawdown: number;
-  sharpe_ratio: number;
-  profit_factor: number;
-  avg_trade_duration: number;
-  equity_curve: Array<{ date: string; equity: number }>;
-  trades: Array<{
-    symbol: string;
-    entry_date: string;
-    exit_date: string;
-    entry_price: number;
-    exit_price: number;
-    quantity: number;
-    pnl: number;
-    pnl_pct: number;
-    signal_type: string;
-    exit_reason: string;
-  }>;
+  title: string;
+  createdAt: string;
+  data: unknown;
 }

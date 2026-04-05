@@ -95,7 +95,8 @@ const CATEGORIES = [
   { key: 'paper_trade', label: 'Paper Trade', desc: 'High-confidence full-capital positions (score 80-100)' },
 ] as const;
 
-const DAYS_OPTIONS = [7, 14, 30, 60, 90];
+/** Lookback window for GET /api/v2/dashboard/positions (calendar days). */
+const DAYS_OPTIONS = [1, 2, 3, 7, 14, 30, 60, 90] as const;
 
 const SCORE_BIN_OPTIONS = [
   { value: '', label: 'All score bins' },
@@ -616,7 +617,7 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
         <Box>
           <Typography variant="subtitle1" fontWeight={800}>Tracked Positions</Typography>
           <Typography variant="caption" color="text.secondary">
-            Filter by category, type, status, and period
+            Filter by category, type, status, and lookback (1d–90d)
           </Typography>
         </Box>
         <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
@@ -786,23 +787,32 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6} md={9}>
-            <ToggleButtonGroup
-              value={days}
-              exclusive
-              onChange={(_, v) => v && setDays(v)}
-              size="small"
-              sx={{ '& .MuiToggleButton-root': { px: 1.2, py: 0.4, fontSize: '0.72rem', fontWeight: 600 } }}
-            >
-              {DAYS_OPTIONS.map((d) => <ToggleButton key={d} value={d}>{d}d</ToggleButton>)}
-            </ToggleButtonGroup>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', alignItems: 'center' }}>
             <Chip
               label={`${data?.count ?? 0} API rows · ${displayPositions.length} shown`}
               size="small"
               sx={{ fontWeight: 700 }}
             />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
+              Lookback
+            </Typography>
+            <ToggleButtonGroup
+              value={days}
+              exclusive
+              onChange={(_, v) => v != null && setDays(v)}
+              size="small"
+              sx={{
+                flexWrap: 'wrap',
+                gap: 0.5,
+                '& .MuiToggleButton-root': { px: 1, py: 0.4, fontSize: '0.72rem', fontWeight: 600 },
+              }}
+            >
+              {DAYS_OPTIONS.map((d) => (
+                <ToggleButton key={d} value={d}>{d}d</ToggleButton>
+              ))}
+            </ToggleButtonGroup>
           </Grid>
         </Grid>
       </Box>
