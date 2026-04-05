@@ -2,6 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
   TextField,
   FormControlLabel,
@@ -15,18 +19,22 @@ import {
   TableBody,
   TableCell,
   TableContainer,
+  TableHead,
   TableRow,
   Paper,
   Button,
+  Divider,
+  alpha,
 } from '@mui/material';
 import {
   Settings as SettingsIcon,
   Refresh,
   Save,
   CloudDownload,
+  Security,
 } from '@mui/icons-material';
 import { seedDashboardService } from '../../services/SeedDashboardService';
-import type { TradingSettingsResponse } from '../../types/apiModels';
+import type { SeedSystemSettingsResponse, TradingSettingsResponse } from '../../types/apiModels';
 import type { SystemSettings } from './types';
 
 interface SystemTabProps {
@@ -40,6 +48,19 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const [systemSettings, setSystemSettings] = useState<SeedSystemSettingsResponse | null>(null);
+  const [systemDraft, setSystemDraft] = useState<SeedSystemSettingsResponse | null>(null);
+  const [systemLoading, setSystemLoading] = useState(false);
+  const [systemSaving, setSystemSaving] = useState(false);
+  const [systemError, setSystemError] = useState<string | null>(null);
+  const [systemSaveStatus, setSystemSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const [metaOpen, setMetaOpen] = useState(false);
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaJson, setMetaJson] = useState<Record<string, unknown> | null>(null);
+  const [metaLoading, setMetaLoading] = useState(false);
+  const [metaError, setMetaError] = useState<string | null>(null);
 
   const [editCapital, setEditCapital] = useState<number>(100000);
   const [editMaxPerSector, setEditMaxPerSector] = useState<number>(3);
@@ -62,9 +83,24 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
     }
   }, []);
 
+  const loadSystem = useCallback(async () => {
+    setSystemLoading(true);
+    setSystemError(null);
+    try {
+      const sys = (await seedDashboardService.getSystemSettings()) as unknown as SeedSystemSettingsResponse;
+      setSystemSettings(sys);
+      setSystemDraft(sys);
+    } catch (err: unknown) {
+      setSystemError(err instanceof Error ? err.message : 'Failed to load system settings');
+    } finally {
+      setSystemLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadConfig();
-  }, [loadConfig]);
+    loadSystem();
+  }, [loadConfig, loadSystem]);
 
   const handleSaveConfig = async () => {
     setSaving(true);
@@ -94,6 +130,41 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
       setTimeout(() => setSaveStatus('idle'), 3000);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const numOr = (v: unknown, fallback: number): number => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
+
+  const handleSaveSystem = async () => {
+    if (!systemDraft) return;
+    setSystemSaving(true);
+    setSystemSaveStatus('idle');
+    try {
+      await seedDashboardService.updateSystemSettings(systemDraft as unknown as Record<string, unknown>);
+      setSystemSaveStatus('success');
+      await loadSystem();
+      setTimeout(() => setSystemSaveStatus('idle'), 3000);
+    } catch {
+      setSystemSaveStatus('error');
+      setTimeout(() => setSystemSaveStatus('idle'), 3000);
+    } finally {
+      setSystemSaving(false);
+    }
+  };
+
+  const openMeta = async (title: string, fetcher: () => Promise<Record<string, unknown>>) => {
+    setMetaOpen(true);
+    setMetaTitle(title);
+    setMetaJson(null);
+    setMetaError(null);
+    setMetaLoading(true);
+    try {
+      const res = await fetcher();
+      setMetaJson(res);
+    } catch (err: unknown) {
+      setMetaError(err instanceof Error ? err.message : 'Failed to load');
+    } finally {
+      setMetaLoading(false);
     }
   };
 
@@ -143,9 +214,27 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
                 <CloudDownload sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography variant="h6">Seed Service Config</Typography>
               </Box>
-              <Button size="small" startIcon={<Refresh />} onClick={loadConfig} disabled={loading}>
-                Reload
-              </Button>
+              <Box display="flex" gap={1} alignItems="center" flexWrap="wrap">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => openMeta('Seed Trading Schema', () => seedDashboardService.getTradingSettingsSchema())}
+                  disabled={loading}
+                >
+                  Schema
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => openMeta('Seed Trading Form', () => seedDashboardService.getTradingSettingsForm())}
+                  disabled={loading}
+                >
+                  Form
+                </Button>
+                <Button size="small" startIcon={<Refresh />} onClick={loadConfig} disabled={loading}>
+                  Reload
+                </Button>
+              </Box>
             </Box>
 
             {loading && <Box display="flex" justifyContent="center" py={2}><CircularProgress size={28} /></Box>}
@@ -214,6 +303,254 @@ const SystemTab: React.FC<SystemTabProps> = ({ settings, onSettingChange }) => {
           </CardContent>
         </Card>
       </Grid>
+
+      {/* Seed System Settings (API limits, thresholds) */}
+      <Grid item xs={12}>
+        <Card>
+          <CardContent>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexWrap="wrap" gap={1}>
+              <Box display="flex" alignItems="center">
+                <Security sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="h6">Seed System Settings</Typography>
+              </Box>
+              <Box display="flex" gap={1} alignItems="center">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => openMeta('Seed System Schema', () => seedDashboardService.getSystemSettingsSchema())}
+                  disabled={systemLoading}
+                >
+                  Schema
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => openMeta('Seed System Form', () => seedDashboardService.getSystemForm())}
+                  disabled={systemLoading}
+                >
+                  Form
+                </Button>
+                <Button size="small" startIcon={<Refresh />} onClick={loadSystem} disabled={systemLoading}>
+                  Reload
+                </Button>
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={systemSaving ? <CircularProgress size={16} color="inherit" /> : <Save />}
+                  onClick={handleSaveSystem}
+                  disabled={systemSaving || !systemDraft}
+                >
+                  {systemSaving ? 'Saving…' : 'Save'}
+                </Button>
+              </Box>
+            </Box>
+
+            {systemLoading && <Box display="flex" justifyContent="center" py={2}><CircularProgress size={24} /></Box>}
+            {systemError && <Alert severity="error" sx={{ mb: 2 }}>{systemError}</Alert>}
+            {systemSaveStatus === 'success' && <Alert severity="success" sx={{ mb: 2 }}>System settings saved to seed service</Alert>}
+            {systemSaveStatus === 'error' && <Alert severity="error" sx={{ mb: 2 }}>Failed to save system settings</Alert>}
+
+            {systemDraft && (
+              <>
+                <Typography variant="subtitle2" fontWeight={700} mb={1}>API Limits (common)</Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Default Limit"
+                      type="number"
+                      value={numOr(systemDraft.api_limits.limit_default, 20)}
+                      onChange={(e) =>
+                        setSystemDraft((prev) =>
+                          prev
+                            ? { ...prev, api_limits: { ...prev.api_limits, limit_default: Number(e.target.value) } }
+                            : prev,
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Max Limit"
+                      type="number"
+                      value={numOr(systemDraft.api_limits.limit_max, 50)}
+                      onChange={(e) =>
+                        setSystemDraft((prev) =>
+                          prev
+                            ? { ...prev, api_limits: { ...prev.api_limits, limit_max: Number(e.target.value) } }
+                            : prev,
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Default Dashboard Days"
+                      type="number"
+                      value={numOr(systemDraft.api_limits.dashboard_days_default, 7)}
+                      onChange={(e) =>
+                        setSystemDraft((prev) =>
+                          prev
+                            ? { ...prev, api_limits: { ...prev.api_limits, dashboard_days_default: Number(e.target.value) } }
+                            : prev,
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Default Proximity %"
+                      type="number"
+                      value={numOr(systemDraft.api_limits.proximity_threshold_default, 2.0)}
+                      onChange={(e) =>
+                        setSystemDraft((prev) =>
+                          prev
+                            ? { ...prev, api_limits: { ...prev.api_limits, proximity_threshold_default: Number(e.target.value) } }
+                            : prev,
+                        )
+                      }
+                    />
+                  </Grid>
+                </Grid>
+
+                <Divider sx={{ my: 2 }} />
+
+                <Typography variant="subtitle2" fontWeight={700} mb={1}>Raw (read-only preview)</Typography>
+                <Box
+                  component="pre"
+                  sx={{
+                    fontSize: 12,
+                    overflow: 'auto',
+                    maxHeight: 280,
+                    p: 1.5,
+                    bgcolor: 'grey.50',
+                    borderRadius: 1,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                  }}
+                >
+                  {JSON.stringify(systemSettings, null, 2)}
+                </Box>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Schema/Form viewer */}
+      <Dialog open={metaOpen} onClose={() => setMetaOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ fontWeight: 800 }}>{metaTitle}</DialogTitle>
+        <DialogContent dividers>
+          {metaLoading && <Box display="flex" justifyContent="center" py={2}><CircularProgress /></Box>}
+          {metaError && <Alert severity="error" sx={{ mb: 2 }}>{metaError}</Alert>}
+          {metaJson && (
+            <Box component="pre" sx={{ fontSize: 12, overflow: 'auto', maxHeight: 520, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+              {JSON.stringify(metaJson, null, 2)}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMetaOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Charges & Slippage read-only overview */}
+      {tradingConfig && (
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <Security sx={{ verticalAlign: 'middle', mr: 1 }} />
+                Trading Charges & Slippage Config
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle2" fontWeight={600} mb={1}>Brokerage & Charges</Typography>
+                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                    <Table size="small">
+                      <TableBody>
+                        {Object.entries(tradingConfig.charges).map(([key, val]) => (
+                          <TableRow key={key}>
+                            <TableCell sx={{ fontSize: '0.8rem' }}>{key.replace(/_/g, ' ')}</TableCell>
+                            <TableCell align="right">
+                              <Chip
+                                label={typeof val === 'number' ? val.toString() : String(val)}
+                                size="small"
+                                variant="outlined"
+                                sx={{ fontSize: '0.72rem' }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle2" fontWeight={600} mb={1}>Max Slippage per Trade Type</Typography>
+                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>Trade Type</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>Max Slippage %</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>Cooldown (h)</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {Object.entries(tradingConfig.opener.max_slippage_pct).map(([tt, slip]) => (
+                          <TableRow key={tt}>
+                            <TableCell sx={{ fontSize: '0.8rem' }}>{tt.replace(/_/g, ' ')}</TableCell>
+                            <TableCell align="right">
+                              <Chip
+                                label={`${slip}%`}
+                                size="small"
+                                sx={{
+                                  fontSize: '0.72rem',
+                                  bgcolor: alpha(slip <= 1.5 ? '#4caf50' : slip <= 3 ? '#ff9800' : '#f44336', 0.12),
+                                  color: slip <= 1.5 ? 'success.dark' : slip <= 3 ? 'warning.dark' : 'error.dark',
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell align="right" sx={{ fontSize: '0.8rem' }}>
+                              {tradingConfig.opener.cooldown_hours[tt] ?? 0}h
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  <Typography variant="subtitle2" fontWeight={600} mb={1}>Score Allocation Tiers</Typography>
+                  <Box display="flex" gap={1} flexWrap="wrap">
+                    {tradingConfig.capital.score_tiers.map(([score, fraction]) => (
+                      <Chip
+                        key={score}
+                        label={`≥${score}: ${(fraction * 100).toFixed(0)}%`}
+                        size="small"
+                        sx={{
+                          fontWeight: 600,
+                          bgcolor: alpha(score >= 90 ? '#4caf50' : score >= 80 ? '#8bc34a' : score >= 70 ? '#ff9800' : '#ff5722', 0.12),
+                          color: score >= 90 ? 'success.dark' : score >= 80 ? '#558b2f' : score >= 70 ? 'warning.dark' : 'error.dark',
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
+      )}
 
       {/* Tracker & Learning Config (read-only) */}
       {tradingConfig && (

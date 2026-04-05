@@ -1,78 +1,107 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Box, Typography, Grid, Alert } from '@mui/material';
 import BacktestForm from '../components/backtesting/BacktestForm';
 import BacktestResults from '../components/backtesting/BacktestResults';
-import type { BacktestConfig, BacktestResult } from '../components/backtesting/types';
+import type { BacktestConfig, BacktestRunEntry } from '../components/backtesting/types';
+import seedBacktestingService from '../services/SeedBacktestingService';
+
+function newEntry(title: string, data: unknown): BacktestRunEntry {
+  const id =
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return { id, title, createdAt: new Date().toISOString(), data };
+}
+
+const defaultConfig: BacktestConfig = {
+  start_date: '2024-01-01',
+  end_date: '2024-12-31',
+  initial_capital: 1_000_000,
+  mode: 'realistic',
+  max_positions: 20,
+  trade_types: 'intraday_buy,swing_buy',
+  min_score: 60,
+  slippage_bps: 10,
+  enable_costs: true,
+  enable_regime_filters: true,
+  quick_days: 30,
+  quick_trade_type: 'intraday_buy',
+  quick_min_score: 60,
+  compare_days: 90,
+  compare_trade_types: 'intraday_buy,swing_buy',
+  compare_score_thresholds: '60,70,80',
+};
 
 const Backtesting: React.FC = () => {
-  const [config, setConfig] = useState<BacktestConfig>({
-    start_date: '2024-01-01',
-    end_date: '2024-12-31',
-    initial_capital: 100000,
-    risk_per_trade: 2,
-    strategy_type: 'breakout',
-    symbols: ['RELIANCE', 'TCS', 'INFY', 'HDFC', 'ICICIBANK'],
-    atr_multiplier_sl: 1.5,
-    atr_multiplier_tp: 3.0,
-    max_positions: 5,
-    include_slippage: true,
-    include_commission: true
-  });
-
-  const [results, setResults] = useState<BacktestResult[]>([]);
-  const [currentBacktest, setCurrentBacktest] = useState<string | null>(null);
+  const [config, setConfig] = useState<BacktestConfig>(defaultConfig);
+  const [results, setResults] = useState<BacktestRunEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchBacktestResults = async () => {
-    try {
-      const response = await fetch('/api/backtesting/results');
-      const data = await response.json();
-      setResults(data);
-    } catch (err) {
-      setError('Failed to fetch backtest results');
-    }
-  };
+  const pushResult = useCallback((title: string, data: unknown) => {
+    setResults((prev) => [newEntry(title, data), ...prev]);
+  }, []);
 
-  const startBacktest = async () => {
+  const runFull = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/backtesting/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config)
+      const tradeTypes = config.trade_types
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const data = await seedBacktestingService.runBacktest({
+        start_date: config.start_date,
+        end_date: config.end_date,
+        initial_capital: config.initial_capital,
+        mode: config.mode,
+        max_positions: config.max_positions,
+        trade_types: tradeTypes.length ? tradeTypes : ['intraday_buy', 'swing_buy'],
+        min_score: config.min_score,
+        slippage_bps: config.slippage_bps,
+        enable_costs: config.enable_costs,
+        enable_regime_filters: config.enable_regime_filters,
       });
-      if (response.ok) {
-        const result = await response.json();
-        setCurrentBacktest(result.id);
-        fetchBacktestResults();
-      } else {
-        setError('Failed to start backtest');
-      }
+      pushResult('POST /api/v2/backtesting/run', data);
     } catch (err) {
-      setError('Failed to start backtest');
+      setError(err instanceof Error ? err.message : 'Full backtest failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const stopBacktest = async () => {
-    if (!currentBacktest) return;
+  const runQuick = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      await fetch(`/api/backtesting/stop/${currentBacktest}`, { method: 'POST' });
-      setCurrentBacktest(null);
-      fetchBacktestResults();
+      const data = await seedBacktestingService.quickBacktest(config.quick_days, {
+        trade_type: config.quick_trade_type,
+        min_score: config.quick_min_score,
+      });
+      pushResult(`GET /api/v2/backtesting/quick/${config.quick_days}`, data);
     } catch (err) {
-      setError('Failed to stop backtest');
+      setError(err instanceof Error ? err.message : 'Quick backtest failed');
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchBacktestResults();
-    const interval = setInterval(fetchBacktestResults, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  const runCompare = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await seedBacktestingService.compareStrategies({
+        days: config.compare_days,
+        trade_types: config.compare_trade_types,
+        score_thresholds: config.compare_score_thresholds,
+      });
+      pushResult('GET /api/v2/backtesting/compare-strategies', data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Compare strategies failed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleConfigChange = (field: keyof BacktestConfig, value: unknown) => {
     setConfig((prev) => ({ ...prev, [field]: value }));
@@ -80,8 +109,14 @@ const Backtesting: React.FC = () => {
 
   return (
     <Box p={3}>
-      <Typography variant="h4" gutterBottom>Backtesting</Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      <Typography variant="h4" gutterBottom>
+        Backtesting
+      </Typography>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
@@ -89,13 +124,13 @@ const Backtesting: React.FC = () => {
             config={config}
             onConfigChange={handleConfigChange}
             loading={loading}
-            currentBacktest={currentBacktest}
-            onStart={startBacktest}
-            onStop={stopBacktest}
+            onRunFull={runFull}
+            onQuick={runQuick}
+            onCompare={runCompare}
           />
         </Grid>
         <Grid item xs={12} md={8}>
-          <BacktestResults results={results} onRefresh={fetchBacktestResults} />
+          <BacktestResults results={results} onRefresh={() => setResults([])} />
         </Grid>
       </Grid>
     </Box>

@@ -317,8 +317,10 @@ export interface TopMoverItem {
   change_pct_15min?: number | null;
   change_pct_30min?: number | null;
   change_pct_1h?: number | null;
+  change_pct_3h?: number | null;
   volume: number | null;
   value_traded_cr?: number;
+  non_null_column_count?: number;
   chart_url?: string;
   sector?: string | null;
   market_cap_category?: string | null;
@@ -328,6 +330,12 @@ export interface TopMoverItem {
   score?: number;
   relative_volume?: number | null;
   ranked_at?: string;
+}
+
+export interface MarketMoversCounts {
+  gainers?: number;
+  losers?: number;
+  top_traded?: number;
 }
 
 export interface TopGainersResponse {

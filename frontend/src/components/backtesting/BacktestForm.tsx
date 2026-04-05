@@ -10,184 +10,231 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Slider,
   FormControlLabel,
   Switch,
-  CircularProgress
+  CircularProgress,
+  Divider,
+  Grid,
 } from '@mui/material';
-import { PlayArrow, Stop } from '@mui/icons-material';
+import { PlayArrow, Speed, CompareArrows } from '@mui/icons-material';
 import type { BacktestConfig } from './types';
 
 interface BacktestFormProps {
   config: BacktestConfig;
   onConfigChange: (field: keyof BacktestConfig, value: unknown) => void;
   loading: boolean;
-  currentBacktest: string | null;
-  onStart: () => void;
-  onStop: () => void;
+  onRunFull: () => void;
+  onQuick: () => void;
+  onCompare: () => void;
 }
 
 const BacktestForm: React.FC<BacktestFormProps> = ({
   config,
   onConfigChange,
   loading,
-  currentBacktest,
-  onStart,
-  onStop
+  onRunFull,
+  onQuick,
+  onCompare,
 }) => (
   <Card>
     <CardContent>
       <Typography variant="h6" gutterBottom>
-        Backtest Configuration
+        Seed backtest (v2)
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Uses <code>POST /api/v2/backtesting/run</code>, <code>GET /api/v2/backtesting/quick/&#123;days&#125;</code>, and{' '}
+        <code>GET /api/v2/backtesting/compare-strategies</code>.
       </Typography>
 
+      <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>
+        Full run body
+      </Typography>
       <TextField
         fullWidth
-        label="Start Date"
+        label="Start date"
         type="date"
         value={config.start_date}
         onChange={(e) => onConfigChange('start_date', e.target.value)}
         margin="normal"
+        size="small"
         InputLabelProps={{ shrink: true }}
       />
-
       <TextField
         fullWidth
-        label="End Date"
+        label="End date"
         type="date"
         value={config.end_date}
         onChange={(e) => onConfigChange('end_date', e.target.value)}
         margin="normal"
+        size="small"
         InputLabelProps={{ shrink: true }}
       />
-
       <TextField
         fullWidth
-        label="Initial Capital"
+        label="Initial capital (₹)"
         type="number"
         value={config.initial_capital}
         onChange={(e) => onConfigChange('initial_capital', Number(e.target.value))}
         margin="normal"
+        size="small"
       />
-
-      <TextField
-        fullWidth
-        label="Risk Per Trade (%)"
-        type="number"
-        value={config.risk_per_trade}
-        onChange={(e) => onConfigChange('risk_per_trade', Number(e.target.value))}
-        margin="normal"
-      />
-
-      <FormControl fullWidth margin="normal">
-        <InputLabel>Strategy Type</InputLabel>
+      <FormControl fullWidth margin="normal" size="small">
+        <InputLabel>Mode</InputLabel>
         <Select
-          value={config.strategy_type}
-          onChange={(e) => onConfigChange('strategy_type', e.target.value)}
+          value={config.mode}
+          label="Mode"
+          onChange={(e) => onConfigChange('mode', e.target.value)}
         >
-          <MenuItem value="breakout">Breakout</MenuItem>
-          <MenuItem value="pullback">Pullback</MenuItem>
-          <MenuItem value="range_shift">Range Shift</MenuItem>
-          <MenuItem value="momentum">Momentum</MenuItem>
+          <MenuItem value="fast">fast</MenuItem>
+          <MenuItem value="realistic">realistic</MenuItem>
+          <MenuItem value="walk_forward">walk_forward</MenuItem>
         </Select>
       </FormControl>
-
       <TextField
         fullWidth
-        label="Symbols (comma-separated)"
-        value={config.symbols.join(', ')}
-        onChange={(e) =>
-          onConfigChange(
-            'symbols',
-            e.target.value.split(',').map((s) => s.trim())
-          )
-        }
-        margin="normal"
-        helperText="Enter stock symbols separated by commas"
-      />
-
-      <Typography gutterBottom>
-        ATR Multiplier (Stop Loss): {config.atr_multiplier_sl}
-      </Typography>
-      <Slider
-        value={config.atr_multiplier_sl}
-        onChange={(_, value) => onConfigChange('atr_multiplier_sl', value)}
-        min={0.5}
-        max={3}
-        step={0.1}
-        marks
-        valueLabelDisplay="auto"
-      />
-
-      <Typography gutterBottom>
-        ATR Multiplier (Target): {config.atr_multiplier_tp}
-      </Typography>
-      <Slider
-        value={config.atr_multiplier_tp}
-        onChange={(_, value) => onConfigChange('atr_multiplier_tp', value)}
-        min={1}
-        max={5}
-        step={0.1}
-        marks
-        valueLabelDisplay="auto"
-      />
-
-      <TextField
-        fullWidth
-        label="Max Positions"
+        label="Max positions"
         type="number"
         value={config.max_positions}
         onChange={(e) => onConfigChange('max_positions', Number(e.target.value))}
         margin="normal"
+        size="small"
       />
-
+      <TextField
+        fullWidth
+        label="Trade types (comma-separated)"
+        value={config.trade_types}
+        onChange={(e) => onConfigChange('trade_types', e.target.value)}
+        margin="normal"
+        size="small"
+        helperText="e.g. intraday_buy,swing_buy"
+      />
+      <TextField
+        fullWidth
+        label="Min score"
+        type="number"
+        value={config.min_score}
+        onChange={(e) => onConfigChange('min_score', Number(e.target.value))}
+        margin="normal"
+        size="small"
+      />
+      <TextField
+        fullWidth
+        label="Slippage (basis points)"
+        type="number"
+        value={config.slippage_bps}
+        onChange={(e) => onConfigChange('slippage_bps', Number(e.target.value))}
+        margin="normal"
+        size="small"
+      />
       <FormControlLabel
         control={
           <Switch
-            checked={config.include_slippage}
-            onChange={(e) => onConfigChange('include_slippage', e.target.checked)}
+            checked={config.enable_costs}
+            onChange={(e) => onConfigChange('enable_costs', e.target.checked)}
           />
         }
-        label="Include Slippage"
+        label="Enable costs"
       />
-
       <FormControlLabel
         control={
           <Switch
-            checked={config.include_commission}
-            onChange={(e) =>
-              onConfigChange('include_commission', e.target.checked)
-            }
+            checked={config.enable_regime_filters}
+            onChange={(e) => onConfigChange('enable_regime_filters', e.target.checked)}
           />
         }
-        label="Include Commission"
+        label="Enable regime filters"
       />
 
       <Box mt={2}>
         <Button
           fullWidth
           variant="contained"
-          startIcon={loading ? <CircularProgress size={20} /> : <PlayArrow />}
-          onClick={onStart}
-          disabled={loading || !!currentBacktest}
+          color="primary"
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <PlayArrow />}
+          onClick={onRunFull}
+          disabled={loading}
         >
-          {loading ? 'Starting...' : 'Start Backtest'}
+          {loading ? 'Running…' : 'Run full backtest'}
         </Button>
       </Box>
 
-      {currentBacktest && (
-        <Box mt={1}>
-          <Button
+      <Divider sx={{ my: 3 }} />
+
+      <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>
+        Quick backtest
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <TextField
             fullWidth
-            variant="outlined"
-            color="error"
-            startIcon={<Stop />}
-            onClick={onStop}
-          >
-            Stop Backtest
-          </Button>
-        </Box>
-      )}
+            size="small"
+            label="Days"
+            type="number"
+            value={config.quick_days}
+            onChange={(e) => onConfigChange('quick_days', Number(e.target.value))}
+          />
+        </Grid>
+        <Grid item xs={8}>
+          <TextField
+            fullWidth
+            size="small"
+            label="Trade type"
+            value={config.quick_trade_type}
+            onChange={(e) => onConfigChange('quick_trade_type', e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            size="small"
+            label="Min score"
+            type="number"
+            value={config.quick_min_score}
+            onChange={(e) => onConfigChange('quick_min_score', Number(e.target.value))}
+          />
+        </Grid>
+      </Grid>
+      <Box mt={1.5}>
+        <Button fullWidth variant="outlined" startIcon={<Speed />} onClick={onQuick} disabled={loading}>
+          Quick backtest
+        </Button>
+      </Box>
+
+      <Divider sx={{ my: 3 }} />
+
+      <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>
+        Compare strategies
+      </Typography>
+      <TextField
+        fullWidth
+        size="small"
+        label="Days"
+        type="number"
+        value={config.compare_days}
+        onChange={(e) => onConfigChange('compare_days', Number(e.target.value))}
+        margin="normal"
+      />
+      <TextField
+        fullWidth
+        size="small"
+        label="Trade types (comma-separated)"
+        value={config.compare_trade_types}
+        onChange={(e) => onConfigChange('compare_trade_types', e.target.value)}
+        margin="normal"
+      />
+      <TextField
+        fullWidth
+        size="small"
+        label="Score thresholds (comma-separated)"
+        value={config.compare_score_thresholds}
+        onChange={(e) => onConfigChange('compare_score_thresholds', e.target.value)}
+        margin="normal"
+      />
+      <Box mt={1.5}>
+        <Button fullWidth variant="outlined" startIcon={<CompareArrows />} onClick={onCompare} disabled={loading}>
+          Compare strategies
+        </Button>
+      </Box>
     </CardContent>
   </Card>
 );

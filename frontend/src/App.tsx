@@ -21,6 +21,8 @@ import MarketMoversPage from './pages/MarketMoversPage';
 import SystemSettingsPage from './pages/SystemSettingsPage';
 import ObservabilityPage from './pages/ObservabilityPage';
 import UniverseManagerPage from './pages/UniverseManagerPage';
+import Backtesting from './pages/Backtesting';
+import SeedOps from './pages/SeedOps';
 import { WorkspacePreferencesProvider } from './context/WorkspacePreferencesContext';
 
 const queryClient = new QueryClient({
@@ -134,6 +136,8 @@ function App() {
               <Route path="/recommendations" element={<UnifiedRecommendations />} />
               <Route path="/market-movers" element={<MarketMoversPage />} />
               <Route path="/investing" element={<Investing />} />
+              <Route path="/backtesting" element={<Backtesting />} />
+              <Route path="/seed-ops" element={<SeedOps />} />
               <Route path="/system-control" element={<Navigate to="/observability" replace />} />
               <Route path="/arm-manager" element={<ArmManagerPage />} />
               <Route path="/query-manager" element={<Navigate to="/arm-manager" replace />} />
@@ -149,7 +153,6 @@ function App() {
               <Route path="/stock-mapping" element={<Navigate to="/universe" replace />} />
               <Route path="/stock-candidate-populator" element={<Navigate to="/universe" replace />} />
               <Route path="/kite-websocket-test" element={<KiteWebSocketTest />} />
-              <Route path="/backtesting" element={<Navigate to="/seed-dashboard" replace />} />
               <Route path="/test/recommendation-service" element={<Navigate to="/seed-dashboard" replace />} />
             </Routes>
           </SidebarLayout>
@@ -160,4 +163,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

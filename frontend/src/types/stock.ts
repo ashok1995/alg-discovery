@@ -86,6 +86,8 @@ export interface SeedPredictedReturn {
 
 export interface SeedStockRecommendation {
   symbol: string;
+  /** Present when Seed returns a deep link (Kite, Chartink, etc.). */
+  chart_url?: string | null;
   current_price: number;
   sector: string;
   overall_score: number;
@@ -165,6 +167,8 @@ export interface RankedStockResponse {
   valid_until: string;
   reason: string;
   signals: Record<string, unknown>;
+  /** Deep link from Seed (`RankedStockResponse.chart_url` in seed-openapi.json). */
+  chart_url?: string | null;
   market_regime?: string | null;
   sector?: string | null;
   volume?: number | null;

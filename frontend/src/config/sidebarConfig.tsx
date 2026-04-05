@@ -82,6 +82,20 @@ export const menuItems: MenuItem[] = [
     category: 'analysis'
   },
   {
+    text: 'Backtesting',
+    icon: <Assessment />,
+    path: '/backtesting',
+    description: 'Historical backtests via Seed /api/v2/backtesting',
+    category: 'analysis'
+  },
+  {
+    text: 'Seed Ops',
+    icon: <Analytics />,
+    path: '/seed-ops',
+    description: 'Admin/ops: monitoring, rate limits, data quality, backtesting helpers',
+    category: 'management'
+  },
+  {
     text: 'Universe Manager',
     icon: <Storage />,
     path: '/universe',

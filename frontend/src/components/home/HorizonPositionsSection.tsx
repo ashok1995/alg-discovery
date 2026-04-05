@@ -16,9 +16,6 @@ import {
   Skeleton,
   CircularProgress,
   alpha,
-  FormControl,
-  Select,
-  MenuItem,
 } from '@mui/material';
 import {
   Refresh,
@@ -66,6 +63,9 @@ interface HorizonDef {
   description: string;
 }
 
+/** Same lookback set as Dashboard → Positions (GET /api/v2/dashboard/positions `days`). */
+const HORIZON_DAYS_OPTIONS = [1, 2, 3, 7, 14, 30, 60, 90] as const;
+
 const HORIZONS: HorizonDef[] = [
   { key: 'intra_buy', label: 'Intraday Buy', shortLabel: 'ID Buy', tradeType: 'intraday_buy', color: '#4caf50', description: 'Intraday long positions' },
   { key: 'intra_sell', label: 'Intraday Sell', shortLabel: 'ID Sell', tradeType: 'intraday_sell', color: '#f44336', description: 'Intraday short positions' },
@@ -73,8 +73,6 @@ const HORIZONS: HorizonDef[] = [
   { key: 'swing', label: 'Swing', shortLabel: 'Swing', tradeType: 'swing_buy', color: '#ff9800', description: 'Swing trades (days to weeks)' },
   { key: 'long', label: 'Long Term', shortLabel: 'Long', tradeType: 'long_term', color: '#2196f3', description: 'Positional & long-duration holdings' },
 ];
-
-const PERIOD_OPTIONS = [1, 3, 5, 10, 20, 30] as const;
 
 const formatDuration = (minutes: number | null): string => {
   if (minutes == null) return '—';
@@ -251,7 +249,7 @@ const HorizonPositionsSection: React.FC<HorizonPositionsSectionProps> = ({
   onSummaryDaysChange,
 }) => {
   const [activeHorizon, setActiveHorizon] = useState('intra_buy');
-  const [internalDays, setInternalDays] = useState<number>(1);
+  const [internalDays, setInternalDays] = useState<number>(30);
   const summaryDays = controlledSummaryDays ?? internalDays;
   const setSummaryDays = onSummaryDaysChange ?? setInternalDays;
   const showDaysSelector = controlledSummaryDays === undefined;
@@ -259,7 +257,7 @@ const HorizonPositionsSection: React.FC<HorizonPositionsSectionProps> = ({
   const cacheTimestamps = useRef<Record<string, number>>({});
 
   const fetchHorizon = useCallback(async (horizon: HorizonDef, force = false) => {
-    const cacheKey = `${horizon.key}-${summaryDays}`;
+    const cacheKey = `${horizon.key}|${summaryDays}`;
     const cached = cacheTimestamps.current[cacheKey];
     if (!force && cached && Date.now() - cached < CACHE_TTL) return;
 
@@ -306,26 +304,38 @@ const HorizonPositionsSection: React.FC<HorizonPositionsSectionProps> = ({
         <Box>
           <Typography variant="subtitle1" fontWeight={800}>Trading Positions</Typography>
           <Typography variant="caption" color="text.secondary">
-            Last {summaryDays} day{summaryDays > 1 ? 's' : ''} — all 5 trade types
+            Last {summaryDays} day{summaryDays === 1 ? '' : 's'} — all 5 trade types
           </Typography>
         </Box>
-        <Box display="flex" alignItems="center" gap={1}>
-          {showDaysSelector && (
-            <FormControl size="small" sx={{ minWidth: 92 }}>
-              <Select value={summaryDays} onChange={(e) => setSummaryDays(Number(e.target.value))} displayEmpty>
-                {PERIOD_OPTIONS.map((d) => (
-                  <MenuItem key={d} value={d}>{d}D</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-          <Tooltip title="Refresh all">
-            <IconButton size="small" onClick={() => HORIZONS.forEach((h) => fetchHorizon(h, true))}>
-              <Refresh fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        <Tooltip title="Refresh all">
+          <IconButton size="small" onClick={() => HORIZONS.forEach((h) => fetchHorizon(h, true))}>
+            <Refresh fontSize="small" />
+          </IconButton>
+        </Tooltip>
       </Box>
+
+      {showDaysSelector && (
+        <Box sx={{ px: 2.5, pb: 1 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
+            Lookback
+          </Typography>
+          <ToggleButtonGroup
+            value={summaryDays}
+            exclusive
+            onChange={(_, v) => v != null && setSummaryDays(v)}
+            size="small"
+            sx={{
+              flexWrap: 'wrap',
+              gap: 0.5,
+              '& .MuiToggleButton-root': { px: 1, py: 0.4, fontSize: '0.72rem', fontWeight: 600 },
+            }}
+          >
+            {HORIZON_DAYS_OPTIONS.map((d) => (
+              <ToggleButton key={d} value={d}>{d}d</ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Box>
+      )}
 
       {/* 5-way toggle */}
       <Box sx={{ px: 2.5, pb: 1.5 }}>

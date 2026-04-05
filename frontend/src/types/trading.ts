@@ -203,6 +203,8 @@ export interface DynamicRecommendationItem {
   roa: number | null;
   indicators: { rsi: number; sma_20: number; sma_50: number };
   metadata: Record<string, unknown>;
+  /** Chart deep-link from API (Kite / Chartink / etc.); never a client default. */
+  chart_url?: string | null;
   confidence: string;
   source: string;
   fetched_at: string | null;
