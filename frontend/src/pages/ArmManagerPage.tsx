@@ -108,6 +108,7 @@ const ArmManagerPage: React.FC = () => {
   const [timelineScenario, setTimelineScenario] = useState('');
   const [timelineLimit, setTimelineLimit] = useState(200);
   const [timelineRaw, setTimelineRaw] = useState<Record<string, unknown> | null>(null);
+  const [recentRunsRaw, setRecentRunsRaw] = useState<Record<string, unknown> | null>(null);
   const [learnRaw, setLearnRaw] = useState<Record<string, unknown> | null>(null);
   const [utilRaw, setUtilRaw] = useState<Record<string, unknown> | null>(null);
   const [runId, setRunId] = useState('');
@@ -180,17 +181,23 @@ const ArmManagerPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const [t, l, u] = await Promise.all([
+      const [t, r, l, u] = await Promise.all([
         seedArmService.getExecutionTimeline({
           days: timelineDays,
           arm_name: timelineArm || null,
           scenario: timelineScenario || null,
           limit: timelineLimit,
         }),
-        seedArmService.getObservabilityLearning(),
-        seedArmService.getObservabilityUtilization(),
+        seedArmService.getRecentRuns({
+          days: timelineDays,
+          scenario: timelineScenario || undefined,
+          limit: 50,
+        }),
+        seedArmService.getObservabilityLearning({ days: timelineDays }),
+        seedArmService.getObservabilityUtilization({ days: timelineDays }),
       ]);
       setTimelineRaw(t);
+      setRecentRunsRaw(r);
       setLearnRaw(l);
       setUtilRaw(u);
     } catch (e: unknown) {
@@ -624,6 +631,7 @@ const ArmManagerPage: React.FC = () => {
               </Button>
             </Stack>
             {timelineRaw && <StructuredDataView data={timelineRaw} title="Execution timeline" />}
+            {recentRunsRaw && <StructuredDataView data={recentRunsRaw} title="Recent runs — GET /api/v2/arms/observability/recent-runs" />}
             {learnRaw && <StructuredDataView data={learnRaw} title="Observability learning" />}
             {utilRaw && <StructuredDataView data={utilRaw} title="Observability utilization" />}
 

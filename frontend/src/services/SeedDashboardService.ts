@@ -115,6 +115,9 @@ async function fetchJSON<T>(
 }
 
 export const seedDashboardService = {
+  /** GET / — service root (OpenAPI “Root”). */
+  getRoot: () => fetchJSON<Record<string, unknown>>('/'),
+
   getDailySummary: (days = 1, opts?: { scenario?: string; category?: string; from_date?: string; to_date?: string }) => {
     const params: Record<string, string | number> = { days };
     if (opts?.scenario) params.scenario = opts.scenario;
@@ -411,13 +414,19 @@ export const seedDashboardService = {
   getRegimeScoring: () =>
     fetchJSON<Record<string, unknown>>('/v2/observability/regime-scoring'),
 
-  /** GET /api/v2/arms/observability/learning */
-  getArmsObservabilityLearning: () =>
-    fetchJSON<Record<string, unknown>>('/api/v2/arms/observability/learning'),
+  /** GET /api/v2/arms/observability/learning — query `days` 1–180, default 30 per OpenAPI */
+  getArmsObservabilityLearning: (opts?: { days?: number }) =>
+    fetchJSON<Record<string, unknown>>(
+      '/api/v2/arms/observability/learning',
+      opts?.days != null ? { days: opts.days } : undefined,
+    ),
 
-  /** GET /api/v2/arms/observability/utilization */
-  getArmsObservabilityUtilization: () =>
-    fetchJSON<Record<string, unknown>>('/api/v2/arms/observability/utilization'),
+  /** GET /api/v2/arms/observability/utilization — query `days` 1–90, default 30 per OpenAPI */
+  getArmsObservabilityUtilization: (opts?: { days?: number }) =>
+    fetchJSON<Record<string, unknown>>(
+      '/api/v2/arms/observability/utilization',
+      opts?.days != null ? { days: opts.days } : undefined,
+    ),
 
   /** GET /api/v2/candidates/observability/coverage */
   getCandidatesObservabilityCoverage: () =>

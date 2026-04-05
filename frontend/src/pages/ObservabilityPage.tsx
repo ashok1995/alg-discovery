@@ -34,6 +34,7 @@ import SeedTradingEconomyPanel from '../components/observability/SeedTradingEcon
 import LearningObservabilityHub from '../components/observability/LearningObservabilityHub';
 import StructuredDataView from '../components/ui/StructuredDataView';
 import { seedDashboardService } from '../services/SeedDashboardService';
+import { seedArmService } from '../services/SeedArmService';
 import type { ArmLeaderboardResponse, LearningInsightsResponse } from '../types/dashboard';
 import { useSortableData } from '../hooks/useSortableData';
 import SortableTableHead, { type ColumnDef } from '../components/ui/SortableTableHead';
@@ -465,6 +466,8 @@ const ObservabilityLearningTab: React.FC = () => {
   const [coverage, setCoverage] = useState<unknown>(null);
   const [insights, setInsights] = useState<LearningInsightsResponse | null>(null);
   const [leaderboard, setLeaderboard] = useState<ArmLeaderboardResponse | null>(null);
+  const [armExecutionTimeline, setArmExecutionTimeline] = useState<unknown>(null);
+  const [armRecentRuns, setArmRecentRuns] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -472,18 +475,22 @@ const ObservabilityLearningTab: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const [l, u, c, i, lb] = await Promise.allSettled([
-        seedDashboardService.getArmsObservabilityLearning(),
-        seedDashboardService.getArmsObservabilityUtilization(),
+      const [l, u, c, i, lb, tl, rr] = await Promise.allSettled([
+        seedDashboardService.getArmsObservabilityLearning({ days: 7 }),
+        seedDashboardService.getArmsObservabilityUtilization({ days: 7 }),
         seedDashboardService.getCandidatesObservabilityCoverage(),
         seedDashboardService.getLearningInsights(),
         seedDashboardService.getArmLeaderboard(7),
+        seedArmService.getExecutionTimeline({ days: 7, limit: 200 }),
+        seedArmService.getRecentRuns({ days: 7, limit: 50 }),
       ]);
       setLearning(l.status === 'fulfilled' ? l.value : null);
       setUtilization(u.status === 'fulfilled' ? u.value : null);
       setCoverage(c.status === 'fulfilled' ? c.value : null);
       setInsights(i.status === 'fulfilled' ? (i.value as LearningInsightsResponse) : null);
       setLeaderboard(lb.status === 'fulfilled' ? (lb.value as ArmLeaderboardResponse) : null);
+      setArmExecutionTimeline(tl.status === 'fulfilled' ? tl.value : null);
+      setArmRecentRuns(rr.status === 'fulfilled' ? rr.value : null);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load learning data');
     } finally {
@@ -498,7 +505,13 @@ const ObservabilityLearningTab: React.FC = () => {
   }, [load]);
 
   const hasAnyData =
-    insights != null || leaderboard != null || learning != null || utilization != null || coverage != null;
+    insights != null ||
+    leaderboard != null ||
+    learning != null ||
+    utilization != null ||
+    coverage != null ||
+    armExecutionTimeline != null ||
+    armRecentRuns != null;
 
   if (loading && !hasAnyData && !error) {
     return (
@@ -522,6 +535,8 @@ const ObservabilityLearningTab: React.FC = () => {
         learning={learning}
         utilization={utilization}
         coverage={coverage}
+        armExecutionTimeline={armExecutionTimeline}
+        armRecentRuns={armRecentRuns}
         loading={loading}
         onRefresh={() => void load()}
       />

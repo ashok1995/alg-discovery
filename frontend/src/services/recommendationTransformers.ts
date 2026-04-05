@@ -16,6 +16,25 @@ import type {
 import type { RecommendationRequest, RecommendationResponse, Recommendation } from '../types/recommendations';
 
 /**
+ * Chart deep link from Seed `RankedStockResponse.chart_url` (see `frontend/docs/configuration/seed-openapi.json`).
+ * After `transformSeedResponse`, the same value is copied to `metadata.chart_url` for table helpers.
+ */
+export function pickChartUrlFromRecommendationSource(rec: Record<string, unknown>): string | undefined {
+  const from = (v: unknown): string | undefined => {
+    if (typeof v !== 'string') return undefined;
+    const t = v.trim();
+    return t.length > 0 ? t : undefined;
+  };
+  const top = from(rec.chart_url);
+  if (top) return top;
+  const nested = rec.metadata;
+  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+    return from((nested as Record<string, unknown>).chart_url);
+  }
+  return undefined;
+}
+
+/**
  * Map prod Seed Stocks Service response (GET /v2/recommendations) to legacy SeedRecommendationResponse.
  * @see http://203.57.85.201:8182/docs
  */
@@ -122,6 +141,7 @@ export function transformSeedResponse(
     const riskPct = (rec.max_risk_pct ?? 2) as number;
     const signals = rec.signals as Record<string, boolean> | undefined;
     const reason = (rec.reason ?? rec.reasoning ?? '') as string;
+    const chartUrl = pickChartUrlFromRecommendationSource(rec);
 
     return {
       symbol: (rec.symbol as string) || 'UNKNOWN',
@@ -173,12 +193,14 @@ export function transformSeedResponse(
         distance_to_resistance_pct: rec.distance_to_resistance_pct as number | undefined,
         risk_assessment: riskPct <= 1.5 ? 'low' : riskPct <= 3 ? 'moderate' : 'high',
         data_source: 'seed-v2',
+        ...(chartUrl ? { chart_url: chartUrl } : {}),
       },
       confidence: score >= 80 ? 'high' : score >= 50 ? 'medium' : 'low',
       source: 'seed-v2',
       fetched_at: (rec.generated_at as string) ?? new Date().toISOString(),
       strategy_type: strategy,
       risk_level: riskPct <= 1.5 ? 'low' : riskPct <= 3 ? 'medium' : 'high',
+      ...(chartUrl ? { chart_url: chartUrl } : {}),
     };
   });
 
@@ -190,7 +212,7 @@ export function transformSeedResponse(
   return {
     timestamp: new Date().toISOString(),
     items: items as DynamicRecommendationItem[],
-    recommendations: items as any,
+    recommendations: items as DynamicRecommendationItem[],
     total_count: items.length,
     execution_time: ((seedAny.processing_time_ms as number) || 1000) / 1000,
     strategy,

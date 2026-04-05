@@ -25,6 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
 import TabPanel from '../ui/TabPanel';
 import StructuredDataView from '../ui/StructuredDataView';
 import LearningInsightsV2Panel from './LearningInsightsV2Panel';
@@ -95,6 +96,10 @@ export interface LearningObservabilityHubProps {
   learning: unknown;
   utilization: unknown;
   coverage: unknown;
+  /** GET /api/v2/arms/observability/execution-timeline */
+  armExecutionTimeline?: unknown;
+  /** GET /api/v2/arms/observability/recent-runs */
+  armRecentRuns?: unknown;
   loading: boolean;
   onRefresh: () => void;
 }
@@ -105,6 +110,8 @@ const LearningObservabilityHub: React.FC<LearningObservabilityHubProps> = ({
   learning,
   utilization,
   coverage,
+  armExecutionTimeline,
+  armRecentRuns,
   loading,
   onRefresh,
 }) => {
@@ -432,9 +439,14 @@ const LearningObservabilityHub: React.FC<LearningObservabilityHubProps> = ({
       </TabPanel>
 
       <TabPanel value={sectionTab} index={4}>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-          Child level: pick a related API. Each has its own timestamp in the payload when Seed provides it.
-        </Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} sx={{ mb: 1.5 }}>
+          <Typography variant="body2" color="text.secondary">
+            Child level: ARMs observability + candidates coverage. Timestamps are in each payload when Seed provides them.
+          </Typography>
+          <Button component={RouterLink} to="/arm-manager" size="small" variant="outlined">
+            Arm manager
+          </Button>
+        </Stack>
         <Tabs
           value={armsSubTab}
           onChange={(_, v) => setArmsSubTab(v)}
@@ -446,6 +458,8 @@ const LearningObservabilityHub: React.FC<LearningObservabilityHubProps> = ({
           <Tab label="ARMs — learning distribution" />
           <Tab label="ARMs — utilization" />
           <Tab label="Candidates — coverage" />
+          <Tab label="Execution timeline (7d)" />
+          <Tab label="Recent runs (7d)" />
         </Tabs>
         <TabPanel value={armsSubTab} index={0}>
           {lbRows.length > 0 ? (
@@ -496,6 +510,25 @@ const LearningObservabilityHub: React.FC<LearningObservabilityHubProps> = ({
             <Alert severity="info">No coverage payload.</Alert>
           )}
         </TabPanel>
+        <TabPanel value={armsSubTab} index={4}>
+          {armExecutionTimeline != null ? (
+            <StructuredDataView
+              data={armExecutionTimeline}
+              title="/api/v2/arms/observability/execution-timeline"
+              dense
+              maxDepth={8}
+            />
+          ) : (
+            <Alert severity="info">No execution timeline payload.</Alert>
+          )}
+        </TabPanel>
+        <TabPanel value={armsSubTab} index={5}>
+          {armRecentRuns != null ? (
+            <StructuredDataView data={armRecentRuns} title="/api/v2/arms/observability/recent-runs" dense maxDepth={8} />
+          ) : (
+            <Alert severity="info">No recent-runs payload.</Alert>
+          )}
+        </TabPanel>
       </TabPanel>
 
       <TabPanel value={sectionTab} index={5}>
@@ -508,6 +541,12 @@ const LearningObservabilityHub: React.FC<LearningObservabilityHubProps> = ({
           {learning != null && <StructuredDataView data={learning} title="arms/observability/learning" maxDepth={8} />}
           {utilization != null && <StructuredDataView data={utilization} title="arms/observability/utilization" maxDepth={8} />}
           {coverage != null && <StructuredDataView data={coverage} title="candidates/observability/coverage" maxDepth={8} />}
+          {armExecutionTimeline != null && (
+            <StructuredDataView data={armExecutionTimeline} title="arms/observability/execution-timeline" maxDepth={8} />
+          )}
+          {armRecentRuns != null && (
+            <StructuredDataView data={armRecentRuns} title="arms/observability/recent-runs" maxDepth={8} />
+          )}
         </Stack>
       </TabPanel>
     </Stack>

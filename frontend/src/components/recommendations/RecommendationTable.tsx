@@ -28,6 +28,7 @@ import SortableTableHead, { type ColumnDef } from '../ui/SortableTableHead';
 import SymbolLink from '../ui/SymbolLink';
 import { useWorkspacePreferences } from '../../context/WorkspacePreferencesContext';
 import { canOpenPositionInWindow } from '../../utils/positionWindowUtils';
+import { pickChartUrlFromRecommendationSource } from '../../services/recommendationTransformers';
 
 export interface RecommendationTableProps {
   recommendations: DynamicRecommendationItem[];
@@ -138,8 +139,12 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
       await seedPositionService.openPosition({ symbol, trade_type: tradeType, entry_price: entryPrice, quantity: 0 });
       setSnackbar({ open: true, message: `Position opened: ${symbol}`, severity: 'success' });
       fetchPositionStatuses();
-    } catch (err: any) {
-      setSnackbar({ open: true, message: `Failed to open: ${err.message}`, severity: 'error' });
+    } catch (err: unknown) {
+      setSnackbar({
+        open: true,
+        message: `Failed to open: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        severity: 'error',
+      });
     } finally {
       setActionLoading(null);
     }
@@ -151,8 +156,12 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
       await seedPositionService.closePosition({ symbol, trade_type: tradeType });
       setSnackbar({ open: true, message: `Position closed: ${symbol}`, severity: 'success' });
       fetchPositionStatuses();
-    } catch (err: any) {
-      setSnackbar({ open: true, message: `Failed to close: ${err.message}`, severity: 'error' });
+    } catch (err: unknown) {
+      setSnackbar({
+        open: true,
+        message: `Failed to close: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        severity: 'error',
+      });
     } finally {
       setActionLoading(null);
     }
@@ -195,7 +204,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                 const reason = (m.reason as string) || '';
                 const signals = (m.signals as Record<string, boolean>) || {};
                 const isStale = m.is_stale === true;
-                const chartUrl = (m.chart_url as string) || undefined;
+                const chartUrl = pickChartUrlFromRecommendationSource(item as unknown as Record<string, unknown>);
                 const marketRegime = m.market_regime as string | undefined;
                 const rr = m.risk_reward_ratio as number | undefined;
                 const relVol = m.relative_volume as number | undefined;
@@ -224,6 +233,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = ({
                             chartUrl={chartUrl}
                             accentColor={config?.color}
                             showAvatar
+                            useApiChartOnly
                           />
                           {isStale && (
                             <Tooltip title="Data may be stale" arrow>

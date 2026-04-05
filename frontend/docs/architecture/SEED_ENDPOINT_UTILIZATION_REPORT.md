@@ -1,371 +1,356 @@
 # Seed Stocks Service — Endpoint Utilization Report (Frontend)
 
-This report answers: **for every Seed Stocks Service OpenAPI endpoint, is it utilized by the current frontend codebase?**
+This report lists **every operation** in the OpenAPI document shipped with this repo and how the React app calls it.
 
 ## Metadata
 
-- **OpenAPI source**: `http://203.57.85.201:8182/openapi.json` (Swagger: `http://203.57.85.201:8182/docs`)
-- **Frontend analyzed**: `frontend/src/**` in this repo workspace
-- **Status legend**
-  - **USED**: endpoint is called by the frontend and is wired to UI flows.
-  - **CLIENT_ONLY**: a frontend client method exists, but nothing calls it (dead/unused code path).
-  - **NOT_INTEGRATED**: no frontend client + no usage found in `frontend/src`.
+| Field | Value |
+|-------|--------|
+| **OpenAPI snapshot (repo)** | `frontend/docs/configuration/seed-openapi.json` |
+| **Prod discovery URL** | `http://203.57.85.201:8182/openapi.json` (Swagger: `/docs`) |
+| **Operations counted** | 125 (HTTP methods on paths; excludes webhook-only definitions) |
+| **Report generated** | 2026-04-04 (UTC date) |
+| **Frontend scope** | `frontend/src/**` |
 
-## Summary (OpenAPI endpoints only)
+### Status legend
 
-- **Total OpenAPI endpoints (method + path)**: 125
-- **USED**: 124
-- **CLIENT_ONLY**: 0
-- **NOT_INTEGRATED**: 1
+| Status | Meaning |
+|--------|---------|
+| **USED** | Request is issued from a `frontend/src/services/*` client (and typically surfaced in UI or Seed Ops). |
 
-> Note: The frontend also calls some Seed endpoints that are **not present in OpenAPI** (see “Not in OpenAPI but used” at the bottom).
+## Summary
 
-**Seed Ops surface**: `frontend/src/pages/SeedOps.tsx`, route **`/seed-ops`** (sidebar: Management → Seed Ops), aggregates the module clients above for admin/ops visibility (JSON panels + guarded POST actions).
+| Metric | Count |
+|--------|-------|
+| **Total OpenAPI operations** | 125 |
+| **USED (client in repo)** | 125 |
+| **NOT_INTEGRATED** | 0 |
 
----
+All listed paths have a matching call in `frontend/src/services`. **GET /** uses `seedDashboardService.getRoot()` (Seed Ops → Utilities).
 
-## Core
+### Primary surfaces
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
-|---|---|---|---|---|
-| GET | `/` | Root | NOT_INTEGRATED | — |
-| GET | `/health` | Health | USED | `frontend/src/services/RecommendationAPIService.ts` (`getSeedServiceHealth`), `frontend/src/services/RecommendationV2Service.ts` (`checkV2RecommendationHealth`) |
-
----
-
-## Recommendations V2 (legacy `/v2/*` APIs)
-
-| Method | Path | OpenAPI summary | Status | Frontend usage |
-|---|---|---|---|---|
-| GET | `/v2/recommendations` | Get Recommendations | USED | `frontend/src/services/RecommendationV2Service.ts` (`fetchV2Recommendations`), via `frontend/src/services/RecommendationAPIService.ts` (`getSeedServiceRecommendations`) |
-| GET | `/v2/position-status` | Get Position Status | USED | `frontend/src/services/SeedPositionService.ts` → `frontend/src/components/recommendations/RecommendationTable.tsx` |
-| GET | `/v2/health/pipeline` | Get Pipeline Health | USED | `frontend/src/services/SeedDashboardService.ts` (`getPipelineHealth`) and `frontend/src/services/RecommendationV2Service.ts` (`fetchPipelineHealth`); shown in System/Observability areas |
-| GET | `/v2/observability/db` | Get Observability Db | USED | `frontend/src/services/SeedDashboardService.ts` (`getObservabilityDb`) and `frontend/src/services/RecommendationV2Service.ts` (`fetchObservabilityDb`) |
-| GET | `/v2/observability/regime-scoring` | Get Regime Scoring Observability | USED | `frontend/src/services/SeedObservabilityService.ts` (`getRegimeScoringObservability`) |
-| GET | `/v2/learning/score-bin-performance` | Get Score Bin Performance | USED | `frontend/src/services/SeedDashboardService.ts` (`getScoreBinPerformance`) and `frontend/src/services/RecommendationV2Service.ts` (`fetchScoreBinPerformance`) |
-| GET | `/v2/learning/performance` | Get Performance | USED | `frontend/src/services/SeedDashboardService.ts` (`getLearningPerformance`) |
+- **Trader UI**: Home, Dashboard (`/seed-dashboard`), Positions (`/positions`), movers, ML Learning, Investing, Universe manager, Arm manager, Observability, Settings.
+- **Seed Ops** (`/seed-ops`): Monitoring, rate limits, data quality, regime, learning governance, execution, portfolio risk, analytics, system optimization, Yahoo tier, backtesting helpers, **Utilities** (root, settings, overview, charges, export URL).
+- **Backtesting** (`/backtesting`): `SeedBacktestingService`.
 
 ---
 
-## WebSocket Streaming
+## Advanced Monitoring
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/ws/stream/connections` | Active Connections Info | USED | `frontend/src/services/SeedObservabilityService.ts` (`getStreamConnections`) |
+| GET | `/api/v2/monitoring/alerts` | Get active alerts | `SeedAdvancedMonitoringService` | Seed Ops → Advanced Monitoring |
+| POST | `/api/v2/monitoring/alerts/{alert_id}/acknowledge` | Acknowledge an alert | `SeedAdvancedMonitoringService` | Seed Ops → Advanced Monitoring |
+| POST | `/api/v2/monitoring/alerts/{alert_id}/resolve` | Resolve an alert | `SeedAdvancedMonitoringService` | Seed Ops → Advanced Monitoring |
+| GET | `/api/v2/monitoring/monitoring-dashboard` | Monitoring dashboard data | `SeedAdvancedMonitoringService` | Seed Ops → Advanced Monitoring |
+| GET | `/api/v2/monitoring/performance-metrics` | Real-time performance metrics | `SeedAdvancedMonitoringService` | Seed Ops → Advanced Monitoring |
+| GET | `/api/v2/monitoring/system-health` | Comprehensive system health check | `SeedAdvancedMonitoringService` | Seed Ops → Advanced Monitoring |
 
 ---
 
 ## Analysis
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/analysis/performance` | Get Performance Analysis | USED | `frontend/src/services/SeedDashboardService.ts` (`getAnalysisPerformance`) → Dashboard performance views |
+| GET | `/api/v2/analysis/performance` | Get Performance Analysis | `SeedDashboardService` | `MLLearningPage`, dashboard-related views |
 
 ---
 
-## Registry — ARMs (`/api/v2/arms*`)
+## Backtesting
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/arms` | List Arms | USED | `frontend/src/services/SeedArmsService.ts` (`listArms`) → `frontend/src/components/system/ArmsRegistryTab.tsx` |
-| POST | `/api/v2/arms` | Create Arm | USED | `frontend/src/services/SeedArmsService.ts` (`createArm`) → `frontend/src/components/system/ArmsRegistryTab.tsx` |
-| GET | `/api/v2/arms/scenarios` | List Scenarios | USED | `frontend/src/services/SeedArmsService.ts` (`listScenarios`) → `frontend/src/components/system/ArmsRegistryTab.tsx` |
-| POST | `/api/v2/arms/verify-query` | Verify Query | USED | `frontend/src/services/SeedArmsService.ts` (`verifyQuery`) → `frontend/src/components/system/ArmsRegistryTab.tsx` (Verify UI) |
-| GET | `/api/v2/arms/{arm_name}` | Get Arm | USED | `frontend/src/services/SeedArmsService.ts` (`getArm`) → `frontend/src/components/system/ArmsRegistryTab.tsx` |
-| PUT | `/api/v2/arms/{arm_name}` | Update Arm | USED | `frontend/src/services/SeedArmsService.ts` (`updateArm`) → `frontend/src/components/system/ArmsRegistryTab.tsx` |
+| GET | `/api/v2/backtesting/compare-strategies` | Compare multiple strategies | `SeedBacktestingService` | `Backtesting` page + Seed Ops |
+| GET | `/api/v2/backtesting/quick/{days}` | Quick backtest for last N days | `SeedBacktestingService` | `Backtesting` page + Seed Ops |
+| POST | `/api/v2/backtesting/run` | Run historical backtest | `SeedBacktestingService` | `Backtesting` page + Seed Ops |
 
 ---
 
-## Observability — ARMs (`/api/v2/arms/observability/*`)
+## Batch Operations
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/arms/observability/learning` | Learning Observability | USED | `frontend/src/services/SeedArmsService.ts` (`getLearningObservability`) → `frontend/src/components/system/ArmsRegistryTab.tsx` |
-| GET | `/api/v2/arms/observability/execution-timeline` | Execution Timeline | USED | `frontend/src/services/SeedArmsService.ts` (`getExecutionTimeline`) → `frontend/src/components/system/ArmsRegistryTab.tsx` |
-| GET | `/api/v2/arms/observability/recent-runs` | Recent Runs | USED | `frontend/src/services/SeedArmsService.ts` (`getRecentRuns`) → `frontend/src/components/system/ArmsRegistryTab.tsx` (on-demand button) |
-| GET | `/api/v2/arms/observability/run/{pipeline_run_id}` | Run Summary | USED | `frontend/src/services/SeedArmsService.ts` (`getRunSummary`) → `frontend/src/components/system/ArmsRegistryTab.tsx` (on-demand) |
-| GET | `/api/v2/arms/observability/utilization` | Utilization | USED | `frontend/src/services/SeedArmsService.ts` (`getUtilization`) → `frontend/src/components/system/ArmsRegistryTab.tsx` (on-demand button) |
+| POST | `/api/v2/batch/analyze-symbols` | Bulk Symbol Analysis | `SeedDashboardService` | `PositionsTab`, exports, `SeedAllEndpointsTab` |
+| POST | `/api/v2/batch/close-positions` | Batch Close Positions | `SeedDashboardService` | `PositionsTab`, exports, `SeedAllEndpointsTab` |
+| GET | `/api/v2/batch/data-statistics` | Data Statistics | `SeedDashboardService` | `PositionsTab`, exports, `SeedAllEndpointsTab` |
 
 ---
 
-## Candidates (`/api/v2/candidates*`)
+## Candidates
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/candidates` | List candidate stocks | USED | `frontend/src/services/SeedCandidatesService.ts` (`listCandidates`) → `frontend/src/components/system/CandidatesRegistryTab.tsx` |
-| GET | `/api/v2/candidates/{symbol}` | Candidate detail with fundamentals history | USED | `frontend/src/services/SeedCandidatesService.ts` (`getCandidate`) → `frontend/src/components/system/CandidatesRegistryTab.tsx` |
-| PUT | `/api/v2/candidates/{symbol}/status` | Update candidate status | USED | `frontend/src/services/SeedCandidatesService.ts` (`updateCandidateStatus`) → `frontend/src/components/system/CandidatesRegistryTab.tsx` |
-| PUT | `/api/v2/candidates/{symbol}/match` | Link Chartink / canonical symbol to Kite instrument | USED | `frontend/src/services/SeedCandidatesService.ts` (`upsertKiteMatch`) → `frontend/src/components/system/CandidatesRegistryTab.tsx` |
-| POST | `/api/v2/candidates/sync` | Force a candidate sync now | USED | `frontend/src/services/SeedCandidatesService.ts` (`forceSync`) → `frontend/src/components/system/CandidatesRegistryTab.tsx` |
-| GET | `/api/v2/candidates/observability/coverage` | Candidate sync coverage and freshness | USED | `frontend/src/services/SeedCandidatesService.ts` (`getCoverage`) → `frontend/src/components/system/CandidatesRegistryTab.tsx` |
-| GET | `/api/v2/candidates/observability/kite-gap` | Candidates missing Kite instrument_token | USED | `frontend/src/services/SeedCandidatesService.ts` (`getKiteGap`) → `frontend/src/components/system/CandidatesRegistryTab.tsx` |
+| GET | `/api/v2/candidates` | List candidate stocks | `SeedDashboardService` + `SeedCandidatesService` | `UniverseManagerPage` / candidates v2 |
+| GET | `/api/v2/candidates/{symbol}` | Candidate detail with fundamentals history | `SeedDashboardService` + `SeedCandidatesService` | `UniverseManagerPage` / candidates v2 |
+| PUT | `/api/v2/candidates/{symbol}/match` | Link Chartink / canonical symbol to Kite instrument | `SeedDashboardService` + `SeedCandidatesService` | `UniverseManagerPage` / candidates v2 |
+| PUT | `/api/v2/candidates/{symbol}/status` | Update candidate status | `SeedDashboardService` + `SeedCandidatesService` | `UniverseManagerPage` / candidates v2 |
+| GET | `/api/v2/candidates/observability/coverage` | Candidate sync coverage and freshness | `SeedDashboardService` + `SeedCandidatesService` | `UniverseManagerPage` / candidates v2 |
+| GET | `/api/v2/candidates/observability/kite-gap` | Candidates missing Kite instrument_token | `SeedDashboardService` + `SeedCandidatesService` | `UniverseManagerPage` / candidates v2 |
+| POST | `/api/v2/candidates/sync` | Force a candidate sync now | `SeedDashboardService` + `SeedCandidatesService` | `UniverseManagerPage` / candidates v2 |
 
 ---
 
-## Dashboard (`/api/v2/dashboard/*`)
+## capital
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/dashboard/daily-summary` | Daily Summary | USED | `frontend/src/services/SeedDashboardService.ts` (`getDailySummary`) → `frontend/src/pages/Dashboard.tsx` and home widgets |
-| GET | `/api/v2/dashboard/positions` | Universal Positions | USED | `frontend/src/services/SeedDashboardService.ts` (`getPositions`) → Dashboard Positions tab(s) |
-| GET | `/api/v2/dashboard/universe-health` | Universe Health | USED | `frontend/src/services/SeedDashboardService.ts` (`getUniverseHealth`) → Dashboard |
-| GET | `/api/v2/dashboard/market-trends` | Market Trends | USED | `frontend/src/services/SeedDashboardService.ts` (`getMarketTrends`) → Dashboard |
-| GET | `/api/v2/dashboard/arm-performance` | Arm Performance | USED | `frontend/src/services/SeedDashboardService.ts` (`getArmPerformance`) → Dashboard |
-| GET | `/api/v2/dashboard/learning-status` | Learning Status | USED | `frontend/src/services/SeedDashboardService.ts` (`getLearningStatus`) → Dashboard (ML tab) |
-| GET | `/api/v2/dashboard/performance-timeline` | Performance Timeline | USED | `frontend/src/services/SeedDashboardService.ts` (`getPerformanceTimeline`) → Dashboard |
-| GET | `/api/v2/dashboard/market-movers` | Market Movers | USED | `frontend/src/services/SeedDashboardService.ts` (`getMarketMovers`) → `frontend/src/components/home/HomeMarketMoversTab.tsx` |
-| GET | `/api/v2/dashboard/capital-summary` | Capital Summary | USED | `frontend/src/services/SeedDashboardService.ts` (`getCapitalSummary`) → Dashboard capital/pnl views |
-| GET | `/api/v2/dashboard/pnl-timeline` | Pnl Timeline | USED | `frontend/src/services/SeedDashboardService.ts` (`getPnlTimeline`) → Dashboard capital/pnl views |
-| GET | `/api/v2/dashboard/portfolio-risk` | Portfolio Risk | USED | `frontend/src/services/SeedDashboardService.ts` (`getPortfolioRisk`) → `frontend/src/components/dashboard/MonitorTab.tsx` |
-| GET | `/api/v2/dashboard/profit-protection-status` | Profit Protection Status | USED | `frontend/src/services/SeedDashboardService.ts` (`getProfitProtectionStatus`) → `frontend/src/components/dashboard/MonitorTab.tsx` |
-| GET | `/api/v2/dashboard/watchlist` | Position Watchlist | USED | `frontend/src/services/SeedDashboardService.ts` (`getWatchlist`) → watchlist widget(s) |
-| GET | `/api/v2/dashboard/overview` | Dashboard Overview | USED | `frontend/src/services/SeedDashboardService.ts` (`getDashboardOverview`) → `frontend/src/pages/SeedOps.tsx` (Utilities tab) |
-| GET | `/api/v2/dashboard/charges-calculator` | Charges Calculator | USED | `frontend/src/services/SeedDashboardService.ts` (`getChargesCalculator`) → `frontend/src/pages/SeedOps.tsx` (Utilities tab) |
+| GET | `/api/v2/dashboard/capital-summary` | Capital Summary | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/charges-calculator` | Charges Calculator | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/pnl-timeline` | Pnl Timeline | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/portfolio-risk` | Portfolio Risk | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/profit-protection-status` | Profit Protection Status | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
 
 ---
 
-## Monitor (`/api/v2/monitor/*`)
+## Comprehensive Dashboard
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/monitor/quick-stats` | Quick Stats | USED | `frontend/src/services/SeedDashboardService.ts` (`getQuickStats`) → quick stats header |
-| GET | `/api/v2/monitor/system-alerts` | System Alerts | USED | `frontend/src/services/SeedDashboardService.ts` (`getSystemAlerts`) → alerts widget |
-| GET | `/api/v2/monitor/live-positions` | Live Positions | USED | `frontend/src/services/SeedDashboardService.ts` (`getLivePositions`) → live positions view |
-| GET | `/api/v2/monitor/arm-leaderboard` | Arm Leaderboard | USED | `frontend/src/services/SeedDashboardService.ts` (`getArmLeaderboard`) → ML/learning views |
-| GET | `/api/v2/monitor/learning-insights` | Learning Insights | USED | `frontend/src/services/SeedDashboardService.ts` (`getLearningInsights`) → `frontend/src/components/dashboard/MonitorTab.tsx` |
-| GET | `/api/v2/monitor/performance-pulse` | Performance Pulse | USED | `frontend/src/services/SeedDashboardService.ts` (`getPerformancePulse`) → `frontend/src/components/dashboard/MonitorTab.tsx` |
-| GET | `/api/v2/monitor/market-pulse` | Market Pulse | USED | `frontend/src/services/SeedDashboardService.ts` (`getMarketPulse`) → `frontend/src/components/dashboard/MonitorTab.tsx` |
-| GET | `/api/v2/monitor/data-health` | Data Health | USED | `frontend/src/services/SeedDashboardService.ts` (`getDataHealth`) → `frontend/src/components/dashboard/MonitorTab.tsx` |
-| GET | `/api/v2/monitor/top-performers-today` | Top Performers Today | USED | `frontend/src/services/SeedDashboardService.ts` (`getTopPerformersToday`) → `frontend/src/components/dashboard/MonitorTab.tsx` |
+| GET | `/api/v2/dashboard/overview` | Dashboard Overview | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/watchlist` | Position Watchlist | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
 
 ---
 
-## Batch Operations (`/api/v2/batch/*`)
+## Dashboard
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/batch/data-statistics` | Data Statistics | USED | `frontend/src/services/SeedDashboardService.ts` (`getDataStatistics`) → `frontend/src/components/dashboard/MonitorTab.tsx` |
-| POST | `/api/v2/batch/analyze-symbols` | Bulk Symbol Analysis | USED | `frontend/src/services/SeedDashboardService.ts` (`analyzeSymbols`) → `frontend/src/components/dashboard/MonitorTab.tsx` |
-| POST | `/api/v2/batch/close-positions` | Batch Close Positions | USED | `frontend/src/services/SeedDashboardService.ts` (`batchClosePositions`) → positions management UI |
+| GET | `/api/v2/dashboard/arm-performance` | Arm Performance | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/daily-summary` | Daily Summary | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/learning-status` | Learning Status | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/market-movers` | Market Movers | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/market-trends` | Market Trends | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/performance-timeline` | Performance Timeline | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/positions` | Universal Positions | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/dashboard/universe-health` | Universe Health | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
 
 ---
 
-## Data Export (`/api/v2/export/*`)
+## Data Export
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/export/positions.csv` | Export Positions Csv | USED | `frontend/src/services/SeedDashboardService.ts` (`getExportUrl('positions')`) → positions export UI |
-| GET | `/api/v2/export/outcomes.json` | Export Outcomes Json | USED | `frontend/src/services/SeedDashboardService.ts` (`getExportUrl('outcomes')`) → positions export UI |
-| GET | `/api/v2/export/search/positions` | Search Positions | USED | `frontend/src/services/SeedDashboardService.ts` (`searchPositions`) → positions search UI |
-| GET | `/api/v2/export/market-context.csv` | Export Market Context Csv | USED | `frontend/src/services/SeedDashboardService.ts` (`getExportUrl('market-context')`) → `frontend/src/pages/SeedOps.tsx` (Utilities tab; URL shown for download) |
+| GET | `/api/v2/export/market-context.csv` | Export Market Context Csv | `SeedDashboardService` | `PositionsTab`, exports, `SeedAllEndpointsTab` |
+| GET | `/api/v2/export/outcomes.json` | Export Outcomes Json | `SeedDashboardService` | `PositionsTab`, exports, `SeedAllEndpointsTab` |
+| GET | `/api/v2/export/positions.csv` | Export Positions Csv | `SeedDashboardService` | `PositionsTab`, exports, `SeedAllEndpointsTab` |
+| GET | `/api/v2/export/search/positions` | Search Positions | `SeedDashboardService` | `PositionsTab`, exports, `SeedAllEndpointsTab` |
 
 ---
 
-## Observability (`/api/v2/observability/*`)
+## Data Quality
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/observability/endpoints` | All registered API routes | USED | `frontend/src/services/SeedObservabilityService.ts` (`getRegisteredRoutes`) → `frontend/src/components/system/SeedObservabilityTab.tsx` |
-| GET | `/api/v2/observability/performance` | API endpoint latency statistics | USED | `frontend/src/services/SeedObservabilityService.ts` (`getEndpointPerformance`) → `frontend/src/components/system/SeedObservabilityTab.tsx` |
-| GET | `/api/v2/observability/performance/external` | External service call latency | USED | `frontend/src/services/SeedObservabilityService.ts` (`getExternalPerformance`) → `frontend/src/components/system/SeedObservabilityTab.tsx` |
+| GET | `/api/v2/data-quality/assessment` | Comprehensive data quality assessment | `SeedDataQualityService` | Seed Ops (module tab) |
+| GET | `/api/v2/data-quality/dashboard` | Data quality monitoring dashboard | `SeedDataQualityService` | Seed Ops (module tab) |
+| GET | `/api/v2/data-quality/dimension-analysis/{dimension}` | Analysis by data quality dimension | `SeedDataQualityService` | Seed Ops (module tab) |
+| GET | `/api/v2/data-quality/table-report/{table_name}` | Detailed quality report for specific table | `SeedDataQualityService` | Seed Ops (module tab) |
+| GET | `/api/v2/data-quality/trends` | Data quality trends over time | `SeedDataQualityService` | Seed Ops (module tab) |
 
 ---
 
-## Registry Stats (`/api/v2/registry/*`)
+## Execution Quality
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/registry/stats` | Get Registry Stats | USED | `frontend/src/services/SeedDashboardService.ts` (`getRegistryStats`) → System control / registry views |
+| GET | `/api/v2/execution/batch-liquidity` | Batch liquidity analysis for multiple symbols | `SeedExecutionQualityService` | Seed Ops (module tab) |
+| GET | `/api/v2/execution/liquidity-analysis/{symbol}` | Real-time liquidity analysis for symbol | `SeedExecutionQualityService` | Seed Ops (module tab) |
+| GET | `/api/v2/execution/quality-report` | Execution quality analysis | `SeedExecutionQualityService` | Seed Ops (module tab) |
+| GET | `/api/v2/execution/slippage-analysis` | Historical slippage analysis | `SeedExecutionQualityService` | Seed Ops (module tab) |
 
 ---
 
-## Settings (`/api/v2/settings*`)
+## Learning Governance
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/settings/trading` | Get Trading | USED | `frontend/src/services/SeedDashboardService.ts` (`getTradingSettings`) → `frontend/src/components/settings/SystemTab.tsx` |
-| PUT | `/api/v2/settings/trading` | Put Trading | USED | `frontend/src/services/SeedDashboardService.ts` (`updateTradingSettings`) → `frontend/src/components/settings/SystemTab.tsx` |
-| GET | `/api/v2/settings/trading/schema` | Get Trading Schema | USED | `frontend/src/services/SeedDashboardService.ts` (`getTradingSettingsSchema`) → Settings (Schema dialog) |
-| GET | `/api/v2/settings/trading/form` | Get Trading Form | USED | `frontend/src/services/SeedDashboardService.ts` (`getTradingSettingsForm`) → Settings (Form dialog) |
-| GET | `/api/v2/settings/system` | Get System | USED | `frontend/src/services/SeedDashboardService.ts` (`getSystemSettings`) → `frontend/src/components/settings/SystemTab.tsx` |
-| PUT | `/api/v2/settings/system` | Put System | USED | `frontend/src/services/SeedDashboardService.ts` (`updateSystemSettings`) → `frontend/src/components/settings/SystemTab.tsx` |
-| GET | `/api/v2/settings/system/schema` | Get System Schema | USED | `frontend/src/services/SeedDashboardService.ts` (`getSystemSettingsSchema`) → Settings (Schema dialog) |
-| GET | `/api/v2/settings/system/form` | Get System Form | USED | `frontend/src/services/SeedDashboardService.ts` (`getSystemSettingsForm`) → Settings (Form dialog) |
-| GET | `/api/v2/settings` | Get All Settings | USED | `frontend/src/services/SeedDashboardService.ts` (`getAllSettings`) → `frontend/src/pages/SeedOps.tsx` (Utilities tab) |
+| GET | `/api/v2/learning/arm-performance` | ARM performance analysis | `SeedLearningGovernanceService` | Seed Ops (module tab) |
+| POST | `/api/v2/learning/evaluate-performance` | Trigger learning performance evaluation | `SeedLearningGovernanceService` | Seed Ops (module tab) |
+| POST | `/api/v2/learning/force-rollback` | Force rollback to previous learning state | `SeedLearningGovernanceService` | Seed Ops (module tab) |
+| GET | `/api/v2/learning/governance-status` | Learning governance system status | `SeedLearningGovernanceService` | Seed Ops (module tab) |
+| GET | `/api/v2/learning/learning-health` | Comprehensive learning system health check | `SeedLearningGovernanceService` | Seed Ops (module tab) |
 
 ---
 
-## Backtesting (`/api/v2/backtesting/*`)
+## Observability
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| POST | `/api/v2/backtesting/run` | Run historical backtest | USED | `frontend/src/services/SeedBacktestingService.ts` → `frontend/src/pages/Backtesting.tsx`, `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/backtesting/quick/{days}` | Quick backtest for last N days | USED | same |
-| GET | `/api/v2/backtesting/compare-strategies` | Compare multiple strategies | USED | same |
+| GET | `/api/v2/arms/observability/execution-timeline` | Execution Timeline | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| GET | `/api/v2/arms/observability/learning` | Learning Observability | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| GET | `/api/v2/arms/observability/recent-runs` | Recent Runs | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| GET | `/api/v2/arms/observability/run/{pipeline_run_id}` | Run Summary | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| GET | `/api/v2/arms/observability/utilization` | Utilization | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| GET | `/api/v2/monitor/arm-leaderboard` | Arm Leaderboard | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/monitor/data-health` | Data Health | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/monitor/learning-insights` | Learning Insights | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/monitor/live-positions` | Live Positions | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/monitor/market-pulse` | Market Pulse | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/monitor/performance-pulse` | Performance Pulse | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/monitor/quick-stats` | Quick Stats | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/monitor/system-alerts` | System Alerts | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/monitor/top-performers-today` | Top Performers Today | `SeedDashboardService` | Home, Dashboard, widgets, `DetailedPositionsPage`, `ObservabilityPage`, `SeedAllEndpointsTab` |
+| GET | `/api/v2/observability/endpoints` | All registered API routes | `SeedDashboardService` | `ObservabilityPage` / tools |
+| GET | `/api/v2/observability/performance` | API endpoint latency statistics | `SeedDashboardService` | `ObservabilityPage` / tools |
+| GET | `/api/v2/observability/performance/external` | External service call latency | `SeedDashboardService` | `ObservabilityPage` / tools |
+| GET | `/api/v2/registry/stats` | Get Registry Stats | `SeedDashboardService` | Shared consumers |
 
 ---
 
-## Performance attribution — Analytics (`/api/v2/analytics/*`)
+## Performance Attribution
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| POST | `/api/v2/analytics/attribution-analysis` | Comprehensive performance attribution analysis | USED | `frontend/src/services/SeedAttributionAnalyticsService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/analytics/attribution-summary` | Quick attribution summary | USED | same |
-| GET | `/api/v2/analytics/arm-performance-breakdown` | Detailed ARM performance analysis | USED | same |
+| GET | `/api/v2/analytics/arm-performance-breakdown` | Detailed ARM performance analysis | `SeedAttributionAnalyticsService` | Seed Ops (module tab) |
+| POST | `/api/v2/analytics/attribution-analysis` | Comprehensive performance attribution analysis | `SeedAttributionAnalyticsService` | Seed Ops (module tab) |
+| GET | `/api/v2/analytics/attribution-summary` | Quick attribution summary | `SeedAttributionAnalyticsService` | Seed Ops (module tab) |
 
 ---
 
-## Advanced monitoring (`/api/v2/monitoring/*`)
+## Portfolio Risk
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/monitoring/system-health` | Comprehensive system health check | USED | `frontend/src/services/SeedAdvancedMonitoringService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/monitoring/performance-metrics` | Real-time performance metrics | USED | same |
-| GET | `/api/v2/monitoring/monitoring-dashboard` | Monitoring dashboard data | USED | same |
-| GET | `/api/v2/monitoring/alerts` | Get active alerts | USED | same |
-| POST | `/api/v2/monitoring/alerts/{alert_id}/acknowledge` | Acknowledge an alert | USED | same (destructive: confirm) |
-| POST | `/api/v2/monitoring/alerts/{alert_id}/resolve` | Resolve an alert | USED | same (destructive: confirm) |
+| POST | `/api/v2/portfolio/risk-check` | Check if a position would violate risk limits | `SeedPortfolioRiskService` | Seed Ops (module tab) |
+| GET | `/api/v2/portfolio/risk-status` | Portfolio risk metrics and utilization | `SeedPortfolioRiskService` | Seed Ops (module tab) |
 
 ---
 
-## Rate limiting (`/api/v2/rate-limiting/*`)
+## Rate Limiting
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/rate-limiting/status` | Get comprehensive rate limiting status | USED | `frontend/src/services/SeedRateLimitingService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/rate-limiting/health` | Rate limiting system health check | USED | same |
-| GET | `/api/v2/rate-limiting/service/{service_name}` | Get rate limiting status for specific service | USED | same |
-| GET | `/api/v2/rate-limiting/limits` | Get configured rate limits for all services | USED | same |
-| GET | `/api/v2/rate-limiting/usage-report` | Generate rate limiting usage report | USED | same |
-| POST | `/api/v2/rate-limiting/reset-service/{service_name}` | Reset rate limiting state for a service | USED | same (confirm) |
-| POST | `/api/v2/rate-limiting/initialize` | Initialize or reinitialize rate limiting system | USED | same (confirm) |
-| POST | `/api/v2/rate-limiting/shutdown` | Shutdown rate limiting system | USED | same (confirm) |
+| GET | `/api/v2/rate-limiting/health` | Rate limiting system health check | `SeedRateLimitingService` | Seed Ops (module tab) |
+| POST | `/api/v2/rate-limiting/initialize` | Initialize or reinitialize rate limiting system | `SeedRateLimitingService` | Seed Ops (module tab) |
+| GET | `/api/v2/rate-limiting/limits` | Get configured rate limits for all services | `SeedRateLimitingService` | Seed Ops (module tab) |
+| POST | `/api/v2/rate-limiting/reset-service/{service_name}` | Reset rate limiting state for a service | `SeedRateLimitingService` | Seed Ops (module tab) |
+| GET | `/api/v2/rate-limiting/service/{service_name}` | Get rate limiting status for specific service | `SeedRateLimitingService` | Seed Ops (module tab) |
+| POST | `/api/v2/rate-limiting/shutdown` | Shutdown rate limiting system | `SeedRateLimitingService` | Seed Ops (module tab) |
+| GET | `/api/v2/rate-limiting/status` | Get comprehensive rate limiting status | `SeedRateLimitingService` | Seed Ops (module tab) |
+| GET | `/api/v2/rate-limiting/usage-report` | Generate rate limiting usage report | `SeedRateLimitingService` | Seed Ops (module tab) |
 
 ---
 
-## Data quality (`/api/v2/data-quality/*`)
+## recommendations-v2
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/data-quality/assessment` | Comprehensive data quality assessment | USED | `frontend/src/services/SeedDataQualityService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/data-quality/dashboard` | Data quality monitoring dashboard | USED | same |
-| GET | `/api/v2/data-quality/dimension-analysis/{dimension}` | Analysis by data quality dimension | USED | same |
-| GET | `/api/v2/data-quality/table-report/{table_name}` | Detailed quality report for specific table | USED | same |
-| GET | `/api/v2/data-quality/trends` | Data quality trends over time | USED | same |
+| GET | `/v2/health/pipeline` | Get Pipeline Health | `SeedDashboardService` / `RecommendationV2Service` | Shared consumers |
+| GET | `/v2/learning/performance` | Get Performance | `SeedDashboardService` / `RecommendationV2Service` | Shared consumers |
+| GET | `/v2/learning/score-bin-performance` | Get Score Bin Performance | `SeedDashboardService` / `RecommendationV2Service` | Shared consumers |
+| GET | `/v2/observability/db` | Get Observability Db | `SeedDashboardService` / `RecommendationV2Service` | Shared consumers |
+| GET | `/v2/observability/regime-scoring` | Get Regime Scoring Observability | `SeedDashboardService` / `RecommendationV2Service` | Shared consumers |
+| GET | `/v2/position-status` | Get Position Status | `SeedPositionService` | `RecommendationTable` / positions |
+| GET | `/v2/recommendations` | Get Recommendations | `RecommendationV2Service` / `RecommendationAPIService` | Recommendations UI |
 
 ---
 
-## Regime analysis (`/api/v2/regime/*`)
+## Regime Analysis
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/regime/current-regime` | Current market regime detection | USED | `frontend/src/services/SeedRegimeService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/regime/regime-signals` | Real-time regime detection signals | USED | same |
-| GET | `/api/v2/regime/regime-analysis` | Comprehensive regime analysis | USED | same |
-| GET | `/api/v2/regime/regime-performance` | Performance analysis by market regime | USED | same |
+| GET | `/api/v2/regime/current-regime` | Current market regime detection | `SeedRegimeService` | Seed Ops (module tab) |
+| GET | `/api/v2/regime/regime-analysis` | Comprehensive regime analysis | `SeedRegimeService` | Seed Ops (module tab) |
+| GET | `/api/v2/regime/regime-performance` | Performance analysis by market regime | `SeedRegimeService` | Seed Ops (module tab) |
+| GET | `/api/v2/regime/regime-signals` | Real-time regime detection signals | `SeedRegimeService` | Seed Ops (module tab) |
 
 ---
 
-## Learning governance (`/api/v2/learning/*` — governance subset)
+## Registry — ARMs
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/learning/governance-status` | Learning governance system status | USED | `frontend/src/services/SeedLearningGovernanceService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/learning/learning-health` | Comprehensive learning system health check | USED | same |
-| GET | `/api/v2/learning/arm-performance` | ARM performance analysis | USED | same |
-| POST | `/api/v2/learning/evaluate-performance` | Trigger learning performance evaluation | USED | same |
-| POST | `/api/v2/learning/force-rollback` | Force rollback to previous learning state | USED | same (confirm) |
-
-> **Note**: `/v2/learning/*` dashboard endpoints (e.g. score-bin-performance) are listed under **Recommendations V2** above; this table is the **OpenAPI `/api/v2/learning/*` governance** paths wired via `SeedLearningGovernanceService`.
+| GET | `/api/v2/arms` | List Arms | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| POST | `/api/v2/arms` | Create Arm | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| GET | `/api/v2/arms/{arm_name}` | Get Arm | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| PUT | `/api/v2/arms/{arm_name}` | Update Arm | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| GET | `/api/v2/arms/scenarios` | List Scenarios | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
+| POST | `/api/v2/arms/verify-query` | Verify Query | `SeedArmService` (+ `SeedArmsService` legacy) | `ArmManagerPage` |
 
 ---
 
-## Execution quality (`/api/v2/execution/*`)
+## Settings (UI)
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/execution/quality-report` | Execution quality analysis | USED | `frontend/src/services/SeedExecutionQualityService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/execution/liquidity-analysis/{symbol}` | Real-time liquidity analysis for symbol | USED | same |
-| GET | `/api/v2/execution/batch-liquidity` | Batch liquidity analysis for multiple symbols | USED | same |
-| GET | `/api/v2/execution/slippage-analysis` | Historical slippage analysis | USED | same |
+| GET | `/api/v2/settings` | Get All Settings | `SeedDashboardService` | `SystemSettingsPage` / editors |
+| GET | `/api/v2/settings/system` | Get System | `SeedDashboardService` | `SystemSettingsPage` / editors |
+| PUT | `/api/v2/settings/system` | Put System | `SeedDashboardService` | `SystemSettingsPage` / editors |
+| GET | `/api/v2/settings/system/form` | Get System Form | `SeedDashboardService` | `SystemSettingsPage` / editors |
+| GET | `/api/v2/settings/system/schema` | Get System Schema | `SeedDashboardService` | `SystemSettingsPage` / editors |
+| GET | `/api/v2/settings/trading` | Get Trading | `SeedDashboardService` | `SystemSettingsPage` / editors |
+| PUT | `/api/v2/settings/trading` | Put Trading | `SeedDashboardService` | `SystemSettingsPage` / editors |
+| GET | `/api/v2/settings/trading/form` | Get Trading Form | `SeedDashboardService` | `SystemSettingsPage` / editors |
+| GET | `/api/v2/settings/trading/schema` | Get Trading Schema | `SeedDashboardService` | `SystemSettingsPage` / editors |
 
 ---
 
-## Portfolio risk (`/api/v2/portfolio/*`)
+## System Optimization
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/portfolio/risk-status` | Portfolio risk metrics and utilization | USED | `frontend/src/services/SeedPortfolioRiskService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| POST | `/api/v2/portfolio/risk-check` | Check if a position would violate risk limits | USED | same |
+| GET | `/api/v2/system/cpu-utilization/{duration_seconds}` | Monitor CPU utilization over time | `SeedSystemOptimizationService` | Seed Ops (module tab) |
+| GET | `/api/v2/system/health` | Check system optimization health | `SeedSystemOptimizationService` | Seed Ops (module tab) |
+| GET | `/api/v2/system/metrics` | Get current system performance metrics | `SeedSystemOptimizationService` | Seed Ops (module tab) |
+| GET | `/api/v2/system/optimize/{workload_type}` | Get optimization recommendations for workload type | `SeedSystemOptimizationService` | Seed Ops (module tab) |
+| POST | `/api/v2/system/parallel-execution` | Execute parallel processing task | `SeedSystemOptimizationService` | Seed Ops (module tab) |
+| POST | `/api/v2/system/shutdown` | Shutdown CPU optimizer | `SeedSystemOptimizationService` | Seed Ops (module tab) |
+| POST | `/api/v2/system/tune` | Apply system tuning optimizations | `SeedSystemOptimizationService` | Seed Ops (module tab) |
 
 ---
 
-## System optimization (`/api/v2/system/*`)
+## Untagged
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/system/metrics` | Get current system performance metrics | USED | `frontend/src/services/SeedSystemOptimizationService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/system/health` | Check system optimization health | USED | same |
-| GET | `/api/v2/system/cpu-utilization/{duration_seconds}` | Monitor CPU utilization over time | USED | same |
-| GET | `/api/v2/system/optimize/{workload_type}` | Get optimization recommendations for workload type | USED | same |
-| POST | `/api/v2/system/parallel-execution` | Execute parallel processing task | USED | same (confirm) |
-| POST | `/api/v2/system/tune` | Apply system tuning optimizations | USED | same |
-| POST | `/api/v2/system/shutdown` | Shutdown CPU optimizer | USED | same (confirm) |
+| GET | `/` | Root | `SeedDashboardService` (`getRoot`) | Seed Ops → Utilities |
+| GET | `/health` | Health | `RecommendationAPIService` / `RecommendationV2Service` | Service health checks |
 
 ---
 
-## Yahoo free tier (`/api/v2/yahoo-free-tier/*`)
+## WebSocket Streaming
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/api/v2/yahoo-free-tier/usage` | Get Yahoo Finance free tier usage statistics | USED | `frontend/src/services/SeedYahooFreeTierService.ts` → `frontend/src/pages/SeedOps.tsx` |
-| GET | `/api/v2/yahoo-free-tier/quota-check` | Check if Yahoo quota is available for requests | USED | same |
-| GET | `/api/v2/yahoo-free-tier/optimization-report` | Get Yahoo free tier optimization report | USED | same |
-| POST | `/api/v2/yahoo-free-tier/reset-daily-counter` | Reset daily request counter (admin only) | USED | same (confirm) |
-| POST | `/api/v2/yahoo-free-tier/clear-cache` | Clear Yahoo Finance cache | USED | same (confirm) |
+| GET | `/ws/stream/connections` | Active Connections Info | `SeedObservabilityService` | Observability / streaming diagnostics |
 
 ---
 
-## NOT_INTEGRATED (remaining)
+## Yahoo Free Tier
 
-| Method | Path | OpenAPI summary | Status | Frontend usage |
+| Method | Path | OpenAPI summary | Client module | Primary UI |
 |---|---|---|---|---|
-| GET | `/` | Root | NOT_INTEGRATED | — |
+| POST | `/api/v2/yahoo-free-tier/clear-cache` | Clear Yahoo Finance cache | `SeedYahooFreeTierService` | Seed Ops (module tab) |
+| GET | `/api/v2/yahoo-free-tier/optimization-report` | Get Yahoo free tier optimization report | `SeedYahooFreeTierService` | Seed Ops (module tab) |
+| GET | `/api/v2/yahoo-free-tier/quota-check` | Check if Yahoo quota is available for requests | `SeedYahooFreeTierService` | Seed Ops (module tab) |
+| POST | `/api/v2/yahoo-free-tier/reset-daily-counter` | Reset daily request counter (admin only) | `SeedYahooFreeTierService` | Seed Ops (module tab) |
+| GET | `/api/v2/yahoo-free-tier/usage` | Get Yahoo Finance free tier usage statistics | `SeedYahooFreeTierService` | Seed Ops (module tab) |
 
 ---
 
-## Canonical endpoints & deprecation candidates (Seed backend)
-
-These pairs overlap in purpose; the frontend currently calls **both** where noted. For a future Seed cleanup, pick **one canonical** contract per concern and deprecate the other after clients migrate.
-
-- **Portfolio risk**
-  - **Canonical (dashboard UX)**: `GET /api/v2/dashboard/portfolio-risk` — used in `MonitorTab.tsx` for operator dashboard context.
-  - **Overlap**: `GET /api/v2/portfolio/risk-status` — same domain; now also exposed in **Seed Ops** for raw JSON / ops workflows. *Recommendation*: document equivalence in OpenAPI; eventually merge or proxy one to the other; keep dashboard path for primary UI if payloads align.
-
-- **Alerts**
-  - **Canonical (operator feed)**: `GET /api/v2/monitor/system-alerts` — wired in dashboard/alerts widgets.
-  - **Overlap**: `GET /api/v2/monitoring/alerts` — advanced monitoring module; richer filters / acknowledge-resolve flow in Seed Ops. *Recommendation*: treat `/monitor/*` as “product alerts” and `/monitoring/*` as “platform monitoring” **if** semantics differ; otherwise consolidate and version.
-
-- **Learning performance**
-  - **Dashboard**: `GET /v2/learning/performance`, `GET /v2/learning/score-bin-performance` (legacy v2 paths).
-  - **Governance**: `GET /api/v2/learning/arm-performance` and related under Seed Ops. *Recommendation*: align response shapes or alias under one `/api/v2/learning/*` tree.
-
-- **Root `GET /`**
-  - Still **NOT_INTEGRATED**; optional for a future “service info” splash or health deep-link — low priority.
-
----
-
-## Not in OpenAPI but used by frontend (docs mismatch)
-
-These are **called by the frontend** but are **missing from** `http://203.57.85.201:8182/openapi.json` right now.
+## Not in OpenAPI but used by the frontend
 
 | Kind | Path | Where used |
-|---|---|---|
-| REST | `/v2/positions` (POST) | `frontend/src/services/SeedPositionService.ts` (open position) |
-| REST | `/v2/positions/close` (POST) | `frontend/src/services/SeedPositionService.ts` (close position) |
-| REST | `/v2/recommendations/all` (GET) | `frontend/src/services/SeedPositionService.ts` (marked “may 404 in prod”) |
-| WS | `/ws/positions` | `frontend/src/services/SeedWebSocketService.ts` |
-| WS | `/ws/system-health` | `frontend/src/services/SeedWebSocketService.ts` |
+|------|------|------------|
+| REST | `POST /v2/positions` | `SeedPositionService.openPosition` |
+| REST | `POST /v2/positions/close` | `SeedPositionService.closePosition` |
+| REST | `GET /v2/recommendations/all` | `SeedPositionService.getAllRecommendations` (may 404 in prod) |
+| WS | `/ws/positions` | `SeedWebSocketService` |
+| WS | `/ws/system-health` | `SeedWebSocketService` |
 
-> Also note: `frontend/src/services/SharedDataManager.ts` calls legacy proxied routes like `/api/seed/market/registry/top_gainers` and `/api/seed/stocks/unified-recommendations` which are **outside** this OpenAPI surface and include fallback behavior.
+---
+
+## Canonical / overlap notes
+
+- **Portfolio risk**: `GET /api/v2/dashboard/portfolio-risk` vs `GET /api/v2/portfolio/risk-status` (Seed Ops).
+- **Alerts**: `GET /api/v2/monitor/system-alerts` vs `GET /api/v2/monitoring/alerts`.
+- **Learning**: `GET /v2/learning/*` (dashboard) vs `GET /api/v2/learning/*` (governance / Seed Ops).
+
+---
+
+## Refreshing this report
+
+1. `curl -sS "http://203.57.85.201:8182/openapi.json" -o frontend/docs/configuration/seed-openapi.json`
+2. Regenerate this file (same structure): adjust the generator in repo history or extend `clientModule` / `uiSurface` heuristics for new prefixes.
 
