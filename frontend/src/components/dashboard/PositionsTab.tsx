@@ -47,7 +47,7 @@ import {
   computePositionListSummary,
 } from '../../utils/positionDisplayUtils';
 
-type PosKey = 'symbol' | 'trade_type' | 'entry_price' | 'current_price' | 'stop_loss' | 'target_1'
+type PosKey = 'symbol' | 'trade_type' | 'entry_price' | 'current_price' | 'exit_price' | 'stop_loss' | 'target_1'
   | 'status' | 'return_pct' | 'unrealized_pnl' | 'duration_minutes' | 'source_arm' | 'allocated_capital'
   | 'net_pnl' | 'charges' | 'score_bin' | 'sector' | 'opened_at';
 
@@ -56,6 +56,7 @@ const ALL_COLUMNS: ColumnDef<PosKey>[] = [
   { key: 'trade_type', label: 'Type', sortable: true },
   { key: 'entry_price', label: 'Entry', align: 'right', sortable: true },
   { key: 'current_price', label: 'LTP', align: 'right', sortable: true },
+  { key: 'exit_price', label: 'Exit', align: 'right', sortable: true },
   { key: 'stop_loss', label: 'SL', align: 'right', sortable: true },
   { key: 'target_1', label: 'Target', align: 'right', sortable: true },
   { key: 'status', label: 'Status', sortable: true },
@@ -259,8 +260,21 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, selectedIds,
                         ₹{p.current_price.toFixed(2)}
                       </Typography>
                     </Tooltip>
-                  ) : p.exit_price != null ? (
-                    <Typography variant="body2" fontSize="0.78rem" color="text.secondary">₹{p.exit_price.toFixed(2)}</Typography>
+                  ) : (
+                    <Tooltip title={isOpen ? 'No LTP yet' : 'LTP not provided for closed positions'} arrow>
+                      <Typography variant="body2" color="text.disabled" fontSize="0.76rem" sx={{ cursor: 'help' }}>
+                        —
+                      </Typography>
+                    </Tooltip>
+                  )}
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.5 }}>
+                  {!isOpen && p.exit_price != null ? (
+                    <Tooltip title="Exit / close price" arrow>
+                      <Typography variant="body2" fontWeight={500} fontSize="0.78rem" color="text.secondary" sx={{ cursor: 'help' }}>
+                        ₹{p.exit_price.toFixed(2)}
+                      </Typography>
+                    </Tooltip>
                   ) : (
                     <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>
                   )}
