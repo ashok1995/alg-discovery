@@ -34,13 +34,14 @@ interface HorizonData {
   loading: boolean;
 }
 
-type PosKey = 'symbol' | 'entry_price' | 'current_price' | 'stop_loss' | 'target_1' | 'status' | 'return_pct'
+type PosKey = 'symbol' | 'entry_price' | 'current_price' | 'exit_price' | 'stop_loss' | 'target_1' | 'status' | 'return_pct'
   | 'risk_reward_ratio' | 'score_bin' | 'sector' | 'opened_at' | 'duration_minutes' | 'source_arm' | 'unrealized_pnl';
 
 const COLUMNS: ColumnDef<PosKey>[] = [
   { key: 'symbol', label: 'Symbol', sortable: true, minWidth: 110 },
   { key: 'entry_price', label: 'Entry', align: 'right', sortable: true },
   { key: 'current_price', label: 'LTP', align: 'right', sortable: true },
+  { key: 'exit_price', label: 'Exit', align: 'right', sortable: true },
   { key: 'stop_loss', label: 'SL', align: 'right', sortable: true },
   { key: 'target_1', label: 'Target', align: 'right', sortable: true },
   { key: 'status', label: 'Status', sortable: true },
@@ -145,13 +146,26 @@ const PositionsTable: React.FC<{ positions: TrackedPositionItem[] }> = ({ positi
                 </TableCell>
                 <TableCell align="right" sx={{ py: 0.6 }}>
                   {isOpen && p.current_price != null ? (
-                    <Tooltip title="Live price" arrow>
+                    <Tooltip title="Live price from Kite" arrow>
                       <Typography variant="body2" fontWeight={600} fontSize="0.78rem" color="primary.main" sx={{ cursor: 'help' }}>
                         ₹{p.current_price.toFixed(2)}
                       </Typography>
                     </Tooltip>
-                  ) : p.exit_price != null ? (
-                    <Typography variant="body2" fontSize="0.78rem" color="text.secondary">₹{p.exit_price.toFixed(2)}</Typography>
+                  ) : (
+                    <Tooltip title={isOpen ? 'No LTP yet' : 'LTP not provided for closed positions'} arrow>
+                      <Typography variant="body2" color="text.disabled" fontSize="0.76rem" sx={{ cursor: 'help' }}>
+                        —
+                      </Typography>
+                    </Tooltip>
+                  )}
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.6 }}>
+                  {!isOpen && p.exit_price != null ? (
+                    <Tooltip title="Exit / close price" arrow>
+                      <Typography variant="body2" fontWeight={500} fontSize="0.78rem" color="text.secondary" sx={{ cursor: 'help' }}>
+                        ₹{p.exit_price.toFixed(2)}
+                      </Typography>
+                    </Tooltip>
                   ) : (
                     <Typography variant="body2" color="text.disabled" fontSize="0.76rem">—</Typography>
                   )}
