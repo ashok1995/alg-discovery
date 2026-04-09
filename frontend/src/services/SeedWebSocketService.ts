@@ -1,9 +1,9 @@
 /**
  * Seed WebSocket Service
  * ======================
- * Real-time streams from seed-stocks-service:
- *   WS /ws/positions    — position updates (5s market-open, 30s closed)
- *   WS /ws/system-health — system health updates (15s interval)
+ * Real-time streams:
+ *   WS /ws/positions    — position updates (SEED_POSITIONS_API_BASE_URL / position-tracker, e.g. :8183)
+ *   WS /ws/system-health — system health (SEED_API_BASE_URL / Seed service, e.g. :8182)
  *
  * Auto-reconnects with exponential back-off. Use the useSeedWebSocket hook
  * in components rather than instantiating this service directly.
@@ -14,10 +14,8 @@ import type { SeedPositionsMessage, SeedHealthMessage } from '../types/apiModels
 
 type Listener<T> = (msg: T) => void;
 
-function buildWsUrl(path: string): string {
-  const base = API_CONFIG.SEED_API_BASE_URL;
-  // Convert http(s) → ws(s)
-  const wsBase = base.replace(/^https?:\/\//, (m) => (m.startsWith('https') ? 'wss://' : 'ws://'));
+function buildWsUrl(path: string, httpBase: string): string {
+  const wsBase = httpBase.replace(/^https?:\/\//, (m) => (m.startsWith('https') ? 'wss://' : 'ws://'));
   return `${wsBase}${path}`;
 }
 
@@ -33,8 +31,8 @@ class SeedWebSocket<T> {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly url: string;
 
-  constructor(path: string) {
-    this.url = buildWsUrl(path);
+  constructor(path: string, httpBase: string) {
+    this.url = buildWsUrl(path, httpBase);
   }
 
   connect(): void {
@@ -118,11 +116,15 @@ let positionsWs: SeedWebSocket<SeedPositionsMessage> | null = null;
 let healthWs: SeedWebSocket<SeedHealthMessage> | null = null;
 
 export function getSeedPositionsWs(): SeedWebSocket<SeedPositionsMessage> {
-  if (!positionsWs) positionsWs = new SeedWebSocket<SeedPositionsMessage>('/ws/positions');
+  if (!positionsWs) {
+    positionsWs = new SeedWebSocket<SeedPositionsMessage>('/ws/positions', API_CONFIG.SEED_POSITIONS_API_BASE_URL);
+  }
   return positionsWs;
 }
 
 export function getSeedHealthWs(): SeedWebSocket<SeedHealthMessage> {
-  if (!healthWs) healthWs = new SeedWebSocket<SeedHealthMessage>('/ws/system-health');
+  if (!healthWs) {
+    healthWs = new SeedWebSocket<SeedHealthMessage>('/ws/system-health', API_CONFIG.SEED_API_BASE_URL);
+  }
   return healthWs;
 }

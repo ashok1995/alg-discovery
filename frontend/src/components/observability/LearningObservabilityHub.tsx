@@ -92,6 +92,9 @@ const TOP_ARM_COLUMNS: ColumnDef<TopArmKey>[] = [
 
 export interface LearningObservabilityHubProps {
   insights: LearningInsightsResponse | null;
+  /** Position-tracker :8183 — different schema from monolithic learning-insights. */
+  positionTrackerLearningHealth?: Record<string, unknown> | null;
+  positionTrackerLearningConvergence?: Record<string, unknown> | null;
   leaderboard: ArmLeaderboardResponse | Record<string, unknown> | null;
   learning: unknown;
   utilization: unknown;
@@ -106,6 +109,8 @@ export interface LearningObservabilityHubProps {
 
 const LearningObservabilityHub: React.FC<LearningObservabilityHubProps> = ({
   insights,
+  positionTrackerLearningHealth,
+  positionTrackerLearningConvergence,
   leaderboard,
   learning,
   utilization,
@@ -262,8 +267,11 @@ const LearningObservabilityHub: React.FC<LearningObservabilityHubProps> = ({
       <TabPanel value={sectionTab} index={0}>
         <Stack spacing={2}>
           <Alert severity="info" sx={{ py: 0.5 }}>
-            Single source: <code>GET /api/v2/monitor/learning-insights</code>. Poll ~{POLL_HINT_SEC}s for live scorer rows; see{' '}
-            <code>learning-observability-ui-integration.md</code>.
+            <strong>Split deploy:</strong> Seed <code>:8182</code> (recommendations, arms, candidates,{' '}
+            <code>/api/v2/learning/health</code>) vs position-tracker <code>:8183</code> (universal positions, batch, export,{' '}
+            <code>/api/v2/monitor/learning-health</code>, <code>learning-convergence</code>). Legacy{' '}
+            <code>learning-insights</code> may be absent until re-aggregated. Poll ~{POLL_HINT_SEC}s. See{' '}
+            <code>frontend/docs/configuration/SEED_SERVICE_SPLIT_AND_ROUTING.md</code>.
           </Alert>
           <Grid container spacing={1.5}>
             <Grid item xs={12} sm={6} md={3}>
@@ -420,9 +428,31 @@ const LearningObservabilityHub: React.FC<LearningObservabilityHubProps> = ({
 
       <TabPanel value={sectionTab} index={3}>
         <Stack spacing={2}>
-          {insights == null ? (
-            <Alert severity="warning">No learning-insights payload loaded.</Alert>
-          ) : (
+          {positionTrackerLearningHealth != null && Object.keys(positionTrackerLearningHealth).length > 0 && (
+            <Box>
+              <Typography variant="subtitle2" fontWeight={800} gutterBottom color="text.secondary">
+                Position tracker — learning health (<code>GET /api/v2/monitor/learning-health</code>)
+              </Typography>
+              <StructuredDataView data={positionTrackerLearningHealth} title="learning-health (8183)" dense maxDepth={6} />
+            </Box>
+          )}
+          {positionTrackerLearningConvergence != null && Object.keys(positionTrackerLearningConvergence).length > 0 && (
+            <Box>
+              <Typography variant="subtitle2" fontWeight={800} gutterBottom color="text.secondary">
+                Position tracker — learning convergence (<code>GET /api/v2/monitor/learning-convergence</code>)
+              </Typography>
+              <StructuredDataView data={positionTrackerLearningConvergence} title="learning-convergence (8183)" dense maxDepth={6} />
+            </Box>
+          )}
+          {insights == null &&
+            (positionTrackerLearningHealth == null || Object.keys(positionTrackerLearningHealth).length === 0) &&
+            (positionTrackerLearningConvergence == null || Object.keys(positionTrackerLearningConvergence).length === 0) && (
+              <Alert severity="warning">
+                No <code>learning-insights</code> payload and no position-tracker learning monitors — check{' '}
+                <code>SEED_SERVICE_SPLIT_AND_ROUTING.md</code> for which services expose which routes.
+              </Alert>
+            )}
+          {insights != null && (
             <>
               {insights.adaptive_insights != null && (
                 <Box>
@@ -537,6 +567,12 @@ const LearningObservabilityHub: React.FC<LearningObservabilityHubProps> = ({
             Grandchild: full structured trees for debugging (same data as above).
           </Typography>
           {insights != null && <StructuredDataView data={insights} title="learning-insights (full)" maxDepth={12} />}
+          {positionTrackerLearningHealth != null && (
+            <StructuredDataView data={positionTrackerLearningHealth} title="8183 monitor/learning-health" maxDepth={12} />
+          )}
+          {positionTrackerLearningConvergence != null && (
+            <StructuredDataView data={positionTrackerLearningConvergence} title="8183 monitor/learning-convergence" maxDepth={12} />
+          )}
           {leaderboard != null && <StructuredDataView data={leaderboard} title="arm-leaderboard" maxDepth={8} />}
           {learning != null && <StructuredDataView data={learning} title="arms/observability/learning" maxDepth={8} />}
           {utilization != null && <StructuredDataView data={utilization} title="arms/observability/utilization" maxDepth={8} />}

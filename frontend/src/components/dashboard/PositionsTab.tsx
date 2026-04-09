@@ -803,7 +803,7 @@ const PositionsTab: React.FC<PositionsTabProps> = ({ lockCategory }) => {
           </Grid>
           <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', alignItems: 'center' }}>
             <Chip
-              label={`${data?.count ?? 0} API rows · ${displayPositions.length} shown`}
+              label={`${data?.total_count ?? data?.count ?? 0} matching filter · ${displayPositions.length} rows loaded`}
               size="small"
               sx={{ fontWeight: 700 }}
             />

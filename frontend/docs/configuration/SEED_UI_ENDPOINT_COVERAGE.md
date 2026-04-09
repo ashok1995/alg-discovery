@@ -1,7 +1,9 @@
 # Seed prod API — OpenAPI ↔ UI coverage
 
-**Canonical spec:** `seed-openapi.json` (refreshed from `GET http://<SEED_HOST>:8182/openapi.json`).  
-**Curl samples:** `./scripts/seed-prod-curl.sh`.
+**Split services:** See **`SEED_SERVICE_SPLIT_AND_ROUTING.md`** — Seed **8182** vs position-tracker **8183** (separate OpenAPI files).
+
+**Canonical specs:** `seed-openapi.json` (8182), `position-tracker-openapi.json` (8183).  
+**Curl samples:** `./scripts/seed-prod-curl.sh` (8182-oriented; add 8183 curls for positions/batch as needed).
 
 ## Recommendations (no `risk_level`)
 
