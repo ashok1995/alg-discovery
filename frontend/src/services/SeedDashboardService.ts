@@ -5,10 +5,11 @@
  * Uses SEED_API_BASE_URL (8182) and SEED_POSITIONS_API_BASE_URL (8183) from config — see position-tracker-openapi.json.
  */
 
-import { API_CONFIG } from '../config/api';
+import { resolveSeedHttpBase } from '../config/seedEndpointRouting';
+import { normalizeUniversalPositionsPayload } from '../utils/universalPositionsNormalize';
+import { adaptSeedLearningHealthToLearningStatus } from '../utils/seedLearningHealthAdapter';
 import type {
   DashboardDailySummary,
-  PositionsResponse,
   UniverseHealthResponse,
   MarketTrendsResponse,
   ArmPerformanceResponse,
@@ -58,7 +59,8 @@ import type {
   SyncResultOutV2,
 } from '../types/apiModels';
 
-const SEED_BASE = API_CONFIG.SEED_API_BASE_URL;
+import { API_CONFIG } from '../config/api';
+
 const POSITIONS_BASE = API_CONFIG.SEED_POSITIONS_API_BASE_URL;
 const DEFAULT_TIMEOUT_MS = 15_000;
 const SLOW_TIMEOUT_MS = 45_000;
@@ -74,26 +76,6 @@ const FAST_PATHS = new Set([
   '/api/v2/monitor/quick-stats',
 ]);
 
-/** Routes that run on position-tracker (8183) — see position-tracker-openapi.json */
-function resolveDashboardBase(path: string): string {
-  if (
-    path.startsWith('/api/v2/dashboard/positions') ||
-    path.startsWith('/api/v2/batch/') ||
-    path.startsWith('/api/v2/export/')
-  ) {
-    return POSITIONS_BASE;
-  }
-  if (
-    path.startsWith('/api/v2/monitor/learning-convergence') ||
-    path.startsWith('/api/v2/monitor/learning-health') ||
-    path.startsWith('/api/v2/monitor/performance-attribution') ||
-    path.startsWith('/api/v2/monitor/target-progression')
-  ) {
-    return POSITIONS_BASE;
-  }
-  return SEED_BASE;
-}
-
 function timeoutMsForPath(path: string): number {
   if (SLOW_PATHS.has(path) || path.startsWith('/api/v2/batch/')) return SLOW_TIMEOUT_MS;
   if (FAST_PATHS.has(path)) return FAST_TIMEOUT_MS;
@@ -105,7 +87,7 @@ async function fetchJSON<T>(
   params?: Record<string, string | number>,
   opts?: { method?: string; body?: unknown },
 ): Promise<T> {
-  const base = resolveDashboardBase(path);
+  const base = resolveSeedHttpBase(path);
   const url = new URL(`${base}${path}`);
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
@@ -156,7 +138,7 @@ export const seedDashboardService = {
    * Defaults `include=summary,list` so summary KPIs populate (Home horizons, Dashboard).
    * Pass `include: 'list'` only if you intentionally want list rows without summary.
    */
-  getPositions: (opts?: {
+  getPositions: async (opts?: {
     scenario?: 'all' | 'paper_trade' | 'learning';
     category?: 'all' | 'learning' | 'paper_trade';
     status?: string;
@@ -183,7 +165,8 @@ export const seedDashboardService = {
     if (opts?.limit != null) params.limit = opts.limit;
     if (opts?.offset != null) params.offset = opts.offset;
     params.include = opts?.include ?? 'summary,list';
-    return fetchJSON<PositionsResponse>('/api/v2/dashboard/positions', params);
+    const raw = await fetchJSON<unknown>('/api/v2/dashboard/positions', params);
+    return normalizeUniversalPositionsPayload(raw);
   },
 
   getUniverseHealth: () =>
@@ -196,8 +179,19 @@ export const seedDashboardService = {
   getArmPerformance: (days = 7) =>
     fetchJSON<ArmPerformanceResponse>('/api/v2/dashboard/arm-performance', { days }),
 
-  getLearningStatus: () =>
-    fetchJSON<LearningStatusResponse>('/api/v2/dashboard/learning-status'),
+  /**
+   * Prefer Seed GET /api/v2/learning/health (current OpenAPI); fallback to legacy dashboard path.
+   */
+  getLearningStatus: async () => {
+    try {
+      const raw = await fetchJSON<Record<string, unknown>>('/api/v2/learning/health', { days: 30 });
+      const adapted = adaptSeedLearningHealthToLearningStatus(raw);
+      if (adapted) return adapted;
+    } catch {
+      /* try legacy */
+    }
+    return fetchJSON<LearningStatusResponse>('/api/v2/dashboard/learning-status');
+  },
 
   getPerformanceTimeline: (days = 7, trade_type?: string) =>
     fetchJSON<PerformanceTimelineResponse>('/api/v2/dashboard/performance-timeline', {
@@ -393,6 +387,21 @@ export const seedDashboardService = {
   /** Quick learning health summary */
   getLearningInsights: () =>
     fetchJSON<LearningInsightsResponse>('/api/v2/monitor/learning-insights'),
+
+  /** Position-tracker (8183): learning system health — different schema from legacy learning-insights. */
+  getPositionTrackerLearningHealth: () =>
+    fetchJSON<Record<string, unknown>>('/api/v2/monitor/learning-health'),
+
+  /** Position-tracker (8183): Thompson / convergence style metrics. */
+  getPositionTrackerLearningConvergence: (opts?: { days?: number; window_size?: number }) => {
+    const params: Record<string, number> = {};
+    if (opts?.days != null) params.days = opts.days;
+    if (opts?.window_size != null) params.window_size = opts.window_size;
+    return fetchJSON<Record<string, unknown>>(
+      '/api/v2/monitor/learning-convergence',
+      Object.keys(params).length ? params : undefined,
+    );
+  },
 
   /** Today's best and worst performing positions */
   getTopPerformersToday: (limit = 10) =>
