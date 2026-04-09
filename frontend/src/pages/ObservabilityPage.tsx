@@ -468,6 +468,8 @@ const ObservabilityLearningTab: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<ArmLeaderboardResponse | null>(null);
   const [armExecutionTimeline, setArmExecutionTimeline] = useState<unknown>(null);
   const [armRecentRuns, setArmRecentRuns] = useState<unknown>(null);
+  const [trackerLearningHealth, setTrackerLearningHealth] = useState<Record<string, unknown> | null>(null);
+  const [trackerLearningConvergence, setTrackerLearningConvergence] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -475,7 +477,7 @@ const ObservabilityLearningTab: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const [l, u, c, i, lb, tl, rr] = await Promise.allSettled([
+      const [l, u, c, i, lb, tl, rr, pth, ptc] = await Promise.allSettled([
         seedDashboardService.getArmsObservabilityLearning({ days: 7 }),
         seedDashboardService.getArmsObservabilityUtilization({ days: 7 }),
         seedDashboardService.getCandidatesObservabilityCoverage(),
@@ -483,6 +485,8 @@ const ObservabilityLearningTab: React.FC = () => {
         seedDashboardService.getArmLeaderboard(7),
         seedArmService.getExecutionTimeline({ days: 7, limit: 200 }),
         seedArmService.getRecentRuns({ days: 7, limit: 50 }),
+        seedDashboardService.getPositionTrackerLearningHealth(),
+        seedDashboardService.getPositionTrackerLearningConvergence({ days: 30 }),
       ]);
       setLearning(l.status === 'fulfilled' ? l.value : null);
       setUtilization(u.status === 'fulfilled' ? u.value : null);
@@ -491,6 +495,12 @@ const ObservabilityLearningTab: React.FC = () => {
       setLeaderboard(lb.status === 'fulfilled' ? (lb.value as ArmLeaderboardResponse) : null);
       setArmExecutionTimeline(tl.status === 'fulfilled' ? tl.value : null);
       setArmRecentRuns(rr.status === 'fulfilled' ? rr.value : null);
+      setTrackerLearningHealth(
+        pth.status === 'fulfilled' ? (pth.value as Record<string, unknown>) : null,
+      );
+      setTrackerLearningConvergence(
+        ptc.status === 'fulfilled' ? (ptc.value as Record<string, unknown>) : null,
+      );
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load learning data');
     } finally {
@@ -511,7 +521,9 @@ const ObservabilityLearningTab: React.FC = () => {
     utilization != null ||
     coverage != null ||
     armExecutionTimeline != null ||
-    armRecentRuns != null;
+    armRecentRuns != null ||
+    trackerLearningHealth != null ||
+    trackerLearningConvergence != null;
 
   if (loading && !hasAnyData && !error) {
     return (
@@ -531,6 +543,8 @@ const ObservabilityLearningTab: React.FC = () => {
     <Box sx={{ p: 1 }}>
       <LearningObservabilityHub
         insights={insights}
+        positionTrackerLearningHealth={trackerLearningHealth}
+        positionTrackerLearningConvergence={trackerLearningConvergence}
         leaderboard={leaderboard}
         learning={learning}
         utilization={utilization}

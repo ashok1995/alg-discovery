@@ -1,18 +1,23 @@
 # Seed OpenAPI sync
 
-## Canonical spec
+## Canonical specs (two services on prod VM)
 
-- **Repo copy:** `frontend/docs/configuration/seed-openapi.json`
-- **Live:** `{SEED_BASE}/openapi.json` (same host as `REACT_APP_SEED_API_BASE_URL`)
+| Service | Port (prod) | Repo copy | Env |
+|--------|-------------|-----------|-----|
+| **Seed Stocks** (recommendations, arms, candidates, market-movers) | **8182** | `frontend/docs/configuration/seed-openapi.json` | `REACT_APP_SEED_API_BASE_URL` |
+| **Position tracker** (universal positions, batch, export, some monitor) | **8183** | `frontend/docs/configuration/position-tracker-openapi.json` | `REACT_APP_SEED_POSITIONS_API_BASE_URL` |
 
-## Refresh (after Seed deploy)
+- **Live OpenAPI:** `{SEED_BASE}/openapi.json` and `{POSITIONS_BASE}/openapi.json`
+
+## Refresh (after backend deploy)
 
 ```bash
-# From repo root — uses prod default or pass your base
-./scripts/seed-prod-curl.sh "http://YOUR_SEED_HOST:PORT"
+SEED_HOST="${SEED_HOST:-203.57.85.201}"
+curl -sf "http://${SEED_HOST}:8182/openapi.json" -o frontend/docs/configuration/seed-openapi.json
+curl -sf "http://${SEED_HOST}:8183/openapi.json" -o frontend/docs/configuration/position-tracker-openapi.json
 
-# OpenAPI only
-curl -sf "http://YOUR_SEED_HOST:PORT/openapi.json" -o frontend/docs/configuration/seed-openapi.json
+# Optional: samples + health (see script)
+./scripts/seed-prod-curl.sh "http://${SEED_HOST}:8182"
 ```
 
 The curl script writes sample JSON under `logs/seed-prod-responses/` and fetches `openapi.json`.

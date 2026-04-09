@@ -38,9 +38,17 @@ export const API_CONFIG = {
   CHARTINK_AUTH_BASE_URL: process.env.REACT_APP_CHARTINK_AUTH_BASE_URL || 
                           (isProduction() ? 'http://algodiscovery.com:8081' : 'http://localhost:8081'),
 
-  // Seed service API URL (Seed Stocks Service - http://203.57.85.201:8182/docs)
+  // Seed service API URL (Seed Stocks Service - recommendations, arms, candidates, market-movers — http://203.57.85.201:8182/docs)
   SEED_API_BASE_URL: process.env.REACT_APP_SEED_API_BASE_URL ||
                      (isProduction() ? 'http://203.57.85.201:8182' : 'http://localhost:8282'),
+
+  /**
+   * Position tracker service (same prod host, port 8183): universal positions, batch, export, some monitor paths.
+   * OpenAPI: frontend/docs/configuration/position-tracker-openapi.json
+   */
+  SEED_POSITIONS_API_BASE_URL:
+    process.env.REACT_APP_SEED_POSITIONS_API_BASE_URL ||
+    (isProduction() ? 'http://203.57.85.201:8183' : 'http://localhost:8183'),
   // Seed v2 recommendations: GET /v2/recommendations?trade_type=&limit=&min_score= (no risk_level; see OpenAPI)
   SEED_V2_RECOMMENDATIONS_PATH: '/api/seed/recommendations',
 

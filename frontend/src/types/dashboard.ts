@@ -160,12 +160,34 @@ export interface TrackedPositionItem {
   unrealized_pnl: number | null;
 }
 
+/** Echo of universal positions query params (position-tracker). */
+export interface PositionFiltersApplied {
+  scenario?: string;
+  trade_type?: string | null;
+  status?: string | null;
+  outcome?: string | null;
+  source_arm?: string | null;
+  days?: number;
+  from_date?: string | null;
+  to_date?: string | null;
+  limit?: number;
+  offset?: number;
+  include?: string;
+}
+
 export interface PositionsSummaryResponse {
   total: number;
   open: number;
   closed: number;
+  /** Stop-loss exits in period (position-tracker universal summary). */
+  stops?: number | null;
+  /** Target exits in period (position-tracker universal summary). */
+  targets?: number | null;
+  wins?: number | null;
   outcome_distribution: Record<string, number> | null;
   arm_distribution: Record<string, number> | null;
+  /** Present on universal positions summary when backend sends it. */
+  trade_type_distribution?: Record<string, number> | null;
   win_rate_pct: number | null;
   avg_return_pct: number | null;
   avg_win_pct: number | null;
@@ -179,6 +201,8 @@ export interface PositionsSummaryResponse {
   total_gross_pnl: number | null;
   total_net_pnl: number | null;
   total_charges: number | null;
+  total_entry_charges?: number | null;
+  total_exit_charges?: number | null;
   total_capital_deployed: number | null;
   net_return_on_capital_pct: number | null;
   gap_exits: number | null;
@@ -187,10 +211,21 @@ export interface PositionsSummaryResponse {
 
 export interface PositionsResponse {
   category: string;
+  /**
+   * Total rows matching filters (`total_count` from universal API), not necessarily `positions.length`
+   * when paginated.
+   */
   count: number;
   /** May be null if client omitted `include=summary` or server returned list-only. */
   summary: PositionsSummaryResponse | null;
   positions: TrackedPositionItem[];
+  /** Universal positions: echo from position-tracker. */
+  period_days?: number | null;
+  filters_applied?: PositionFiltersApplied;
+  total_count?: number | null;
+  page_count?: number | null;
+  offset?: number | null;
+  generated_at?: string;
 }
 
 export interface UniverseScenarioHealth {
