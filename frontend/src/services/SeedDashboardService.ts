@@ -1,8 +1,8 @@
 /**
  * Seed Dashboard Service
  * ======================
- * Client for seed-stocks-service /api/v2/dashboard/* endpoints.
- * Uses SEED_API_BASE_URL from config (dev: localhost:8082, prod: VM:8182).
+ * HTTP client for Seed (recommendations/arms/candidates) and Position tracker (positions/batch/export).
+ * Uses SEED_API_BASE_URL (8182) and SEED_POSITIONS_API_BASE_URL (8183) from config — see position-tracker-openapi.json.
  */
 
 import { API_CONFIG } from '../config/api';
@@ -58,7 +58,8 @@ import type {
   SyncResultOutV2,
 } from '../types/apiModels';
 
-const BASE = API_CONFIG.SEED_API_BASE_URL;
+const SEED_BASE = API_CONFIG.SEED_API_BASE_URL;
+const POSITIONS_BASE = API_CONFIG.SEED_POSITIONS_API_BASE_URL;
 const DEFAULT_TIMEOUT_MS = 15_000;
 const SLOW_TIMEOUT_MS = 45_000;
 
@@ -73,23 +74,46 @@ const FAST_PATHS = new Set([
   '/api/v2/monitor/quick-stats',
 ]);
 
+/** Routes that run on position-tracker (8183) — see position-tracker-openapi.json */
+function resolveDashboardBase(path: string): string {
+  if (
+    path.startsWith('/api/v2/dashboard/positions') ||
+    path.startsWith('/api/v2/batch/') ||
+    path.startsWith('/api/v2/export/')
+  ) {
+    return POSITIONS_BASE;
+  }
+  if (
+    path.startsWith('/api/v2/monitor/learning-convergence') ||
+    path.startsWith('/api/v2/monitor/learning-health') ||
+    path.startsWith('/api/v2/monitor/performance-attribution') ||
+    path.startsWith('/api/v2/monitor/target-progression')
+  ) {
+    return POSITIONS_BASE;
+  }
+  return SEED_BASE;
+}
+
+function timeoutMsForPath(path: string): number {
+  if (SLOW_PATHS.has(path) || path.startsWith('/api/v2/batch/')) return SLOW_TIMEOUT_MS;
+  if (FAST_PATHS.has(path)) return FAST_TIMEOUT_MS;
+  return DEFAULT_TIMEOUT_MS;
+}
+
 async function fetchJSON<T>(
   path: string,
   params?: Record<string, string | number>,
   opts?: { method?: string; body?: unknown },
 ): Promise<T> {
-  const url = new URL(`${BASE}${path}`);
+  const base = resolveDashboardBase(path);
+  const url = new URL(`${base}${path}`);
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
     });
   }
 
-  const timeout = SLOW_PATHS.has(path)
-    ? SLOW_TIMEOUT_MS
-    : FAST_PATHS.has(path)
-      ? FAST_TIMEOUT_MS
-      : DEFAULT_TIMEOUT_MS;
+  const timeout = timeoutMsForPath(path);
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -485,7 +509,7 @@ export const seedDashboardService = {
       outcomes: '/api/v2/export/outcomes.json',
       'market-context': '/api/v2/export/market-context.csv',
     };
-    const url = new URL(`${BASE}${pathMap[type]}`);
+    const url = new URL(`${POSITIONS_BASE}${pathMap[type]}`);
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
